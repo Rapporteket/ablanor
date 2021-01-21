@@ -168,7 +168,7 @@ NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
 <br>
 
 
-```{r pagebreak_1, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -215,7 +215,7 @@ ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_t
 
 
 
-```{r pagebreak_2, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -335,7 +335,7 @@ knitr::kable(x = d_komp_TOTAL,
 <br>
 
 
-```{r pagebreak_3, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -503,7 +503,7 @@ d_komplikasjonar_pacemaker2 %>%
 ```
 
 
-```{r pagebreak_4, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -688,7 +688,7 @@ knitr::kable(
                      full_width = FALSE)
 ```
 
-```{r pagebreak_5, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
