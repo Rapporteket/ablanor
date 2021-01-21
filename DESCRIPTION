@@ -1,15 +1,27 @@
 Package: ablanor
-Title: What the Package Does (One Line, Title Case)
+Title: AblaNor- Rapporteket
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "Kristina",
-           family = "SKaare",
+Authors@R: c(
+  person(given = "Kristina",
+           family = "Skaare",
            role = c("aut", "cre"),
-           email = "kristina.skare@helse-bergen.no")
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+           email = "kristina.skare@helse-bergen.no"),
+  person(given = "Mary",
+         family = "Autenried",
+         role = c("aut"),
+         email = "mary.gerina.autenried@helse-bergen.no"),
+  person(given = "Are",
+         family = "Edvardsen",
+         role = c("aut"),
+         email = "biorakel@gmail.com",
+         comment = c(ORCID = "0000-0002-5210-3656")))
+Description: Ymse funksjonar som kan brukast til å skriva
+    rapportar og gjera analysar for AblaNor (Nasjonalt register
+    for ablasjonsbehandling og elektrofysiologi i Norge).
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
+Suggests: 
+    testthat
