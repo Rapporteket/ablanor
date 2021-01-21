@@ -1,0 +1,45 @@
+---
+title: "Veiledning"
+params:
+  title: "Emty tite"
+  author: "Anon author"
+  hospitalName: "Ukjent sykehus"
+  tableFormat: "html"
+  reshId: "999999"
+author: "AblaNor"
+date: '`r format(Sys.time(), "%d. %B %Y")`'
+
+---
+
+## Rapporteket for AblaNor `r params$hospitalName`
+
+
+
+### Utforsker
+
+__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) eller "Lokal koordinator" (LC) i Rapporteket.__
+
+Denne siden inneholder en løsnings som benytter en R-pakke som heter `rpivotTable`.
+  
+Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
+Man kan i tillegg finne mer informasjon om pakken på [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
+
+__Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
+    
+  
+
+### Månedsrapporter
+
+Månedsrapportene inneholder oppsummeringer av viktige aktiviteter det siste året.  
+Du kan få tilsendt rapportene automatisk per e-post (se Abonnement).
+
+
+Dersom man er logget inn som "Lokal koordinator" (LC) vil man få en månedsrapport for hele enheten.
+
+Dersom man er logget inn som "Lokal bruker" (LU) vil man få en rapport for sin egen aktivitet.
+
+
+### Abonnement
+
+Her kan du administrere dine abonnement på månedsrapportene.  
+Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format (html eller pdf).
