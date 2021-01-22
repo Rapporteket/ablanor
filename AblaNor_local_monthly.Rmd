@@ -133,7 +133,9 @@ Denne rapporten er generert via Rapporteket for AblaNor av brukeren
 `r format(Sys.time(), '%d %B, %Y')` og er enten manuelt nedlastet eller 
 automatisk tilsent  av abonnementstenesten til Rapporteket.   
 
-Denne rapporten inneholder alle forløp registrert av  `r params$author` de siste
+Bare forløp som har resultert i en prosedyre (eventulet en avbrutt prosedyre) 
+blir analysert her. Denne rapporten inneholder alle forløp registrert 
+av  `r params$author` de siste
 `r showN` månedene, der første og siste forløp i denne perioden er :
 `r paste0(range(d_ablanor$dato_pros), collapse =" og ")`.  <br>
 I denne perioden har `r params$author` registrert `r nrow(d_ablanor)` forløp, 
@@ -155,7 +157,9 @@ Denne rapporten er generert via Rapporteket for AblaNor av brukeren
 den `r format(Sys.time(), '%d %B, %Y')`  og er enten manuelt nedlastet eller
 automatisk tilsent  av abonnementstenesten til Rapporteket.  
 
-Denne rapporten inneholder alle forløp registret ved `r params$hospitalName` de 
+Bare forløp som har resultert i en prosedyre (eventulet en avbrutt prosedyre) 
+blir analysert her. Denne rapporten inneholder alle forløp registret
+ved `r params$hospitalName` de 
 `r showN` siste månedene. Første og siste forløp i denne perioden er :
 `r paste0(range(d_ablanor$dato_pros), collapse =" og ")`.  <br>
 
