@@ -28,7 +28,7 @@ test_that("Tester aggreger ki_prop", {
 
  expect_equal(x_out$est, c(1,0))
  expect_equal(x_out$ki_teller, c(2,0))
-  expect_equal(x_out$ki_nevner, c(2,2))
+ expect_equal(x_out$ki_nevner, c(2,2))
  expect_equal(x_out$grpVar, c("a", "b"))
 
 })

@@ -20,22 +20,22 @@ aggreger_ki_prop <- function(d_ki_ind, alfa = 0.05, forenklet = FALSE) {
   if (forenklet == FALSE) {
     if (!(is.data.frame(d_ki_ind) &&
           all(c("ki_krit_teller", "ki_krit_nevner") %in% names(d_ki_ind)))) {
-      stop("Inndata må være tibble/data.frame med kolonnene
+      stop("Inndata maa vaere tibble/data.frame med kolonnene
            'ki_krit_teller' og 'ki_krit_nevner'")
     }
     if (!(is.logical(d_ki_ind$ki_krit_teller) &&
           is.logical(d_ki_ind$ki_krit_nevner))) {
-      stop("Kriterievariablene må være boolsk")
+      stop("Kriterievariablene maa være boolsk")
     }
     if (!all(d_ki_ind$ki_krit_nevner %in% c(T, F))) {
-      stop("'ki_krit_nevner' må være TRUE eller FALSE")
+      stop("'ki_krit_nevner' maa være TRUE eller FALSE")
     }
     if (!all((d_ki_ind$ki_krit_teller %in% c(F, T, NA)) &
              ((d_ki_ind$ki_krit_teller %in% c(F, T) &
                d_ki_ind$ki_krit_nevner == T) |
               (d_ki_ind$ki_krit_teller %in% c(F, NA) &
                d_ki_ind$ki_krit_nevner == F)))) {
-      stop("'ki_krit_teller' må være TRUE eller FALSE hvis 'ki_krit_nevner' er
+      stop("'ki_krit_teller' maa vaere TRUE eller FALSE hvis 'ki_krit_nevner' er
            TRUE, og FALSE eller NA hvis 'ki_krit_nevner' er FALSE")
     }
     if (any(lengths(attr(d_ki_ind, "groups")$.rows) == 0)) {
