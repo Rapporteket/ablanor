@@ -119,7 +119,8 @@ if(params$userRole == "LC"){
 
 
 `r if(params$registryName !="test_ablanor_lokalt") {"<!--"}`
-(NB foreløpig er dette en test-versjon av rapportetket, på datadump(csv fil) fra januar 2021).
+(Denne rapporten er laget i test-versjon av rapporteket, basert på datadump 
+i CSV format.
 <br>
 <br>
  `r  if(params$registryName !="test_ablanor_lokalt")  {"-->"}`
@@ -168,7 +169,7 @@ NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
 <br>
 
 
-```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak4, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -215,7 +216,7 @@ ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_t
 
 
 
-```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak5, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -335,7 +336,7 @@ knitr::kable(x = d_komp_TOTAL,
 <br>
 
 
-```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak1, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -503,7 +504,7 @@ d_komplikasjonar_pacemaker2 %>%
 ```
 
 
-```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak2, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -688,7 +689,7 @@ knitr::kable(
                      full_width = FALSE)
 ```
 
-```{r pagebreak, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak3, results = "asis", eval = (params$tableFormat == "latex")}
   cat("\n\n\\pagebreak\n")
 ```
 
