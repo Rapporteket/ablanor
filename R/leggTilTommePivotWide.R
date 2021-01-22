@@ -27,7 +27,7 @@ leggTilTomme_PivotWide <- function(data, remove_NAcols = TRUE) {
   #  check if variable names are maaned, legend and value
   if (!(is.data.frame(data) &&
         all(c("maaned", "legend", "value") %in% names(data)))) {
-    stop("Inndata må være tibble/data.frame med kolonnene 'maaned',
+    stop("Inndata maa vaere tibble/data.frame med kolonnene 'maaned',
          'legend' og 'value'")
   }
 
@@ -37,8 +37,8 @@ leggTilTomme_PivotWide <- function(data, remove_NAcols = TRUE) {
   data_out <- data %>%
    dplyr::full_join(., all_combinations, by = c("maaned", "legend")) %>%
    tidyr::replace_na(list(value = " -- ")) %>%
-   dplyr::arrange(legend) %>%
-   dplyr::arrange(maaned) %>%
+   dplyr::arrange(.data$legend) %>%
+   dplyr::arrange(.data$maaned) %>%
    tidyr::pivot_wider(names_from = .data$legend, values_from = .data$value)
 
 

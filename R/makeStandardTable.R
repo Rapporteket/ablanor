@@ -27,8 +27,9 @@
 #' Default value is 14
 #' @param lsd Logical if table is to be scaled down. Only apply for LaTeX
 #' output. FALSE by default
-#' @param add_totals Logical if a column of sums is to be added to the table.
-#' Defaults to FALSE
+#' @param full_width Logical, if table should use full page width. FALSE by
+#' default
+
 #'
 #' @return Character string containing RMarkdown table code or an R data object
 #' @name makeStandardTable
