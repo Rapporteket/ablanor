@@ -25,3 +25,19 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
     testthat
+Imports: 
+    dplyr,
+    magrittr,
+    tidyr,
+    lubridate, 
+    shiny, 
+    knitr, 
+    kableExtra, 
+    rpivotTable, 
+    rmarkdown, 
+    rapbase, 
+    raplog, 
+    stringr,
+    rlang, 
+    binom, 
+    tidyselect
