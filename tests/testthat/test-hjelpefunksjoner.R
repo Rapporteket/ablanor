@@ -25,6 +25,6 @@ test_that("Kontroll forløpstype kortnavn", {
 })
 
 test_that("String pad works", {
-  expect_equal(string_pad(string_vector = c("Ja", "Nei", "Kanskje")),
+  expect_equal(ablanor::string_pad(string_vector = c("Ja", "Nei", "Kanskje")),
                c("  Ja   ", "  Nei  ", "Kanskje"))
 })
