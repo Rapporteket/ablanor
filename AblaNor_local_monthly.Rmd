@@ -388,52 +388,63 @@ i undergrupper.
 
 d_akuttSuksess_tot <- d_ablanor %>%
   dplyr::select(abla_strat_ingen, akutt_suksess, maaned) %>%
-  dplyr::group_by(maaned) %>%
+  dplyr::group_by(maaned, .drop = FALSE) %>%
   ablanor::ki_akutt_suksess() %>%
-  ablanor::aggreger_ki_prop() %>%
+  ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
   dplyr::transmute(maaned = maaned,
             Totalt = paste0(ki_teller, "/", ki_nevner)) %>%
+  dplyr::mutate(Totalt = dplyr::recode(Totalt, 
+                                      "0/0" = " -- ")) %>% 
   dplyr::ungroup()
 
 
 d_akuttSuksess_forlop <- d_ablanor %>%
   dplyr::select(forlopstype, abla_strat_ingen, akutt_suksess, maaned) %>%
   ablanor::ki_akutt_suksess() %>%
-  dplyr::group_by(forlopstype, maaned) %>%
-  ablanor::aggreger_ki_prop() %>%
-  ablanor::legg_til_forlopstype_kortnavn() %>%
+  dplyr::group_by(forlopstype, maaned, .drop=FALSE) %>%
+  ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
   dplyr::transmute(maaned = maaned,
-            legend = forlopstype_tekst,
+            legend = forlopstype,
             value = paste0(ki_teller, "/", ki_nevner)) %>%
-  dplyr::ungroup() %>%  
-  dplyr::select(-forlopstype) %>% 
-  ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
+   dplyr::ungroup() %>%  
+  dplyr::select(-forlopstype) %>%
+  dplyr::mutate(value = dplyr::recode(value, 
+                                      "0/0" = " -- ")) %>% 
+  ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+  dplyr::rename("AFLI" = "1",
+                "VT" = "2", 
+                "SVT" = "3", 
+                "EFU" = "4")
 
-d_akutt_suksess_AFLI_icd = d_ablanor %>%
+d_akutt_suksess_AFLI_icd <- d_ablanor %>%
   dplyr::select(kategori_afli_aryt_i48,abla_strat_ingen, akutt_suksess, maaned) %>%
   dplyr::filter(!is.na(kategori_afli_aryt_i48)) %>%
   ablanor::ki_akutt_suksess() %>%
-  dplyr::group_by(kategori_afli_aryt_i48, maaned) %>%
-  ablanor::aggreger_ki_prop() %>%
+  dplyr::group_by(kategori_afli_aryt_i48, maaned, .drop = FALSE) %>%
+  ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
   dplyr::transmute(maaned = maaned,
             legend = kategori_afli_aryt_i48,
             value = paste0(ki_teller, "/", ki_nevner)) %>%
   dplyr::ungroup() %>% 
   dplyr::select(-kategori_afli_aryt_i48) %>%
+  dplyr::mutate(value = dplyr::recode(value, 
+                                      "0/0" = " -- ")) %>% 
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
 
 
-d_akutt_suksess_VT<- d_ablanor %>%
+d_akutt_suksess_VT <- d_ablanor %>%
   dplyr::select(forlopstype, kategori_vt_kardiomyopati, abla_strat_ingen, akutt_suksess, maaned) %>%
   dplyr::filter(forlopstype == 2) %>%
   ablanor::ki_akutt_suksess() %>%
-  dplyr::group_by(kategori_vt_kardiomyopati, maaned) %>%
-  ablanor::aggreger_ki_prop() %>%
+  dplyr::group_by(kategori_vt_kardiomyopati, maaned, .drop = FALSE) %>%
+  ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
   dplyr::transmute(maaned = maaned,
             legend = kategori_vt_kardiomyopati,
             value = paste0(ki_teller, "/", ki_nevner)) %>%
   dplyr::ungroup() %>%  
   dplyr::select(- kategori_vt_kardiomyopati) %>% 
+  dplyr::mutate(value = dplyr::recode(value,
+                                      "0/0" = " -- ")) %>% 
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
 
 
@@ -474,16 +485,9 @@ Andel forløp med AV-blokk med pacemakerimplantasjon som følge av operasjonen.
 d_komplikasjonar_pacemaker <- d_ablanor %>%
   dplyr::select(maaned, komp_avblokk_pm) %>%
   ablanor::ki_komplikasjonar_pacemaker() %>%
-  dplyr::group_by(maaned) %>%
-  ablanor::aggreger_ki_prop() %>% 
+  dplyr::group_by(maaned, .drop = FALSE) %>%
+  ablanor::aggreger_ki_prop(., forenklet = TRUE) %>% 
   select(maaned, ki_teller, ki_nevner)
-
-d_komplikasjonar_pacemaker2 <- left_join(
-  d_komplikasjonar_pacemaker %>% tidyr::expand(., maaned), 
-  d_komplikasjonar_pacemaker,
-  by = "maaned") %>% 
-  tidyr::replace_na(., list(ki_teller = 0, ki_nevner = 0)) %>% 
-  arrange(maaned)
 
 
 d_komplikasjonar_pacemaker_tot <- d_ablanor %>%
@@ -494,13 +498,17 @@ d_komplikasjonar_pacemaker_tot <- d_ablanor %>%
 
 
 
-d_komplikasjonar_pacemaker2 %>%
+d_komplikasjonar_pacemaker %>%
   tibble::add_row(maaned = "Totalt", d_komplikasjonar_pacemaker_tot) %>%
   dplyr::transmute(Måned = maaned,
             Andel = paste0(ki_teller, "/",
                            ki_nevner),
             Prosent = paste0(round(ki_teller / ki_nevner * 100, 1),
                             "%")) %>%
+  dplyr::mutate(Andel = dplyr::recode(Andel, 
+                                      "0/0" = " -- ")) %>% 
+  dplyr::mutate(Prosent = dplyr::recode(Prosent, 
+                                        "NaN%" = " -- ")) %>% 
   ablanor::mst(., type = params$tableFormat,
       digs = 1,
       align = "lcc",
