@@ -20,7 +20,8 @@
 getPivotDataSet <- function(setId = "",
                             registryName,
                             session,
-                            singleRow = FALSE) {
+                            singleRow = FALSE,
+                            reshId = NULL) {
 
   validSetId <- c("pros_patient", "rand12")
 
@@ -37,8 +38,14 @@ getPivotDataSet <- function(setId = "",
       # , tekstVars = TRUE) @fixme
     }
 
+    # Filtrere på sykehus (skjer dette automatisk ?)
+    dat %<>% dplyr::filter(as.numeric(centreid) == reshId)
+
+
   } else {
     dat <- NULL
   }
+
+
   dat
 }

@@ -35,11 +35,13 @@ shinyServer(function(input, output, session) {
     # userOperator <- ? #@fixme
   } else {
     ### if need be, define your (local) values here
-    reshId <- 0
-    hospitalName <- "HUS"
-    userFullName <- "tester bruker"  # tester rapport per bruker
-    userOperator <- "operatorNummer"
-    userRole <- "LU"
+
+    readRenviron("H:/data/.Renviron")
+    reshId <- Sys.getenv("Test_reshId")
+    hospitalName <- Sys.getenv("Test_hospitalName")
+    userFullName <- "tester PETER"  # tester rapport per bruker
+    userOperator<- Sys.getenv("Test_operator")
+    userRole <- "LC"
     registryName <- "test_ablanor_lokalt"
     author <- userFullName
 
@@ -188,7 +190,8 @@ shinyServer(function(input, output, session) {
 
   dat <- reactive({
     getPivotDataSet(setId = input$selectedDataSet,
-                    registryName = registryName)
+                    registryName = registryName,
+                    reshId = reshId)
   })
 
 
