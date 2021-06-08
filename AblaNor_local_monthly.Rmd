@@ -198,7 +198,7 @@ Figuren under viser antall forløp per måned de `r showN` siste månedene.
 ```{r type_forlop_fig, fig.cap = "Andel forløp per måned.", fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
 
 d_forlop_mnd <- d_ablanor %>%
-  count(maaned, forlopstype, .drop = FALSE) %>%
+  dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
   ablanor::legg_til_forlopstype_kortnavn() %>% 
   dplyr::mutate(n_uten0 = case_when(n == 0 ~ "",
                              n != 0 ~ as.character(n))) %>% 

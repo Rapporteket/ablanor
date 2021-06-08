@@ -122,7 +122,8 @@ getProsPatientData <- function(registryName,
     dplyr::left_join(., d_patientlist,
                      by = c("patient_id" = "id")) %>%
     dplyr::left_join(., d_basereg %>%
-                       dplyr::select(!tidyselect::starts_with("aryt_i")),
+                       dplyr::select(!tidyselect::starts_with("aryt_i"),
+                                     -dato_pros),
                      by = c("mceid", "centreid"))
 
   # Sjekk at ingen variabel-navn teller dobbelt.

@@ -23,7 +23,7 @@ ki_komplikasjonar <- function(df) {
 #' @export
 ki_komplikasjonar_pacemaker <- function(df) {
   df %>%
-    dplyr::mutate(ki_krit_teller = .data$komp_avblokk_pm,
+    dplyr::mutate(ki_krit_teller = .data$komp_avblokk_pm == 1,
                   ki_krit_nevner = !is.na(.data$komp_avblokk_pm))
 }
 
@@ -35,7 +35,7 @@ ki_komplikasjonar_pacemaker <- function(df) {
 #' @export
 ki_komplikasjonar_tamponade <- function(df) {
   df %>%
-    dplyr::mutate(ki_krit_teller = .data$komp_tamp,
+    dplyr::mutate(ki_krit_teller = .data$komp_tamp == 1,
                   ki_krit_nevner = !is.na(.data$komp_tamp))
 }
 

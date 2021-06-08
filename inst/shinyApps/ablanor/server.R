@@ -39,7 +39,7 @@ shinyServer(function(input, output, session) {
     readRenviron("H:/data/.Renviron")
     reshId <- Sys.getenv("Test_reshId")
     hospitalName <- Sys.getenv("Test_hospitalName")
-    userFullName <- "tester PETER"  # tester rapport per bruker
+    userFullName <- "Test Testersen"  # tester rapport per bruker
     userOperator<- Sys.getenv("Test_operator")
     userRole <- "LC"
     registryName <- "test_ablanor_lokalt"
