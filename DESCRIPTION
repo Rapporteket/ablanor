@@ -41,3 +41,5 @@ Imports:
     rlang, 
     binom, 
     tidyselect
+URL: https://github.com/skkrist/ablanor
+BugReports: https://github.com/skkrist/ablanor/issues
