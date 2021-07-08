@@ -32,6 +32,4 @@ Please provide any comments (e.g. on proposed enhancements, shortcomings, errors
 Contributors submit their code by branchin from the main branch and issuing a pull request. After acceptance by peer review the pull request may be merged to the main branch. Changes that are accepted in TEST and/or QA environments may be tagged as a new release of th  the package.
 
 ## Ethics
-Please note that the 'ablanor' project is released with a
-[Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this
-project, you agree to abide by its terms.
+Please note that the ablanor project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
