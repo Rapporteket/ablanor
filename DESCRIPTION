@@ -41,5 +41,5 @@ Imports:
     tidyselect
 Remotes:
   Rapporteket/rapbase
-URL: https://github.com/skkrist/ablanor
-BugReports: https://github.com/skkrist/ablanor/issues
+URL: https://github.com/rapporteket/ablanor
+BugReports: https://github.com/rapporteket/ablanor/issues
