@@ -27,10 +27,12 @@ shinyServer(function(input, output, session) {
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     reshId <- rapbase::getUserReshId(session)
-    hospitalName <- noric::getHospitalName(reshId)
+    hospitalName <- ablanor::get_hospital_name(reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
-    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    #registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    registryName <- "ablanor"
+    userOperator <- "Test Operatoresen"
     author <- userFullName
     # userOperator <- ? #@fixme
   } else {
