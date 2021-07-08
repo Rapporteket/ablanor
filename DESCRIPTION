@@ -40,6 +40,6 @@ Imports:
     binom,
     tidyselect
 Remotes:
-  Rapporteket/rapbase
+  Rapporteket/rapbase@*release
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
