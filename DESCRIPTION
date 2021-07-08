@@ -29,17 +29,17 @@ Imports:
     dplyr,
     magrittr,
     tidyr,
-    lubridate, 
-    shiny, 
-    knitr, 
-    kableExtra, 
-    rpivotTable, 
-    rmarkdown, 
-    rapbase, 
-    raplog, 
+    lubridate,
+    shiny,
+    knitr,
+    kableExtra,
+    rpivotTable,
+    rmarkdown,
     stringr,
-    rlang, 
-    binom, 
+    rlang,
+    binom,
     tidyselect
+Remotes:
+  Rapporteket/rapbase
 URL: https://github.com/skkrist/ablanor
 BugReports: https://github.com/skkrist/ablanor/issues
