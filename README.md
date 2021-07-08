@@ -15,7 +15,11 @@ Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge
 You can install the released version of Ablanor from [GitHub](https://github.com/Rapporteket/ablanor) with:
 
 ``` r
-remotes::install_github("Rapporteket/ablanor", ref = "master")
+remotes::install_github("Rapporteket/rapbase@*release")
+```
+The latest development version can be installed with
+```r
+remotes::install_github("Rapporteket/rapbase")
 ```
 
 ## Usage
@@ -25,11 +29,9 @@ Please provide any comments (e.g. on proposed enhancements, shortcomings, errors
 
 
 ## Develop
-Contributors submit their code to the rel (release) branch which is
-subject to testing at Rapporteket. Upon acceptance rel will me merged to
-the master branch and tagged.
+Contributors submit their code by branchin from the main branch and issuing a pull request. After acceptance by peer review the pull request may be merged to the main branch. Changes that are accepted in TEST and/or QA environments may be tagged as a new release of th  the package.
 
 ## Ethics
-Please note that the 'noric' project is released with a
+Please note that the 'ablanor' project is released with a
 [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this
 project, you agree to abide by its terms.
