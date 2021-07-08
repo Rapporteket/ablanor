@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^docker-compose.yml$
+^\.github$
+^.lintr$
+^codecov.yml$
