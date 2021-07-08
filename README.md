@@ -1,4 +1,12 @@
-
+<!-- badges: start -->
+[![Version](https://img.shields.io/github/v/release/rapporteket/ablanor?sort=semver)](https://github.com/rapporteket/ablanor/releases)
+[![R build status](https://github.com/rapporteket/ablanor/workflows/R-CMD-check/badge.svg)](https://github.com/rapporteket/ablanor/actions)
+[![Codecov test coverage](https://codecov.io/gh/Rapporteket/ablanor/branch/main/graph/badge.svg)](https://codecov.io/gh/Rapporteket/ablanor?branch=main)
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub open issues](https://img.shields.io/github/issues/rapporteket/ablanor.svg)](https://github.com/rapporteket/ablanor/issues)
+[![Doc](https://img.shields.io/badge/Doc--grey.svg)](https://rapporteket.github.io/ablanor/)
+<!-- badges: end -->
 # AblaNor
 Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge
 
