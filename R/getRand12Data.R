@@ -81,12 +81,10 @@ getRand12Data <- function(registryName,
   # pasientdatasettet og andre datasett).
   # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
   # finst vert tekne med.
-  # KRISTINA: variabelnavnene i databasen er stort sett CAPS så da må nok koden
-  # under oppdateres
 
   d_rand12_ut <- d_pros %>%
-    dplyr::select(.data$mceid, .data$centreid) %>%
-    dplyr::left_join(., d_rand12, by = c("mceid", "centreid"))
+    dplyr::select(.data$MCEID, .data$CENTREID) %>%
+    dplyr::left_join(., d_rand12, by = c("MCEID", "CENTREID"))
 
 
   d_rand12_ut
