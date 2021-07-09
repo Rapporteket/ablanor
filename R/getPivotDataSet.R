@@ -39,7 +39,8 @@ getPivotDataSet <- function(setId = "",
     }
 
     # Filtrere på sykehus (skjer dette automatisk ?)
-    dat %<>% dplyr::filter(as.numeric(centreid) == reshId)
+    dat %<>%
+      dplyr::filter(as.numeric(.data$centreid) == reshId)
 
 
   } else {
