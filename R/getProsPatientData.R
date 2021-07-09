@@ -10,8 +10,7 @@
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
 #' @export
-#'
-#' @examples
+
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
                                tekstVars = FALSE) {

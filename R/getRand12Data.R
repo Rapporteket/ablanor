@@ -10,8 +10,7 @@
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
 #' @export
-#'
-#' @examples
+
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
                           tekstVars = FALSE) {
