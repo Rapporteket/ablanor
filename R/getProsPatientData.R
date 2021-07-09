@@ -7,6 +7,7 @@
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
 #' @param tekstVars legge til tekstvariabler hentet fra kodebok for kategoriske
 #' variabler eller fra tabeller med tekst/labels for kategoriske variabler
+#' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
 #' @export
@@ -23,30 +24,40 @@ getProsPatientData <- function(registryName,
 
   } else {
 
+    dbType <- "mysql"
     ## SQL SPØRRING :
     # SPM ARE : Hva heter databasen til Basereg? Basisregisteret.
     # BLIR DETTE RIKTIG ?
-    dbType <- "mysql"
     query_basereg <- "
-    SELECT *
-    FROM  BASEREG (?)
+    SELECT
+      *
+    FROM
+      basreg;
     "
 
     # SPM ARE : Hva heter databasen til Prosedyrene?  BLIR DETTE RIKTIG ?
     query_procedure <- "
-    SELECT *
-    FROM  PROSEDYRE (?)
+    SELECT
+      *
+    FROM
+      pros;
     "
     # SPM ARE : Hva heter databasen til MCE?  BLIR DETTE RIKTIG ?
     query_mce <- "
-    SELECT mceid patient_id stat
-    FROM  MCE (?)
+    SELECT
+      MCEID,
+      PATIENT_ID,
+      STATUS
+    FROM
+      mce;
     # "
 
     # SPM ARE : Hva heter databasen til PATIENTLIST?  BLIR DETTE RIKTIG ?
     query_patientlist <- "
-    SELECT *
-    FROM  PATIENTLIST (?)
+    SELECT
+      *
+    FROM
+      patientlist;
     "
 
     if(singleRow) {
@@ -77,7 +88,7 @@ getProsPatientData <- function(registryName,
     # NB Skjer bare når session sendes inn til funksjonen som et vilkårlig
     # argument (...)
     if ("session" %in% names(list(...))) {
-      rapbase::repLogger(session = list(...)[["session"]], msg = msg_basreg)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_basereg)
       d_basereg <- rapbase::loadRegData(registryName, query_basereg, dbType)
       rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
       d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
@@ -102,6 +113,8 @@ getProsPatientData <- function(registryName,
   # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)
   # intersect(names(d_pros), names(d_basereg)) # samme variabel-navn.
   # Vi angir en prefix for å få med variablene fra begge tabellene
+  # KRISTINA: variabelnavnene i databasen er stort sett CAPS så da må nok koden
+  # under oppdateres
   d_basereg %<>%
     dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
                      function(x) {
@@ -135,7 +148,7 @@ getProsPatientData <- function(registryName,
                      by = c("patient_id" = "id")) %>%
     dplyr::left_join(., d_basereg %>%
                        dplyr::select(!tidyselect::starts_with("aryt_i"),
-                                     -dato_pros),
+                                     -.data$dato_pros),
                      by = c("mceid", "centreid"))
 
   # Sjekk at ingen variabel-navn teller dobbelt.

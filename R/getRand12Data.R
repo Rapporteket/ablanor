@@ -7,6 +7,7 @@
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
 #' @param tekstVars legge til tekstvariabler hentet fra kodebok for kategoriske
 #' variabler TO DO
+#' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
 #' @export
@@ -22,17 +23,22 @@ getRand12Data <- function(registryName,
     load(file = Sys.getenv("filbane_ablanor_test"))
 
   } else {
+    dbType <- "mysql"
     ## SQL SPØRRING :
 
     # SPM ARE : Hva heter databasen til Prosedyrene?  BLIR DETTE RIKTIG ?
     query_procedure <- "
-    SELECT *
-    FROM  PROSEDYRE (?)
+    SELECT
+      *
+    FROM
+      pros;
     "
     # SPM ARE : Hva heter databasen til rand12?  BLIR DETTE RIKTIG ?
     query_rand12 <- "
-    SELECT *
-    FROM  rand12 (?)
+    SELECT
+      *
+    FROM
+      rand12;
     "
 
     if(singleRow) {
@@ -75,8 +81,11 @@ getRand12Data <- function(registryName,
   # pasientdatasettet og andre datasett).
   # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
   # finst vert tekne med.
+  # KRISTINA: variabelnavnene i databasen er stort sett CAPS så da må nok koden
+  # under oppdateres
 
-  d_rand12_ut <- d_pros %>% select(mceid, centreid) %>%
+  d_rand12_ut <- d_pros %>%
+    dplyr::select(.data$mceid, .data$centreid) %>%
     dplyr::left_join(., d_rand12, by = c("mceid", "centreid"))
 
 

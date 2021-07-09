@@ -11,6 +11,7 @@
 #' @param registryName String providing registry name.
 #' @param session List shiny session object.
 #' @param singleRow Logical defining if only one row is to be returned.
+#' @param reshId Integer organization id
 #'
 #' @return data frame
 #' @export
