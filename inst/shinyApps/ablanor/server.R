@@ -18,10 +18,10 @@ library(dplyr)
 library(rmarkdown)
 
 
-shinyServer(function(input, output, session) {
+server <- function(input, output, session) {
 
 
-  # raplog::appLogger(session = session, msg = "Starting AblaNor application")
+  rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
@@ -376,4 +376,4 @@ shinyServer(function(input, output, session) {
     rapbase::deleteAutoReport(selectedRepId)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
-})
+}
