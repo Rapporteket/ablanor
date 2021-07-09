@@ -194,6 +194,7 @@ server <- function(input, output, session) {
   dat <- reactive({
     getPivotDataSet(setId = input$selectedDataSet,
                     registryName = registryName,
+                    session = session,
                     reshId = reshId)
   })
 
