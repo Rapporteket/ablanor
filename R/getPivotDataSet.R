@@ -29,13 +29,15 @@ getPivotDataSet <- function(setId = "",
   if (setId %in% validSetId) {
 
     if (setId == "rand12") {
-      dat <- getRand12Data(registryName = registryName,
-                           singleRow = singleRow)
+      dat <- ablanor::getRand12Data(registryName = registryName,
+                                    singleRow = singleRow,
+                                    session = session)
       # , tekstVars = TRUE) @fixme
     }
     if (setId == "pros_patient") {
-      dat <- getProsPatientData(registryName = registryName,
-                                singleRow = singleRow)
+      dat <- ablanor::getProsPatientData(registryName = registryName,
+                                         singleRow = singleRow,
+                                         session = session)
       # , tekstVars = TRUE) @fixme
     }
 
