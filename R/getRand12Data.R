@@ -13,7 +13,8 @@
 
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
-                          tekstVars = FALSE) {
+                          tekstVars = FALSE,
+                          ...) {
   . <- ""
 
   if (registryName == "test_ablanor_lokalt") {
@@ -47,12 +48,19 @@ getRand12Data <- function(registryName,
     }
 
     #   ARE : Hva er denne koden til? Tilpasse til 2 spørringer ?
+    # SVAR: For logging hver gang det hentes ut data. Kan her gjøres felles for
+    # alle spørringer eller for hver enkelt spørring (som i dette tilfellet).
+    # NB Skjer bare når session sendes inn til funksjonen som et vilkårlig
+    # argument (...)
     if ("session" %in% names(list(...))) {
-      raplog::repLogger(session = list(...)[["session"]], msg = msg)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
+      d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_rand12)
+      d_rand12 <- rapbase::loadRegData(registryName, query_rand12, dbType)
+    } else {
+      d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
+      d_rand12 <- rapbase::loadRegData(registryName, query_rand12, dbType)
     }
-
-    d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
-    d_rand12 <- rapbase::loadRegData(registryName, query_rand12, dbType)
   }
 
 

@@ -13,7 +13,8 @@
 
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               tekstVars = FALSE) {
+                               tekstVars = FALSE,
+                               ...) {
   . <- ""
 
   if (registryName == "test_ablanor_lokalt") {
@@ -71,15 +72,27 @@ getProsPatientData <- function(registryName,
     }
 
     # ARE : Hva er denne koden til? Tilpasse til 4 spørringer ?
+    # SVAR: For logging hver gang det hentes ut data. Kan her gjøres felles for
+    # alle spørringer eller for hver enkelt spørring (som i dette tilfellet).
+    # NB Skjer bare når session sendes inn til funksjonen som et vilkårlig
+    # argument (...)
     if ("session" %in% names(list(...))) {
-      raplog::repLogger(session = list(...)[["session"]], msg = msg)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_basreg)
+      d_basereg <- rapbase::loadRegData(registryName, query_basereg, dbType)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
+      d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_mce)
+      d_mce <- rapbase::loadRegData(registryName, query_mce, dbType)
+      rapbase::repLogger(session = list(...)[["session"]],
+                         msg = msg_patientlist)
+      d_patientlist <- rapbase::loadRegData(registryName, query_patientlist,
+                                            dbType)
+    } else {
+      d_basereg <- rapbase::loadRegData(registryName, query_basereg, dbType)
+      d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
+      d_mce <- rapbase::loadRegData(registryName, query_mce, dbType)
+      d_patientlist <- rapbase::loadRegData(registryName, query_patientlist, dbType)
     }
-
-    d_basereg <- rapbase::loadRegData(registryName, query_basereg, dbType)
-    d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
-    d_mce <- rapbase::loadRegData(registryName, query_mce, dbType)
-    d_patientlist <- rapbase::loadRegData(registryName, query_patientlist, dbType)
-
   }
 
 
