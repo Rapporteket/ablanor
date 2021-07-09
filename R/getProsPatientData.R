@@ -32,7 +32,7 @@ getProsPatientData <- function(registryName,
     SELECT
       *
     FROM
-      basreg;
+      basreg
     "
 
     # SPM ARE : Hva heter databasen til Prosedyrene?  BLIR DETTE RIKTIG ?
@@ -40,7 +40,7 @@ getProsPatientData <- function(registryName,
     SELECT
       *
     FROM
-      pros;
+      pros
     "
     # SPM ARE : Hva heter databasen til MCE?  BLIR DETTE RIKTIG ?
     query_mce <- "
@@ -49,7 +49,7 @@ getProsPatientData <- function(registryName,
       PATIENT_ID,
       STATUS
     FROM
-      mce;
+      mce
     # "
 
     # SPM ARE : Hva heter databasen til PATIENTLIST?  BLIR DETTE RIKTIG ?
@@ -57,7 +57,7 @@ getProsPatientData <- function(registryName,
     SELECT
       *
     FROM
-      patientlist;
+      patientlist
     "
 
     if(singleRow) {

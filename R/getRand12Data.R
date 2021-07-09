@@ -31,14 +31,14 @@ getRand12Data <- function(registryName,
     SELECT
       *
     FROM
-      pros;
+      pros
     "
     # SPM ARE : Hva heter databasen til rand12?  BLIR DETTE RIKTIG ?
     query_rand12 <- "
     SELECT
       *
     FROM
-      rand12;
+      rand12
     "
 
     if(singleRow) {
