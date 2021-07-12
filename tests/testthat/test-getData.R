@@ -43,20 +43,21 @@ if (is.null(check_db(is_test_that = FALSE))) {
   )
   DBI::dbExecute(con, "CREATE DATABASE testDb;")
   DBI::dbDisconnect(con)
-
-  test_config <- paste0(
-    "testReg:",
-    "\n  host : ", Sys.getenv("DB_HOST"),
-    "\n  name : testDb",
-    "\n  user : ", Sys.getenv("DB_USER"),
-    "\n  pass : ", Sys.getenv("DB_PASS"),
-    "\n  disp : ephemaralUnitTesting\n"
-  )
-  Sys.setenv(R_RAP_CONFIG_PATH = tempdir())
-  cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "dbConfig.yml"))
-  writeLines(test_config, cf)
-  close(cf)
 }
+
+# make temporary config
+test_config <- paste0(
+  "testReg:",
+  "\n  host : ", Sys.getenv("DB_HOST"),
+  "\n  name : testDb",
+  "\n  user : ", Sys.getenv("DB_USER"),
+  "\n  pass : ", Sys.getenv("DB_PASS"),
+  "\n  disp : ephemaralUnitTesting\n"
+)
+Sys.setenv(R_RAP_CONFIG_PATH = tempdir())
+cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "dbConfig.yml"))
+writeLines(test_config, cf)
+close(cf)
 
 # make queries for creating tables
 fc <- file(system.file("testDb.sql", package = "ablanor"), "r")
