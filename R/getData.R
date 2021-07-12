@@ -16,6 +16,57 @@
 #' @aliases getProsPatient getRand12
 NULL
 
+. <- ""
+#' @rdname getData
+#' @export
+getRand12 <- function(registryName, singleRow, ...) {
+  if (registryName == "test_ablanor_lokalt") {
+    # LASTE INN DATA LOKALT
+    load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
+
+  } else {
+    query_procedure <- paste0("
+SELECT
+  *
+FROM
+  pros"
+    )
+
+    query_rand12 <- paste0("
+SELECT
+  *
+FROM
+  rand12"
+    )
+
+    if(singleRow) {
+      msg_procedure <- "Query metadata for merged dataset, procedure"
+      msg_rand12<- "Query metadata for merged dataset, rand12"
+      query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
+      query_rand12 <- paste0(query_rand12, "\nLIMIT\n  1;")
+    } else {
+      msg_procedure <- "Query data for merged dataset, procedure"
+      msg_rand12 <- "Query data for merged dataset, rand12"
+      query_procedure <- paste0(query_procedure, ";")
+      query_rand12 <- paste0(query_rand12, ";")
+    }
+
+    if ("session" %in% names(list(...))) {
+      # nocov start
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
+      d_pros <- rapbase::loadRegData(registryName, query_procedure)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_rand12)
+      d_rand12 <- rapbase::loadRegData(registryName, query_rand12)
+      # nocov end
+    } else {
+      d_pros <- rapbase::loadRegData(registryName, query_procedure)
+      d_rand12 <- rapbase::loadRegData(registryName, query_rand12)
+    }
+  }
+
+  list(pros = d_pros, rand12 = d_rand12)
+}
+
 #' @rdname getData
 #' @export
 getProsPatient <- function(registryName, singleRow, ...) {

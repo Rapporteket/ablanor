@@ -6,6 +6,8 @@
 \alias{getRand12}
 \title{Load data for ablanor}
 \usage{
+getRand12(registryName, singleRow, ...)
+
 getProsPatient(registryName, singleRow, ...)
 }
 \arguments{
