@@ -19,7 +19,7 @@ NULL
 
 #' @rdname getData
 #' @export
-getHospitalName <- function(reshId) {
+getHospitalName <- function(registryName, reshId) {
 
   query <- paste0("
 SELECT
@@ -29,16 +29,10 @@ FROM
 WHERE
   ID = ", reshId, ";")
 
-  name <- rapbase::loadRegData("ablanor", query)[1, ]
-
-  if (length(name) > 1) {
-    warning(paste("Resh ID", resh_id, "have multiple names.",
-                  "Only the first will be returned!"))
-    name <- name[1]
-  }
+  name <- rapbase::loadRegData(registryName, query)[1, ]
 
   if (is.na(name)) {
-    warning(paste("Resh ID", resh_id, "did not match any names!"))
+    warning(paste("Resh ID", reshId, "did not match any names!"))
   }
 
   name
