@@ -24,6 +24,8 @@ services:
     restart: "no"
     environment:
       PASSWORD: password
+      DB_USER: root
+      DB_PASS: root
 
   adminer:
     depends_on:
