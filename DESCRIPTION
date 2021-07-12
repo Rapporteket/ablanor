@@ -26,19 +26,19 @@ RoxygenNote: 7.1.1
 Suggests: 
     testthat
 Imports:
+    binom,
     dplyr,
-    magrittr,
-    tidyr,
-    lubridate,
-    shiny,
-    knitr,
     kableExtra,
-    rpivotTable,
+    knitr,
+    lubridate,
+    magrittr,
+    rlang,
     rmarkdown,
     RMariaDB,
+    rpivotTable,
+    shiny,
     stringr,
-    rlang,
-    binom,
+    tidyr,
     tidyselect
 Remotes:
   Rapporteket/rapbase@*release
