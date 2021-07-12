@@ -17,7 +17,12 @@ getProsPatientData <- function(registryName,
                                tekstVars = FALSE,
                                ...) {
 
-  attach(getProsPatient(registryName, singleRow, ...))
+  d <- getProsPatient(registryName, singleRow, ...)
+
+  d_basereg <- d$basereg
+  d_pros <- d$pros
+  d_mce <- d$mce
+  d_patientlist <- d$patientlist
 
   ## BEHANDLING AV DATABASEN I R:
   # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)

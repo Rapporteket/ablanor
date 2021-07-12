@@ -96,10 +96,10 @@ FROM
     }
 
     list(
-      d_basereg = d_basereg,
-      d_pros = d_pros,
-      d_mce =d_mce,
-      d_patientlist = d_patientlist
+      basereg = d_basereg,
+      pros = d_pros,
+      mce =d_mce,
+      patientlist = d_patientlist
     )
   }
 }
