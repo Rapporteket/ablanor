@@ -78,6 +78,7 @@ test_that("relevant test database and tables can be made", {
 
 # onto main testing
 test_that("pros patient data can be read from db", {
+  check_db()
   expect_equal(class(getProsPatient("testReg", singleRow = FALSE)), "list")
   expect_equal(class(getProsPatient("testReg", singleRow = TRUE)), "list")
 })
