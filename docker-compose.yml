@@ -24,6 +24,7 @@ services:
     restart: "no"
     environment:
       PASSWORD: password
+      DB_HOST: db
       DB_USER: root
       DB_PASS: root
 
