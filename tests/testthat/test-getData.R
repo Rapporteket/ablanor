@@ -35,14 +35,14 @@ test_that("env vars needed for testing is present", {
 
 # prep db for testing
 if (is.null(check_db(is_test_that = FALSE))) {
-  con <- DBI::dbConnect(RMariaDB::MariaDB(),
+  con <- RMariaDB::dbConnect(RMariaDB::MariaDB(),
                         host = Sys.getenv("DB_HOST"),
                         user = Sys.getenv("DB_USER"),
                         password = Sys.getenv("DB_PASS"),
                         bigint = "integer"
   )
-  DBI::dbExecute(con, "CREATE DATABASE testDb;")
-  DBI::dbDisconnect(con)
+  RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
+  RMariaDB::dbDisconnect(con)
 }
 
 # make temporary config
@@ -70,7 +70,7 @@ test_that("relevant test database and tables can be made", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
   for (i in seq_len(length(queries))) {
-    expect_equal(class(DBI::dbExecute(con, queries[i])), "integer")
+    expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
 
   }
   rapbase::rapCloseDbConnection(con)
@@ -89,7 +89,7 @@ test_that("pros patient data can be read from db", {
 # remove test db
 if (is.null(check_db(is_test_that = FALSE))) {
   con <- rapbase::rapOpenDbConnection("testReg")$con
-  DBI::dbExecute(con, "DROP DATABASE testDb;")
+  RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
   rapbase::rapCloseDbConnection(con)
 }
 

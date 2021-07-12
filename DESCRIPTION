@@ -26,7 +26,6 @@ RoxygenNote: 7.1.1
 Suggests: 
     testthat
 Imports:
-    DBI,
     dplyr,
     magrittr,
     tidyr,
@@ -36,6 +35,7 @@ Imports:
     kableExtra,
     rpivotTable,
     rmarkdown,
+    RMariaDB,
     stringr,
     rlang,
     binom,
