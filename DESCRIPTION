@@ -32,6 +32,7 @@ Imports:
     knitr,
     lubridate,
     magrittr,
+    rapbase,
     rlang,
     rmarkdown,
     RMariaDB,
