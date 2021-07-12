@@ -27,7 +27,7 @@ server <- function(input, output, session) {
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     reshId <- rapbase::getUserReshId(session)
-    hospitalName <- ablanor::get_hospital_name(reshId)
+    hospitalName <- ablanor::getHospitalName(reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
     #registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)

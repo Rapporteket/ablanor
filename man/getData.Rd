@@ -2,15 +2,20 @@
 % Please edit documentation in R/getData.R
 \name{getData}
 \alias{getData}
-\alias{getProsPatient}
+\alias{getHospitalName}
 \alias{getRand12}
+\alias{getProsPatient}
 \title{Load data for ablanor}
 \usage{
+getHospitalName(reshId)
+
 getRand12(registryName, singleRow, ...)
 
 getProsPatient(registryName, singleRow, ...)
 }
 \arguments{
+\item{reshId}{Integer organization id}
+
 \item{registryName}{Character string defining the registry name}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.

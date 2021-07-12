@@ -8,15 +8,43 @@
 #' @param registryName Character string defining the registry name
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE
+#' @param reshId Integer organization id
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
 #' frames containing registry data
 #' @name getData
-#' @aliases getProsPatient getRand12
+#' @aliases getHospitalName getRand12 getProsPatient
 NULL
 
-. <- ""
+#' @rdname getData
+#' @export
+getHospitalName <- function(reshId) {
+
+  query <- paste0("
+SELECT
+  CENTRESHORTNAME
+FROM
+  friendlycentre
+WHERE
+  ID = ", reshId, ";")
+
+  name <- rapbase::loadRegData("ablanor", query)[1, ]
+
+  if (length(name) > 1) {
+    warning(paste("Resh ID", resh_id, "have multiple names.",
+                  "Only the first will be returned!"))
+    name <- name[1]
+  }
+
+  if (is.na(name)) {
+    warning(paste("Resh ID", resh_id, "did not match any names!"))
+  }
+
+  name
+}
+
+
 #' @rdname getData
 #' @export
 getRand12 <- function(registryName, singleRow, ...) {
