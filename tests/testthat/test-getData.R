@@ -77,6 +77,17 @@ test_that("relevant test database and tables can be made", {
 })
 
 # onto main testing
+test_that("hospital name can be read from db", {
+  check_db()
+  con <- rapbase::rapOpenDbConnection("testReg")$con
+  query <- "INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1';"
+  RMariaDB::dbExecute(con, query)
+  expect_equal(class(getHospitalName("testReg", 1)), "character")
+  expect_equal(getHospitalName("testReg", 1), "s1")
+  expect_warning(getHospitalName("testReg", 2))
+  rapbase::rapCloseDbConnection(con)
+})
+
 test_that("pros patient data can be read from db", {
   check_db()
   expect_equal(class(getProsPatient("testReg", singleRow = FALSE)), "list")
