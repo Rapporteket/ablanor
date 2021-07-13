@@ -11,6 +11,9 @@
 #' selection lists.
 #'
 #' @param registryName Character string defining the registry name.
+#' @param tableName Character string with name of database table
+#' @param fromDate Character string of format YYYY-MM-DD with start date
+#' @param toDate Character string of format YYYY-MM-DD with end date
 #' @param asNamedList Logical wether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
@@ -23,8 +26,48 @@
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getNameReshId getHospitalName getRand12 getProsPatient
+#' @aliases getDataDump getNameReshId getHospitalName getRand12 getProsPatient
 NULL
+
+#' @rdname getData
+#' @export
+getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
+
+  stopifnot(tableName %in% c("basereg",
+                             "friendlycentre",
+                             "mce",
+                             "patientlist",
+                             "pros"))
+
+  query <- paste("SELECT * FROM", tableName)
+  condition <- ""
+
+  if (tableName == "basereg") {
+    condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
+                        "' AND DATO_BAS < '", toDate, "'")
+  } else if (tableName == "mce") {
+    condition <- paste0(" WHERE TSCREATED >= '", fromDate,
+                        "' AND TSCREATED < '", toDate, "'")
+  } else if (tableName == "patientlist") {
+    condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
+                        "' AND REGISTERED_DATE < '", toDate, "'")
+  } else if (tableName == "pros") {
+    condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
+                        "' AND DATO_PROS < '", toDate, "'")
+  }
+
+  query <- paste0(query, condition, ";")
+
+  if ("session" %in% names(list(...))) {
+    #nocov start
+    rapbase::repLogger(session = list(...)[["session"]],
+                       msg = paste("NORIC data dump:\n", query))
+    #nocov end
+  }
+
+  rapbase::loadRegData(registryName, query)
+}
+
 
 #' @rdname getData
 #' @export

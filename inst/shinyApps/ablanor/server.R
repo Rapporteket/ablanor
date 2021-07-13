@@ -26,7 +26,7 @@ server <- function(input, output, session) {
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
-    registryName <- "ablanor"
+    registryName <- "AblanorRapporteket"
     mapOrgId <- getNameReshId(registryName)
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- ablanor::getHospitalName(registryName, reshId)
@@ -131,7 +131,17 @@ server <- function(input, output, session) {
   }
 
 
-
+  contentDump <- function(file, type) {
+    d <- ablanor::getDataDump(registryName, input$dumpDataSet,
+                              fromDate = input$dumpDateRange[1],
+                              toDate = input$dumpDateRange[2],
+                              session = session)
+    if (type == "xlsx-csv") {
+      readr::write_excel_csv2(d, file)
+    } else {
+      readr::write_csv2(d, file)
+    }
+  }
 
 
   # widget
@@ -276,6 +286,20 @@ server <- function(input, output, session) {
   })
 
 
+  # Datadump
+  output$dataDumpInfo <- renderUI({
+    p(paste("Valgt for nedlasting:", input$dumpDataSet))
+  })
+
+  output$dumpDownload <- downloadHandler(
+    filename = function() {
+      basename(tempfile(pattern = input$dumpDataSet,
+                        fileext = ".csv"))
+    },
+    content = function(file) {
+      contentDump(file, input$dumpFormat)
+    }
+  )
 
   # Månedlig rapport
   # If LU-role, get report on own practice

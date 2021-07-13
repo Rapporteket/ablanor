@@ -2,12 +2,15 @@
 % Please edit documentation in R/getData.R
 \name{getData}
 \alias{getData}
+\alias{getDataDump}
 \alias{getNameReshId}
 \alias{getHospitalName}
 \alias{getRand12}
 \alias{getProsPatient}
 \title{Load data for ablanor}
 \usage{
+getDataDump(registryName, tableName, fromDate, toDate, ...)
+
 getNameReshId(registryName, asNamedList = FALSE)
 
 getHospitalName(registryName, reshId)
@@ -19,6 +22,14 @@ getProsPatient(registryName, singleRow, ...)
 \arguments{
 \item{registryName}{Character string defining the registry name.}
 
+\item{tableName}{Character string with name of database table}
+
+\item{fromDate}{Character string of format YYYY-MM-DD with start date}
+
+\item{toDate}{Character string of format YYYY-MM-DD with end date}
+
+\item{...}{Optional arguments to be passed to the function.}
+
 \item{asNamedList}{Logical wether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
@@ -27,8 +38,6 @@ returned.}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}
-
-\item{...}{Optional arguments to be passed to the function.}
 }
 \value{
 Data frame or (when multiple data sets are returned) a list of data
