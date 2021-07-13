@@ -2,11 +2,14 @@
 % Please edit documentation in R/getData.R
 \name{getData}
 \alias{getData}
+\alias{getNameReshId}
 \alias{getHospitalName}
 \alias{getRand12}
 \alias{getProsPatient}
 \title{Load data for ablanor}
 \usage{
+getNameReshId(registryName, asNamedList = FALSE)
+
 getHospitalName(registryName, reshId)
 
 getRand12(registryName, singleRow, ...)
@@ -14,22 +17,33 @@ getRand12(registryName, singleRow, ...)
 getProsPatient(registryName, singleRow, ...)
 }
 \arguments{
-\item{registryName}{Character string defining the registry name}
+\item{registryName}{Character string defining the registry name.}
 
-\item{reshId}{Integer organization id}
+\item{asNamedList}{Logical wether to return a list of named values or not.
+Default is FALSE in which case a data frame containing name and id is
+returned.}
+
+\item{reshId}{Integer organization id.}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.
-Default value is FALSE}
+Default value is FALSE.}
 
-\item{...}{Optional arguments to be passed to the function}
+\item{...}{Optional arguments to be passed to the function.}
 }
 \value{
 Data frame or (when multiple data sets are returned) a list of data
-frames containing registry data
+frames containing registry data. In case of \code{getNameReshId()} data may
+also be returned as a named list of values (see Details).
 }
 \description{
 Functions for loading data needed by ablanor from a database or local files.
 When local files are used the environmental variable
 \emph{filbane_ablanor_test} must be set to the path of the file where data
 are found
+}
+\details{
+\code{getNameReshId()} returns a mapping of organization name and id in the
+form of columns named \emph{name} and \emph{id}. Optionally this function
+can also return a list of named values (ids), \emph{e.g.} for use in shiny
+selection lists.
 }

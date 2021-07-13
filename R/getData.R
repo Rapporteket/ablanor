@@ -5,17 +5,50 @@
 #' \emph{filbane_ablanor_test} must be set to the path of the file where data
 #' are found
 #'
-#' @param registryName Character string defining the registry name
+#' \code{getNameReshId()} returns a mapping of organization name and id in the
+#' form of columns named \emph{name} and \emph{id}. Optionally this function
+#' can also return a list of named values (ids), \emph{e.g.} for use in shiny
+#' selection lists.
+#'
+#' @param registryName Character string defining the registry name.
+#' @param asNamedList Logical wether to return a list of named values or not.
+#' Default is FALSE in which case a data frame containing name and id is
+#' returned.
 #' @param singleRow Logical if only one row from the table is to be provided.
-#' Default value is FALSE
-#' @param reshId Integer organization id
-#' @param ... Optional arguments to be passed to the function
+#' Default value is FALSE.
+#' @param reshId Integer organization id.
+#' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
-#' frames containing registry data
+#' frames containing registry data. In case of \code{getNameReshId()} data may
+#' also be returned as a named list of values (see Details).
 #' @name getData
-#' @aliases getHospitalName getRand12 getProsPatient
+#' @aliases getNameReshId getHospitalName getRand12 getProsPatient
 NULL
+
+#' @rdname getData
+#' @export
+getNameReshId <- function(registryName, asNamedList = FALSE) {
+
+  query <- "
+SELECT
+  CENTRESHORTNAME AS name,
+  ID AS id
+FROM
+  friendlycentre
+GROUP BY
+  CENTRESHORTNAME,
+  ID;"
+
+  res <- rapbase::loadRegData(registryName, query)
+
+  if (asNamedList) {
+    res <- stats::setNames(res$id, res$name)
+    res <- as.list(res)
+  }
+
+  res
+}
 
 #' @rdname getData
 #' @export

@@ -27,6 +27,7 @@ server <- function(input, output, session) {
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     registryName <- "ablanor"
+    mapOrgId <- getNameReshId(registryName)
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- ablanor::getHospitalName(registryName, reshId)
     userFullName <- rapbase::getUserFullName(session)
@@ -302,7 +303,8 @@ server <- function(input, output, session) {
   ## rekative verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+    subscriptionTab = rapbase::makeUserSubscriptionTab(session,
+                                                       mapOrgId = mapOrgId))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(

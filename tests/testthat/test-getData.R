@@ -88,6 +88,15 @@ test_that("hospital name can be read from db", {
   rapbase::rapCloseDbConnection(con)
 })
 
+test_that("name-id mapping can be obtained", {
+  check_db()
+  con <- rapbase::rapOpenDbConnection("testReg")$con
+  expect_equal(class(getNameReshId("testReg")), "data.frame")
+  expect_equal(class(getNameReshId("testReg", asNamedList = TRUE)),
+               "list")
+  rapbase::rapCloseDbConnection(con)
+})
+
 test_that("pros patient data can be read from db", {
   check_db()
   expect_equal(class(getProsPatient("testReg", singleRow = FALSE)), "list")
