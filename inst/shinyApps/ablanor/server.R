@@ -326,15 +326,10 @@ server <- function(input, output, session) {
 
   ## nye abonnement
 
-  ### lag liste over mulige valg styrt av lokal eller nasjonal sesjon
+  ### lag liste over mulige valg av rapporter
   output$subscriptionRepList <- renderUI({
-    if (isNationalReg(reshId)) {
-      selectInput("subscriptionRep", "Rapport:",
-                  c(""))
-    } else {
-      selectInput("subscriptionRep", "Rapport:",
-                  c("Prosedyrer, månedlig"))
-    }
+    selectInput("subscriptionRep", "Rapport:",
+                c("Prosedyrer, månedlig"))
   })
 
   ### aktiver abonnement, men kun når et aktuelt valg er gjort
