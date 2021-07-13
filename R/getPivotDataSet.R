@@ -11,6 +11,7 @@
 #' @param registryName String providing registry name.
 #' @param session List shiny session object.
 #' @param singleRow Logical defining if only one row is to be returned.
+#' @param reshId Integer organization id
 #'
 #' @return data frame
 #' @export
@@ -28,18 +29,21 @@ getPivotDataSet <- function(setId = "",
   if (setId %in% validSetId) {
 
     if (setId == "rand12") {
-      dat <- getRand12Data(registryName = registryName,
-                           singleRow = singleRow)
+      dat <- ablanor::getRand12Data(registryName = registryName,
+                                    singleRow = singleRow,
+                                    session = session)
       # , tekstVars = TRUE) @fixme
     }
     if (setId == "pros_patient") {
-      dat <- getProsPatientData(registryName = registryName,
-                                singleRow = singleRow)
+      dat <- ablanor::getProsPatientData(registryName = registryName,
+                                         singleRow = singleRow,
+                                         session = session)
       # , tekstVars = TRUE) @fixme
     }
 
     # Filtrere på sykehus (skjer dette automatisk ?)
-    dat %<>% dplyr::filter(as.numeric(centreid) == reshId)
+    dat %<>%
+      dplyr::filter(as.numeric(.data$CENTREID) == reshId)
 
 
   } else {

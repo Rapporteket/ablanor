@@ -1,6 +1,6 @@
 Package: ablanor
 Title: AblaNor- Rapporteket
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
   person(given = "Kristina",
            family = "Skaare",
@@ -25,19 +25,21 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: 
     testthat
-Imports: 
-    dplyr,
-    magrittr,
-    tidyr,
-    lubridate,
-    shiny,
-    knitr,
-    kableExtra,
-    rpivotTable,
-    rmarkdown,
-    stringr,
-    rlang,
+Imports:
     binom,
+    dplyr,
+    kableExtra,
+    knitr,
+    lubridate,
+    magrittr,
+    rapbase,
+    rlang,
+    rmarkdown,
+    RMariaDB,
+    rpivotTable,
+    shiny,
+    stringr,
+    tidyr,
     tidyselect
 Remotes:
   Rapporteket/rapbase@*release

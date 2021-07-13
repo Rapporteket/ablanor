@@ -7,96 +7,36 @@
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
 #' @param tekstVars legge til tekstvariabler hentet fra kodebok for kategoriske
 #' variabler eller fra tabeller med tekst/labels for kategoriske variabler
+#' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
 #' @export
-#'
-#' @examples
+
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               tekstVars = FALSE) {
-  . <- ""
+                               tekstVars = FALSE,
+                               ...) {
 
-  if (registryName == "test_ablanor_lokalt") {
-    # LASTE INN DATA LOKALT
-    load(file = Sys.getenv("filbane_ablanor_test"))
+  d <- getProsPatient(registryName, singleRow, ...)
 
-  } else {
-
-    ## SQL SPØRRING :
-    # SPM ARE : Hva heter databasen til Basereg? Basisregisteret.
-    # BLIR DETTE RIKTIG ?
-    dbType <- "mysql"
-    query_basereg <- "
-    SELECT *
-    FROM  BASEREG (?)
-    "
-
-    # SPM ARE : Hva heter databasen til Prosedyrene?  BLIR DETTE RIKTIG ?
-    query_procedure <- "
-    SELECT *
-    FROM  PROSEDYRE (?)
-    "
-    # SPM ARE : Hva heter databasen til MCE?  BLIR DETTE RIKTIG ?
-    query_mce <- "
-    SELECT mceid patient_id stat
-    FROM  MCE (?)
-    # "
-
-    # SPM ARE : Hva heter databasen til PATIENTLIST?  BLIR DETTE RIKTIG ?
-    query_patientlist <- "
-    SELECT *
-    FROM  PATIENTLIST (?)
-    "
-
-    if(singleRow) {
-      msg_basereg <- "Query metadata for merged dataset, basereg"
-      msg_procedure <- "Query metadata for merged dataset, procedure"
-      msg_mce <- "Query metadata for merged dataset, mce"
-      msg_patientlist <- "Query metadata for merged dataset, patientlist"
-
-      query_basereg <- paste0(query_basereg, "\nLIMIT\n  1;")
-      query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
-      query_mce <- paste0(query_mce, "\nLIMIT\n  1;")
-      query_patientlist <- paste0(query_patientlist, "\nLIMIT\n  1;")
-    } else {
-      msg_basereg <- "Query data for merged dataset, basereg"
-      msg_procedure <- "Query data for merged dataset, procedure"
-      msg_mce <- "Query data for merged dataset, mce"
-      msg_patientlist <- "Query data for merged dataset, patientlist"
-
-      query_basereg <- paste0(query_basereg, ";")
-      query_procedure <- paste0(query_procedure, ";")
-      query_mce <- paste0(query_mce, ";")
-      query_patientlist <- paste0(query_patientlist, ";")
-    }
-
-    # ARE : Hva er denne koden til? Tilpasse til 4 spørringer ?
-    if ("session" %in% names(list(...))) {
-      raplog::repLogger(session = list(...)[["session"]], msg = msg)
-    }
-
-    d_basereg <- rapbase::loadRegData(registryName, query_basereg, dbType)
-    d_pros <- rapbase::loadRegData(registryName, query_procedure, dbType)
-    d_mce <- rapbase::loadRegData(registryName, query_mce, dbType)
-    d_patientlist <- rapbase::loadRegData(registryName, query_patientlist, dbType)
-
-  }
-
-
-
+  d_basereg <- d$basereg
+  d_pros <- d$pros
+  d_mce <- d$mce
+  d_patientlist <- d$patientlist
 
   ## BEHANDLING AV DATABASEN I R:
   # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)
   # intersect(names(d_pros), names(d_basereg)) # samme variabel-navn.
   # Vi angir en prefix for å få med variablene fra begge tabellene
+  # KRISTINA: variabelnavnene i databasen er stort sett CAPS så da må nok koden
+  # under oppdateres (jeg har gjort litt, men ikke ferdig...)
   d_basereg %<>%
-    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
                      function(x) {
                        paste0("basereg_", x)
                      })
   d_pros %<>%
-    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
                      function(x) {
                        paste0("pros_", x)
                      })
@@ -115,16 +55,20 @@ getProsPatientData <- function(registryName,
 
   # NB: variablene aryt_i* er duplikert i basereg datasettet, derfor fjernes de.
   d_ablanor <- d_pros %>%
-    dplyr::left_join(., d_mce %>% dplyr::select(.data$mceid,
-                                                .data$patient_id,
-                                                .data$status),
-                     by = "mceid") %>%
+    dplyr::left_join(., d_mce %>% dplyr::select(.data$MCEID,
+                                                .data$PATIENT_ID,
+                                                .data$STATUS),
+                     by = "MCEID") %>%
     dplyr::left_join(., d_patientlist,
-                     by = c("patient_id" = "id")) %>%
-    dplyr::left_join(., d_basereg %>%
-                       dplyr::select(!tidyselect::starts_with("aryt_i"),
-                                     -dato_pros),
-                     by = c("mceid", "centreid"))
+                     by = c("PATIENT_ID" = "ID")) %>%
+    # Hm, det finnes hverken ARYT_I* vaiabler eller DATO_PROS i basreg-tabellen
+    # Utkommentert kode er erstattet av påfølgende line
+    # KRISTINA: sjekk!
+    #dplyr::left_join(., d_basereg %>%
+    #                   dplyr::select(!tidyselect::starts_with("aryt_i"),
+    #                                 -.data$DATO_PROS),
+    #                 by = c("MCEID", "CENTREID"))
+    dplyr::left_join(., d_basereg, by = c("MCEID", "CENTREID"))
 
   # Sjekk at ingen variabel-navn teller dobbelt.
   # TEST I getLocalProsedyrePasientData
@@ -139,7 +83,7 @@ getProsPatientData <- function(registryName,
   d_ablanor %<>%
     dplyr::mutate(alder = lubridate::as.period(
       lubridate::interval(
-        start = .data$birth_date, end = .data$dato_pros),
+        start = .data$BIRTH_DATE, end = .data$DATO_PROS),
       unit = "years")$year)
 
   d_ablanor %<>%
@@ -152,7 +96,7 @@ getProsPatientData <- function(registryName,
   #       Bruker vekt og høyde for å generere denne variabelen på nytt)
   d_ablanor %<>%
     dplyr::mutate(
-      bmi_manual = round(.data$vekt / (.data$hoyde / 100) ^ 2, 1),
+      bmi_manual = round(.data$VEKT / (.data$HOYDE / 100) ^ 2, 1),
       bmi_category_manual =
         factor(dplyr::case_when(
           .data$bmi_manual <= 16 ~ "Alvorlig undervekt",
@@ -194,10 +138,10 @@ getProsPatientData <- function(registryName,
   # UKE, MÅNED, ÅR
   d_ablanor %<>%
     dplyr::mutate(
-      year = as.ordered(lubridate::year(.data$dato_pros)),
+      year = as.ordered(lubridate::year(.data$DATO_PROS)),
       aar = .data$year,
       maaned_nr = as.ordered(sprintf(fmt = "%02d",
-                                     lubridate::month(.data$dato_pros))),
+                                     lubridate::month(.data$DATO_PROS))),
       maaned = as.ordered(paste0(.data$year, "-", .data$maaned_nr))
     )
 
@@ -207,15 +151,15 @@ getProsPatientData <- function(registryName,
     dplyr::mutate(
       kategori_afli_aryt_i48 =
         factor(dplyr::case_when(
-          .data$forlopstype == 1 & .data$aryt_i48_0 == TRUE ~
+          .data$FORLOPSTYPE == 1 & .data$ARYT_I48_0 == TRUE ~
             "AFLI-ICD 48.0 Paroksymal atrieflimmer",
-          .data$forlopstype == 1 &
-            .data$aryt_i48_1 == TRUE &
-            .data$aryt_i48_1_underkat == 1 ~
+          .data$FORLOPSTYPE == 1 &
+            .data$ARYT_I48_1 == TRUE &
+            .data$ARYT_I48_1_UNDERKAT == 1 ~
             "AFLI-ICD 48.1 Persisterende atrieflimmer",
-          .data$forlopstype == 1 &
-            .data$aryt_i48_1 == TRUE &
-            .data$aryt_i48_1_underkat == 2 ~
+          .data$FORLOPSTYPE == 1 &
+            .data$ARYT_I48_1 == TRUE &
+            .data$ARYT_I48_1_UNDERKAT == 2 ~
             "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"),
           levels = c("AFLI-ICD 48.0 Paroksymal atrieflimmer",
                      "AFLI-ICD 48.1 Persisterende atrieflimmer",
@@ -227,22 +171,22 @@ getProsPatientData <- function(registryName,
     dplyr::mutate(
       kategori_vt_kardiomyopati =
         factor(dplyr::case_when(
-          .data$forlopstype == 2 & .data$ kardiomyopati == 0
+          .data$FORLOPSTYPE == 2 & .data$KARDIOMYOPATI == 0
           ~ "Uten kardiomyopati",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 1
+          .data$FORLOPSTYPE == 2 &
+            .data$KARDIOMYOPATI == 1 &
+            .data$TYPE_KARDIOMYOPATI == 1
           ~ "Iskemisk KM (ICM)",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 2
+          .data$FORLOPSTYPE == 2 &
+            .data$KARDIOMYOPATI == 1 &
+            .data$TYPE_KARDIOMYOPATI == 2
           ~ "Dilatert KM (DCM)",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            !(.data$type_kardiomyopati %in% 1:2)
+          .data$FORLOPSTYPE == 2 &
+            .data$KARDIOMYOPATI == 1 &
+            !(.data$TYPE_KARDIOMYOPATI %in% 1:2)
           ~ "Annen KM",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 9
+          .data$FORLOPSTYPE == 2 &
+            .data$KARDIOMYOPATI == 9
           ~ "Ukjent om kardiomyopati"),
           levels = c("Uten kardiomyopati",
                      "Iskemisk KM (ICM)",
@@ -256,11 +200,11 @@ getProsPatientData <- function(registryName,
   d_ablanor %<>%
     dplyr::mutate(
       kategori_afli_hjsviktEF = dplyr::case_when(
-        .data$forlopstype ==  1 &
-          (.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
+        .data$FORLOPSTYPE ==  1 &
+          (.data$HJERTESVIKT == 1 | .data$EJEKFRAK %in% 2:3) ~
           "AFLI-Hjertesvikt eller redusert EF",
-        .data$forlopstype ==  1 &
-          !(.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
+        .data$FORLOPSTYPE ==  1 &
+          !(.data$HJERTESVIKT == 1 | .data$EJEKFRAK %in% 2:3) ~
           "AFLI-Verken hjertesvikt eller redusert EF"))
 
 

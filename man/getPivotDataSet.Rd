@@ -22,6 +22,8 @@ containing data from rand12 questionnaire.}
 \item{session}{List shiny session object.}
 
 \item{singleRow}{Logical defining if only one row is to be returned.}
+
+\item{reshId}{Integer organization id}
 }
 \value{
 data frame

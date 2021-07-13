@@ -1,36 +1,21 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# shiny app server logic
 
-library(shiny)
-library(shinyalert)
-library(ablanor)
-library(rapbase)
-library(raplog)
-library(magrittr)
-library(rpivotTable)
-library(dplyr)
-library(rmarkdown)
+server <- function(input, output, session) {
 
 
-shinyServer(function(input, output, session) {
-
-
-  # raplog::appLogger(session = session, msg = "Starting AblaNor application")
+  rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
+    registryName <- "AblanorRapporteket"
+    mapOrgId <- getNameReshId(registryName)
     reshId <- rapbase::getUserReshId(session)
-    hospitalName <- noric::getHospitalName(reshId)
+    hospitalName <- ablanor::getHospitalName(registryName, reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
-    registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    #registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
+    userOperator <- "Test Operatoresen"
     author <- userFullName
     # userOperator <- ? #@fixme
   } else {
@@ -50,12 +35,12 @@ shinyServer(function(input, output, session) {
 
   # Hide tabs when not role 'SC'
   if (userRole != "SC") {
-    hideTab(inputId = "tabs", target = "Datadump")
+    shiny::hideTab(inputId = "tabs", target = "Datadump")
   }
 
   # Hide tabs when not role 'SC'
   if (userRole == "SC") {
-    hideTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
   }
 
 
@@ -128,16 +113,28 @@ shinyServer(function(input, output, session) {
   }
 
 
-
+  contentDump <- function(file, type) {
+    d <- ablanor::getDataDump(registryName, input$dumpDataSet,
+                              fromDate = input$dumpDateRange[1],
+                              toDate = input$dumpDateRange[2],
+                              session = session)
+    if (type == "xlsx-csv") {
+      readr::write_excel_csv2(d, file)
+    } else {
+      readr::write_csv2(d, file)
+    }
+  }
 
 
   # widget
-  output$appUserName <- renderText(userFullName)
-  output$appOrgName <- renderText(paste(hospitalName, userRole, sep = ", "))
+  output$appUserName <- shiny::renderText(userFullName)
+  output$appOrgName <- shiny::renderText(
+    paste(hospitalName, userRole, sep = ", "))
 
   # User info in widget
-  userInfo <- rapbase::howWeDealWithPersonalData(session)
-  observeEvent(input$userInfo, {
+  userInfo <- rapbase::howWeDealWithPersonalData(session,
+                                                 callerPkg = "ablanor")
+  shiny::observeEvent(input$userInfo, {
     shinyalert("Dette vet Rapporteket om deg:", userInfo,
                type = "", imageUrl = "rap/logo.svg",
                closeOnEsc = TRUE, closeOnClickOutside = TRUE,
@@ -162,7 +159,7 @@ shinyServer(function(input, output, session) {
 
 
   ## reactive values
-  rvals <- reactiveValues()
+  rvals <- shiny::reactiveValues()
   rvals$showPivotTable <- FALSE
   rvals$togglePivotingText <- "Last valgte data!"
   rvals$selectedDataSet <- "info"
@@ -170,7 +167,7 @@ shinyServer(function(input, output, session) {
 
 
   ## observers
-  observeEvent(input$togglePivoting, {
+  shiny::observeEvent(input$togglePivoting, {
     if (rvals$showPivotTable) {
       rvals$showPivotTable <- FALSE
       rvals$togglePivotingText <- "Last valgte data!"
@@ -183,14 +180,15 @@ shinyServer(function(input, output, session) {
     }
   })
 
-  observeEvent(input$selectedDataSet, {
+  shiny::observeEvent(input$selectedDataSet, {
     rvals$selectedVars <- ""
   })
 
 
-  dat <- reactive({
+  dat <- shiny::reactive({
     getPivotDataSet(setId = input$selectedDataSet,
                     registryName = registryName,
+                    session = session,
                     reshId = reshId)
   })
 
@@ -199,22 +197,24 @@ shinyServer(function(input, output, session) {
 
 
   ##  OUTPUTS
-  output$selectDataSet <- renderUI({
+  output$selectDataSet <- shiny::renderUI({
     if (rvals$showPivotTable) {
       NULL
     } else {
-      tagList(
-        selectInput(inputId = "selectedDataSet", label = "Velg datasett:",
-                    choices = dataSets, selected = rvals$selectedDataSet),
-        checkboxInput("isSelectAllVars", "Velg alle variabler")
+      shiny::tagList(
+        shiny::selectInput(
+          inputId = "selectedDataSet", label = "Velg datasett:",
+          choices = dataSets, selected = rvals$selectedDataSet),
+        shiny::checkboxInput("isSelectAllVars", "Velg alle variabler")
       )
     }
   })
 
 
-  output$selectVars <- renderUI({
+  output$selectVars <- shiny::renderUI({
     if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
-      h4(paste("Valgt datasett:", names(dataSets)[dataSets == input$selectedDataSet]))
+      shiny::h4(paste("Valgt datasett:",
+                      names(dataSets)[dataSets == input$selectedDataSet]))
     } else {
       if (input$isSelectAllVars) {
         # vars <- names(metaDat())
@@ -223,9 +223,9 @@ shinyServer(function(input, output, session) {
         vars <- rvals$selectedVars
       }
 
-      selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                  choices = names(dat()), multiple = TRUE,
-                  selected = vars)
+      shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
+                         choices = names(dat()), multiple = TRUE,
+                         selected = vars)
     }
     # @ note : Har tatt dat() og ikke metaDat som i NORIC
     # selectInput(inputId = "selectedVars", label = "Velg variabler:",
@@ -237,12 +237,12 @@ shinyServer(function(input, output, session) {
 
 
 
-  output$togglePivotSurvey <- renderUI({
+  output$togglePivotSurvey <- shiny::renderUI({
     if (length(input$selectedVars) == 0) {
       NULL
     } else {
-      actionButton(inputId = "togglePivoting",
-                   label = rvals$togglePivotingText)
+      shiny::actionButton(inputId = "togglePivoting",
+                          label = rvals$togglePivotingText)
     }
   })
 
@@ -250,10 +250,10 @@ shinyServer(function(input, output, session) {
 
   # @fixme : Variablene blir sortert alfabetisk. Her er et eksempel på hvordan man kan
   # styre rekkefølgen på levels. Også gjøre for måned f.eks?
-  output$pivotSurvey <- renderRpivotTable({
+  output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
-      rpivotTable(dat()[input$selectedVars],
-                  sorters = "
+      rpivotTable::rpivotTable(dat()[input$selectedVars],
+                               sorters = "
                          function(attr) {
                     var sortAs = $.pivotUtilities.sortAs;
                     if (attr == \"bmi_category\") { return sortAs([
@@ -266,20 +266,34 @@ shinyServer(function(input, output, session) {
                          \"Overvekt\"]); }}"
       )
     } else {
-      rpivotTable(data.frame())
+      rpivotTable::rpivotTable(data.frame())
     }
   })
 
 
+  # Datadump
+  output$dataDumpInfo <- shiny::renderUI({
+    shiny::p(paste("Valgt for nedlasting:", input$dumpDataSet))
+  })
+
+  output$dumpDownload <- shiny::downloadHandler(
+    filename = function() {
+      basename(tempfile(pattern = input$dumpDataSet,
+                        fileext = ".csv"))
+    },
+    content = function(file) {
+      contentDump(file, input$dumpFormat)
+    }
+  )
 
   # Månedlig rapport
   # If LU-role, get report on own practice
   # If LC-role, get report on hospital practice
-  output$maanedligRapport <- renderUI({
+  output$maanedligRapport <- shiny::renderUI({
     htmlRenderRmd("AblaNor_local_monthly.Rmd")
   })
 
-  output$downloadReport <- downloadHandler(
+  output$downloadReport <- shiny::downloadHandler(
     filename = function() {
       downloadFilename("AblaNor_local_monthly",
                        input$formatReport)
@@ -297,8 +311,9 @@ shinyServer(function(input, output, session) {
   # Abonnement
   ## rekative verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
-  rv <- reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session))
+  rv <- shiny::reactiveValues(
+    subscriptionTab = rapbase::makeUserSubscriptionTab(session,
+                                                       mapOrgId = mapOrgId))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
@@ -307,14 +322,15 @@ shinyServer(function(input, output, session) {
   )
 
   ## lag side som viser status for abonnement, også når det ikke finnes noen
-  output$subscriptionContent <- renderUI({
+  output$subscriptionContent <- shiny::renderUI({
     fullName <- rapbase::getUserFullName(session)
     if (length(rv$subscriptionTab) == 0) {
       p(paste("Ingen aktive abonnement for", fullName))
     } else {
-      tagList(
-        p(paste("Aktive abonnement for", fullName, "som sendes per epost til ",
-                rapbase::getUserEmail(session), ":")),
+      shiny::tagList(
+        shiny::p(paste("Aktive abonnement for",
+                       fullName, "som sendes per epost til ",
+                       rapbase::getUserEmail(session), ":")),
         DT::dataTableOutput("activeSubscriptions")
       )
     }
@@ -322,19 +338,13 @@ shinyServer(function(input, output, session) {
 
   ## nye abonnement
 
-  ### lag liste over mulige valg styrt av lokal eller nasjonal sesjon
-  output$subscriptionRepList <- renderUI({
-    if (isNationalReg(reshId)) {
-      selectInput("subscriptionRep", "Rapport:",
-                  c(""))
-    } else {
-      selectInput("subscriptionRep", "Rapport:",
-                  c("Prosedyrer, månedlig"))
-    }
+  ### lag liste over mulige valg av rapporter
+  output$subscriptionRepList <- shiny::renderUI({
+    selectInput("subscriptionRep", "Rapport:", c("Prosedyrer, månedlig"))
   })
 
   ### aktiver abonnement, men kun når et aktuelt valg er gjort
-  observeEvent(input$subscribe, {
+  shiny::observeEvent(input$subscribe, {
     package <- "ablanor"
     owner <- rapbase::getUserName(session)
     interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
@@ -368,9 +378,9 @@ shinyServer(function(input, output, session) {
   })
 
   ## slett eksisterende abonnement
-  observeEvent(input$del_button, {
+  shiny::observeEvent(input$del_button, {
     selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
     rapbase::deleteAutoReport(selectedRepId)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
-})
+}

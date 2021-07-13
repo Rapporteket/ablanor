@@ -25,10 +25,10 @@ aggreger_ki_prop <- function(d_ki_ind, alfa = 0.05, forenklet = FALSE) {
     }
     if (!(is.logical(d_ki_ind$ki_krit_teller) &&
           is.logical(d_ki_ind$ki_krit_nevner))) {
-      stop("Kriterievariablene maa være boolsk")
+      stop("Kriterievariablene maa vaere boolsk")
     }
     if (!all(d_ki_ind$ki_krit_nevner %in% c(T, F))) {
-      stop("'ki_krit_nevner' maa være TRUE eller FALSE")
+      stop("'ki_krit_nevner' maa vaere TRUE eller FALSE")
     }
     if (!all((d_ki_ind$ki_krit_teller %in% c(F, T, NA)) &
              ((d_ki_ind$ki_krit_teller %in% c(F, T) &
