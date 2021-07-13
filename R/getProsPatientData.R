@@ -61,10 +61,14 @@ getProsPatientData <- function(registryName,
                      by = "MCEID") %>%
     dplyr::left_join(., d_patientlist,
                      by = c("PATIENT_ID" = "ID")) %>%
-    dplyr::left_join(., d_basereg %>%
-                       dplyr::select(!tidyselect::starts_with("aryt_i"),
-                                     -.data$DATO_PROS),
-                     by = c("MCEID", "CENTREID"))
+    # Hm, det finnes hverken ARYT_I* vaiabler eller DATO_PROS i basreg-tabellen
+    # Utkommentert kode er erstattet av påfølgende line
+    # KRISTINA: sjekk!
+    #dplyr::left_join(., d_basereg %>%
+    #                   dplyr::select(!tidyselect::starts_with("aryt_i"),
+    #                                 -.data$DATO_PROS),
+    #                 by = c("MCEID", "CENTREID"))
+    dplyr::left_join(., d_basereg, by = c("MCEID", "CENTREID"))
 
   # Sjekk at ingen variabel-navn teller dobbelt.
   # TEST I getLocalProsedyrePasientData
@@ -135,7 +139,7 @@ getProsPatientData <- function(registryName,
   d_ablanor %<>%
     dplyr::mutate(
       year = as.ordered(lubridate::year(.data$DATO_PROS)),
-      aar = .data$YEAR,
+      aar = .data$year,
       maaned_nr = as.ordered(sprintf(fmt = "%02d",
                                      lubridate::month(.data$DATO_PROS))),
       maaned = as.ordered(paste0(.data$year, "-", .data$maaned_nr))
@@ -167,22 +171,22 @@ getProsPatientData <- function(registryName,
     dplyr::mutate(
       kategori_vt_kardiomyopati =
         factor(dplyr::case_when(
-          .data$FORLOPSTYPE == 2 & .data$ kardiomyopati == 0
+          .data$FORLOPSTYPE == 2 & .data$KARDIOMYOPATI == 0
           ~ "Uten kardiomyopati",
           .data$FORLOPSTYPE == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 1
+            .data$KARDIOMYOPATI == 1 &
+            .data$TYPE_KARDIOMYOPATI == 1
           ~ "Iskemisk KM (ICM)",
           .data$FORLOPSTYPE == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 2
+            .data$KARDIOMYOPATI == 1 &
+            .data$TYPE_KARDIOMYOPATI == 2
           ~ "Dilatert KM (DCM)",
           .data$FORLOPSTYPE == 2 &
-            .data$kardiomyopati == 1 &
-            !(.data$type_kardiomyopati %in% 1:2)
+            .data$KARDIOMYOPATI == 1 &
+            !(.data$TYPE_KARDIOMYOPATI %in% 1:2)
           ~ "Annen KM",
           .data$FORLOPSTYPE == 2 &
-            .data$kardiomyopati == 9
+            .data$KARDIOMYOPATI == 9
           ~ "Ukjent om kardiomyopati"),
           levels = c("Uten kardiomyopati",
                      "Iskemisk KM (ICM)",
@@ -197,10 +201,10 @@ getProsPatientData <- function(registryName,
     dplyr::mutate(
       kategori_afli_hjsviktEF = dplyr::case_when(
         .data$FORLOPSTYPE ==  1 &
-          (.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
+          (.data$HJERTESVIKT == 1 | .data$EJEKFRAK %in% 2:3) ~
           "AFLI-Hjertesvikt eller redusert EF",
         .data$FORLOPSTYPE ==  1 &
-          !(.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
+          !(.data$HJERTESVIKT == 1 | .data$EJEKFRAK %in% 2:3) ~
           "AFLI-Verken hjertesvikt eller redusert EF"))
 
 
