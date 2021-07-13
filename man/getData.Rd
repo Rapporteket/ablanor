@@ -7,16 +7,16 @@
 \alias{getProsPatient}
 \title{Load data for ablanor}
 \usage{
-getHospitalName(reshId)
+getHospitalName(registryName, reshId)
 
 getRand12(registryName, singleRow, ...)
 
 getProsPatient(registryName, singleRow, ...)
 }
 \arguments{
-\item{reshId}{Integer organization id}
-
 \item{registryName}{Character string defining the registry name}
+
+\item{reshId}{Integer organization id}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE}
