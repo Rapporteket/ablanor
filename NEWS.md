@@ -1,3 +1,7 @@
+# ablanor 0.1.1
+
+* Fixed minor bugs relating to first try at Rapporteket ([#4](https://github.com/Rapporteket/ablanor/pull/4))
+
 # ablanor 0.1.0
 
 * Alot of changes and new code, alot of it still conceptual ([#3](https://github.com/Rapporteket/ablanor/pull/3))
