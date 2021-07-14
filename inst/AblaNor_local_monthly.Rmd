@@ -71,6 +71,7 @@ showN <- 12
 d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName, 
                                          singleRow = FALSE, 
                                          tekstVars = FALSE)
+names(d_ablanor) <- tolower(names(d_ablanor))
 ```
 
 
