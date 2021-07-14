@@ -9,7 +9,7 @@ server <- function(input, output, session) {
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
-    registryName <- "ablanor"
+    registryName <- "AblanorRapporteket"
     mapOrgId <- ablanor::getNameReshId(registryName)
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- ablanor::getHospitalName(registryName, reshId)
