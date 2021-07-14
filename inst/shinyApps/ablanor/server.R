@@ -313,8 +313,9 @@ server <- function(input, output, session) {
   ## rekative verdier for å holde rede på endringer som skjer mens
   ## applikasjonen kjører
   rv <- shiny::reactiveValues(
-    subscriptionTab = rapbase::makeUserSubscriptionTab(session,
-                                                       mapOrgId = mapOrgId))
+    subscriptionTab = rapbase::makeAutoReportTab(session,
+                                                 type = "subscription",
+                                                 mapOrgId = mapOrgId))
 
   ## lag tabell over gjeldende status for abonnement
   output$activeSubscriptions <- DT::renderDataTable(
