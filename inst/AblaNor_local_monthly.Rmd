@@ -180,7 +180,7 @@ NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
 
 # Forløpstype
 Tabellen under viser totalt antall forløp de `r showN` siste månedene. 
-```{r type_forlop_aar}
+```{r typeForlopAar}
 d_ablanor %>%  
   dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
@@ -263,7 +263,7 @@ ggplot2::ggplot(data = d_kompl_fig2, aes(y = komp_pros, x = maaned)) +
 Tabellen viser andel forløp med komplikasjoner, totalt og i undergrupper. 
 Merk at dersom Forløpstype, Alder eller BMI mangler for et forløp, teller 
 ikke dette forløpet i undergruppene. 
-```{r komplikasjoner_maaned_tabell}
+```{r komplikasjonerMaanedTabell}
 
 d_komp_tot <- d_ablanor %>%
   dplyr::select(komp_janei, maaned) %>%
@@ -389,7 +389,7 @@ ggplot2::ggplot(data = d_akutt_suksess_fig2, aes(y = akuttSuksess_pros, x = maan
 Tabellen viser akutt suksess (blant abladerte) per måned, totalt og
 i undergrupper. 
 
-```{r akuttSuksess_maaned}
+```{r akuttSuksessMaaned}
 
 d_akuttSuksess_tot <- d_ablanor %>%
   dplyr::select(abla_strat_ingen, akutt_suksess, maaned) %>%
@@ -489,7 +489,7 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
 
 # Prosedyrerelatert AV-blokk
 Andel forløp med AV-blokk med pacemakerimplantasjon som følge av operasjonen.
-```{r av_blokk_tabell}
+```{r avBlokkTabell}
 d_komplikasjonar_pacemaker <- d_ablanor %>%
   dplyr::select(maaned, komp_avblokk_pm) %>%
   ablanor::ki_komplikasjonar_pacemaker() %>%
@@ -556,7 +556,7 @@ undergrupper. Eventuelle forløp med manglende prosedyrevarighet er fjernet fra
 tabellen. Dersom et forløp mangler forløpstype, alder, BMI, informasjon om ICD
 eller kardiomyopati, teller ikke forløpene i undergruppene. Summen av 
 undergruppene kan derfor variere noe fra totalen. 
-```{r prosedyre_varighet_total}
+```{r prosedyreVarighetTotal}
 # VARIGHET prosedyre per måned, TOTALT :
 d_varighet_pros_tot <- d_ablanor %>%
   filter(!is.na(pros_varighet)) %>% 
@@ -669,7 +669,7 @@ d_varighet_pros_TOTAL <-
 ```
 
 
-```{r tabell_prosedyrevarighet_1}
+```{r tabellProsedyrevarighet1}
 
 cap <- "Gjennomsnittlig prosedyrevarighet i minutter - gjennomsnitt [antall], del 1"
 knitr::kable(
@@ -692,7 +692,7 @@ knitr::kable(
 ```
 
 
-```{r tabell_prosedyrevarighet_2}
+```{r tabellProsedyrevarighet2}
 cap <- "Gjennomsnittlig prosedyrevarighet i minutter - gjennomsnitt [antall], del 2"
 knitr::kable(
    x = d_varighet_pros_TOTAL[, c(1, 11:18)],
@@ -741,7 +741,7 @@ d_varighet_tot_maaned %>%
 ```
 
 
-```{r tabell_rontgenvarighet_forberede}
+```{r tabellRontgenvarighetForberede}
 # VARIGHET røntgen per måned TOTALT:
 d_varighetRtg_mnd <- d_ablanor %>%
   filter(!is.na(rtg_tid)) %>% 
@@ -789,7 +789,7 @@ forløpstype. Eventuelle forløp med manglende røntgenvarighet er fjernet fra
 tabellen. Dersom et forløp mangler forløpstype, vil dette foløpet ikke telle i
 undergruppene. Summen av undergruppene kan derfor variere noe fra totalen. 
 
-```{r tabell_rontgenvarighet_1}
+```{r tabellRontgenvarighet1}
 cap <- "Gjennomsnittlig røntgenvarighet i minutter - gjennomsnitt [antall]."
 knitr::kable(
    x = d_varighetRtg_TOTAL,
