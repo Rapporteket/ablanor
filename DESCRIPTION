@@ -28,6 +28,7 @@ Suggests:
 Imports:
     binom,
     dplyr,
+    janitor,
     kableExtra,
     knitr,
     lubridate,
