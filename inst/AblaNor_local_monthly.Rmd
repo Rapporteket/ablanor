@@ -197,7 +197,6 @@ d_ablanor %>%
   rapbase::mst(.,
                type = params$tableFormat,
                cap = cap,
-               label = "typeForlopAar",
                digs = 1,
                align = "lcc",
                fs = 9, lsd = FALSE)
