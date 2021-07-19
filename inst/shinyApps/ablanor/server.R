@@ -279,7 +279,7 @@ server <- function(input, output, session) {
   output$subscriptionContent <- shiny::renderUI({
     fullName <- rapbase::getUserFullName(session)
     if (length(rv$subscriptionTab) == 0) {
-      p(paste("Ingen aktive abonnement for", fullName))
+      shiny::p(paste("Ingen aktive abonnement for", fullName))
     } else {
       shiny::tagList(
         shiny::p(paste("Aktive abonnement for",
@@ -294,7 +294,8 @@ server <- function(input, output, session) {
 
   ### lag liste over mulige valg av rapporter
   output$subscriptionRepList <- shiny::renderUI({
-    selectInput("subscriptionRep", "Rapport:", c("Prosedyrer, månedlig"))
+    shiny::selectInput("subscriptionRep", "Rapport:",
+                       c("Prosedyrer, månedlig"))
   })
 
   ### aktiver abonnement, men kun når et aktuelt valg er gjort

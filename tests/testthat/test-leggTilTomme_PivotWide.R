@@ -1,12 +1,12 @@
 test_that("Expansion works", {
   testthat::skip("Test needs fixing!")
   x <- data.frame(maaned = rep(c("jan", "feb", "mars", "april"), 2),
-                  legend = factor(x = c(rep("en",4) ,rep("to",4)),
+                  legend = factor(x = c(rep("en", 4), rep("to", 4)),
                               levels = c("en", "to", "tre")),
                   value = paste0("1/", 1:8))
 
   expect_equal(as.character(
-      ablanor::leggTilTomme_PivotWide(x, remove_NAcols = FALSE)[1,4]),
+      ablanor::leggTilTomme_PivotWide(x, remove_NAcols = FALSE)[1, 4]),
       " -- ")
 
   expect_equal(colnames(
@@ -15,7 +15,7 @@ test_that("Expansion works", {
 
 
   x <- data.frame(maaned = rep(c("jan", "feb", "mars", "april", NA), 2),
-                  legend = factor(x = c(rep("en",5),NA ,rep("to",4)),
+                  legend = factor(x = c(rep("en", 5), NA, rep("to", 4)),
                                   levels = c("en", "to", "tre", NA),
                                   exclude = NULL),
                   value = c(paste0("1/", 1:9), NA))
@@ -37,7 +37,7 @@ test_that("Expansion works", {
                                   levels = c("jan", "feb", "mars",
                                              "april", "mai", NA),
                                   exclude = NULL),
-                  legend = factor(x = c(rep("tre",5),NA ,rep("to",4)),
+                  legend = factor(x = c(rep("tre", 5), NA, rep("to", 4)),
                                   levels = c("en", "to", "tre", NA),
                                   exclude = NULL),
                   value = c(paste0("1/", 1:9), NA))

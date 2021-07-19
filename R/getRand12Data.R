@@ -26,7 +26,8 @@ getRand12Data <- function(registryName,
 
 
   # MERGE DATASETTENE :
-  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i ein
+  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
+  # ein
   # prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for andre
   # forløp vert filtrerte vekk. Viss ein person for eksempel berre har eit
   # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera

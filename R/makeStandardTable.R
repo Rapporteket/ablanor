@@ -50,14 +50,16 @@ mst <- function(tab, col_names = colnames(tab), type = "pdf", cap = "",
     } else {
       lo <- c("HOLD_position")
     }
-    k <- knitr::kable(tab, format = "latex", col.names = col_names, caption = cap,
+    k <- knitr::kable(tab, format = "latex", col.names = col_names,
+                      caption = cap,
                       label = label, digits = digs,
                       align = align, booktabs = TRUE) %>%
       kableExtra::kable_styling(latex_options = lo, font_size = fs)
   }
 
   if (type == "html") {
-    k <- knitr::kable(tab, format = "html", col.names = col_names, caption = cap,
+    k <- knitr::kable(tab, format = "html", col.names = col_names,
+                      caption = cap,
                       label = label, digits = digs,
                       align = align) %>%
       kableExtra::kable_styling(
@@ -94,4 +96,3 @@ mst_short <- function(tab, col_names = colnames(tab), type = "pdf", cap = "",
   }
   k
 }
-

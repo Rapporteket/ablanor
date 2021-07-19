@@ -137,9 +137,9 @@ FROM
   rand12"
     )
 
-    if(singleRow) {
+    if (singleRow) {
       msg_procedure <- "Query metadata for merged dataset, procedure"
-      msg_rand12<- "Query metadata for merged dataset, rand12"
+      msg_rand12 <- "Query metadata for merged dataset, rand12"
       query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
       query_rand12 <- paste0(query_rand12, "\nLIMIT\n  1;")
     } else {
@@ -202,7 +202,7 @@ FROM
   patientlist"
     )
 
-    if(singleRow) {
+    if (singleRow) {
       msg_basereg <- "Query metadata for merged dataset, basereg"
       msg_procedure <- "Query metadata for merged dataset, procedure"
       msg_mce <- "Query metadata for merged dataset, mce"
@@ -247,7 +247,7 @@ FROM
     list(
       basereg = d_basereg,
       pros = d_pros,
-      mce =d_mce,
+      mce = d_mce,
       patientlist = d_patientlist
     )
   }
