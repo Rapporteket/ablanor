@@ -15,7 +15,6 @@ server <- function(input, output, session) {
     hospitalName <- ablanor::getHospitalName(registryName, reshId)
     userFullName <- rapbase::getUserFullName(session)
     userRole <- rapbase::getUserRole(session)
-    #registryName <- noric::NORICmakeRegistryName("noricStaging", reshId)
     userOperator <- "Test Operatoresen"
     author <- userFullName
     # userOperator <- ? #@fixme
@@ -26,7 +25,7 @@ server <- function(input, output, session) {
     reshId <- Sys.getenv("Test_reshId")
     hospitalName <- Sys.getenv("Test_hospitalName")
     userFullName <- "Test Testersen"  # tester rapport per bruker
-    userOperator<- Sys.getenv("Test_operator")
+    userOperator <- Sys.getenv("Test_operator")
     userRole <- "LC"
     registryName <- "test_ablanor_lokalt"
     author <- userFullName
@@ -152,7 +151,6 @@ server <- function(input, output, session) {
                       names(dataSets)[dataSets == input$selectedDataSet]))
     } else {
       if (input$isSelectAllVars) {
-        # vars <- names(metaDat())
         vars <- names(dat())
       } else {
         vars <- rvals$selectedVars
@@ -183,8 +181,8 @@ server <- function(input, output, session) {
 
 
 
-  # @fixme : Variablene blir sortert alfabetisk. Her er et eksempel på hvordan man kan
-  # styre rekkefølgen på levels. Også gjøre for måned f.eks?
+  # @fixme : Variablene blir sortert alfabetisk. Her er et eksempel på hvordan
+  # man kan styre rekkefølgen på levels. Også gjøre for måned f.eks?
   output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
       rpivotTable::rpivotTable(dat()[input$selectedVars],
@@ -236,15 +234,12 @@ server <- function(input, output, session) {
                     userRole = userRole,
                     userOperator = userOperator)
     )
-    #htmlRenderRmd("AblaNor_local_monthly.Rmd")
   })
 
   output$downloadReport <- shiny::downloadHandler(
     filename = function() {
       basename(tempfile(pattern = "AblaNor_local_monthly",
                         fileext = paste0(".", input$formatReport)))
-      #downloadFilename("AblaNor_local_monthly",
-                       #input$formatReport)
     },
     content = function(file) {
       fn <- rapbase::renderRmd(
@@ -259,9 +254,6 @@ server <- function(input, output, session) {
                       userOperator = userOperator)
       )
       file.rename(fn, file)
-      #contentFile(file, "AblaNor_local_monthly.Rmd",
-      #            basename(tempfile(fileext = ".Rmd")),
-      #            input$formatReport)
     }
   )
 
