@@ -187,7 +187,7 @@ d_ablanor %>%
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE) %>%
   dplyr::select(forlopstype_tekst, n) %>% 
   dplyr::rename("Forløpstype" = forlopstype_tekst) %>% 
-  ablanor::mst(.,
+  rapbase::mst(.,
                type = params$tableFormat,
                cap = "",
                digs = 1,
@@ -517,7 +517,7 @@ d_komplikasjonar_pacemaker %>%
                                       "0/0" = " -- ")) %>% 
   dplyr::mutate(Prosent = dplyr::recode(Prosent, 
                                         "NaN%" = " -- ")) %>% 
-  ablanor::mst(., type = params$tableFormat,
+  rapbase::mst(., type = params$tableFormat,
       digs = 1,
       align = "lcc",
       fs = 9, lsd = FALSE)
