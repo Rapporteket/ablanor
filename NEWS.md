@@ -1,8 +1,8 @@
 # ablanor 0.2.0
 
-* Standard RMardown rendering performed by rapbase functions ([#]())
+* Standard RMardown rendering performed by rapbase functions ([#](https://github.com/Rapporteket/ablanor/pull/7))
 * Applied temporal fix for converting variable names to lowercase (see [#6](https://github.com/Rapporteket/ablanor/issues/6))
-* Added some pimping of montly report (that might not be acceptable)
+* Added some pimping of monthly report (that might not be acceptable)
 * Made some code clean-up
 
 # ablanor 0.1.1
