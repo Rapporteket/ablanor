@@ -17,6 +17,8 @@ getProsPatientData <- function(registryName,
                                tekstVars = FALSE,
                                ...) {
 
+  . <- ""
+
   d <- getProsPatient(registryName, singleRow, ...)
 
   d_basereg <- d$basereg

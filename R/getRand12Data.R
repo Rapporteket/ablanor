@@ -17,6 +17,8 @@ getRand12Data <- function(registryName,
                           tekstVars = FALSE,
                           ...) {
 
+  . <- ""
+
   d <- getRand12(registryName, singleRow, ...)
   d_pros <- d$pros
   d_rand12 <- d$rand12
