@@ -250,6 +250,7 @@ server <- function(input, output, session) {
                       tableFormat = input$formatReport,
                       reshId = reshId,
                       registryName = registryName,
+                      userFullName = userFullName,
                       userRole = userRole,
                       userOperator = userOperator)
       )

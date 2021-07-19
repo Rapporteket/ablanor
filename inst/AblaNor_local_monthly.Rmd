@@ -1,21 +1,27 @@
 ---
-date: '`r format(Sys.time(), "%d. %B, %Y")`'
 params:
-  title: "Emty tite"
-  author: "Anon author"
-  hospitalName: "Ukjent sykehus"
-  tableFormat: "html"
-  reshId: "999999"
-  registryName: "rapbase"
-  userRole: "ukjent rolle"
-  userOperator: "ukjentBruker"
+  title: tom tittel
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
+  tableFormat: html
+  reshId: 999999
+  registryName: rapbase
+  userFullName: Tore Tester
+  userRole: ukjent rolle
+  userOperator: ukjent operatør"
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
   - \usepackage{float}
   - \usepackage{booktabs}
-title: "Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)"
+title: Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
+abstract: Her kan det legges inn et sammendrag av rapporten, om det er ønskelig... 
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+registryName: '`r params$registryName`'
+reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
+regtext: '`r readLines(system.file("registryShortDescription.txt", package = "ablanor"))`'
+userFullName: '`r params$userFullName`'
 output:
   fig_caption: yes
 ---
