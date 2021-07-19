@@ -185,8 +185,9 @@ NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
 ```
 
 # Forløpstype
-Tabellen under viser totalt antall forløp de `r showN` siste månedene. 
+Tabell \@ref(tab:typeForlopAar) under viser totalt antall forløp de `r showN` siste månedene. 
 ```{r typeForlopAar}
+cap <- paste("Totalt antall forløp de siste", showN, "månedene.")
 d_ablanor %>%  
   dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
@@ -195,15 +196,16 @@ d_ablanor %>%
   dplyr::rename("Forløpstype" = forlopstype_tekst) %>% 
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = "",
+               cap = cap,
+               label = "typeForlopAar",
                digs = 1,
                align = "lcc",
                fs = 9, lsd = FALSE)
 
 ```
 
-Figuren under viser antall forløp per måned de `r showN` siste månedene.
-```{r typeForlopFig, fig.cap = "Andel forløp per måned.", fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
+Figur \@ref(fig:typeForlopFig) viser antall forløp per måned de `r showN` siste månedene.
+```{r typeForlopFig, fig.cap = paste("Andel forløp per måned de siste", showN, "månedene"), fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
 
 d_forlop_mnd <- d_ablanor %>%
   dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
