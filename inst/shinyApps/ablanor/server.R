@@ -45,75 +45,6 @@ server <- function(input, output, session) {
   }
 
 
-  # html rendering function for re-use
-  htmlRenderRmd <- function(srcFile) {
-    # set param needed for report meta processing
-    params <- list(author = author,
-                   hospitalName = hospitalName,
-                   tableFormat = "html",
-                   reshId = reshId,
-                   registryName = registryName,
-                   userRole = userRole,
-                   userOperator = userOperator)
-    # do all kniting and rendering from temporary directory/file
-    sourceFile <- tempfile(fileext = ".Rmd")
-    file.copy(from = system.file(srcFile, package="ablanor"),
-              to = sourceFile,
-              overwrite = TRUE)
-    owd <- setwd(dirname(sourceFile))
-    on.exit(setwd(owd))
-    sourceFile %>%
-      knitr::knit() %>%
-      markdown::markdownToHTML(.,
-                               options = c("fragment_only",
-                                           "base64_images")) %>%
-      shiny::HTML()
-  }
-
-
-  # filename function for re-use
-  downloadFilename <- function(fileBaseName, type) {
-    paste(paste0(fileBaseName,
-                 as.character(as.integer(as.POSIXct(Sys.time())))),
-          sep = ".", switch(
-            type,
-            PDF = "pdf", HTML = "html")
-    )
-  }
-
-
-
-  # render file function for re-use
-  contentFile <- function(file, srcFile, tmpFile, type) {
-    src <- normalizePath(system.file(srcFile, package = "ablanor"))
-    # temporarily switch to the temp dir, in case we do not have write
-    # permission to the current working directory
-    owd <- setwd(tempdir())
-    on.exit(setwd(owd))
-    file.copy(src, tmpFile, overwrite = TRUE)
-
-    out <- rmarkdown::render(
-      tmpFile,
-      output_format = switch(
-        type,
-        PDF = rmarkdown::pdf_document(),
-        HTML = rmarkdown::html_document()),
-      params = list(
-        tableFormat = switch(
-          type,
-          PDF = "latex",
-          HTML = "html"),
-        hospitalName = hospitalName,
-        author = author,
-        reshId = reshId,
-        registryName = registryName,
-        userRole = userRole,
-        userOperator = userOperator),
-      output_dir = tempdir())
-    file.rename(out, file)
-  }
-
-
   contentDump <- function(file, type) {
     d <- ablanor::getDataDump(registryName, input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
@@ -146,8 +77,11 @@ server <- function(input, output, session) {
 
 
   # Start
-  output$veiledning <- renderUI({
-    htmlRenderRmd("veiledning.Rmd")
+  output$veiledning <- shiny::renderUI({
+    rapbase::renderRmd(
+      system.file("veiledning.Rmd", package = "ablanor"),
+      outputType = "html_fragment"
+    )
   })
 
 
@@ -291,18 +225,43 @@ server <- function(input, output, session) {
   # If LU-role, get report on own practice
   # If LC-role, get report on hospital practice
   output$maanedligRapport <- shiny::renderUI({
-    htmlRenderRmd("AblaNor_local_monthly.Rmd")
+    rapbase::renderRmd(
+      system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
+      outputType = "html_fragment",
+      params = list(author = author,
+                    hospitalName = hospitalName,
+                    tableFormat = "html",
+                    reshId = reshId,
+                    registryName = registryName,
+                    userRole = userRole,
+                    userOperator = userOperator)
+    )
+    #htmlRenderRmd("AblaNor_local_monthly.Rmd")
   })
 
   output$downloadReport <- shiny::downloadHandler(
     filename = function() {
-      downloadFilename("AblaNor_local_monthly",
-                       input$formatReport)
+      basename(tempfile(pattern = "AblaNor_local_monthly",
+                        fileext = paste0(".", input$formatReport)))
+      #downloadFilename("AblaNor_local_monthly",
+                       #input$formatReport)
     },
     content = function(file) {
-      contentFile(file, "AblaNor_local_monthly.Rmd",
-                  basename(tempfile(fileext = ".Rmd")),
-                  input$formatReport)
+      fn <- rapbase::renderRmd(
+        system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
+        outputType = input$formatReport,
+        params = list(author = author,
+                      hospitalName = hospitalName,
+                      tableFormat = input$formatReport,
+                      reshId = reshId,
+                      registryName = registryName,
+                      userRole = userRole,
+                      userOperator = userOperator)
+      )
+      file.rename(fn, file)
+      #contentFile(file, "AblaNor_local_monthly.Rmd",
+      #            basename(tempfile(fileext = ".Rmd")),
+      #            input$formatReport)
     }
   )
 

@@ -82,7 +82,7 @@ ui <- shiny::tagList(
         shiny::sidebarPanel(
           shiny::radioButtons("formatReport",
                               "Format for nedlasting",
-                              c("PDF", "HTML"),
+                              list(PDF = "pdf", HTML = "html"),
                               inline = FALSE),
           shiny::downloadButton("downloadReport", "Last ned!"),
           width = 2
