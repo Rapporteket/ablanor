@@ -117,6 +117,20 @@ ui <- shiny::tagList(
           shiny::uiOutput("subscriptionContent")
         )
       )
+    ),
+
+    shiny::tabPanel(
+      "Eksport",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          shiny::uiOutput("exportPidUI"),
+          shiny::uiOutput("exportKeyUI"),
+          shiny::uiOutput("exportDownloadUI")
+        ),
+        shiny::mainPanel(
+          shiny::htmlOutput("exportGuide", inline = TRUE)
+        )
+      )
     )
   )
 )

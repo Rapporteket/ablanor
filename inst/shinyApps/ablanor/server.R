@@ -385,4 +385,54 @@ server <- function(input, output, session) {
     rapbase::deleteAutoReport(selectedRepId)
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
+
+
+  # Eksport
+  ## reaktive funksjoner
+  pubkey <- shiny::reactive({
+    shiny::req(input$exportPid)
+    getUserPubkey(input$exportPid)
+  })
+
+  ## observers
+  # shiny::observeEvent(input$exportDownload, {
+  #   rv$filename <- ablanor::dumpFile("ablanor")
+  #   print(rv$filename)
+  # })
+
+  ## nedlasting
+  output$exportDownload <- shiny::downloadHandler(
+    filename = rv$exportFile,
+    content = function(file) {
+      rv$exportFile <- ablanor::dumpFile("AblanorRapporteket")
+      print(rv$exportfile)
+      file.copy(rv$exportFile, file)
+    }
+  )
+
+
+  ## brukerkontroller
+  output$exportPidUI <- shiny::renderUI({
+    shiny::selectInput("exportPid", "Velg mottaker:",
+                       getRepoContributors("ablanor"))
+  })
+  output$exportKeyUI <- shiny::renderUI({
+    if (length(pubkey()) == 0) {
+      shiny::p("No keys found!")
+    } else {
+      shiny::selectInput("exportKey", "Velg nøkkel:",
+                         selectListPubkey(pubkey()))
+    }
+  })
+  output$exportDownloadUI <- shiny::renderUI({
+    shiny::req(input$exportKey)
+    shiny::downloadButton("exportDownload", "Last ned!")
+  })
+
+
+  ## veileding
+  output$exportGuide <- shiny::renderUI({
+    rapbase::renderRmd(system.file("exportGuide.Rmd", package = "ablanor"),
+                       outputType = "html_fragment")
+  })
 }
