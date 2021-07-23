@@ -125,6 +125,7 @@ ui <- shiny::tagList(
         shiny::sidebarPanel(
           shiny::uiOutput("exportPidUI"),
           shiny::uiOutput("exportKeyUI"),
+          shiny::checkboxInput("exportCompress", "Komprimer eksport"),
           shiny::uiOutput("exportEncryptUI"),
           shiny::uiOutput("exportDownloadUI")
         ),

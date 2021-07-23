@@ -395,6 +395,13 @@ server <- function(input, output, session) {
   rv$exportClass <- "btn-warning"
 
   ## reaktive funksjoner
+  resetExport <- shiny::reactive({
+    rv$exportFile <- NULL
+    rv$exportText <- "Kryptér"
+    rv$exportIcon <- "lock-open"
+    rv$exportClass <- "btn-warning"
+  })
+
   pubkey <- shiny::reactive({
     shiny::req(input$exportPid)
     getUserPubkey(input$exportPid)
@@ -407,8 +414,13 @@ server <- function(input, output, session) {
     rv$exportIcon <- "lock-open"
     rv$exportClass <- "btn-warning"
   })
-
   shiny::observeEvent(input$exportKey, {
+    rv$exportFile <- NULL
+    rv$exportText <- "Kryptér"
+    rv$exportIcon <- "lock-open"
+    rv$exportClass <- "btn-warning"
+  })
+  shiny::observeEvent(input$exportCompress, {
     rv$exportFile <- NULL
     rv$exportText <- "Kryptér"
     rv$exportIcon <- "lock-open"
@@ -416,12 +428,14 @@ server <- function(input, output, session) {
   })
 
   shiny::observeEvent(input$exportEncrypt, {
-    f <- ablanor::dumpFile("AblanorRapporteket")
-    rv$exportFile <- sship::enc(f, pid = NULL, pubkey = input$exportKey)
-    print(rv$exportFile)
-    rv$exportText <- "Kryptert!"
-    rv$exportIcon <- "lock"
-    rv$exportClass <- "btn-success"
+    if (is.null(rv$exportFile)) {
+      f <- ablanor::dumpFile("AblanorRapporteket",
+                             compress = input$exportCompress)
+      rv$exportFile <- sship::enc(f, pid = NULL, pubkey = input$exportKey)
+      rv$exportText <- "Kryptert!"
+      rv$exportIcon <- "lock"
+      rv$exportClass <- "btn-success"
+    }
   })
 
   ## nedlasting
@@ -455,7 +469,10 @@ server <- function(input, output, session) {
     if (is.null(rv$exportFile)) {
       NULL
     } else {
-      shiny::downloadButton("exportDownload", "Last ned!")
+      shiny::tagList(
+        shiny::hr(),
+        shiny::downloadButton("exportDownload", "Last ned!")
+      )
     }
   })
 

@@ -3,6 +3,8 @@
 #' @param repo Character string providing github repository name
 #' @param user Character string with github username
 #' @param pubkey Character vector with public keys
+#' @param compress Logical if export data is to be compressed (using gzip).
+#' FALSE by default.
 #'
 #' @return Some data structure with info obtained from the github api
 #' @name export
@@ -53,11 +55,18 @@ dumpCommand <- function(registryName) {
 
 #' @rdname export
 #' @export
-dumpFile <- function(registryName) {
+dumpFile <- function(registryName, compress = FALSE) {
 
   file <- tempfile(pattern = registryName, fileext = ".sql")
   cmd <- paste(dumpCommand(registryName), ">", file)
   out <- system(cmd)
+
+  if (compress) {
+    inFile <- file
+    file <- paste0(inFile, ".gz")
+    cmd <- paste("gzip -f", inFile, ">", file)
+    out <- system(cmd)
+  }
 
   invisible(file)
 }

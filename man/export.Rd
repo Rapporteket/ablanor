@@ -17,7 +17,7 @@ selectListPubkey(pubkey)
 
 dumpCommand(registryName)
 
-dumpFile(registryName)
+dumpFile(registryName, compress = FALSE)
 }
 \arguments{
 \item{repo}{Character string providing github repository name}
@@ -25,6 +25,9 @@ dumpFile(registryName)
 \item{user}{Character string with github username}
 
 \item{pubkey}{Character vector with public keys}
+
+\item{compress}{Logical if export data is to be compressed (using gzip).
+FALSE by default.}
 }
 \value{
 Some data structure with info obtained from the github api
