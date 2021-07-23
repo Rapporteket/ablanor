@@ -388,6 +388,12 @@ server <- function(input, output, session) {
 
 
   # Eksport
+  ## reaktive verdier
+  rv$exportFile <- NULL
+  rv$exportText <- "Kryptér"
+  rv$exportIcon <- "lock-open"
+  rv$exportClass <- "btn-warning"
+
   ## reaktive funksjoner
   pubkey <- shiny::reactive({
     shiny::req(input$exportPid)
@@ -395,17 +401,33 @@ server <- function(input, output, session) {
   })
 
   ## observers
-  # shiny::observeEvent(input$exportDownload, {
-  #   rv$filename <- ablanor::dumpFile("ablanor")
-  #   print(rv$filename)
-  # })
+  shiny::observeEvent(input$exportPid, {
+    rv$exportFile <- NULL
+    rv$exportText <- "Kryptér"
+    rv$exportIcon <- "lock-open"
+    rv$exportClass <- "btn-warning"
+  })
+
+  shiny::observeEvent(input$exportKey, {
+    rv$exportFile <- NULL
+    rv$exportText <- "Kryptér"
+    rv$exportIcon <- "lock-open"
+    rv$exportClass <- "btn-warning"
+  })
+
+  shiny::observeEvent(input$exportEncrypt, {
+    f <- ablanor::dumpFile("AblanorRapporteket")
+    rv$exportFile <- sship::enc(f, pid = NULL, pubkey = input$exportKey)
+    print(rv$exportFile)
+    rv$exportText <- "Kryptert!"
+    rv$exportIcon <- "lock"
+    rv$exportClass <- "btn-success"
+  })
 
   ## nedlasting
   output$exportDownload <- shiny::downloadHandler(
-    filename = rv$exportFile,
+    filename = basename(rv$exportFile),
     content = function(file) {
-      rv$exportFile <- ablanor::dumpFile("AblanorRapporteket")
-      print(rv$exportfile)
       file.copy(rv$exportFile, file)
     }
   )
@@ -424,9 +446,17 @@ server <- function(input, output, session) {
                          selectListPubkey(pubkey()))
     }
   })
+  output$exportEncryptUI <- shiny::renderUI({
+    shiny::actionButton("exportEncrypt", rv$exportText,
+                        icon = shiny::icon(rv$exportIcon),
+                        class = rv$exportClass)
+  })
   output$exportDownloadUI <- shiny::renderUI({
-    shiny::req(input$exportKey)
-    shiny::downloadButton("exportDownload", "Last ned!")
+    if (is.null(rv$exportFile)) {
+      NULL
+    } else {
+      shiny::downloadButton("exportDownload", "Last ned!")
+    }
   })
 
 
