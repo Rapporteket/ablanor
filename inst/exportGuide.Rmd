@@ -9,10 +9,10 @@ Her kan statistikere som jobber med Rapporteket for Ablanor laste ned hele datab
 Under følger en kort veiledning for trygg og riktig bruk av eksportfunksjonen.
 
 ### Last ned og lagre fila
-Velg mottaker fra lista til venstre. For den valgte mottakeren vil det da være mulig å angi hvilken offentlig nøkkel som skal benyttes i krypteringen av innholdet. Det er en forutsetning at mottakeren av nedlastet fil har en brukerkonto på GitHub og at vedkommende har lagt ut minst én offentlig nøkkel der. Videre må denner brukeren også ha fått tilgang til registerets prosjekt i organisasjonen [Rapporteket på GitHub](https://github.com/Rapporteket). Ved spørsmål eller behov for hjelp, ta kontakt med [SKDE](mailto:rapporteket@helse-nord.no).
+Velg mottaker fra lista til venstre og deretter den nøkkelen som skal benyttes i krypteringen av innholdet. Det er en forutsetning at mottakeren har brukerkonto på GitHub og at vedkommende har lagt ut minst én offentlig nøkkel der. Videre må brukeren også ha tilgang til registerets prosjekt i organisasjonen [Rapporteket på GitHub](https://github.com/Rapporteket). Ved spørsmål eller behov for hjelp, [ta kontakt med SKDE](mailto:rapporteket@helse-nord.no).
 
 ### Dekryptering av innholdet i fila
-Fila slik den er lastet ned er sikret mot innsyn fra andre enn definert mottaker. Etter dekryptering vil denne sikringen ikke lengre eksistere og det er derfor viktig at dekryptering kun skjer i et område som har en ytre sikring, eksempelvis en datamaskin og et filområde på et sykehus som er godkjent for bruk til helse- og personopplysninger.
+Fila slik den er lastet ned er sikret mot innsyn fra andre enn definert mottaker. Etter dekryptering vil denne sikringen ikke lengre eksistere og det er derfor viktig at dekryptering kun skjer i et område som har en tilstrekkelig ytre sikring, eksempelvis en datamaskin og et filområde på et sykehus som er godkjent for bruk til helse- og personopplysninger.
 [R-pakken _sship_](https://github.com/Rapporteket/sship/) kan enkelt benyttes til dekryptering, eksempelvis:
 
 `sship::dec("export.tar.gz")`
