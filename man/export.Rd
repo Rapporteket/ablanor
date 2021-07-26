@@ -7,27 +7,37 @@
 \alias{selectListPubkey}
 \alias{dumpCommand}
 \alias{dumpFile}
+\alias{getGithub}
+\alias{exportDb}
 \title{Tools for exporting data}
 \usage{
-getRepoContributors(repo)
-
-getUserPubkey(user)
+getGithub(what, value, .token = NULL)
 
 selectListPubkey(pubkey)
 
-dumpCommand(registryName)
-
-dumpFile(registryName, compress = FALSE)
+exportDb(registryName, compress = FALSE, session)
 }
 \arguments{
-\item{repo}{Character string providing github repository name}
+\item{what}{Character string defining the api endpoint. Currently
+one of \code{c("contributors", "keys")}.}
 
-\item{user}{Character string with github username}
+\item{value}{Character string specifying what to collect from the given
+endpoint. For "contributors" this should be the name of the repository and
+for "keys" this should be a github user name.}
+
+\item{.token}{Character string providing av valid token that will be used if
+the api call requires authentication.}
 
 \item{pubkey}{Character vector with public keys}
 
 \item{compress}{Logical if export data is to be compressed (using gzip).
 FALSE by default.}
+
+\item{session}{Shiny session object}
+
+\item{repo}{Character string providing github repository name}
+
+\item{user}{Character string with github username}
 }
 \value{
 Some data structure with info obtained from the github api

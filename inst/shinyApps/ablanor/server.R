@@ -404,7 +404,7 @@ server <- function(input, output, session) {
 
   pubkey <- shiny::reactive({
     shiny::req(input$exportPid)
-    getUserPubkey(input$exportPid)
+    getGithub("keys", input$exportPid)
   })
 
   ## observers
@@ -429,8 +429,9 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(input$exportEncrypt, {
     if (is.null(rv$exportFile)) {
-      f <- ablanor::dumpFile("AblanorRapporteket",
-                             compress = input$exportCompress)
+      f <- ablanor::exportDb("AblanorRapporteket",
+                             compress = input$exportCompress,
+                             session)
       rv$exportFile <- sship::enc(f, pid = NULL, pubkey = input$exportKey)
       rv$exportText <- "Kryptert!"
       rv$exportIcon <- "lock"
@@ -443,6 +444,9 @@ server <- function(input, output, session) {
     filename = basename(rv$exportFile),
     content = function(file) {
       file.copy(rv$exportFile, file)
+    rapbase::repLogger(
+      session,
+      msg = paste("Db export file", basename(rv$exportFile), "downloaded"))
     }
   )
 
@@ -450,7 +454,7 @@ server <- function(input, output, session) {
   ## brukerkontroller
   output$exportPidUI <- shiny::renderUI({
     shiny::selectInput("exportPid", "Velg mottaker:",
-                       getRepoContributors("ablanor"))
+                       getGithub("contributors", "ablanor"))
   })
   output$exportKeyUI <- shiny::renderUI({
     if (length(pubkey()) == 0) {
