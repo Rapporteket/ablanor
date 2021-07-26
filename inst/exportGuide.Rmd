@@ -23,4 +23,4 @@ Det finnes også andre måter å dekryptere fila på. Mer om dette og øvrige de
 Eksportfila er etablert ved bruk av `mysqldump` og kan enkelt [imorteres i MySQL](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-option-examples). Hvis man benytter SKDE sitt utviklingsmiljø for Rapporteket kan eksportfila også importeres gjennom [importfunksjonen som finnes i verktøyet adminer](http://localhost:8888/?server=db&username=root&db=ablanor&import=).
 
 ## Sikkerhet
-Sikringen av data slik de lastes ned her er ivaretatt av [R-pakken `sship`](https://github.com/Rapporteket/sship/) i kombinasjon med samhandlingsverktøyet [Rapporteket på GitHub](https://github.com/Rapporteket). Mer detaljer om dette kan leses i [dokumentasjonen av _sship_](https://rapporteket.github.io/sship/articles/overview.html).
+Sikringen av data slik de lastes ned her er ivaretatt av [R-pakken _sship_](https://github.com/Rapporteket/sship/) i kombinasjon med samhandlingsverktøyet [Rapporteket på GitHub](https://github.com/Rapporteket). Mer detaljer om dette kan leses i [dokumentasjonen av _sship_](https://rapporteket.github.io/sship/articles/overview.html).
