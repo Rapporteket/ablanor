@@ -37,9 +37,10 @@ server <- function(input, output, session) {
   # Hide tabs when not role 'SC'
   if (userRole != "SC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
+    shiny::hideTab(inputId = "tabs", target = "Eksport")
   }
 
-  # Hide tabs when not role 'SC'
+  # Hide tabs when role 'SC'
   if (userRole == "SC") {
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
   }
