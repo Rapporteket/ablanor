@@ -454,15 +454,23 @@ server <- function(input, output, session) {
 
   ## brukerkontroller
   output$exportPidUI <- shiny::renderUI({
-    shiny::selectInput("exportPid", "Velg mottaker:",
-                       rapbase::getGithub("contributors", "ablanor"))
+    shiny::selectInput(
+      "exportPid",
+      label = shiny::tags$div(
+        shiny::HTML(as.character(shiny::icon("user")), "Velg mottaker:")
+      ),
+      choices =  rapbase::getGithub("contributors", "ablanor"))
   })
   output$exportKeyUI <- shiny::renderUI({
     if (length(pubkey()) == 0) {
       shiny::p("No keys found!")
     } else {
-      shiny::selectInput("exportKey", "Velg nøkkel:",
-                         rapbase::selectListPubkey(pubkey()))
+      shiny::selectInput(
+        "exportKey",
+        label = shiny::tags$div(
+          shiny::HTML(as.character(shiny::icon("key")), "Velg nøkkel:")
+        ),
+        choices = rapbase::selectListPubkey(pubkey()))
     }
   })
   output$exportEncryptUI <- shiny::renderUI({
