@@ -404,7 +404,7 @@ server <- function(input, output, session) {
 
   pubkey <- shiny::reactive({
     shiny::req(input$exportPid)
-    getGithub("keys", input$exportPid)
+    rapbase::getGithub("keys", input$exportPid)
   })
 
   ## observers
@@ -429,7 +429,7 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(input$exportEncrypt, {
     if (is.null(rv$exportFile)) {
-      f <- ablanor::exportDb("AblanorRapporteket",
+      f <- rapbase::exportDb(registryName,
                              compress = input$exportCompress,
                              session)
       rv$exportFile <- sship::enc(f, pid = NULL, pubkey = input$exportKey)
@@ -454,14 +454,14 @@ server <- function(input, output, session) {
   ## brukerkontroller
   output$exportPidUI <- shiny::renderUI({
     shiny::selectInput("exportPid", "Velg mottaker:",
-                       getGithub("contributors", "ablanor"))
+                       rapbase::getGithub("contributors", "ablanor"))
   })
   output$exportKeyUI <- shiny::renderUI({
     if (length(pubkey()) == 0) {
       shiny::p("No keys found!")
     } else {
       shiny::selectInput("exportKey", "Velg nøkkel:",
-                         selectListPubkey(pubkey()))
+                         rapbase::selectListPubkey(pubkey()))
     }
   })
   output$exportEncryptUI <- shiny::renderUI({
