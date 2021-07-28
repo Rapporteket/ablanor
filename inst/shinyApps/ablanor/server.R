@@ -492,7 +492,9 @@ server <- function(input, output, session) {
 
   ## veileding
   output$exportGuide <- shiny::renderUI({
-    rapbase::renderRmd(system.file("exportGuide.Rmd", package = "ablanor"),
-                       outputType = "html_fragment")
+    rapbase::renderRmd(
+      sourceFile = system.file("exportGuide.Rmd", package = "ablanor"),
+      outputType = "html_fragment",
+      params = list(registryName = registryName))
   })
 }
