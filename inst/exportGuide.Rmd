@@ -12,7 +12,7 @@ Under følger en kort veiledning for trygg og riktig bruk av eksportfunksjonen.
 Velg mottaker fra lista til venstre og deretter den nøkkelen som skal benyttes i krypteringen av innholdet. Det er en forutsetning at mottakeren har brukerkonto på GitHub og at vedkommende har lagt ut minst én offentlig nøkkel der. Videre må brukeren også ha tilgang til registerets prosjekt i organisasjonen [Rapporteket på GitHub](https://github.com/Rapporteket). Ved spørsmål eller behov for hjelp, [ta kontakt med SKDE](mailto:rapporteket@helse-nord.no).
 
 ### Dekryptering av innholdet i fila
-Fila slik den er lastet ned er sikret mot innsyn fra andre enn definert mottaker. Etter dekryptering vil denne sikringen ikke lengre eksistere og det er derfor viktig at dekryptering kun skjer i et område som har en tilstrekkelig ytre sikring, eksempelvis en datamaskin og et filområde på et sykehus som er godkjent for bruk til helse- og personopplysninger.
+Fila slik den er lastet ned er sikret mot innsyn fra andre enn definert mottaker. Etter dekryptering finnes det ingen slik sikringen og det er derfor viktig at dekryptering kun skjer i et område som har en tilstrekkelig ytre sikring, eksempelvis en datamaskin og et filområde på et registerkontor der helse- og personopplysninger kan håndteres med tilstrekkelig lav risiko.
 [R-pakken _sship_](https://github.com/Rapporteket/sship/) kan enkelt benyttes til dekryptering, eksempelvis:
 
 `sship::dec("export.tar.gz")`
@@ -20,7 +20,7 @@ Fila slik den er lastet ned er sikret mot innsyn fra andre enn definert mottaker
 Det finnes også andre måter å dekryptere fila på. Mer om dette og øvrige detaljer finnes i [dokumentasjonen av _sship_](https://rapporteket.github.io/sship/articles/extract.html).
 
 ### Import av databasen
-Eksportfila er etablert ved bruk av `mysqldump` og kan enkelt [imorteres i MySQL](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-option-examples). Hvis man benytter SKDE sitt utviklingsmiljø for Rapporteket kan eksportfila også importeres gjennom [importfunksjonen som finnes i verktøyet adminer](http://localhost:8888/?server=db&username=root&db=ablanor&import=).
+Eksportfila er etablert ved bruk av `mysqldump` og kan enkelt [importeres i MySQL](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-option-examples). Hvis man benytter SKDE sitt utviklingsmiljø for Rapporteket kan eksportfila også importeres gjennom [importfunksjonen som finnes i verktøyet _adminer_](http://localhost:8888/?server=db&username=root&db=ablanor&import=).
 
 ## Sikkerhet
-Sikringen av data slik de lastes ned her er ivaretatt av [R-pakken _sship_](https://github.com/Rapporteket/sship/) i kombinasjon med samhandlingsverktøyet [Rapporteket på GitHub](https://github.com/Rapporteket). Mer detaljer om dette kan leses i [dokumentasjonen av _sship_](https://rapporteket.github.io/sship/articles/overview.html).
+Sikringen av data slik de lastes ned her er ivaretatt av [R-pakken _sship_](https://github.com/Rapporteket/sship/) i kombinasjon med samhandlingsverktøyet [Rapporteket på GitHub](https://github.com/Rapporteket). Ytterligere detaljer finnes i [dokumentasjonen av _sship_](https://rapporteket.github.io/sship/articles/overview.html).
