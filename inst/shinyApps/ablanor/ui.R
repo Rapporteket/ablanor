@@ -123,14 +123,10 @@ ui <- shiny::tagList(
       "Eksport",
       shiny::sidebarLayout(
         shiny::sidebarPanel(
-          shiny::uiOutput("exportPidUI"),
-          shiny::uiOutput("exportKeyUI"),
-          shiny::checkboxInput("exportCompress", "Komprimer eksport"),
-          shiny::uiOutput("exportEncryptUI"),
-          shiny::uiOutput("exportDownloadUI")
+          rapbase::exportUCInput("ablanorExport")
         ),
         shiny::mainPanel(
-          shiny::htmlOutput("exportGuide", inline = TRUE)
+          rapbase::exportGuideUI("ablanorExportGuide")
         )
       )
     )

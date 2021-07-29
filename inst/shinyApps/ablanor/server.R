@@ -9,7 +9,7 @@ server <- function(input, output, session) {
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
-    registryName <- "AblanorRapporteket"
+    registryName <- "ablanor"
     mapOrgId <- ablanor::getNameReshId(registryName)
     reshId <- rapbase::getUserReshId(session)
     hospitalName <- ablanor::getHospitalName(registryName, reshId)
@@ -389,112 +389,9 @@ server <- function(input, output, session) {
 
 
   # Eksport
-  ## reaktive verdier
-  rv$exportFile <- NULL
-  rv$exportText <- "Kryptér"
-  rv$exportIcon <- "lock-open"
-  rv$exportClass <- "btn-warning"
-
-  ## reaktive funksjoner
-  resetExport <- shiny::reactive({
-    rv$exportFile <- NULL
-    rv$exportText <- "Kryptér"
-    rv$exportIcon <- "lock-open"
-    rv$exportClass <- "btn-warning"
-  })
-
-  pubkey <- shiny::reactive({
-    shiny::req(input$exportPid)
-    rapbase::getGithub("keys", input$exportPid)
-  })
-
-  ## observers
-  shiny::observeEvent(input$exportPid, {
-    rv$exportFile <- NULL
-    rv$exportText <- "Kryptér"
-    rv$exportIcon <- "lock-open"
-    rv$exportClass <- "btn-warning"
-  })
-  shiny::observeEvent(input$exportKey, {
-    rv$exportFile <- NULL
-    rv$exportText <- "Kryptér"
-    rv$exportIcon <- "lock-open"
-    rv$exportClass <- "btn-warning"
-  })
-  shiny::observeEvent(input$exportCompress, {
-    rv$exportFile <- NULL
-    rv$exportText <- "Kryptér"
-    rv$exportIcon <- "lock-open"
-    rv$exportClass <- "btn-warning"
-  })
-
-  shiny::observeEvent(input$exportEncrypt, {
-    if (is.null(rv$exportFile)) {
-      f <- rapbase::exportDb(registryName,
-                             compress = input$exportCompress,
-                             session)
-      rv$exportFile <- sship::enc(f, pid = NULL, pubkey = input$exportKey)
-      rv$exportText <- "Kryptert!"
-      rv$exportIcon <- "lock"
-      rv$exportClass <- "btn-success"
-    }
-  })
-
-  ## nedlasting
-  output$exportDownload <- shiny::downloadHandler(
-    filename = basename(rv$exportFile),
-    content = function(file) {
-      file.copy(rv$exportFile, file)
-    rapbase::repLogger(
-      session,
-      msg = paste("Db export file", basename(rv$exportFile), "downloaded"))
-    }
-  )
-
-
   ## brukerkontroller
-  output$exportPidUI <- shiny::renderUI({
-    shiny::selectInput(
-      "exportPid",
-      label = shiny::tags$div(
-        shiny::HTML(as.character(shiny::icon("user")), "Velg mottaker:")
-      ),
-      choices =  rapbase::getGithub("contributors", "ablanor"))
-  })
-  output$exportKeyUI <- shiny::renderUI({
-    if (length(pubkey()) == 0) {
-      shiny::p("No keys found!")
-    } else {
-      shiny::selectInput(
-        "exportKey",
-        label = shiny::tags$div(
-          shiny::HTML(as.character(shiny::icon("key")), "Velg nøkkel:")
-        ),
-        choices = rapbase::selectListPubkey(pubkey()))
-    }
-  })
-  output$exportEncryptUI <- shiny::renderUI({
-    shiny::actionButton("exportEncrypt", rv$exportText,
-                        icon = shiny::icon(rv$exportIcon),
-                        class = rv$exportClass)
-  })
-  output$exportDownloadUI <- shiny::renderUI({
-    if (is.null(rv$exportFile)) {
-      NULL
-    } else {
-      shiny::tagList(
-        shiny::hr(),
-        shiny::downloadButton("exportDownload", "Last ned!")
-      )
-    }
-  })
-
+  rapbase::exportUCServer("ablanorExport", registryName)
 
   ## veileding
-  output$exportGuide <- shiny::renderUI({
-    rapbase::renderRmd(
-      sourceFile = system.file("exportGuide.Rmd", package = "rapbase"),
-      outputType = "html_fragment",
-      params = list(registryName = registryName))
-  })
+  rapbase::exportGuideServer("ablanorExportGuide", registryName)
 }
