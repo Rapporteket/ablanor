@@ -13,9 +13,8 @@ services:
       - db
     image: rapporteket/ablanor-dev:main
     volumes:
-      - ~/.ssh:/tmp/.ssh
+      - ~/.ssh:/home/rstudio/.ssh
       - ~/.gitconfig:/home/rstudio/.gitconfig
-      - ./payload.tar.gz:/home/rstudio/regData/payload.tar.gz
     ports:
       - "8787:8787"
       - "3838:3838"
