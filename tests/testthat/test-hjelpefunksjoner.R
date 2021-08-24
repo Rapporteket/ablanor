@@ -2,12 +2,12 @@ test_that("Kontroll forløpstype kortnavn", {
 
   x <- data.frame(forlopstype = rep(1:4, 2))
   x_kb <- ablanor::legg_til_forlopstype_kortnavn(x, total = FALSE)
-  expect_true(all(x_kb[x_kb$forlopstype_tekst == "AFLI", "forlopstype"] ==1))
+  expect_true(all(x_kb[x_kb$forlopstype_tekst == "AFLI", "forlopstype"] == 1))
   expect_true(all(x_kb[x_kb$forlopstype_tekst == "VT", "forlopstype"] == 2))
   expect_true(all(x_kb[x_kb$forlopstype_tekst == "SVT", "forlopstype"] == 3))
   expect_true(all(x_kb[x_kb$forlopstype_tekst == "EFU", "forlopstype"] == 4))
 
-  x <- data.frame(forlopstype = c(0,5))
+  x <- data.frame(forlopstype = c(0, 5))
   x_kb <- ablanor::legg_til_forlopstype_kortnavn(x, total = FALSE)
   expect_true(all(is.na(x_kb$forlopstype_tekst)))
 
@@ -16,7 +16,7 @@ test_that("Kontroll forløpstype kortnavn", {
   expect_true(is.na(x_kb$forlopstype_tekst)[9])
 
 
-  x <- data.frame(forlopstype = c(1, 2, 3, 4,"Total"),
+  x <- data.frame(forlopstype = c(1, 2, 3, 4, "Total"),
                   n = c(2, 7, 5, 1, 15))
   x_kb <- ablanor::legg_til_forlopstype_kortnavn(x, total = TRUE)
   expect_true(x_kb$forlopstype_tekst[5] == "Totalt")

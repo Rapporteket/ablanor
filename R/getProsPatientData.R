@@ -17,6 +17,8 @@ getProsPatientData <- function(registryName,
                                tekstVars = FALSE,
                                ...) {
 
+  . <- ""
+
   d <- getProsPatient(registryName, singleRow, ...)
 
   d_basereg <- d$basereg
@@ -44,11 +46,11 @@ getProsPatientData <- function(registryName,
 
 
   # MERGE DATASETTENE :
-  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i ein
-  # prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for andre
-  # forløp vert filtrerte vekk. Viss ein person for eksempel berre har eit
-  # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
-  # filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
+  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
+  # ein prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for
+  # andre forløp vert filtrerte vekk. Viss ein person for eksempel berre har
+  # eit basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også
+  # vera filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
   # pasientdatasettet og andre datasett).
   # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
   # finst vert tekne med.
@@ -210,10 +212,11 @@ getProsPatientData <- function(registryName,
 
 
 
-  if (tekstVars ==TRUE) {
+  if (tekstVars == TRUE) {
     # LEGGE TIL VARIABLER I TEKST FORMAT FOR KATEGORISEK VARIABLER
     # (Bare for pivot table, ikke for månedsrapport)
-    # Her må vi komme frem til en løsning. Kan vi bruke tekst-variablene direkte?
+    # Her må vi komme frem til en løsning. Kan vi bruke tekst-variablene
+    # direkte?
     # Evt merge tekst-variablene og de numeriske for å ha begge variantene for
     # noen variabler ? Vi må ha de numeriske for å bruke samme kode for å
     # utlede variabler.

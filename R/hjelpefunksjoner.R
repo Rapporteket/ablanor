@@ -26,7 +26,7 @@ legg_til_forlopstype_kortnavn <- function(df, total = FALSE) {
         forlopstype == 2 ~ "VT",
         forlopstype == 3 ~ "SVT",
         forlopstype == 4 ~ "EFU",
-        forlopstype == "Total" ~ "Totalt" ))
+        forlopstype == "Total" ~ "Totalt"))
   } else {
     df %>%
       dplyr::mutate(forlopstype_tekst = dplyr::case_when(

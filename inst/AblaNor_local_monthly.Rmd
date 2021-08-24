@@ -1,21 +1,27 @@
 ---
-date: '`r format(Sys.time(), "%d. %B, %Y")`'
 params:
-  title: "Emty tite"
-  author: "Anon author"
-  hospitalName: "Ukjent sykehus"
-  tableFormat: "html"
-  reshId: "999999"
-  registryName: "rapbase"
-  userRole: "ukjent rolle"
-  userOperator: "ukjentBruker"
+  title: tom tittel
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
+  tableFormat: html
+  reshId: 999999
+  registryName: rapbase
+  userFullName: Tore Tester
+  userRole: ukjent rolle
+  userOperator: ukjent operatør"
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
   - \usepackage{float}
   - \usepackage{booktabs}
-title: "Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)"
+title: Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
+abstract: Her kan det legges inn et sammendrag av rapporten, om det er ønskelig... 
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+registryName: '`r params$registryName`'
+reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
+regtext: '`r readLines(system.file("registryShortDescription.txt", package = "ablanor"))`'
+userFullName: '`r params$userFullName`'
 output:
   fig_caption: yes
 ---
@@ -174,29 +180,31 @@ NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
 <br>
 
 
-```{r pagebreak4, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak4, results = "asis", eval = (params$tableFormat == "pdf")}
   cat("\n\n\\pagebreak\n")
 ```
 
 # Forløpstype
-Tabellen under viser totalt antall forløp de `r showN` siste månedene. 
-```{r type_forlop_aar}
+Tabell \@ref(tab:typeForlopAar) under viser totalt antall forløp de `r showN` siste månedene. 
+```{r typeForlopAar}
+cap <- paste("Totalt antall forløp de siste", showN, "månedene.")
 d_ablanor %>%  
   dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE) %>%
   dplyr::select(forlopstype_tekst, n) %>% 
   dplyr::rename("Forløpstype" = forlopstype_tekst) %>% 
-  ablanor::mst(., type = params$tableFormat,
-      cap = "",
-      digs = 1,
-      align = "lcc",
-      fs = 9, lsd = FALSE)
+  rapbase::mst(.,
+               type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = "lcc",
+               fs = 9, lsd = FALSE)
 
 ```
 
-Figuren under viser antall forløp per måned de `r showN` siste månedene.
-```{r type_forlop_fig, fig.cap = "Andel forløp per måned.", fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
+Figur \@ref(fig:typeForlopFig) viser antall forløp per måned de `r showN` siste månedene.
+```{r typeForlopFig, fig.cap = paste("Andel forløp per måned de siste", showN, "månedene"), fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
 
 d_forlop_mnd <- d_ablanor %>%
   dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
@@ -229,7 +237,7 @@ ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_t
 # Komplikasjoner
 Figuren under viser prosentvis fordeling av forløp med minst en komplikasjon per
 måned. 
-```{r Komplikasjoner_fig, fig.cap = "Andel komplikasjoner per måned.", fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r komplikasjonerFig, fig.cap = "Andel komplikasjoner per måned.", fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 d_kompl_fig <- d_ablanor %>%
   dplyr::select(maaned, komp_janei) %>%
@@ -262,7 +270,7 @@ ggplot2::ggplot(data = d_kompl_fig2, aes(y = komp_pros, x = maaned)) +
 Tabellen viser andel forløp med komplikasjoner, totalt og i undergrupper. 
 Merk at dersom Forløpstype, Alder eller BMI mangler for et forløp, teller 
 ikke dette forløpet i undergruppene. 
-```{r komplikasjoner_maaned_tabell}
+```{r komplikasjonerMaanedTabell}
 
 d_komp_tot <- d_ablanor %>%
   dplyr::select(komp_janei, maaned) %>%
@@ -325,6 +333,9 @@ d_komp_TOTAL <- d_komp_forlop %>%
 
 
 knitr::kable(x = d_komp_TOTAL,
+             format = switch(params$tableFormat,
+                             pdf = "latex",
+                             html = "html"),
              align = c("l", rep("c", 9)),
              booktabs = TRUE) %>%
   kableExtra::add_header_above(c(" " = 1,
@@ -350,7 +361,7 @@ knitr::kable(x = d_komp_TOTAL,
 I dette avsnittet er det kun pasienter som har blitt abladert som er
 inkludert i analysene. Figuren under viser prosentvis fordeling av forløp med
 akutt suksess. 
-```{r akuttSuksess_fig, fig.cap = "Antall (prosent) forløp med akutt suksess", fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r akuttSuksessFig, fig.cap = "Antall (prosent) forløp med akutt suksess", fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
 d_akutt_suksess_fig <- d_ablanor %>%
   dplyr::select(maaned, abla_strat_ingen, akutt_suksess) %>%
@@ -385,7 +396,7 @@ ggplot2::ggplot(data = d_akutt_suksess_fig2, aes(y = akuttSuksess_pros, x = maan
 Tabellen viser akutt suksess (blant abladerte) per måned, totalt og
 i undergrupper. 
 
-```{r akuttSuksess_maaned}
+```{r akuttSuksessMaaned}
 
 d_akuttSuksess_tot <- d_ablanor %>%
   dplyr::select(abla_strat_ingen, akutt_suksess, maaned) %>%
@@ -462,6 +473,9 @@ d_akuttSuksess_TOTAL <- dplyr::left_join(
 
 
 knitr::kable(x = d_akuttSuksess_TOTAL,
+             format = switch(params$tableFormat,
+                             pdf = "latex",
+                             html = "html"),
              align = c("l", rep("c",12)),
              booktabs = TRUE,
              col.names = ablanor::string_pad(c("Måned",
@@ -482,7 +496,7 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
 
 # Prosedyrerelatert AV-blokk
 Andel forløp med AV-blokk med pacemakerimplantasjon som følge av operasjonen.
-```{r av_blokk_tabell}
+```{r avBlokkTabell}
 d_komplikasjonar_pacemaker <- d_ablanor %>%
   dplyr::select(maaned, komp_avblokk_pm) %>%
   ablanor::ki_komplikasjonar_pacemaker() %>%
@@ -510,7 +524,7 @@ d_komplikasjonar_pacemaker %>%
                                       "0/0" = " -- ")) %>% 
   dplyr::mutate(Prosent = dplyr::recode(Prosent, 
                                         "NaN%" = " -- ")) %>% 
-  ablanor::mst(., type = params$tableFormat,
+  rapbase::mst(., type = params$tableFormat,
       digs = 1,
       align = "lcc",
       fs = 9, lsd = FALSE)
@@ -528,7 +542,7 @@ Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig
 kort eller lang prosedyrevarighet (prosedyrevarighet >1,5 ganger IQR). 
 
 
-```{r FigProsedyreVarighet_min, fig.cap = "Prosedyrevarighet [min] per måned.", fig.align = 'center',  out.width = "\\textwidth", fig.width = 10, fig.height = 6}
+```{r figProsedyreVarighetMin, fig.cap = "Prosedyrevarighet [min] per måned.", fig.align = 'center',  out.width = "\\textwidth", fig.width = 10, fig.height = 6}
 
 d_ablanor %>% filter(!is.na(pros_varighet)) %>% 
   ggplot2::ggplot(aes(x = maaned, y = pros_varighet)) +
@@ -549,7 +563,7 @@ undergrupper. Eventuelle forløp med manglende prosedyrevarighet er fjernet fra
 tabellen. Dersom et forløp mangler forløpstype, alder, BMI, informasjon om ICD
 eller kardiomyopati, teller ikke forløpene i undergruppene. Summen av 
 undergruppene kan derfor variere noe fra totalen. 
-```{r prosedyre_varighet_total}
+```{r prosedyreVarighetTotal}
 # VARIGHET prosedyre per måned, TOTALT :
 d_varighet_pros_tot <- d_ablanor %>%
   filter(!is.na(pros_varighet)) %>% 
@@ -662,11 +676,14 @@ d_varighet_pros_TOTAL <-
 ```
 
 
-```{r tabell_prosedyrevarighet_1}
+```{r tabellProsedyrevarighet1}
 
 cap <- "Gjennomsnittlig prosedyrevarighet i minutter - gjennomsnitt [antall], del 1"
 knitr::kable(
    x = d_varighet_pros_TOTAL[, 1:10],
+   format = switch(params$tableFormat,
+                             pdf = "latex",
+                             html = "html"),
    align = c("l", rep("c", 9)),
    caption = cap,
    booktabs = TRUE) %>%
@@ -682,10 +699,13 @@ knitr::kable(
 ```
 
 
-```{r tabell_prosedyrevarighet_2}
+```{r tabellProsedyrevarighet2}
 cap <- "Gjennomsnittlig prosedyrevarighet i minutter - gjennomsnitt [antall], del 2"
 knitr::kable(
    x = d_varighet_pros_TOTAL[, c(1, 11:18)],
+   format = switch(params$tableFormat,
+                             pdf = "latex",
+                             html = "html"),
    align = c("l", rep("c", 8)),
    caption = cap,
    booktabs = TRUE,
@@ -712,7 +732,7 @@ Den blå boksen markerer verdiene til nedre og øvre kvartil, samt medianen.
 Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig
 kort eller lang røntgenvarighet (varighet >1,5 ganger IQR). 
 
-```{r FigRontgenVarighet_min, fig.cap = "Røntgentid [min] per måned.", fig.align = 'center',  out.width = "\\textwidth", fig.width = 10, fig.height = 6 }
+```{r figRontgenVarighetMin, fig.cap = "Røntgentid [min] per måned.", fig.align = 'center',  out.width = "\\textwidth", fig.width = 10, fig.height = 6 }
 d_varighet_tot_maaned <- d_ablanor %>%
   filter(!is.na(rtg_tid)) %>% 
   dplyr::select(maaned, rtg_tid) %>%
@@ -728,7 +748,7 @@ d_varighet_tot_maaned %>%
 ```
 
 
-```{r tabell_rontgenvarighet_forberede}
+```{r tabellRontgenvarighetForberede}
 # VARIGHET røntgen per måned TOTALT:
 d_varighetRtg_mnd <- d_ablanor %>%
   filter(!is.na(rtg_tid)) %>% 
@@ -776,10 +796,13 @@ forløpstype. Eventuelle forløp med manglende røntgenvarighet er fjernet fra
 tabellen. Dersom et forløp mangler forløpstype, vil dette foløpet ikke telle i
 undergruppene. Summen av undergruppene kan derfor variere noe fra totalen. 
 
-```{r tabell_rontgenvarighet_1}
+```{r tabellRontgenvarighet1}
 cap <- "Gjennomsnittlig røntgenvarighet i minutter - gjennomsnitt [antall]."
 knitr::kable(
    x = d_varighetRtg_TOTAL,
+   format = switch(params$tableFormat,
+                             pdf = "latex",
+                             html = "html"),
    align = c("l", rep("c", 5)),
    caption = cap,
    booktabs = TRUE) %>%

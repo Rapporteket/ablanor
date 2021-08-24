@@ -1,6 +1,6 @@
 Package: ablanor
 Title: AblaNor- Rapporteket
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: c(
   person(given = "Kristina",
            family = "Skaare",
@@ -39,6 +39,7 @@ Imports:
     RMariaDB,
     rpivotTable,
     shiny,
+    shinyalert,
     stringr,
     tidyr,
     tidyselect

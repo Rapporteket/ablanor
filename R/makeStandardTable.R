@@ -41,23 +41,25 @@ NULL
 
 #' @rdname makeStandardTable
 #' @export
-mst <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
+mst <- function(tab, col_names = colnames(tab), type = "pdf", cap = "",
                 label = "", digs = 0, align = NULL, fs = 14, lsd = FALSE) {
 
-  if (type == "latex") {
+  if (type == "pdf") {
     if (lsd) {
       lo <- c("HOLD_position", "scale_down")
     } else {
       lo <- c("HOLD_position")
     }
-    k <- knitr::kable(tab, format = type, col.names = col_names, caption = cap,
+    k <- knitr::kable(tab, format = "latex", col.names = col_names,
+                      caption = cap,
                       label = label, digits = digs,
                       align = align, booktabs = TRUE) %>%
       kableExtra::kable_styling(latex_options = lo, font_size = fs)
   }
 
   if (type == "html") {
-    k <- knitr::kable(tab, format = type, col.names = col_names, caption = cap,
+    k <- knitr::kable(tab, format = "html", col.names = col_names,
+                      caption = cap,
                       label = label, digits = digs,
                       align = align) %>%
       kableExtra::kable_styling(
@@ -70,11 +72,11 @@ mst <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
 
 #' @rdname makeStandardTable
 #' @export
-mst_short <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
+mst_short <- function(tab, col_names = colnames(tab), type = "pdf", cap = "",
                 label = "", digs = 0, align = NULL, fs = 14, lsd = FALSE,
                 full_width = FALSE) {
 
-  if (type == "latex") {
+  if (type == "pdf") {
     if (lsd) {
       lo <- c("HOLD_position", "scale_down")
     } else {
@@ -94,4 +96,3 @@ mst_short <- function(tab, col_names = colnames(tab), type = "latex", cap = "",
   }
   k
 }
-

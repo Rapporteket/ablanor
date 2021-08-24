@@ -9,7 +9,7 @@
 mst(
   tab,
   col_names = colnames(tab),
-  type = "latex",
+  type = "pdf",
   cap = "",
   label = "",
   digs = 0,
@@ -21,7 +21,7 @@ mst(
 mst_short(
   tab,
   col_names = colnames(tab),
-  type = "latex",
+  type = "pdf",
   cap = "",
   label = "",
   digs = 0,
