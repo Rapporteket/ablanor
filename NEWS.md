@@ -2,8 +2,9 @@
 
 * Standard RMardown rendering performed by rapbase functions ([#7](https://github.com/Rapporteket/ablanor/pull/7))
 * Applied temporal fix for converting variable names to lowercase (see [#6](https://github.com/Rapporteket/ablanor/issues/6))
+* Added report allowing registry data export for statistical and development purposes ([#9](https://github.com/Rapporteket/ablanor/pull/9))
 * Added some pimping of monthly report (that might not be acceptable)
-* Made some code clean-up
+* General code clean-up
 
 # ablanor 0.1.1
 
