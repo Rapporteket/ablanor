@@ -117,6 +117,18 @@ ui <- shiny::tagList(
           shiny::uiOutput("subscriptionContent")
         )
       )
+    ),
+
+    shiny::tabPanel(
+      "Eksport",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::exportUCInput("ablanorExport")
+        ),
+        shiny::mainPanel(
+          rapbase::exportGuideUI("ablanorExportGuide")
+        )
+      )
     )
   )
 )
