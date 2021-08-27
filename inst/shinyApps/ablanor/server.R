@@ -343,6 +343,25 @@ server <- function(input, output, session) {
   })
 
 
+  # Utsendelse
+  shiny::observeEvent(rorg(), {
+    print(rorg())
+  })
+
+  reports <- list(
+    Testrapport = list(
+      synopsis = "Fantasirapport kun for visuell test",
+      fun = "processReport",
+      paramNames = c("arg1", "arg2"),
+      paramValues = c(1, "yes")
+    )
+  )
+  rorg <-rapbase::autoReportServer(
+    id = "ablanorDispatchment", registryName = registryName,
+    type = "dispatchment", reports = reports,
+    orgs = getNameReshId(registryName = registryName, asNamedList = TRUE)
+  )
+
   # Eksport
   ## brukerkontroller
   rapbase::exportUCServer("ablanorExport", registryName)

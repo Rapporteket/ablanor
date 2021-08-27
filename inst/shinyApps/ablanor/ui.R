@@ -120,6 +120,18 @@ ui <- shiny::tagList(
     ),
 
     shiny::tabPanel(
+      "Utsending",
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          rapbase::autoReportInput("ablanorDispatchment")
+        ),
+        shiny::mainPanel(
+          rapbase::autoReportUI("ablanorDispatchment")
+        )
+      )
+    ),
+
+    shiny::tabPanel(
       "Eksport",
       shiny::sidebarLayout(
         shiny::sidebarPanel(
