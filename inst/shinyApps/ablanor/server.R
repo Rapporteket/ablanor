@@ -344,22 +344,32 @@ server <- function(input, output, session) {
 
 
   # Utsendelse
-  shiny::observeEvent(rorg(), {
-    print(rorg())
-  })
-
   reports <- list(
-    Testrapport = list(
-      synopsis = "Fantasirapport kun for visuell test",
-      fun = "processReport",
-      paramNames = c("arg1", "arg2"),
-      paramValues = c(1, "yes")
+    Veiledning = list(
+      synopsis = "Startside til AblaNor på Rapporteket som testrapport",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title"),
+      paramValues = c("veiledning", "html", "En testrapport")
+    ),
+    "Månedlige resultater" = list(
+      synopsis = "Månedlige resultater sykehus/avdeling",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title", "orgId"),
+      paramValues = c("local_montly", "pdf", "Månedsresultater", 999999)
     )
   )
-  rorg <-rapbase::autoReportServer(
+
+  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
+  org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
+  format <- rapbase::autoReportFormatServer("ablanorDispatchment")
+
+  paramNames <- shiny::reactive(c("orgId", "outputType"))
+  paramValues <- shiny::reactive(c(org$value(), format()))
+
+  rapbase::autoReportServer(
     id = "ablanorDispatchment", registryName = registryName,
-    type = "dispatchment", reports = reports,
-    orgs = getNameReshId(registryName = registryName, asNamedList = TRUE)
+    type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
+    reports = reports, orgs = orgs
   )
 
   # Eksport
