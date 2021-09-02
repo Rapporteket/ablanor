@@ -11,7 +11,7 @@ reportProcessor(
   author = "unknown author",
   orgName = "unknown organization",
   orgId = 999999,
-  registryName = "unknown registry name",
+  registryName = "ablanor",
   userFullName = "unknown person name",
   userRole = "unknown role",
   userOperator = "unknown operator"
@@ -63,5 +63,5 @@ default value.
 }
 \examples{
 ## Make the start page for ablanor
-reportFilePath <- reportProcessor("veiledning.Rmd", title = "Example report")
+reportFilePath <- reportProcessor("veiledning", title = "Example report")
 }

@@ -123,8 +123,8 @@ ui <- shiny::tagList(
       "Utsending",
       shiny::sidebarLayout(
         shiny::sidebarPanel(
-          rapbase::autoReportOrgInput("ablanorDispatchment"),
           rapbase::autoReportFormatInput("ablanorDispatchment"),
+          rapbase::autoReportOrgInput("ablanorDispatchment"),
           rapbase::autoReportInput("ablanorDispatchment")
         ),
         shiny::mainPanel(
