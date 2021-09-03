@@ -36,6 +36,7 @@ server <- function(input, output, session) {
   # Hide tabs when not role 'SC'
   if (userRole != "SC") {
     shiny::hideTab(inputId = "tabs", target = "Datadump")
+    shiny::hideTab(inputId = "tabs", target = "Utsending")
     shiny::hideTab(inputId = "tabs", target = "Eksport")
   }
 
@@ -342,6 +343,35 @@ server <- function(input, output, session) {
     rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
   })
 
+
+  # Utsendelse
+  reports <- list(
+    Veiledning = list(
+      synopsis = "Startside til AblaNor på Rapporteket som testrapport",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title"),
+      paramValues = c("veiledning", "html", "En testrapport")
+    ),
+    "Månedlige resultater" = list(
+      synopsis = "Månedlige resultater sykehus/avdeling",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title", "orgId"),
+      paramValues = c("local_montly", "pdf", "Månedsresultater", 999999)
+    )
+  )
+
+  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
+  org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
+  format <- rapbase::autoReportFormatServer("ablanorDispatchment")
+
+  paramNames <- shiny::reactive(c("orgId", "outputType"))
+  paramValues <- shiny::reactive(c(org$value(), format()))
+
+  rapbase::autoReportServer(
+    id = "ablanorDispatchment", registryName = registryName,
+    type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
+    reports = reports, orgs = orgs
+  )
 
   # Eksport
   ## brukerkontroller
