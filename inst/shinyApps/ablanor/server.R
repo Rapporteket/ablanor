@@ -36,9 +36,6 @@ server <- function(input, output, session) {
   # Hide tabs when not role 'SC'
   if (userRole != "SC") {
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
-    #shiny::hideTab(inputId = "tabs", target = "Datadump")
-    #shiny::hideTab(inputId = "tabs", target = "Utsending")
-    #shiny::hideTab(inputId = "tabs", target = "Eksport")
   }
 
   # Hide tabs when role 'SC'
@@ -380,4 +377,7 @@ server <- function(input, output, session) {
 
   ## veileding
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
+
+  # Brukerstatistikk
+  rapbase::statsServer("ablanorStats", registryName)
 }

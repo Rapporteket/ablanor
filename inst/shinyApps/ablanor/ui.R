@@ -144,6 +144,14 @@ ui <- shiny::tagList(
             rapbase::exportGuideUI("ablanorExportGuide")
           )
         )
+      ),
+
+      shiny::tabPanel(
+        "Bruksstatistikk",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
+          shiny::mainPanel(rapbase::statsUI("ablanorStats"))
+        )
       )
     )
   )
