@@ -119,28 +119,30 @@ ui <- shiny::tagList(
       )
     ),
 
-    shiny::tabPanel(
-      "Utsending",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          rapbase::autoReportFormatInput("ablanorDispatchment"),
-          rapbase::autoReportOrgInput("ablanorDispatchment"),
-          rapbase::autoReportInput("ablanorDispatchment")
-        ),
-        shiny::mainPanel(
-          rapbase::autoReportUI("ablanorDispatchment")
+    shiny::navbarMenu("Verktøy",
+      shiny::tabPanel(
+        "Utsending",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::autoReportFormatInput("ablanorDispatchment"),
+            rapbase::autoReportOrgInput("ablanorDispatchment"),
+            rapbase::autoReportInput("ablanorDispatchment")
+          ),
+          shiny::mainPanel(
+            rapbase::autoReportUI("ablanorDispatchment")
+          )
         )
-      )
-    ),
+      ),
 
-    shiny::tabPanel(
-      "Eksport",
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          rapbase::exportUCInput("ablanorExport")
-        ),
-        shiny::mainPanel(
-          rapbase::exportGuideUI("ablanorExportGuide")
+      shiny::tabPanel(
+        "Eksport",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            rapbase::exportUCInput("ablanorExport")
+          ),
+          shiny::mainPanel(
+            rapbase::exportGuideUI("ablanorExportGuide")
+          )
         )
       )
     )
