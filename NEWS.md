@@ -1,6 +1,7 @@
 # ablanor 0.3.0
 
 * Added (conceptual) page for report dispatch management using modules from rapbase ([#10](https://github.com/Rapporteket/ablanor/pull/10))
+* Implemented server side restriction of module functionality and also implemented subscriptions by modules ([#11](https://github.com/Rapporteket/ablanor/pull/11))
 
 # ablanor 0.2.0
 

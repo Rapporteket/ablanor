@@ -261,89 +261,36 @@ server <- function(input, output, session) {
   )
 
 
-
+  # Values shared among subscriptions and dispatchment
+  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
 
   # Abonnement
-  ## rekative verdier for å holde rede på endringer som skjer mens
-  ## applikasjonen kjører
-  rv <- shiny::reactiveValues(
-    subscriptionTab = rapbase::makeAutoReportTab(session,
-                                                 type = "subscription",
-                                                 mapOrgId = mapOrgId))
+  subReports <- list(
+    Veiledning = list(
+      synopsis = "Startside til AblaNor på Rapporteket som testrapport",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title"),
+      paramValues = c("veiledning", "html", "En testrapport")
+    ),
+    "Månedlige resultater" = list(
+      synopsis = "Månedlige resultater sykehus/avdeling",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title", "orgId"),
+      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId)
+    )
+  )
+  subFormat <- rapbase::autoReportFormatServer("ablanorSubscription")
+  subParamNames <- shiny::reactive(c("outputType"))
+  sunParamValues <- shiny::reactive(c(subParamNames()))
 
-  ## lag tabell over gjeldende status for abonnement
-  output$activeSubscriptions <- DT::renderDataTable(
-    rv$subscriptionTab, server = FALSE, escape = FALSE, selection = "none",
-    rownames = FALSE, options = list(dom = "t")
+  rapbase::autoReportServer(
+    id = "ablanorSubscription", registryName = registryName,
+    type = "subscription", paramNames = subParamNames,
+    paramValues = subParamValues, reports = subReports, orgs = orgs
   )
 
-  ## lag side som viser status for abonnement, også når det ikke finnes noen
-  output$subscriptionContent <- shiny::renderUI({
-    fullName <- rapbase::getUserFullName(session)
-    if (length(rv$subscriptionTab) == 0) {
-      shiny::p(paste("Ingen aktive abonnement for", fullName))
-    } else {
-      shiny::tagList(
-        shiny::p(paste("Aktive abonnement for",
-                       fullName, "som sendes per epost til ",
-                       rapbase::getUserEmail(session), ":")),
-        DT::dataTableOutput("activeSubscriptions")
-      )
-    }
-  })
-
-  ## nye abonnement
-
-  ### lag liste over mulige valg av rapporter
-  output$subscriptionRepList <- shiny::renderUI({
-    shiny::selectInput("subscriptionRep", "Rapport:",
-                       c("Prosedyrer, månedlig"))
-  })
-
-  ### aktiver abonnement, men kun når et aktuelt valg er gjort
-  shiny::observeEvent(input$subscribe, {
-    package <- "ablanor"
-    owner <- rapbase::getUserName(session)
-    interval <- strsplit(input$subscriptionFreq, "-")[[1]][2]
-    intervalName <- strsplit(input$subscriptionFreq, "-")[[1]][1]
-    organization <- rapbase::getUserReshId(session)
-    runDayOfYear <- rapbase::makeRunDayOfYearSequence(
-      interval = interval
-    )
-    email <- rapbase::getUserEmail(session)
-    if (input$subscriptionRep == "Prosedyrer, månedlig") {
-      synopsis <- "ablanor/Rapporteket: prosedyrer, månedlig"
-      baseName <- "Ablanor_local_monthly"
-    }
-
-
-    if (nchar(input$subscriptionRep) > 0) {
-      fun <- "subscriptionLocalMonthlyReps"
-      paramNames <- c("baseName", "reshId", "registryName", "author",
-                      "hospitalName", "type")
-      paramValues <- c(baseName, reshId, registryName, author, hospitalName,
-                       input$subscriptionFileFormat)
-      rapbase::createAutoReport(synopsis = synopsis, package = package,
-                                fun = fun, paramNames = paramNames,
-                                paramValues = paramValues, owner = owner,
-                                email = email, organization = organization,
-                                runDayOfYear = runDayOfYear,
-                                interval = interval,
-                                intervalName = intervalName)
-    }
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
-  })
-
-  ## slett eksisterende abonnement
-  shiny::observeEvent(input$del_button, {
-    selectedRepId <- strsplit(input$del_button, "_")[[1]][2]
-    rapbase::deleteAutoReport(selectedRepId)
-    rv$subscriptionTab <- rapbase::makeUserSubscriptionTab(session)
-  })
-
-
   # Utsendelse
-  reports <- list(
+  disReports <- list(
     Veiledning = list(
       synopsis = "Startside til AblaNor på Rapporteket som testrapport",
       fun = "reportProcessor",
@@ -358,26 +305,27 @@ server <- function(input, output, session) {
     )
   )
 
-  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
   org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
-  format <- rapbase::autoReportFormatServer("ablanorDispatchment")
+  disFormat <- rapbase::autoReportFormatServer("ablanorDispatchment")
 
-  paramNames <- shiny::reactive(c("orgId", "outputType"))
-  paramValues <- shiny::reactive(c(org$value(), format()))
+  disParamNames <- shiny::reactive(c("orgId", "outputType"))
+  disParamValues <- shiny::reactive(c(org$value(), disFormat()))
 
   rapbase::autoReportServer(
     id = "ablanorDispatchment", registryName = registryName,
-    type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
-    reports = reports, orgs = orgs
+    type = "dispatchment", org = org$value, paramNames = disParamNames,
+    paramValues = disParamValues, reports = disReports, orgs = orgs,
+    eligible = (userRole == "SC")
   )
 
   # Eksport
   ## brukerkontroller
-  rapbase::exportUCServer("ablanorExport", registryName)
-
+  rapbase::exportUCServer("ablanorExport", registryName,
+                          eligible = (userRole == "SC"))
   ## veileding
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
-  rapbase::statsServer("ablanorStats", registryName)
+  rapbase::statsServer("ablanorStats", registryName,
+                       eligible = (userRole == "SC"))
 }
