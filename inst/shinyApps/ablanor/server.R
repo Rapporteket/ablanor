@@ -368,16 +368,18 @@ server <- function(input, output, session) {
   rapbase::autoReportServer(
     id = "ablanorDispatchment", registryName = registryName,
     type = "dispatchment", paramNames = paramNames, paramValues = paramValues,
-    reports = reports, orgs = orgs
+    reports = reports, orgs = orgs, eligible = (userRole == "SC")
   )
 
   # Eksport
   ## brukerkontroller
-  rapbase::exportUCServer("ablanorExport", registryName)
+  rapbase::exportUCServer("ablanorExport", registryName,
+                          eligible = (userRole == "SC"))
 
   ## veileding
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
-  rapbase::statsServer("ablanorStats", registryName)
+  rapbase::statsServer("ablanorStats", registryName,
+                       eligible = (userRole == "SC"))
 }
