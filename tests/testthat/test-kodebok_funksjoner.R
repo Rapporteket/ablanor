@@ -138,6 +138,17 @@ testthat::test_that("kodebok_sjekk_foer_fjerning fungerer", {
 
 
 
+  df <- data.frame(var1 = c(1:5, NA),
+                   var1_tekst = letters[1:6])
+
+  kb <- data.frame(fysisk_feltnavn = rep("var1", 5),
+                   type = rep("Listevariabel", 5),
+                   listeverdier = c(1:5),
+                   listetekst = c(letters[1:5]))
+
+
+
+
 })
 
 

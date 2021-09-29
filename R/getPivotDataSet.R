@@ -47,6 +47,7 @@ getPivotDataSet <- function(setId = "",
 
     # Erstatte listeverdi med listetekst
     # kb <- kodebok fra fil
+    # kb %<>% dplyr::mutate(fysisk_feltnavn = tolower(fysisk_feltnavn))
 
     dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
                                                  kb = kb,

@@ -153,18 +153,48 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel, tekst_variabel){
 
 
   # Dersom ikkje samsvar mellom dei to variablane (dei er uavhengige)
+  df_sjekk <- data.frame(
+    obserververte_verdier = df[[tekst_variabel]],
 
-  obserververte_verdier <- df[[tekst_variabel]]
-  forventede_verdier <- ablanor::kodebok_fyll_listetekstvar(
-    df = df %>% dplyr::select(verdi_variabel),
-    kb = kb,
-    suffiks = "_tekst") %>%
-    dplyr::pull(tekst_variabel)
+    forventede_verdier = ablanor::kodebok_fyll_listetekstvar(
+      df = df %>% dplyr::select(verdi_variabel),
+      kb = kb,
+      suffiks = "_tekst") %>%
+      dplyr::pull(tekst_variabel))
 
+  # if(!all(forventede_verdier == obserververte_verdier, na.rm = TRUE)){
+  #   resultat_sjekk <- FALSE
+  # }
 
-  if(!all(forventede_verdier == obserververte_verdier)){
+  # Dersom ikke samsvar:
+  if(df_sjekk %>%
+     dplyr::filter(!is.na(obserververte_verdier) &
+                   !is.na(forventede_verdier)) %>%
+     dplyr::filter(obserververte_verdier != forventede_verdier) %>%
+     nrow() > 0) {
     resultat_sjekk <- FALSE
+    return(resultat_sjekk)
   }
+
+  #Dersom bare en er NA:
+  if(df_sjekk %>%
+     dplyr::filter(is.na(obserververte_verdier) &
+                   !is.na(forventede_verdier))  %>%
+     nrow() > 0) {
+    resultat_sjekk <- FALSE
+    return(resultat_sjekk)
+  }
+
+  #Dersom bare en er NA:
+  if(df_sjekk %>%
+     dplyr::filter(!is.na(obserververte_verdier) &
+                   is.na(forventede_verdier))  %>%
+     nrow() > 0) {
+    resultat_sjekk <- FALSE
+    return(resultat_sjekk)
+  }
+
+
 
   return(resultat_sjekk)
 }
