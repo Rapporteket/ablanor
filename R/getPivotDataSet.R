@@ -45,6 +45,17 @@ getPivotDataSet <- function(setId = "",
     dat %<>%
       dplyr::filter(as.numeric(.data$CENTREID) == reshId)
 
+    # Erstatte listeverdi med listetekst
+    # kb <- kodebok fra fil
+    # kb %<>% dplyr::mutate(fysisk_feltnavn = tolower(fysisk_feltnavn))
+
+    dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
+                                                 kb = kb,
+                                                 suffiks = "_tekst") %>%
+      ablanor::kodebok_beholde_bare_listetekstvar(df = .,
+                                                  kb = kb,
+                                                  suffiks = "_tekst")
+
 
   } else {
     dat <- NULL
