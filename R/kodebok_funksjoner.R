@@ -384,7 +384,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
     if(sjekk_kb & fjerne_suffiks_fra_navn) {
       df %<>%
-        dplyr::select(tidyselect::all_of(-verdi_variabel)) %>%
+        dplyr::select(tidyselect::any_of(-verdi_variabel)) %>%
         dplyr::rename("{verdi_variabel}"  := tekst_variabel)
     }
 
@@ -392,7 +392,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
     if(sjekk_kb & !fjerne_suffiks_fra_navn) {
       df %<>%
-        dplyr::select(tidyselect::all_of(-verdi_variabel))
+        dplyr::select(tidyselect::any_of(-verdi_variabel))
     }
 
   }
