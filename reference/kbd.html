@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Changelog • ablanor</title>
+<title>Klokeboken data dictionary — kbd • ablanor</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,8 @@
 
 
 
-<meta property="og:title" content="Changelog" />
+<meta property="og:title" content="Klokeboken data dictionary — kbd" />
+<meta property="og:description" content="Hard copy of Ablanor Klokeboken" />
 
 
 
@@ -58,7 +59,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-news">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -110,60 +111,58 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href='https://github.com/rapporteket/ablanor/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
+    <h1>Klokeboken data dictionary</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rapporteket/ablanor/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>kbd.Rd</code></div>
     </div>
 
-    <div id="ablanor-030" class="section level1">
-<h1 class="page-header" data-toc-text="0.3.0">
-<a href="#ablanor-030" class="anchor"></a>ablanor 0.3.0</h1>
-<ul>
-<li>Added (conceptual) page for report dispatch management using modules from rapbase (<a href="https://github.com/Rapporteket/ablanor/pull/10"><a href='https://github.com/rapporteket/ablanor/issues/10'>#10</a></a>)</li>
-<li>Implemented server side restriction of module functionality and also implemented subscriptions by modules (<a href="https://github.com/Rapporteket/ablanor/pull/11"><a href='https://github.com/rapporteket/ablanor/issues/11'>#11</a></a>)</li>
-<li>Added Klokeboken data as part of package (<a href="https://github.com/Rapporteket/ablanor/pull/15"><a href='https://github.com/rapporteket/ablanor/issues/15'>#15</a></a>)</li>
-</ul>
-</div>
-    <div id="ablanor-020" class="section level1">
-<h1 class="page-header" data-toc-text="0.2.0">
-<a href="#ablanor-020" class="anchor"></a>ablanor 0.2.0</h1>
-<ul>
-<li>Standard RMardown rendering performed by rapbase functions (<a href="https://github.com/Rapporteket/ablanor/pull/7"><a href='https://github.com/rapporteket/ablanor/issues/7'>#7</a></a>)</li>
-<li>Applied temporal fix for converting variable names to lowercase (see <a href="https://github.com/Rapporteket/ablanor/issues/6"><a href='https://github.com/rapporteket/ablanor/issues/6'>#6</a></a>)</li>
-<li>Added report allowing registry data export for statistical and development purposes (<a href="https://github.com/Rapporteket/ablanor/pull/9"><a href='https://github.com/rapporteket/ablanor/issues/9'>#9</a></a>)</li>
-<li>Added some pimping of monthly report (that might not be acceptable)</li>
-<li>General code clean-up</li>
-</ul>
-</div>
-    <div id="ablanor-011" class="section level1">
-<h1 class="page-header" data-toc-text="0.1.1">
-<a href="#ablanor-011" class="anchor"></a>ablanor 0.1.1</h1>
-<ul>
-<li>Fixed minor bugs relating to first try at Rapporteket (<a href="https://github.com/Rapporteket/ablanor/pull/4"><a href='https://github.com/rapporteket/ablanor/issues/4'>#4</a></a>)</li>
-</ul>
-</div>
-    <div id="ablanor-010" class="section level1">
-<h1 class="page-header" data-toc-text="0.1.0">
-<a href="#ablanor-010" class="anchor"></a>ablanor 0.1.0</h1>
-<ul>
-<li>Alot of changes and new code, alot of it still conceptual (<a href="https://github.com/Rapporteket/ablanor/pull/3"><a href='https://github.com/rapporteket/ablanor/issues/3'>#3</a></a>)</li>
-<li>First version to be tried at Rapporteket</li>
-</ul>
-</div>
-    <div id="ablanor-0009000" class="section level1">
-<h1 class="page-header" data-toc-text="0.0.0.9000">
-<a href="#ablanor-0009000" class="anchor"></a>ablanor 0.0.0.9000</h1>
-<ul>
-<li>Added a <code>NEWS.md</code> file to track changes to the package.</li>
-</ul>
-</div>
-  </div>
+    <div class="ref-description">
+    <p>Hard copy of Ablanor Klokeboken</p>
+    </div>
 
+    <pre class="usage"><span class='va'>kbd</span></pre>
+
+
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>Data frame containing Klokeboken data</p><dl>
+<dt>skjemanavn</dt><dd><p></p></dd>
+<dt>navn_i_rapporteket</dt><dd><p></p></dd>
+<dt>ledetekst</dt><dd><p></p></dd>
+<dt>obligatorisk</dt><dd><p></p></dd>
+<dt>type</dt><dd><p></p></dd>
+<dt>listeverdier</dt><dd><p></p></dd>
+<dt>listetekst</dt><dd><p></p></dd>
+<dt>normalintervall_start_numerisk</dt><dd><p></p></dd>
+<dt>normalintervall_slutt_numerisk</dt><dd><p></p></dd>
+<dt>maksintervall_start_numerisk</dt><dd><p></p></dd>
+<dt>maksintervall_slutt_numerisk</dt><dd><p></p></dd>
+<dt>normalintervall_start_dato</dt><dd><p></p></dd>
+<dt>normalintervall_slutt_dato</dt><dd><p></p></dd>
+<dt>maksintervall_start_dato</dt><dd><p></p></dd>
+<dt>maksintervall_slutt_dato</dt><dd><p></p></dd>
+<dt>antall_tegn</dt><dd><p></p></dd>
+<dt>lovlige_tegn</dt><dd><p></p></dd>
+<dt>desimaler</dt><dd><p></p></dd>
+<dt>aktiveringsspoersmaal</dt><dd><p></p></dd>
+<dt>underspoersmaal</dt><dd><p></p></dd>
+<dt>innfoert_dato</dt><dd><p></p></dd>
+<dt>utfaset_dato</dt><dd><p></p></dd>
+<dt>tabell</dt><dd><p></p></dd>
+<dt>fysisk_feltnavn</dt><dd><p></p></dd>
+<dt>kommentar</dt><dd><p></p></dd>
+<dt>variabel_id</dt><dd><p></p></dd>
+<dt>hjelpetekst</dt><dd><p></p></dd>
+
+</dl>
+
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
     </nav>
   </div>
-
 </div>
 
 
