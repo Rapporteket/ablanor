@@ -2,6 +2,7 @@
 
 * Added (conceptual) page for report dispatch management using modules from rapbase ([#10](https://github.com/Rapporteket/ablanor/pull/10))
 * Implemented server side restriction of module functionality and also implemented subscriptions by modules ([#11](https://github.com/Rapporteket/ablanor/pull/11))
+* Added Klokeboken data as part of package ([#15](https://github.com/Rapporteket/ablanor/pull/15))
 
 # ablanor 0.2.0
 
