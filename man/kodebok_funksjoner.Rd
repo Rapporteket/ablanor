@@ -6,11 +6,20 @@
 \alias{kodebok_sjekk_foer_fjerning}
 \alias{kodebok_fyll_listetekstvar}
 \alias{kodebok_beholde_bare_listetekstvar}
+\alias{kodebok_fyll_avkrysningsboks}
 \title{AblaNor kodebok functions}
 \usage{
 kodebok_sjekk_foer_leggtil(df, verdi_variabel, tekst_variabel, koder)
 
-kodebok_sjekk_foer_fjerning(df, kb, verdi_variabel, tekst_variabel)
+kodebok_sjekk_foer_fjerning(
+  df,
+  kb,
+  verdi_variabel,
+  tekst_variabel,
+  type = "Listevariabel"
+)
+
+kodebok_fyll_avkrysningsboks(df, kb, ..., suffiks = "_tekst")
 
 kodebok_fyll_listetekstvar(df, kb, ..., suffiks = "_tekst")
 
@@ -39,6 +48,9 @@ for one variable. \code{koder} contains selected rows from \code{kb}.}
 \item{kb}{data.frame with \code{kodeboken}. Must contain variables
 \code{type}, \code{fysisk_feltnavn}, \code{listeverdier} and
 \code{listetekst}. One row for each level of all variables.}
+
+\item{type}{String. Contains the \code{type} of variable as defined in
+\code{kb} \emph{Listevariabel} or \emph{Avkrysninsboks}}
 
 \item{...}{If only selected \emph{listetekst}- or \emph{listeverdi}-
 variables are to be added or removed in \code{df}, the selected variables
@@ -98,7 +110,8 @@ kb <- data.frame(fysisk_feltnavn = c(rep("var1", 5), "var3", "var3"),
 ablanor::kodebok_sjekk_foer_fjerning(df = df,
                                      kb,
                                      verdi_variabel = "var3",
-                                     tekst_variabel = "var3_tekst")
+                                     tekst_variabel = "var3_tekst",
+                                     type = "Listevariabel")
 ablanor::kodebok_beholde_bare_listetekstvar(
                            df = df,
                            kb = kb,

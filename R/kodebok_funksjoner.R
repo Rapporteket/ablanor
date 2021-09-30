@@ -36,6 +36,8 @@
 #' @param fjerne_suffiks_fra_navn boolean. If TRUE the \emph{listetekst}-
 #' variables are renamed and suffix is removed from variable names. If FALSE,
 #' variable-names are not changed and will contain suffix.
+#' @param type String. Contains the \code{type} of variable as defined in
+#' \code{kb} \emph{Listevariabel} or \emph{Avkrysninsboks}
 #'
 #'
 #' @name kodebok_funksjoner
@@ -75,7 +77,8 @@
 #' ablanor::kodebok_sjekk_foer_fjerning(df = df,
 #'                                      kb,
 #'                                      verdi_variabel = "var3",
-#'                                      tekst_variabel = "var3_tekst")
+#'                                      tekst_variabel = "var3_tekst",
+#'                                      type = "Listevariabel")
 #' ablanor::kodebok_beholde_bare_listetekstvar(
 #'                            df = df,
 #'                            kb = kb,
@@ -134,9 +137,16 @@ kodebok_sjekk_foer_leggtil <- function(df, verdi_variabel, tekst_variabel, koder
 
 #' @rdname kodebok_funksjoner
 #' @export
-kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel, tekst_variabel){
-
+kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
+                                        tekst_variabel,
+                                        type = "Listevariabel"){
   resultat_sjekk <- TRUE
+
+
+  if(!type %in% c("Listevariabel", "Avkrysningsboks")){
+    resultat_sjekk <- FALSE
+    return(resultat_sjekk)
+  }
 
   # Dersom en variabel ikke har tilhøyrande numerisk variabel,
   # kan ikke fjerne variabel + return med en gang.
@@ -152,19 +162,31 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel, tekst_variabel){
   }
 
 
+
   # Dersom ikkje samsvar mellom dei to variablane (dei er uavhengige)
-  df_sjekk <- data.frame(
-    obserververte_verdier = df[[tekst_variabel]],
+  if(type == "Listevariabel") {
 
-    forventede_verdier = ablanor::kodebok_fyll_listetekstvar(
-      df = df %>% dplyr::select(verdi_variabel),
-      kb = kb,
-      suffiks = "_tekst") %>%
-      dplyr::pull(tekst_variabel))
+    df_sjekk <- data.frame(
+      obserververte_verdier = df[[tekst_variabel]],
 
-  # if(!all(forventede_verdier == obserververte_verdier, na.rm = TRUE)){
-  #   resultat_sjekk <- FALSE
-  # }
+      forventede_verdier = kodebok_fyll_listetekstvar(
+        df = df %>% dplyr::select(tidyselect::all_of(verdi_variabel)),
+        kb = kb,
+        suffiks = "_tekst") %>%
+        dplyr::pull(tekst_variabel))
+
+  } else if(type == "Avkrysningsboks"){
+
+    df_sjekk <- data.frame(
+      obserververte_verdier = df[[tekst_variabel]],
+
+      forventede_verdier = kodebok_fyll_avkrysningsboks(
+        df = df %>% dplyr::select(tidyselect::all_of(verdi_variabel)),
+        kb = kb,
+        suffiks = "_tekst") %>%
+        dplyr::pull(tekst_variabel))
+  }
+
 
   # Dersom ikke samsvar:
   if(df_sjekk %>%
@@ -178,26 +200,77 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel, tekst_variabel){
 
   #Dersom bare en er NA:
   if(df_sjekk %>%
-     dplyr::filter(is.na(obserververte_verdier) &
-                   !is.na(forventede_verdier))  %>%
+     dplyr::filter((is.na(obserververte_verdier) &
+                    !is.na(forventede_verdier)) |
+                   (is.na(obserververte_verdier) &
+                    !is.na(forventede_verdier))) %>%
      nrow() > 0) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
-
-  #Dersom bare en er NA:
-  if(df_sjekk %>%
-     dplyr::filter(!is.na(obserververte_verdier) &
-                   is.na(forventede_verdier))  %>%
-     nrow() > 0) {
-    resultat_sjekk <- FALSE
-    return(resultat_sjekk)
-  }
-
-
 
   return(resultat_sjekk)
 }
+
+#' @rdname kodebok_funksjoner
+#' @export
+kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
+
+
+  # Kontrollere at klokeboken inneholder obligatoriske variabler
+  # TODO : Kan denne teste flyttes ut til getKlokebok?
+  stopifnot(all(c("fysisk_feltnavn",
+                  "listeverdier",
+                  "listetekst",
+                  "type") %in% names(kb)))
+
+  # Ta videre kun avkrysningsboks-variabler
+  kb %<>%
+    dplyr::filter(.data$type == "Avkrysningsboks")
+
+
+  # Dersom en/flere variabler er gitt som input i funksjonen, legges bare
+  # tekstvariabler til for disse.
+  arg <- rlang::quos(...)
+  verdi_variabel_d <- rlang::quos_auto_name(arg) %>% names()
+  if (length(verdi_variabel_d) > 0) {
+    verdi_variabel_kb <- purrr::map_chr(arg, rlang::quo_name)
+  }
+  else {
+    # Dersom ingen variabler er angitt i funksjonen, brukes alle variabler
+    # som er felles mellom kb og datasettet.
+    verdi_variabel_d <- verdi_variabel_kb <-  intersect(names(df), kb$fysisk_feltnavn)
+  }
+
+
+
+  # For hver av variablene, sjekk om ny kan legges til og eventuelt gjøre dette
+
+  koder <- data.frame(listeverdier = c(0, 1),
+                      listetekst = c("nei", "ja"))
+  for (i in seq_along(verdi_variabel_d)) {
+    verdi_variabel <- verdi_variabel_d[i]
+    tekst_variabel <- paste0(verdi_variabel, suffiks)
+
+    sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(df = df,
+                                                    verdi_variabel = verdi_variabel,
+                                                    tekst_variabel = tekst_variabel,
+                                                    koder = koder)
+
+    #Dersom alle sjekker ok, legges ein ny variabel til i datasettet:
+    if(sjekk_kb) {
+      df %<>%
+        dplyr::mutate("{tekst_variabel}" := factor(x = .data[[verdi_variabel]],
+                                                   levels = koder$listeverdier,
+                                                   labels = koder$listetekst)) %>%
+        dplyr::relocate(., tekst_variabel, .after = verdi_variabel)
+    }
+
+  }
+  df
+
+}
+
 
 
 
@@ -268,7 +341,6 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
 kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
                                                fjerne_suffiks_fra_navn = TRUE){
 
-
   # Dersom en/flere variabler er gitt som input i funksjonen, fjernes bare
   # listeverdi-variabler for disse.
   arg <- rlang::quos(...)
@@ -293,10 +365,16 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
   for (i in seq_along(alle_med_suffiks)) {
     verdi_variabel <- alle_med_suffiks[i]
     tekst_variabel <- paste0(verdi_variabel, suffiks)
-    sjekk_kb <- ablanor::kodebok_sjekk_foer_fjerning(df = df,
-                                                     kb = kb,
-                                                     verdi_variabel = verdi_variabel,
-                                                     tekst_variabel = tekst_variabel)
+    type <- kb %>%
+      dplyr::filter(fysisk_feltnavn == verdi_variabel) %>%
+      dplyr::pull(type) %>%
+      unique()
+    sjekk_kb <- ablanor::kodebok_sjekk_foer_fjerning(
+      df = df,
+      kb = kb,
+      verdi_variabel = verdi_variabel,
+      tekst_variabel = tekst_variabel,
+      type = type)
 
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
     if(sjekk_kb & fjerne_suffiks_fra_navn) {
