@@ -24,6 +24,7 @@ getPivotDataSet <- function(setId = "",
                             singleRow = FALSE,
                             reshId = NULL) {
 
+
   validSetId <- c("pros_patient", "rand12")
 
   if (setId %in% validSetId) {
@@ -45,16 +46,23 @@ getPivotDataSet <- function(setId = "",
     dat %<>%
       dplyr::filter(as.numeric(.data$CENTREID) == reshId)
 
-    # Erstatte listeverdi med listetekst
-    # kb <- kodebok fra fil
-    # kb %<>% dplyr::mutate(fysisk_feltnavn = tolower(fysisk_feltnavn))
+
+    # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
+    kb <- ablanor::getKodebokData(registryName = registryName,
+                                  singleRow = singleRow,
+                                  session = session)
 
     dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
                                                  kb = kb,
                                                  suffiks = "_tekst") %>%
-      ablanor::kodebok_beholde_bare_listetekstvar(df = .,
-                                                  kb = kb,
-                                                  suffiks = "_tekst")
+      ablanor::kodebok_fyll_avkrysningsboks(df = .,
+                                            kb = kb,
+                                            suffiks = "_tekst") %>%
+      ablanor::kodebok_beholde_bare_listetekstvar(
+        df = .,
+        kb = kb,
+        suffiks = "_tekst",
+        fjerne_suffiks_fra_navn = TRUE)
 
 
   } else {
