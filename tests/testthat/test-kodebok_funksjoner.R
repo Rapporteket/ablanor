@@ -519,7 +519,7 @@ test_that("kodebok_beholde_bare_listetekstvar fungerer", {
 
 test_that("kjeden av kodebok-funksjoner fungerer", {
 
-
+  . <- ""
   df <- data.frame(var1 = 1:5,
                    var2 = rep(1, 5),
                    var3 = c(NA, 0, 1, 0, 1),

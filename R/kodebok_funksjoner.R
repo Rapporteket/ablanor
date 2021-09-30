@@ -90,6 +90,7 @@ NULL
 #' @export
 kodebok_sjekk_foer_leggtil <- function(df, verdi_variabel, tekst_variabel, koder){
 
+  . <- ""
   resultat_sjekk <- TRUE
 
   # Dersom en variabel allerede finnes med det nye navnet:
@@ -111,13 +112,13 @@ kodebok_sjekk_foer_leggtil <- function(df, verdi_variabel, tekst_variabel, koder
   }
 
   # Dersom klokeboka har duplikerte verdiar for ein variabel:
-  if (any(koder %>%  dplyr::select(listeverdier) %>% duplicated())) {
+  if (any(koder %>%  dplyr::select(.data$listeverdier) %>% duplicated())) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
 
   # Dersom klokeboka har duplikert tekst for ein variabel:
-  if (any(koder %>%  dplyr::select(listetekst) %>% duplicated())) {
+  if (any(koder %>%  dplyr::select(.data$listetekst) %>% duplicated())) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
@@ -140,6 +141,7 @@ kodebok_sjekk_foer_leggtil <- function(df, verdi_variabel, tekst_variabel, koder
 kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
                                         tekst_variabel,
                                         type = "Listevariabel"){
+  . <- ""
   resultat_sjekk <- TRUE
 
 
@@ -216,7 +218,7 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
 #' @export
 kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
 
-
+  . <- ""
   # Kontrollere at klokeboken inneholder obligatoriske variabler
   # TODO : Kan denne teste flyttes ut til getKlokebok?
   stopifnot(all(c("fysisk_feltnavn",
@@ -280,6 +282,7 @@ kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
 kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
 
 
+  . <- ""
   # Kontrollere at klokeboken inneholder obligatoriske variabler
   # TODO : Kan denne teste flyttes ut til getKlokebok?
   stopifnot(all(c("fysisk_feltnavn",
@@ -341,6 +344,7 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
 kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
                                                fjerne_suffiks_fra_navn = TRUE){
 
+  . <- ""
   # Dersom en/flere variabler er gitt som input i funksjonen, fjernes bare
   # listeverdi-variabler for disse.
   arg <- rlang::quos(...)
@@ -352,7 +356,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
     # Dersom ingen variabler er spesifisert, går vi gjennom
     # alle variabler med suffikset
     alle_med_suffiks <- df %>%
-      dplyr::select(contains(suffiks)) %>%
+      dplyr::select(tidyselect::contains(suffiks)) %>%
       names() %>%
       gsub(x = ., pattern = suffiks, replacement = "") %>%
       unlist()
@@ -366,9 +370,10 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
     verdi_variabel <- alle_med_suffiks[i]
     tekst_variabel <- paste0(verdi_variabel, suffiks)
     type <- kb %>%
-      dplyr::filter(fysisk_feltnavn == verdi_variabel) %>%
-      dplyr::pull(type) %>%
+      dplyr::filter(.data$fysisk_feltnavn == verdi_variabel) %>%
+      dplyr::pull(.data$type) %>%
       unique()
+
     sjekk_kb <- ablanor::kodebok_sjekk_foer_fjerning(
       df = df,
       kb = kb,
@@ -379,7 +384,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
     if(sjekk_kb & fjerne_suffiks_fra_navn) {
       df %<>%
-        dplyr::select(-verdi_variabel) %>%
+        dplyr::select(tidyselect::all_of(-verdi_variabel)) %>%
         dplyr::rename("{verdi_variabel}"  := tekst_variabel)
     }
 
@@ -387,7 +392,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
     if(sjekk_kb & !fjerne_suffiks_fra_navn) {
       df %<>%
-        dplyr::select(-verdi_variabel)
+        dplyr::select(tidyselect::all_of(-verdi_variabel))
     }
 
   }
