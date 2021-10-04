@@ -235,13 +235,11 @@ kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
   # tekstvariabler til for disse.
   arg <- rlang::quos(...)
   verdi_variabel_d <- rlang::quos_auto_name(arg) %>% names()
-  if (length(verdi_variabel_d) > 0) {
-    verdi_variabel_kb <- purrr::map_chr(arg, rlang::quo_name)
-  }
-  else {
+
+  if (length(verdi_variabel_d) == 0) {
     # Dersom ingen variabler er angitt i funksjonen, brukes alle variabler
     # som er felles mellom kb og datasettet.
-    verdi_variabel_d <- verdi_variabel_kb <-  intersect(names(df), kb$fysisk_feltnavn)
+    verdi_variabel_d <-  intersect(names(df), kb$fysisk_feltnavn)
   }
 
 
@@ -299,14 +297,12 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
   # tekstvariabler til for disse.
   arg <- rlang::quos(...)
   verdi_variabel_d <- rlang::quos_auto_name(arg) %>% names()
-  if (length(verdi_variabel_d) > 0) {
-    verdi_variabel_kb <- purrr::map_chr(arg, rlang::quo_name)
-  }
-  else {
+
+  if (length(verdi_variabel_d) == 0) {
     # Dersom ingen variabler er angitt i funksjonen, brukes alle variabler
     # som er felles mellom kb og datasettet.
-    verdi_variabel_d <- verdi_variabel_kb <-  intersect(names(df),
-                                                        kb$fysisk_feltnavn)
+    verdi_variabel_d <-  intersect(names(df),
+                                   kb$fysisk_feltnavn)
   }
 
 
@@ -315,7 +311,7 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
   for (i in seq_along(verdi_variabel_d)) {
     verdi_variabel <- verdi_variabel_d[i]
     koder <- kb %>%
-      dplyr::filter(.data$fysisk_feltnavn %in% verdi_variabel_kb[i])
+      dplyr::filter(.data$fysisk_feltnavn %in% verdi_variabel_d[i])
     tekst_variabel <- paste0(verdi_variabel, suffiks)
 
     sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(df = df,
@@ -350,10 +346,8 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
   # listeverdi-variabler for disse.
   arg <- rlang::quos(...)
   alle_med_suffiks <- rlang::quos_auto_name(arg) %>% names()
-  if (length(alle_med_suffiks) > 0) {
-    alle_med_suffiks <- purrr::map_chr(arg, rlang::quo_name)
-  }
-  else {
+
+  if (length(alle_med_suffiks) == 0){
     # Dersom ingen variabler er spesifisert, går vi gjennom
     # alle variabler med suffikset
     alle_med_suffiks <- df %>%
