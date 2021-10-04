@@ -45,3 +45,15 @@ NULL
 #' @importFrom rlang .data
 #' @usage .data
 NULL
+
+#' Use name stored in variable
+#'
+#' See \code{rlang::\link[rlang:nse-force]{:=}} for details
+#'
+#' @name :=
+#' @rdname force_names
+#' @keywords internal
+#' @export
+#' @importFrom rlang :=
+#' @usage .data
+NULL
