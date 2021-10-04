@@ -192,9 +192,9 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
 
   # Dersom ikke samsvar:
   if(df_sjekk %>%
-     dplyr::filter(!is.na(obserververte_verdier) &
-                   !is.na(forventede_verdier)) %>%
-     dplyr::filter(obserververte_verdier != forventede_verdier) %>%
+     dplyr::filter(!is.na(.data$obserververte_verdier) &
+                   !is.na(.data$forventede_verdier)) %>%
+     dplyr::filter(.data$obserververte_verdier != .data$forventede_verdier) %>%
      nrow() > 0) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
@@ -202,10 +202,10 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
 
   #Dersom bare en er NA:
   if(df_sjekk %>%
-     dplyr::filter((is.na(obserververte_verdier) &
-                    !is.na(forventede_verdier)) |
-                   (is.na(obserververte_verdier) &
-                    !is.na(forventede_verdier))) %>%
+     dplyr::filter((is.na(.data$obserververte_verdier) &
+                    !is.na(.data$forventede_verdier)) |
+                   (is.na(.data$obserververte_verdier) &
+                    !is.na(.data$forventede_verdier))) %>%
      nrow() > 0) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
@@ -305,7 +305,8 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
   else {
     # Dersom ingen variabler er angitt i funksjonen, brukes alle variabler
     # som er felles mellom kb og datasettet.
-    verdi_variabel_d <- verdi_variabel_kb <-  intersect(names(df), kb$fysisk_feltnavn)
+    verdi_variabel_d <- verdi_variabel_kb <-  intersect(names(df),
+                                                        kb$fysisk_feltnavn)
   }
 
 
@@ -314,7 +315,7 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
   for (i in seq_along(verdi_variabel_d)) {
     verdi_variabel <- verdi_variabel_d[i]
     koder <- kb %>%
-      dplyr::filter(fysisk_feltnavn %in% verdi_variabel_kb[i])
+      dplyr::filter(.data$fysisk_feltnavn %in% verdi_variabel_kb[i])
     tekst_variabel <- paste0(verdi_variabel, suffiks)
 
     sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(df = df,

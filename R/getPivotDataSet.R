@@ -24,7 +24,7 @@ getPivotDataSet <- function(setId = "",
                             singleRow = FALSE,
                             reshId = NULL) {
 
-
+  . <- ""
   validSetId <- c("pros_patient", "rand12")
 
   if (setId %in% validSetId) {
