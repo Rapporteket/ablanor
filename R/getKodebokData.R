@@ -21,12 +21,7 @@ getKodebokData <- function(registryName,
                            ...) {
   . <- ""
 
-  kdb <- utils::read.csv2(file = "data-raw/klokeboken.csv"
-                          ,header = TRUE,
-                          na.strings = c("null", "NULL", "", "NA"),
-                          sep = ";")
-
-  kdb %>%
+  ablanor::kbd %>%
     dplyr::mutate(fysisk_feltnavn = tolower(.data$fysisk_feltnavn)) %>%
     dplyr::select(.data$fysisk_feltnavn,
                   .data$listeverdier,
