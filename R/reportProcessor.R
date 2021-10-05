@@ -35,8 +35,9 @@
 #'
 #' @examples
 #' ## Make the start page for ablanor
-#' reportFilePath <- reportProcessor(report = "veiledning",
+#' \dontrun{reportFilePath <- reportProcessor(report = "veiledning",
 #'                                   title = "Example report")
+#' }
 
 reportProcessor <- function(report,
                             outputType = "pdf",
