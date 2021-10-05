@@ -4,21 +4,11 @@
 \alias{getKodebokData}
 \title{Behandling av kodeboken (klokeboken) før bruk}
 \usage{
-getKodebokData(registryName, singleRow = FALSE, tekstVars = FALSE, ...)
-}
-\arguments{
-\item{registryName}{Dersom verdien "test_ablanor_lokalt" leser vi inn
-lokal RData-fil. Ellers er det SQL spørring}
-
-\item{singleRow}{bools. TRUE bare metadata, FALSE hele datasettet}
-
-\item{tekstVars}{legge til tekstvariabler hentet fra kodebok for kategoriske
-variabler eller fra tabeller med tekst/labels for kategoriske variabler}
-
-\item{...}{Optional arguments to be passed to the function}
+getKodebokData()
 }
 \value{
-data.frame med kolonnene \code{fysisk_feltnavn} (variabel-navn)
+data.frame med følgende kolonnener fra kodeboken til AblanNor:
+\code{fysisk_feltnavn} (variabel-navn)
 \code{type} (variabeltype), \code{listeverdier} (numeriske verdier for
 Listevariabler) og \code{listetekst} (tekst-verdi for Listevariabler).
 Hver variabel har en rad i \code{kodeboken}. For variabler av \code{type}

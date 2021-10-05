@@ -48,9 +48,7 @@ getPivotDataSet <- function(setId = "",
 
 
     # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
-    kb <- ablanor::getKodebokData(registryName = registryName,
-                                  singleRow = singleRow,
-                                  session = session)
+    kb <- ablanor::getKodebokData()
 
     dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
                                                  kb = kb,
