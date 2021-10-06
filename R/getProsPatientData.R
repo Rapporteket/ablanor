@@ -78,6 +78,8 @@ getProsPatientData <- function(registryName,
 
 
 
+  names(d_ablanor) <- tolower(names(d_ablanor))
+
 
   # UTLEDETE VARIABLER
 
@@ -85,7 +87,7 @@ getProsPatientData <- function(registryName,
   d_ablanor %<>%
     dplyr::mutate(alder = lubridate::as.period(
       lubridate::interval(
-        start = .data$BIRTH_DATE, end = .data$DATO_PROS),
+        start = .data$birth_date, end = .data$dato_pros),
       unit = "years")$year)
 
   d_ablanor %<>%
@@ -98,7 +100,7 @@ getProsPatientData <- function(registryName,
   #       Bruker vekt og høyde for å generere denne variabelen på nytt)
   d_ablanor %<>%
     dplyr::mutate(
-      bmi_manual = round(.data$VEKT / (.data$HOYDE / 100) ^ 2, 1),
+      bmi_manual = round(.data$vekt / (.data$hoyde / 100) ^ 2, 1),
       bmi_category_manual =
         factor(dplyr::case_when(
           .data$bmi_manual <= 16 ~ "Alvorlig undervekt",
@@ -140,10 +142,10 @@ getProsPatientData <- function(registryName,
   # UKE, MÅNED, ÅR
   d_ablanor %<>%
     dplyr::mutate(
-      year = as.ordered(lubridate::year(.data$DATO_PROS)),
+      year = as.ordered(lubridate::year(.data$dato_pros)),
       aar = .data$year,
       maaned_nr = as.ordered(sprintf(fmt = "%02d",
-                                     lubridate::month(.data$DATO_PROS))),
+                                     lubridate::month(.data$dato_pros))),
       maaned = as.ordered(paste0(.data$year, "-", .data$maaned_nr))
     )
 
@@ -153,15 +155,15 @@ getProsPatientData <- function(registryName,
     dplyr::mutate(
       kategori_afli_aryt_i48 =
         factor(dplyr::case_when(
-          .data$FORLOPSTYPE == 1 & .data$ARYT_I48_0 == TRUE ~
+          .data$forlopstype == 1 & .data$aryt_i48_0 == TRUE ~
             "AFLI-ICD 48.0 Paroksymal atrieflimmer",
-          .data$FORLOPSTYPE == 1 &
-            .data$ARYT_I48_1 == TRUE &
-            .data$ARYT_I48_1_UNDERKAT == 1 ~
+          .data$forlopstype == 1 &
+            .data$aryt_i48_1 == TRUE &
+            .data$aryt_i48_1_underkat == 1 ~
             "AFLI-ICD 48.1 Persisterende atrieflimmer",
-          .data$FORLOPSTYPE == 1 &
-            .data$ARYT_I48_1 == TRUE &
-            .data$ARYT_I48_1_UNDERKAT == 2 ~
+          .data$forlopstype == 1 &
+            .data$aryt_i48_1 == TRUE &
+            .data$aryt_i48_1_underkat == 2 ~
             "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"),
           levels = c("AFLI-ICD 48.0 Paroksymal atrieflimmer",
                      "AFLI-ICD 48.1 Persisterende atrieflimmer",
@@ -173,22 +175,22 @@ getProsPatientData <- function(registryName,
     dplyr::mutate(
       kategori_vt_kardiomyopati =
         factor(dplyr::case_when(
-          .data$FORLOPSTYPE == 2 & .data$KARDIOMYOPATI == 0
+          .data$forlopstype == 2 & .data$kardiomyopati == 0
           ~ "Uten kardiomyopati",
-          .data$FORLOPSTYPE == 2 &
-            .data$KARDIOMYOPATI == 1 &
-            .data$TYPE_KARDIOMYOPATI == 1
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 1 &
+            .data$type_kardiomyopati == 1
           ~ "Iskemisk KM (ICM)",
-          .data$FORLOPSTYPE == 2 &
-            .data$KARDIOMYOPATI == 1 &
-            .data$TYPE_KARDIOMYOPATI == 2
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 1 &
+            .data$type_kardiomyopati == 2
           ~ "Dilatert KM (DCM)",
-          .data$FORLOPSTYPE == 2 &
-            .data$KARDIOMYOPATI == 1 &
-            !(.data$TYPE_KARDIOMYOPATI %in% 1:2)
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 1 &
+            !(.data$type_kardiomyopati %in% 1:2)
           ~ "Annen KM",
-          .data$FORLOPSTYPE == 2 &
-            .data$KARDIOMYOPATI == 9
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 9
           ~ "Ukjent om kardiomyopati"),
           levels = c("Uten kardiomyopati",
                      "Iskemisk KM (ICM)",
@@ -202,24 +204,16 @@ getProsPatientData <- function(registryName,
   d_ablanor %<>%
     dplyr::mutate(
       kategori_afli_hjsviktEF = dplyr::case_when(
-        .data$FORLOPSTYPE ==  1 &
-          (.data$HJERTESVIKT == 1 | .data$EJEKFRAK %in% 2:3) ~
+        .data$forlopstype ==  1 &
+          (.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
           "AFLI-Hjertesvikt eller redusert EF",
-        .data$FORLOPSTYPE ==  1 &
-          !(.data$HJERTESVIKT == 1 | .data$EJEKFRAK %in% 2:3) ~
+        .data$forlopstype ==  1 &
+          !(.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
           "AFLI-Verken hjertesvikt eller redusert EF"))
 
 
 
 
-  if (tekstVars == TRUE) {
-    # LEGGE TIL VARIABLER I TEKST FORMAT FOR KATEGORISEK VARIABLER
-    # (Bare for pivot table, ikke for månedsrapport)
-    # Her må vi komme frem til en løsning. Kan vi bruke tekst-variablene
-    # direkte?
-    # Evt merge tekst-variablene og de numeriske for å ha begge variantene for
-    # noen variabler ? Vi må ha de numeriske for å bruke samme kode for å
-    # utlede variabler.
-  }
+
   d_ablanor
 }
