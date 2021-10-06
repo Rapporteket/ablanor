@@ -33,13 +33,11 @@ getPivotDataSet <- function(setId = "",
       dat <- ablanor::getRand12Data(registryName = registryName,
                                     singleRow = singleRow,
                                     session = session)
-      # , tekstVars = TRUE) @fixme
     }
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
                                          session = session)
-      # , tekstVars = TRUE) @fixme
     }
 
     # Filtrere på sykehus (skjer dette automatisk ?)

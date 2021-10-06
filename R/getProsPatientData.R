@@ -5,8 +5,6 @@
 #' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
 #' lokal RData-fil. Ellers er det SQL spørring
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
-#' @param tekstVars legge til tekstvariabler hentet fra kodebok for kategoriske
-#' variabler eller fra tabeller med tekst/labels for kategoriske variabler
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -14,7 +12,6 @@
 
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               tekstVars = FALSE,
                                ...) {
 
   . <- ""
@@ -30,8 +27,6 @@ getProsPatientData <- function(registryName,
   # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)
   # intersect(names(d_pros), names(d_basereg)) # samme variabel-navn.
   # Vi angir en prefix for å få med variablene fra begge tabellene
-  # KRISTINA: variabelnavnene i databasen er stort sett CAPS så da må nok koden
-  # under oppdateres (jeg har gjort litt, men ikke ferdig...)
   d_basereg %<>%
     dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
                      function(x) {

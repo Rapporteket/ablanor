@@ -5,8 +5,6 @@
 #' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
 #' lokal RData-fil. Ellers er det SQL spørring
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
-#' @param tekstVars legge til tekstvariabler hentet fra kodebok for kategoriske
-#' variabler TO DO
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -14,7 +12,6 @@
 
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
-                          tekstVars = FALSE,
                           ...) {
 
   . <- ""
