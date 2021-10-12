@@ -7,16 +7,13 @@ Hent datasett fra basis-skjema, prosedyreskjema, mce, og pasientskjema. Merge
 sammen, filtrere på forløp der prosedyre er utført. Legge til utledete
 variabler og nye variabler.}
 \usage{
-getProsPatientData(registryName, singleRow = FALSE, tekstVars = FALSE, ...)
+getProsPatientData(registryName, singleRow = FALSE, ...)
 }
 \arguments{
 \item{registryName}{Dersom verdien "test_ablanor_lokalt" leser vi inn
 lokal RData-fil. Ellers er det SQL spørring}
 
 \item{singleRow}{bools. TRUE bare metadata, FALSE hele datasettet}
-
-\item{tekstVars}{legge til tekstvariabler hentet fra kodebok for kategoriske
-variabler eller fra tabeller med tekst/labels for kategoriske variabler}
 
 \item{...}{Optional arguments to be passed to the function}
 }

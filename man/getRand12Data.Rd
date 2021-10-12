@@ -7,16 +7,13 @@ Hent datasett fra prosedyreskjema,og rand12. Merge
 sammen, filtrere på forløp der prosedyre er utført. Legge til evt utledete
 variabler og nye variabler.}
 \usage{
-getRand12Data(registryName, singleRow = FALSE, tekstVars = FALSE, ...)
+getRand12Data(registryName, singleRow = FALSE, ...)
 }
 \arguments{
 \item{registryName}{Dersom verdien "test_ablanor_lokalt" leser vi inn
 lokal RData-fil. Ellers er det SQL spørring}
 
 \item{singleRow}{bools. TRUE bare metadata, FALSE hele datasettet}
-
-\item{tekstVars}{legge til tekstvariabler hentet fra kodebok for kategoriske
-variabler TO DO}
 
 \item{...}{Optional arguments to be passed to the function}
 }
