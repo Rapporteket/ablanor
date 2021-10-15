@@ -79,17 +79,10 @@ getProsPatientData <- function(registryName,
   # UTLEDETE VARIABLER
 
   # ALDER :
-  d_ablanor %<>%
-    dplyr::mutate(alder = lubridate::as.period(
-      lubridate::interval(
-        start = .data$birth_date, end = .data$dato_pros),
-      unit = "years")$year)
-
-  d_ablanor %<>%
-    dplyr::mutate(alder_75 = ifelse(.data$alder >= 75,
-                                    yes = ">=75",
-                                    no = "<75"))
-
+ d_ablanor %<>%
+   ablanor::utlede_alder() %>%
+   ablanor::utlede_alder_75() %>%
+   ablanor::utlede_aldersklasse()
 
   # BMI: (Mangler verdier i variabelem bmi for noen pasienter.
   #       Bruker vekt og høyde for å generere denne variabelen på nytt)
