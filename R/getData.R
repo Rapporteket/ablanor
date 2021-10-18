@@ -202,26 +202,37 @@ FROM
   patientlist"
     )
 
+    query_followup <- paste0("
+SELECT
+  *
+FROM
+  followup"
+    )
+
     if (singleRow) {
       msg_basereg <- "Query metadata for merged dataset, basereg"
       msg_procedure <- "Query metadata for merged dataset, procedure"
       msg_mce <- "Query metadata for merged dataset, mce"
       msg_patientlist <- "Query metadata for merged dataset, patientlist"
+      msg_followup <- "Query metadata for merged dataset, followup"
 
       query_basereg <- paste0(query_basereg, "\nLIMIT\n  1;")
       query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
       query_mce <- paste0(query_mce, "\nLIMIT\n  1;")
       query_patientlist <- paste0(query_patientlist, "\nLIMIT\n  1;")
+      query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
     } else {
       msg_basereg <- "Query data for merged dataset, basereg"
       msg_procedure <- "Query data for merged dataset, procedure"
       msg_mce <- "Query data for merged dataset, mce"
       msg_patientlist <- "Query data for merged dataset, patientlist"
+      msg_followup <- "Query metadata for merged dataset, followup"
 
       query_basereg <- paste0(query_basereg, ";")
       query_procedure <- paste0(query_procedure, ";")
       query_mce <- paste0(query_mce, ";")
       query_patientlist <- paste0(query_patientlist, ";")
+      query_followup <- paste0(query_followup, ";")
     }
 
     # log db request if shiny app session object is provided
@@ -236,19 +247,23 @@ FROM
       rapbase::repLogger(session = list(...)[["session"]],
                          msg = msg_patientlist)
       d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg_followup)
+      d_basereg <- rapbase::loadRegData(registryName, query_followup)
       # nocov end
     } else {
       d_basereg <- rapbase::loadRegData(registryName, query_basereg)
       d_pros <- rapbase::loadRegData(registryName, query_procedure)
       d_mce <- rapbase::loadRegData(registryName, query_mce)
       d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
+      d_followup <- rapbase::loadRegData(registryName, query_followup)
     }
 
     list(
       basereg = d_basereg,
       pros = d_pros,
       mce = d_mce,
-      patientlist = d_patientlist
+      patientlist = d_patientlist,
+      followup = d_followup
     )
   }
 }
