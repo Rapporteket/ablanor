@@ -19,7 +19,8 @@ Age in years at time of procedure. Calculated from variables
 }
 \examples{
 x <- data.frame(
-   birth_date = rep("1951-12-30",3),
-   dato_pros = c("2021-05-29", "2021-12-29", "2021-12-30"))
+   birth_date = as.Date(rep("1951-12-30",3), format = "\%Y-\%m-\%d"),
+   dato_pros = as.Date(c("2021-05-29", "2021-12-29", "2021-12-30"),
+   format = "\%Y-\%m-\%d"))
 ablanor::utlede_alder(x)
 }
