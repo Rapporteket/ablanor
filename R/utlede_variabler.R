@@ -81,3 +81,51 @@ utlede_aldersklasse <- function(df) {
 
 
 
+
+#' Add varibale bmi_klasse
+#'
+#' Add categories of Body Mass Index (BMI = weight in kilograms divided by
+#' the square of height in meters).
+#'
+#' @param df data.frame with abalnor-data. Must contain variable
+#' \code{bmi}.
+#'
+#' @return Returns \code{df} with one new column: \code{bmi_klasse}.
+#' @export
+#'
+#' @examples
+#' df <- data.frame(bmi = c(15, 15.2, 19, 25, 26.7, 32.1, 41.0, NA))
+utlede_bmi_klasse <- function(df) {
+
+  stopifnot("bmi" %in% names(df))
+
+  df %>%
+    dplyr::mutate(
+      bmi_klasse =
+        factor(
+          x = dplyr::case_when(
+            .data$bmi <= 16 ~ "Alvorlig undervekt",
+            .data$bmi > 16 & .data$bmi <= 17 ~ "Moderat undervekt",
+            .data$bmi > 17 & .data$bmi <= 18.5 ~ "Mild undervekt",
+            .data$bmi > 18.5 & .data$bmi < 25 ~ "Normal",
+            .data$bmi >= 25 & .data$bmi < 30 ~ "Overvekt",
+            .data$bmi >= 30 & .data$bmi < 35 ~ "Moderat fedme, klasse I",
+            .data$bmi >= 35 & .data$bmi < 40 ~ "Fedme, klasse II",
+            .data$bmi >= 40 & .data$bmi < 45 ~ "Fedme, klasse III",
+            .data$bmi >= 45 ~ "ugyldig",
+            TRUE ~ NA_character_),
+
+          levels = c("Alvorlig undervekt",
+                     "Moderat undervekt",
+                     "Mild undervekt",
+                     "Normal",
+                     "Overvekt",
+                     "Moderat fedme, klasse I",
+                     "Fedme, klasse II",
+                     "Fedme, klasse III",
+                     "ugyldig"),
+          ordered = TRUE))
+
+}
+
+

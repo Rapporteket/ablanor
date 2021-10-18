@@ -128,3 +128,64 @@ testthat::test_that("Aldersklasse fungerer", {
 
 
 
+
+testthat::test_that("Utlede BMI klasse fungerer", {
+
+
+  df <- data.frame(bmi = c(NA, seq(from = 15, to = 41, by = 0.1), 220))
+  df_out <- ablanor::utlede_bmi_klasse(df)
+
+
+  testthat::expect_true(all(
+    names(df_out) %in% c("bmi", "bmi_klasse")
+  ))
+
+
+  #  Forventer min og maks for disse klassene:
+   testthat::exect_equal(
+    df_out %>%
+      dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
+      dplyr::pull(.data$bmi) %>%
+      min(),
+    15.0)
+
+  testthat::exect_equal(
+    df_out %>%
+      dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
+      dplyr::pull(.data$bmi) %>%
+      max(),
+    16.0)
+
+  testthat::exect_equal(
+    df_out %>%
+      dplyr::filter(.data$bmi_klasse == "Moderat fedme, klasse I") %>%
+      dplyr::pull(.data$bmi) %>%
+      min(),
+    30.0)
+
+  testthat::exect_equal(
+    df_out %>%
+      dplyr::filter(.data$bmi_klasse == "Moderat fedme, klasse I") %>%
+      dplyr::pull(.data$bmi) %>%
+      max(),
+    34.9)
+
+  # Forventer klasse ugyldig dersom BMI har svært høy verdi
+  testthat::exect_true(all(
+    df_out %>%
+      dplyr::filter(.data$bmi >= 45) %>%
+      dplyr::pull(.data$bmi_klasse) == "ugyldig"))
+
+  # Forventer klasse NA dersom BMI mangler
+  testthat::exect_true(all(
+    df_out %>%
+      dplyr::filter(is.na(.data$bmi)) %>%
+      dplyr::pull(.data$bmi_klasse) == "ugyldig"))
+
+
+  # forventer feilmelding dersom bmi mangler
+  testthat::expect_error(
+    ablanor::utlede_bmi_klasse(df = data.frame(tull = 1:5))
+  )
+})
+

@@ -80,61 +80,23 @@ getProsPatientData <- function(registryName,
 
   # ALDER :
  d_ablanor %<>%
-   ablanor::utlede_alder() %>%
-   ablanor::utlede_alder_75() %>%
-   ablanor::utlede_aldersklasse()
+   ablanor::utlede_alder(.) %>%
+   ablanor::utlede_alder_75(.) %>%
+   ablanor::utlede_aldersklasse(.)
 
-  # BMI: (Mangler verdier i variabelem bmi for noen pasienter.
-  #       Bruker vekt og høyde for å generere denne variabelen på nytt)
+ # BMI klasse
   d_ablanor %<>%
-    dplyr::mutate(
-      bmi_manual = round(.data$vekt / (.data$hoyde / 100) ^ 2, 1),
-      bmi_category_manual =
-        factor(dplyr::case_when(
-          .data$bmi_manual <= 16 ~ "Alvorlig undervekt",
-          .data$bmi_manual > 16 & .data$bmi_manual <= 17 ~ "Moderat undervekt",
-          .data$bmi_manual > 17 & .data$bmi_manual <= 18.5 ~ "Mild undervekt",
-          .data$bmi_manual > 18.5 & .data$bmi_manual < 25 ~ "Normal",
-          .data$bmi_manual >= 25 & .data$bmi_manual < 30 ~ "Overvekt",
-          .data$bmi_manual >= 30 & .data$bmi_manual < 35 ~
-            "Moderat fedme, klasse I",
-          .data$bmi_manual >= 35 & .data$bmi_manual < 40 ~ "Fedme, klasse II",
-          .data$bmi_manual >= 40 ~ "Fedme, klasse III"),
-          levels = c("Alvorlig undervekt",
-                     "Moderat undervekt",
-                     "Mild undervekt",
-                     "Normal",
-                     "Overvekt",
-                     "Moderat fedme, klasse I",
-                     "Fedme, klasse II",
-                     "Fedme, klasse III")),
-      bmi_over35 = ifelse(.data$bmi_manual >= 35,
-                          yes = "BMI >=35",
-                          no = "BMI <35")
-    )
-
-  # Kontroll 1 : Grense for normal/Mild undervekt går på 18,5.
-  # Anbefaler å bruke bmi_category_manual i stedet for bmi_category.
-  # Kan man slette bmi_categry og erstatte med bmi_category_manual ?
-
-  # d_ablanor %>%  filter(bmi_category_manual!= bmi_category) %>%
-  # select(bmi, bmi_manual, vekt, hoyde, bmi_category, bmi_category_manual)
-
-  # Kontroll 2 : Mangler BMI for noen pasienter, dette skal bli rettet opp
-  # i ny versjon av OpenQReg. Må testes
-  # d_ablanor  %>%  filter(is.na(bmi)) %>%
-  # select(bmi, bmi_manual, bmi_numeric,vekt, hoyde)
+    abalnor::utlede_bmi_klasse(.)
 
 
 
   # UKE, MÅNED, ÅR
   d_ablanor %<>%
     dplyr::mutate(
-      year = as.ordered(lubridate::year(.data$dato_pros)),
-      aar = .data$year,
+      aar = as.ordered(lubridate::year(.data$dato_pros)),
       maaned_nr = as.ordered(sprintf(fmt = "%02d",
                                      lubridate::month(.data$dato_pros))),
-      maaned = as.ordered(paste0(.data$year, "-", .data$maaned_nr))
+      maaned = as.ordered(paste0(.data$aar, "-", .data$maaned_nr))
     )
 
 
