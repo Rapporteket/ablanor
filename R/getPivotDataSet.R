@@ -40,10 +40,10 @@ getPivotDataSet <- function(setId = "",
                                          session = session)
     }
 
-    # Filtrere på sykehus
-    dat %<>%
-      dplyr::filter(as.numeric(.data$centreid) %in% reshId)
-
+    # # Filtrere på sykehus
+    # dat %<>%
+    #   dplyr::filter(as.numeric(.data$centreid) %in% reshId)
+    #
 
     # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
     kb <- ablanor::getKodebokData()
