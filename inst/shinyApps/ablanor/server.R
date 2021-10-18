@@ -187,19 +187,7 @@ server <- function(input, output, session) {
   # man kan styre rekkefølgen på levels. Også gjøre for måned f.eks?
   output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
-      rpivotTable::rpivotTable(dat()[input$selectedVars],
-                               sorters = "
-                         function(attr) {
-                    var sortAs = $.pivotUtilities.sortAs;
-                    if (attr == \"bmi_category\") { return sortAs([
-                         \"Alvorlig undervekt\",
-                         \"Moderat undervekt\",
-                         \"Normal\",
-                         \"Moderat fedme, klasse I\",
-                         \"Fedme, klasse II\",
-                         \"Fedme, klasse III\",
-                         \"Overvekt\"]); }}"
-      )
+      rpivotTable::rpivotTable(dat()[input$selectedVars])
     } else {
       rpivotTable::rpivotTable(data.frame())
     }
