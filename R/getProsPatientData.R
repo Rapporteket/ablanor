@@ -50,7 +50,6 @@ getProsPatientData <- function(registryName,
   # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
   # finst vert tekne med.
 
-  # NB: variablene aryt_i* er duplikert i basereg datasettet, derfor fjernes de.
   d_ablanor <- d_pros %>%
     dplyr::left_join(., d_mce %>% dplyr::select(.data$MCEID,
                                                 .data$PATIENT_ID,
@@ -58,13 +57,6 @@ getProsPatientData <- function(registryName,
                      by = "MCEID") %>%
     dplyr::left_join(., d_patientlist,
                      by = c("PATIENT_ID" = "ID")) %>%
-    # Hm, det finnes hverken ARYT_I* vaiabler eller DATO_PROS i basreg-tabellen
-    # Utkommentert kode er erstattet av påfølgende line
-    # KRISTINA: sjekk!
-    #dplyr::left_join(., d_basereg %>%
-    #                   dplyr::select(!tidyselect::starts_with("aryt_i"),
-    #                                 -.data$DATO_PROS),
-    #                 by = c("MCEID", "CENTREID"))
     dplyr::left_join(., d_basereg, by = c("MCEID", "CENTREID"))
 
   # Sjekk at ingen variabel-navn teller dobbelt.
