@@ -10,14 +10,15 @@
 #' @export
 #'
 #' @examples x <- data.frame(
-#'    birth_date = rep("1951-12-30",3),
-#'    dato_pros = c("2021-05-29", "2021-12-29", "2021-12-30"))
+#'    birth_date = as.Date(rep("1951-12-30",3), format = "%Y-%m-%d"),
+#'    dato_pros = as.Date(c("2021-05-29", "2021-12-29", "2021-12-30"),
+#'    format = "%Y-%m-%d"))
 #' ablanor::utlede_alder(x)
 utlede_alder <- function(df) {
 
   stopifnot(all(c("birth_date", "dato_pros") %in% names(df)))
-  stopifnot(df %>% dplyr::pull(birth_date) %>% lubridate::is.Date())
-  stopifnot(df %>% dplyr::pull(dato_pros) %>% lubridate::is.Date())
+  stopifnot(df %>% dplyr::pull(.data$birth_date) %>% lubridate::is.Date())
+  stopifnot(df %>% dplyr::pull(.data$dato_pros) %>% lubridate::is.Date())
 
   df %>%
     dplyr::mutate(

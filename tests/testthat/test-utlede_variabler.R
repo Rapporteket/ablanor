@@ -142,28 +142,28 @@ testthat::test_that("Utlede BMI klasse fungerer", {
 
 
   #  Forventer min og maks for disse klassene:
-   testthat::exect_equal(
+   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
       dplyr::pull(.data$bmi) %>%
       min(),
     15.0)
 
-  testthat::exect_equal(
+  testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
       dplyr::pull(.data$bmi) %>%
       max(),
     16.0)
 
-  testthat::exect_equal(
+  testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Moderat fedme, klasse I") %>%
       dplyr::pull(.data$bmi) %>%
       min(),
     30.0)
 
-  testthat::exect_equal(
+  testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Moderat fedme, klasse I") %>%
       dplyr::pull(.data$bmi) %>%
@@ -171,16 +171,16 @@ testthat::test_that("Utlede BMI klasse fungerer", {
     34.9)
 
   # Forventer klasse ugyldig dersom BMI har svært høy verdi
-  testthat::exect_true(all(
+  testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$bmi >= 45) %>%
       dplyr::pull(.data$bmi_klasse) == "ugyldig"))
 
   # Forventer klasse NA dersom BMI mangler
-  testthat::exect_true(all(
+  testthat::expect_true(all(
     df_out %>%
       dplyr::filter(is.na(.data$bmi)) %>%
-      dplyr::pull(.data$bmi_klasse) == "ugyldig"))
+      dplyr::select(.data$bmi_klasse)  %>% is.na() ))
 
 
   # forventer feilmelding dersom bmi mangler
