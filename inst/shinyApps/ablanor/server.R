@@ -183,8 +183,6 @@ server <- function(input, output, session) {
 
 
 
-  # @fixme : Variablene blir sortert alfabetisk. Her er et eksempel på hvordan
-  # man kan styre rekkefølgen på levels. Også gjøre for måned f.eks?
   output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
       rpivotTable::rpivotTable(dat()[input$selectedVars])

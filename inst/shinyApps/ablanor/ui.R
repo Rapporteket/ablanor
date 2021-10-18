@@ -49,10 +49,7 @@ ui <- shiny::tagList(
 
     shiny::tabPanel(
       "Datadump",
-      # ADD SOME CONTENT, Should we downoad an already controlled
-      # datadump using les_data_ablanor()?
-      # Eksempelkode basert på NORIC:
-      sidebarLayout(
+       sidebarLayout(
         sidebarPanel(
           width = 4,
           selectInput("dumpDataSet", "Velg datasett:",
