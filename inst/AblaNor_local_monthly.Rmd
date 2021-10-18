@@ -8,7 +8,7 @@ params:
   registryName: rapbase
   userFullName: Tore Tester
   userRole: ukjent rolle
-  userOperator: ukjent operatør"
+  userOperator: ukjent operatør
 header-includes:
   - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
