@@ -130,3 +130,86 @@ utlede_bmi_klasse <- function(df) {
 }
 
 
+#' Add tidsvariabler
+#'
+#' Add variables \code{aar}, \code{maaned_nr} (numerical month) and
+#' \code{maaned} (year + month) in data set based in \code{dato_pros}.
+#'
+#' @param df data.frame with ablanor-data. Must contain \code{dato_pros}.
+#'
+#' @return Returns \code{df} with 3 new columns
+#' @export
+#'
+#' @examples  df <- data.frame(
+#' dato_pros = as.Date(c("2021-10-05", "1998-01-16", "2020-07-07"),
+#'                     format = "%Y-%m-%d"))
+#' ablanor::utlede_tidsvariabler(df)
+utlede_tidsvariabler <- function(df) {
+
+  stopifnot("dato_pros" %in% names(df))
+
+
+  df %>%
+    dplyr::mutate(
+      aar = as.ordered(lubridate::year(.data$dato_pros)),
+      maaned_nr = as.ordered(sprintf(fmt = "%02d",
+                                     lubridate::month(.data$dato_pros))),
+      maaned = ifelse(test = is.na(.data$aar) | is.na(.data$maaned_nr),
+                      yes = NA,
+                      no = paste0(.data$aar, "-", .data$maaned_nr)))
+
+
+}
+
+
+
+
+
+#' Kategori AFLI arytmi i48
+#'
+#' Add variable \code{kategori_afli_aryt_i48} for AFLI-procedures, based on
+#' ICD codes.
+#'
+#' @param df data.frame with Ablanor-data. Must contain variables
+#' \code{forlopstype}, \code{aryt_i48_0}, \code{aryt_i48_1} and
+#' \code{aryt_i48_1_underkat}.
+#'
+#' @return returns \code{df} with one new column.
+#' @export
+#'
+#' @examples
+#' df <- data.frame(
+#'    forlopstype = rep(1, 4),
+#'    aryt_i48_0 = c(0, 1, 0, 0),
+#'    aryt_i48_1 =  c(0, 0, 1, 2)
+#'    aryt_i48_1_underkat = c(NA, NA, 1, 2))
+#' ablanor::utlede_kateg_afli_aryt_i48(df)
+utlede_kateg_afli_aryt_i48 <- function(df) {
+
+  stopifnot(c("forlopstype",
+              "aryt_i48_0",
+              "aryt_i48_1",
+              "aryt_i48_1_underkat") %in% names(df))
+
+  df %>%
+    dplyr::mutate(
+      kategori_afli_aryt_i48 = factor(
+        x = dplyr::case_when(
+
+          .data$forlopstype == 1 & .data$aryt_i48_0 == TRUE ~
+            "AFLI-ICD 48.0 Paroksymal atrieflimmer",
+
+          .data$forlopstype == 1 &
+            .data$aryt_i48_1 == TRUE &
+            .data$aryt_i48_1_underkat == 1 ~
+            "AFLI-ICD 48.1 Persisterende atrieflimmer",
+
+          .data$forlopstype == 1 &
+            .data$aryt_i48_1 == TRUE &
+            .data$aryt_i48_1_underkat == 2 ~
+            "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"),
+
+        levels = c("AFLI-ICD 48.0 Paroksymal atrieflimmer",
+                   "AFLI-ICD 48.1 Persisterende atrieflimmer",
+                   "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer")))
+}

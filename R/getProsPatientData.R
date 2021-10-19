@@ -122,33 +122,11 @@ getProsPatientData <- function(registryName,
 
 
   # UKE, MÅNED, ÅR
-  d_ablanor %<>%
-    dplyr::mutate(
-      aar = as.ordered(lubridate::year(.data$dato_pros)),
-      maaned_nr = as.ordered(sprintf(fmt = "%02d",
-                                     lubridate::month(.data$dato_pros))),
-      maaned = as.ordered(paste0(.data$aar, "-", .data$maaned_nr))
-    )
+  d_ablanor %<>% ablanor::utlede_tidsvariabler(.)
 
 
   # AFLI : ICD
-  d_ablanor %<>%
-    dplyr::mutate(
-      kategori_afli_aryt_i48 =
-        factor(dplyr::case_when(
-          .data$forlopstype == 1 & .data$aryt_i48_0 == TRUE ~
-            "AFLI-ICD 48.0 Paroksymal atrieflimmer",
-          .data$forlopstype == 1 &
-            .data$aryt_i48_1 == TRUE &
-            .data$aryt_i48_1_underkat == 1 ~
-            "AFLI-ICD 48.1 Persisterende atrieflimmer",
-          .data$forlopstype == 1 &
-            .data$aryt_i48_1 == TRUE &
-            .data$aryt_i48_1_underkat == 2 ~
-            "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"),
-          levels = c("AFLI-ICD 48.0 Paroksymal atrieflimmer",
-                     "AFLI-ICD 48.1 Persisterende atrieflimmer",
-                     "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer")))
+  d_ablanor %<>% utlede_kateg_afli_aryt_i48(.)
 
 
   # VT : KARDIOMYOPATI

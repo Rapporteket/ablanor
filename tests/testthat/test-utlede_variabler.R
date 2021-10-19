@@ -1,3 +1,4 @@
+#Test utlede alder ----
 testthat::test_that("utlede_alder() works", {
 
   x <- data.frame(
@@ -47,7 +48,7 @@ testthat::test_that("utlede_alder() works", {
 })
 
 
-
+#Test utlede_alder_75 ----
 testthat::test_that("utlede_alder_75() works", {
 
   x <- data.frame(alder = c(NA, 60:80, 100, -20))
@@ -84,7 +85,7 @@ testthat::test_that("utlede_alder_75() works", {
 
 })
 
-
+# Test aldersklasse ----
 testthat::test_that("Aldersklasse fungerer", {
 
   x <- data.frame(alder = c(-1, 10, 17, 18, 20,
@@ -127,8 +128,7 @@ testthat::test_that("Aldersklasse fungerer", {
 })
 
 
-
-
+# test BMI- klasse ----
 testthat::test_that("Utlede BMI klasse fungerer", {
 
 
@@ -142,7 +142,7 @@ testthat::test_that("Utlede BMI klasse fungerer", {
 
 
   #  Forventer min og maks for disse klassene:
-   testthat::expect_equal(
+  testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
       dplyr::pull(.data$bmi) %>%
@@ -189,3 +189,134 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   )
 })
 
+
+
+# Test tidsvariabler ----
+
+testthat::test_that("Utlede tidsvariabler fungerer", {
+
+  df <- data.frame(
+    dato_pros = as.Date(c("2021-10-05",
+                          "2020-11-30",
+                          "1998-01-16",
+                          "2020-07-07",
+                          NA_character_,
+                          "2021-15-60"),
+                        format = "%Y-%m-%d"))
+  df_out <- ablanor::utlede_tidsvariabler(df)
+
+  testthat::expect_equal(
+    names(df_out),
+    c("dato_pros", "aar", "maaned_nr", "maaned")
+  )
+
+  testthat::expect_true(
+    df_out %>%
+      dplyr::filter(is.na(.data$dato_pros)) %>%
+      nrow() == 2)
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(is.na(.data$dato_pros)) %>%
+      dplyr::pull(.data$maaned) %>%
+      is.na()))
+
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::filter(!is.na(.data$dato_pros)) %>%
+      dplyr::pull(.data$maaned) %>% as.character(),
+    c("2021-10", "2020-11", "1998-01", "2020-07"))
+
+  testthat::expect_error(
+    ablanor::utlede_tidsvariabler(df = data.frame(dette_er_feil_navn = 1)))
+})
+
+
+
+
+
+
+# Test AFLI - kategori ----
+testthat::test_that("utlede_kateg_afli_aryt_i48 fungerer", {
+
+  df <- data.frame(
+    forlopstype = c(NA, 2, rep(1, 8)),
+    aryt_i48_0 = c(0, 1, NA, 0, 0, 0, 0, 0, 1, 1),
+    aryt_i48_1 =  c(0, 0, 0, NA, 0, 1, 1, 1, 0, 0),
+    aryt_i48_1_underkat = c(NA, NA, NA, NA, NA, 1, 1, 2, NA, NA)
+  )
+
+
+  df_out <- ablanor::utlede_kateg_afli_aryt_i48(df)
+
+  testthat::expect_equal(
+    names(df_out),
+    c("forlopstype", "aryt_i48_0", "aryt_i48_1", "aryt_i48_1_underkat",
+      "kategori_afli_aryt_i48"))
+
+
+  # Forventede verdier:
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 1,
+                    .data$aryt_i48_0 == 1) %>%
+      dplyr::pull(.data$kategori_afli_aryt_i48) ==
+      "AFLI-ICD 48.0 Paroksymal atrieflimmer"
+  ))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 1,
+                    .data$aryt_i48_1 == 1,
+                    .data$aryt_i48_1_underkat == 1) %>%
+      dplyr::pull(.data$kategori_afli_aryt_i48) ==
+      "AFLI-ICD 48.1 Persisterende atrieflimmer"
+  ))
+
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 1,
+                    .data$aryt_i48_1 == 1,
+                    .data$aryt_i48_1_underkat == 2) %>%
+      dplyr::pull(.data$kategori_afli_aryt_i48) ==
+      "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"
+  ))
+
+
+  # Forventer NA her:
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(is.na(.data$forlopstype == 1) |
+                      .data$forlopstype != 1) %>%
+      dplyr::pull(.data$kategori_afli_aryt_i48)  %>%
+      is.na()
+  ))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(
+        .data$forlopstype == 1 &
+          (.data$aryt_i48_0 == 0 | is.na(.data$aryt_i48_0)) &
+             (.data$aryt_i48_1 == 0 | is.na(.data$aryt_i48_1))) %>%
+      dplyr::pull(.data$kategori_afli_aryt_i48)  %>%
+      is.na()
+  ))
+
+  # Forventer 5 som er NA
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::filter(is.na(.data$kategori_afli_aryt_i48)) %>%
+      nrow(),
+    5)
+
+  # Forventer feilmelding
+  testthat::expect_error(
+    ablanor::utlede_kateg_afli_aryt_i48(df = data.frame(tester_feil = NA))
+  )
+
+
+
+
+
+})
