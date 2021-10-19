@@ -298,7 +298,7 @@ testthat::test_that("utlede_kateg_afli_aryt_i48 fungerer", {
       dplyr::filter(
         .data$forlopstype == 1 &
           (.data$aryt_i48_0 == 0 | is.na(.data$aryt_i48_0)) &
-             (.data$aryt_i48_1 == 0 | is.na(.data$aryt_i48_1))) %>%
+          (.data$aryt_i48_1 == 0 | is.na(.data$aryt_i48_1))) %>%
       dplyr::pull(.data$kategori_afli_aryt_i48)  %>%
       is.na()
   ))
@@ -322,7 +322,7 @@ testthat::test_that("utlede_kateg_afli_aryt_i48 fungerer", {
 })
 
 
-#Test VT Kardiomyopati
+# Test VT Kardiomyopati ----
 testthat::test_that("utlede kardiomyopati fungerer", {
 
 
@@ -343,7 +343,7 @@ testthat::test_that("utlede kardiomyopati fungerer", {
     c("forlopstype", "kardiomyopati", "type_kardiomyopati",
       "kategori_vt_kardiomyopati"))
 
-# Forventer NA her
+  # Forventer NA her
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$forlopstype != 2 | is.na(.data$forlopstype)) %>%
@@ -397,6 +397,61 @@ testthat::test_that("utlede kardiomyopati fungerer", {
       as.character(),
 
     c(NA_character_, NA_character_, "Ukjent om kardiomyopati",
-    "Uten kardiomyopati", "Iskemisk KM (ICM)", "Dilatert KM (DCM)",
-    "Annen KM", "Annen KM", "Annen KM", "Annen KM"))
+      "Uten kardiomyopati", "Iskemisk KM (ICM)", "Dilatert KM (DCM)",
+      "Annen KM", "Annen KM", "Annen KM", "Annen KM"))
+})
+
+
+# Test AFLI hjertesvikt redusert EF ----
+testthat::test_that("AFLI hjertesvik redusert EF", {
+
+  df <- data.frame(
+    forlopstype = c(NA, 2, rep(1, 8)),
+    hjertesvikt = c(NA, 1, NA, 0, 0, 9, 9, 1, 1, 1),
+    ejekfrak = c(NA, 9, 1, 9, 1, 1, 3, 1, 2, 3))
+
+  df_out <- ablanor::utlede_hjertesvikt_redusert_ef(df)
+
+
+  # Forventer navn
+  testthat::expect_equal(
+    names(df_out),
+    c("forlopstype", "hjertesvikt", "ejekfrak", "kategori_afli_hjsvikt_ef")
+  )
+
+  # Forventede verdier
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype ==  1 &
+                      (.data$hjertesvikt %in% 1 |
+                         .data$ejekfrak %in% 2:3)) %>%
+      dplyr::pull(.data$kategori_afli_hjsvikt_ef) ==
+      "AFLI-Hjertesvikt og/eller redusert EF"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype ==  1 &
+                      !(.data$hjertesvikt %in% 1 |
+                          .data$ejekfrak %in% 2:3)) %>%
+      dplyr::pull(.data$kategori_afli_hjsvikt_ef) ==
+      "AFLI-Verken hjertesvikt eller redusert EF"))
+
+testthat::expect_true(all(
+  df_out %>%
+    dplyr::filter(.data$forlopstype !=  1 |
+                    is.na(.data$forlopstype)) %>%
+    dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
+    as.character() %>%
+    is.na()))
+
+testthat::expect_equal(
+  df_out %>%
+    dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
+    as.character(),
+
+  c(NA_character_, NA_character_,
+    rep("AFLI-Verken hjertesvikt eller redusert EF", 4),
+    rep("AFLI-Hjertesvikt og/eller redusert EF", 4)))
+
+
 })

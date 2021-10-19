@@ -181,7 +181,7 @@ utlede_tidsvariabler <- function(df) {
 #' df <- data.frame(
 #'    forlopstype = rep(1, 4),
 #'    aryt_i48_0 = c(0, 1, 0, 0),
-#'    aryt_i48_1 =  c(0, 0, 1, 2)
+#'    aryt_i48_1 =  c(0, 0, 1, 2),
 #'    aryt_i48_1_underkat = c(NA, NA, 1, 2))
 #' ablanor::utlede_kateg_afli_aryt_i48(df)
 utlede_kateg_afli_aryt_i48 <- function(df) {
@@ -274,4 +274,52 @@ utlede_kardiomyopati <- function(df) {
         ordered = TRUE))
 
 
+}
+
+
+
+
+
+#' Hjertesvikt og/eller redusert EF
+#'
+#' Add variable \code{kategori_afli_hjsvikt_ef} for AFLI-procedyres, value
+#' based on variables \code{hjertesvikt} and \code{ejekfrak}.
+#'
+#' @param df data.frame with Ablanor-data. Must contain variables
+#' \code{forlopstype}, \code{hjertesvikt} and \code{ejekfrak}.
+#'
+#' @return Returns \code{df} with 1 new column
+#' @export
+#'
+#' @examples
+#'   df <- data.frame(
+#'     forlopstype = c(NA, 2, rep(1, 8)),
+#'     hjertesvikt = c(NA, 1, NA, 0, 0, 9, 9, 1, 1, 1),
+#'     ejekfrak = c(NA, 9, 1, 9, 1, 1, 3, 1, 2, 3))
+#'  ablanor::utlede_hjertesvikt_redusert_ef(df)
+utlede_hjertesvikt_redusert_ef <- function(df) {
+
+  stopifnot(c("forlopstype",
+              "hjertesvikt",
+              "ejekfrak") %in% names(df))
+
+  df %>%
+    dplyr::mutate(
+      kategori_afli_hjsvikt_ef = factor(
+
+        x = dplyr::case_when(
+          .data$forlopstype ==  1 &
+            (.data$hjertesvikt %in% 1 | .data$ejekfrak %in% 2:3)
+          ~ "AFLI-Hjertesvikt og/eller redusert EF",
+
+          .data$forlopstype ==  1 &
+            !(.data$hjertesvikt %in% 1 | .data$ejekfrak %in% 2:3)
+          ~ "AFLI-Verken hjertesvikt eller redusert EF",
+
+          TRUE ~ NA_character_),
+
+        levels = c("AFLI-Verken hjertesvikt eller redusert EF",
+                   "AFLI-Hjertesvikt og/eller redusert EF"),
+
+        ordered = TRUE))
 }

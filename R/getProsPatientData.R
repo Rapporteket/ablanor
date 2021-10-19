@@ -130,47 +130,11 @@ getProsPatientData <- function(registryName,
 
 
   # VT : KARDIOMYOPATI
-  d_ablanor %<>%
-    dplyr::mutate(
-      kategori_vt_kardiomyopati =
-        factor(dplyr::case_when(
-          .data$forlopstype == 2 & .data$kardiomyopati == 0
-          ~ "Uten kardiomyopati",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 1
-          ~ "Iskemisk KM (ICM)",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 2
-          ~ "Dilatert KM (DCM)",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            !(.data$type_kardiomyopati %in% 1:2)
-          ~ "Annen KM",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 9
-          ~ "Ukjent om kardiomyopati"),
-          levels = c("Uten kardiomyopati",
-                     "Iskemisk KM (ICM)",
-                     "Dilatert KM (DCM)",
-                     "Annen KM",
-                     "Ukjent om kardiomyopati")))
-
+  d_ablanor %<>% ablanor::utlede_kardiomyopati(.)
 
 
   # HJERTESVIKT OG REDUSERT EF
-  d_ablanor %<>%
-    dplyr::mutate(
-      kategori_afli_hjsviktEF = dplyr::case_when(
-        .data$forlopstype ==  1 &
-          (.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
-          "AFLI-Hjertesvikt eller redusert EF",
-        .data$forlopstype ==  1 &
-          !(.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
-          "AFLI-Verken hjertesvikt eller redusert EF"))
-
-
+  d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
 
 

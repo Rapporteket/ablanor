@@ -22,7 +22,7 @@ ICD codes.
 df <- data.frame(
    forlopstype = rep(1, 4),
    aryt_i48_0 = c(0, 1, 0, 0),
-   aryt_i48_1 =  c(0, 0, 1, 2)
+   aryt_i48_1 =  c(0, 0, 1, 2),
    aryt_i48_1_underkat = c(NA, NA, 1, 2))
 ablanor::utlede_kateg_afli_aryt_i48(df)
 }
