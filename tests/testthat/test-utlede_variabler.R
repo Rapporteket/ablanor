@@ -180,7 +180,7 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(is.na(.data$bmi)) %>%
-      dplyr::select(.data$bmi_klasse)  %>% is.na() ))
+      dplyr::pull(.data$bmi_klasse)  %>% is.na()))
 
 
   # forventer feilmelding dersom bmi mangler

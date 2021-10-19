@@ -117,7 +117,7 @@ getProsPatientData <- function(registryName,
 
   # BMI klasse
   d_ablanor %<>%
-    abalnor::utlede_bmi_klasse(.)
+    ablanor::utlede_bmi_klasse(.)
 
 
 
