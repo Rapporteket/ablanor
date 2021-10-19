@@ -189,6 +189,7 @@ FROM
     query_mce <- paste0("
 SELECT
   MCEID,
+  MCETYPE,
   PATIENT_ID,
   STATUS
 FROM
