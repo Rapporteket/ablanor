@@ -213,3 +213,65 @@ utlede_kateg_afli_aryt_i48 <- function(df) {
                    "AFLI-ICD 48.1 Persisterende atrieflimmer",
                    "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer")))
 }
+
+
+
+
+
+
+#' VT Kardiomyopati
+#'
+#' Add variable \code{kategori_vt_kardiomyopati} for VT-procedures,
+#' based on variables \code{kardiomyopati} and \code{type_kardiomyopati}.
+#'
+#' @param df data.frame with AblaNor data. Must contain \code{forlopstype},
+#' \code{kardiomyopati}, \code{type_kardiomyopati}.
+#'
+#' @return Returns \code{df} with 1 new column.
+#' @export
+#'
+#' @examples
+#' df <- data.frame(
+#'    forlopstype = c(NA, 1, rep(2,8)),
+#'    kardiomyopati =  c(NA, NA, 9, 0, rep(1, 6)),
+#'    type_kardiomyopati = c(NA, NA, NA, NA, 1, 2, 3, 4, 5, 99))
+#' ablanor::utlede_kardiomyopati(df)
+utlede_kardiomyopati <- function(df) {
+
+  stopifnot(c("forlopstype",
+              "kardiomyopati",
+              "type_kardiomyopati") %in% names(df))
+
+  df %>%
+    dplyr::mutate(
+      kategori_vt_kardiomyopati = factor(
+
+        x = dplyr::case_when(
+
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 0 ~ "Uten kardiomyopati",
+
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 1 &
+            .data$type_kardiomyopati == 1 ~ "Iskemisk KM (ICM)",
+
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 1 &
+            .data$type_kardiomyopati == 2 ~ "Dilatert KM (DCM)",
+
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 1 &
+            !(.data$type_kardiomyopati %in% 1:2) ~ "Annen KM",
+
+          .data$forlopstype == 2 &
+            .data$kardiomyopati == 9 ~ "Ukjent om kardiomyopati"),
+
+        levels = c("Uten kardiomyopati",
+                   "Iskemisk KM (ICM)",
+                   "Dilatert KM (DCM)",
+                   "Annen KM",
+                   "Ukjent om kardiomyopati"),
+        ordered = TRUE))
+
+
+}

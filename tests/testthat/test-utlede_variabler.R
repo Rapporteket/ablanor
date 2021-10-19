@@ -320,3 +320,83 @@ testthat::test_that("utlede_kateg_afli_aryt_i48 fungerer", {
 
 
 })
+
+
+#Test VT Kardiomyopati
+testthat::test_that("utlede kardiomyopati fungerer", {
+
+
+
+  df <- data.frame(
+    forlopstype = c(NA, 1, rep(2,8)),
+    kardiomyopati =  c(NA, NA, 9, 0, rep(1, 6)),
+    type_kardiomyopati = c(NA, NA, NA, NA, 1, 2, 3, 4, 5, 99)
+  )
+
+
+  df_out <- ablanor::utlede_kardiomyopati(df)
+
+
+  # Forventede variabel-navn
+  testthat::expect_equal(
+    names(df_out),
+    c("forlopstype", "kardiomyopati", "type_kardiomyopati",
+      "kategori_vt_kardiomyopati"))
+
+# Forventer NA her
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype != 2 | is.na(.data$forlopstype)) %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) %>%
+      is.na())
+  )
+
+  # Forventer verdier:
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 2 ,
+                    .data$kardiomyopati == 0) %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) ==
+      "Uten kardiomyopati"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 2 ,
+                    .data$kardiomyopati == 1,
+                    .data$type_kardiomyopati == 1) %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) ==
+      "Iskemisk KM (ICM)"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 2 ,
+                    .data$kardiomyopati == 1,
+                    .data$type_kardiomyopati == 2) %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) ==
+      "Dilatert KM (DCM)"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 2 ,
+                    .data$kardiomyopati == 1,
+                    !(.data$type_kardiomyopati %in% 1:2)) %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) ==
+      "Annen KM"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype == 2 ,
+                    .data$kardiomyopati == 9) %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) ==
+      "Ukjent om kardiomyopati"))
+
+
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::pull(.data$kategori_vt_kardiomyopati) %>%
+      as.character(),
+
+    c(NA_character_, NA_character_, "Ukjent om kardiomyopati",
+    "Uten kardiomyopati", "Iskemisk KM (ICM)", "Dilatert KM (DCM)",
+    "Annen KM", "Annen KM", "Annen KM", "Annen KM"))
+})
