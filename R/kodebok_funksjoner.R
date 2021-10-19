@@ -27,12 +27,12 @@
 #' \code{df}. Default value is \emph{"_tekst"}.
 #' @param koder is used to check compatibility between \code{df} and \code{kb}
 #' for one variable. \code{koder} contains selected rows from \code{kb}.
-#' @param verdi_variabel is used to check compatibility between \code{df} and \code{kb}
-#' for one variable. \code{verdi_variabel} is the name of variable with numerical values
-#' (\emph{listeverdier}).
-#' @param tekst_variabel is used to check compatibility between \code{df} and \code{kb}
-#' for one variable. \code{tekst_variabel} is the name of variable with text values
-#' (\emph{listetekst}).
+#' @param verdi_variabel is used to check compatibility between \code{df} and
+#'  \code{kb} for one variable. \code{verdi_variabel} is the name of variable
+#'  with numerical values (\emph{listeverdier}).
+#' @param tekst_variabel is used to check compatibility between \code{df} and
+#'  \code{kb} for one variable. \code{tekst_variabel} is the name of variable
+#'  with text values (\emph{listetekst}).
 #' @param fjerne_suffiks_fra_navn boolean. If TRUE the \emph{listetekst}-
 #' variables are renamed and suffix is removed from variable names. If FALSE,
 #' variable-names are not changed and will contain suffix.
@@ -88,9 +88,11 @@ NULL
 
 #' @rdname kodebok_funksjoner
 #' @export
-kodebok_sjekk_foer_leggtil <- function(df, verdi_variabel, tekst_variabel, koder){
+kodebok_sjekk_foer_leggtil <- function(df,
+                                       verdi_variabel,
+                                       tekst_variabel,
+                                       koder) {
 
-  . <- ""
   resultat_sjekk <- TRUE
 
   # Dersom en variabel allerede finnes med det nye navnet:
@@ -140,12 +142,11 @@ kodebok_sjekk_foer_leggtil <- function(df, verdi_variabel, tekst_variabel, koder
 #' @export
 kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
                                         tekst_variabel,
-                                        type = "Listevariabel"){
-  . <- ""
+                                        type = "Listevariabel") {
   resultat_sjekk <- TRUE
 
 
-  if(!type %in% c("Listevariabel", "Avkrysningsboks")){
+  if (!type %in% c("Listevariabel", "Avkrysningsboks")) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
@@ -166,7 +167,7 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
 
 
   # Dersom ikkje samsvar mellom dei to variablane (dei er uavhengige)
-  if(type == "Listevariabel") {
+  if (type == "Listevariabel") {
 
     df_sjekk <- data.frame(
       obserververte_verdier = df[[tekst_variabel]],
@@ -177,7 +178,7 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
         suffiks = "_tekst") %>%
         dplyr::pull(tekst_variabel))
 
-  } else if(type == "Avkrysningsboks"){
+  } else if (type == "Avkrysningsboks") {
 
     df_sjekk <- data.frame(
       obserververte_verdier = df[[tekst_variabel]],
@@ -191,22 +192,23 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
 
 
   # Dersom ikke samsvar:
-  if(df_sjekk %>%
-     dplyr::filter(!is.na(.data$obserververte_verdier) &
-                   !is.na(.data$forventede_verdier)) %>%
-     dplyr::filter(.data$obserververte_verdier != .data$forventede_verdier) %>%
-     nrow() > 0) {
+  if (df_sjekk %>%
+      dplyr::filter(!is.na(.data$obserververte_verdier) &
+                    !is.na(.data$forventede_verdier)) %>%
+      dplyr::filter(.data$obserververte_verdier !=
+                    .data$forventede_verdier) %>%
+      nrow() > 0) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
 
   #Dersom bare en er NA:
-  if(df_sjekk %>%
-     dplyr::filter((is.na(.data$obserververte_verdier) &
-                    !is.na(.data$forventede_verdier)) |
-                   (is.na(.data$obserververte_verdier) &
-                    !is.na(.data$forventede_verdier))) %>%
-     nrow() > 0) {
+  if (df_sjekk %>%
+      dplyr::filter((is.na(.data$obserververte_verdier) &
+                     !is.na(.data$forventede_verdier)) |
+                    (is.na(.data$obserververte_verdier) &
+                     !is.na(.data$forventede_verdier))) %>%
+      nrow() > 0) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
@@ -216,7 +218,7 @@ kodebok_sjekk_foer_fjerning <- function(df, kb, verdi_variabel,
 
 #' @rdname kodebok_funksjoner
 #' @export
-kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
+kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst") {
 
   . <- ""
   # Kontrollere at klokeboken inneholder obligatoriske variabler
@@ -252,17 +254,19 @@ kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
     verdi_variabel <- verdi_variabel_d[i]
     tekst_variabel <- paste0(verdi_variabel, suffiks)
 
-    sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(df = df,
-                                                    verdi_variabel = verdi_variabel,
-                                                    tekst_variabel = tekst_variabel,
-                                                    koder = koder)
+    sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(
+      df = df,
+      verdi_variabel = verdi_variabel,
+      tekst_variabel = tekst_variabel,
+      koder = koder)
 
     #Dersom alle sjekker ok, legges ein ny variabel til i datasettet:
-    if(sjekk_kb) {
+    if (sjekk_kb) {
       df %<>%
-        dplyr::mutate("{tekst_variabel}" := factor(x = .data[[verdi_variabel]],
-                                                   levels = koder$listeverdier,
-                                                   labels = koder$listetekst)) %>%
+        dplyr::mutate("{tekst_variabel}" := factor(
+          x = .data[[verdi_variabel]],
+          levels = koder$listeverdier,
+          labels = koder$listetekst)) %>%
         dplyr::relocate(., tekst_variabel, .after = verdi_variabel)
     }
 
@@ -277,7 +281,7 @@ kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst"){
 
 #' @rdname kodebok_funksjoner
 #' @export
-kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
+kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst") {
 
 
   . <- ""
@@ -314,17 +318,19 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
       dplyr::filter(.data$fysisk_feltnavn %in% verdi_variabel_d[i])
     tekst_variabel <- paste0(verdi_variabel, suffiks)
 
-    sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(df = df,
-                                                    verdi_variabel = verdi_variabel,
-                                                    tekst_variabel = tekst_variabel,
-                                                    koder = koder)
+    sjekk_kb <- ablanor::kodebok_sjekk_foer_leggtil(
+      df = df,
+      verdi_variabel = verdi_variabel,
+      tekst_variabel = tekst_variabel,
+      koder = koder)
 
     #Dersom alle sjekker ok, legges ein ny variabel til i datasettet:
-    if(sjekk_kb) {
+    if (sjekk_kb) {
       df %<>%
-        dplyr::mutate("{tekst_variabel}" := factor(x = .data[[verdi_variabel]],
-                                                   levels = koder$listeverdier,
-                                                   labels = koder$listetekst)) %>%
+        dplyr::mutate("{tekst_variabel}" := factor(
+          x = .data[[verdi_variabel]],
+          levels = koder$listeverdier,
+          labels = koder$listetekst)) %>%
         dplyr::relocate(., tekst_variabel, .after = verdi_variabel)
     }
 
@@ -334,12 +340,12 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst"){
 }
 
 
-# kodebok_fyll_avkrysningsboks <- function(){}
-
 #' @rdname kodebok_funksjoner
 #' @export
-kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
-                                               fjerne_suffiks_fra_navn = TRUE){
+kodebok_beholde_bare_listetekstvar <- function(df,
+                                               kb, ...,
+                                               suffiks = "_tekst",
+                                               fjerne_suffiks_fra_navn = TRUE) {
 
   . <- ""
   # Dersom en/flere variabler er gitt som input i funksjonen, fjernes bare
@@ -347,7 +353,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
   arg <- rlang::quos(...)
   alle_med_suffiks <- rlang::quos_auto_name(arg) %>% names()
 
-  if (length(alle_med_suffiks) == 0){
+  if (length(alle_med_suffiks) == 0) {
     # Dersom ingen variabler er spesifisert, går vi gjennom
     # alle variabler med suffikset
     alle_med_suffiks <- df %>%
@@ -377,7 +383,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
       type = type)
 
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
-    if(sjekk_kb & fjerne_suffiks_fra_navn) {
+    if (sjekk_kb & fjerne_suffiks_fra_navn) {
       df %<>%
         dplyr::select(-verdi_variabel) %>%
         dplyr::rename("{verdi_variabel}"  := tekst_variabel)
@@ -385,7 +391,7 @@ kodebok_beholde_bare_listetekstvar <- function(df, kb, ..., suffiks = "_tekst",
 
 
     #Dersom alle sjekker ok, fjernes numerisk variabel fra i datasettet:
-    if(sjekk_kb & !fjerne_suffiks_fra_navn) {
+    if (sjekk_kb & !fjerne_suffiks_fra_navn) {
       df %<>%
         dplyr::select(-verdi_variabel)
     }

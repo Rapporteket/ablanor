@@ -1,8 +1,8 @@
-test_that("kodebok_sjekk_foer_leggtil fungerer",{
+test_that("kodebok_sjekk_foer_leggtil fungerer", {
 
 
   df <- data.frame(var1 = c(1:5, 1:5),
-                   var2 = rep(c(0,1), 5),
+                   var2 = rep(c(0, 1), 5),
                    var3 = c(1, 1, 1, 1, 1, 2, 2, 2, 3, NA),
                    var4 = rep(1, 10),
                    var4_tekst = rep("gammel tekst", 10),
@@ -19,15 +19,15 @@ test_that("kodebok_sjekk_foer_leggtil fungerer",{
                                        "var6", "var6",
                                        "var7", "var7",
                                        "var8", "var8"),
-                   type = rep( "Listevariabel", 18),
+                   type = rep("Listevariabel", 18),
                    listeverdier = c(1:5,
                                     0, 1,
                                     1, 2,
                                     1,
                                     1, 2,
                                     5:6,
-                                    1,1,
-                                    1,2),
+                                    1, 1,
+                                    1, 2),
                    listetekst = c(letters[1:5],
                                   "nei", "ja",
                                   "mann", "kvinne",
@@ -39,35 +39,35 @@ test_that("kodebok_sjekk_foer_leggtil fungerer",{
 
   # Foreventer at FALSE dersom nytt variabelnavn allerede finnes i df
   testthat::expect_false(
-    ablanor::kodebok_sjekk_foer_leggtil(df = df,
-                                        tekst_variabel = "var4_tekst",
-                                        verdi_variabel = "var4",
-                                        koder = kb %>%
-                                          dplyr::filter(fysisk_feltnavn == "var4")))
+    ablanor::kodebok_sjekk_foer_leggtil(
+      df = df,
+      tekst_variabel = "var4_tekst",
+      verdi_variabel = "var4",
+      koder = kb %>% dplyr::filter(fysisk_feltnavn == "var4")))
 
   # Foreventer at FALSE dersom nivåer i df ikke finnes i kb
   testthat::expect_false(
-    ablanor::kodebok_sjekk_foer_leggtil(df = df,
-                                        tekst_variabel = "var3_tekst",
-                                        verdi_variabel = "var3",
-                                        koder = kb %>%
-                                          dplyr::filter(fysisk_feltnavn == "var3")))
+    ablanor::kodebok_sjekk_foer_leggtil(
+      df = df,
+      tekst_variabel = "var3_tekst",
+      verdi_variabel = "var3",
+      koder = kb %>% dplyr::filter(fysisk_feltnavn == "var3")))
 
 
   # Foreventer at FALSE dersom kb har duplikater
   testthat::expect_false(
-    ablanor::kodebok_sjekk_foer_leggtil(df = df,
-                                        tekst_variabel = "var7_tekst",
-                                        verdi_variabel = "var7",
-                                        koder = kb %>%
-                                          dplyr::filter(fysisk_feltnavn == "var7")))
+    ablanor::kodebok_sjekk_foer_leggtil(
+      df = df,
+      tekst_variabel = "var7_tekst",
+      verdi_variabel = "var7",
+      koder = kb %>% dplyr::filter(fysisk_feltnavn == "var7")))
 
   testthat::expect_false(
-    ablanor::kodebok_sjekk_foer_leggtil(df = df,
-                                        tekst_variabel = "var8_tekst",
-                                        verdi_variabel = "var8",
-                                        koder = kb %>%
-                                          dplyr::filter(fysisk_feltnavn == "var8")))
+    ablanor::kodebok_sjekk_foer_leggtil(
+      df = df,
+      tekst_variabel = "var8_tekst",
+      verdi_variabel = "var8",
+      koder = kb %>% dplyr::filter(fysisk_feltnavn == "var8")))
 
 
   # Forventer feilmelding
@@ -77,7 +77,7 @@ test_that("kodebok_sjekk_foer_leggtil fungerer",{
       kb = kb %>% dplyr::select(-fysisk_feltnavn)))
 
 
-} )
+})
 
 
 
@@ -99,7 +99,7 @@ testthat::test_that("kodebok_sjekk_foer_fjerning fungerer for Listevariabel", {
                                        "var2", "var2",
                                        "var3", "var3",
                                        "var4", "var4"),
-                   type = rep( "Listevariabel", 11),
+                   type = rep("Listevariabel", 11),
                    listeverdier = c(1:5,
                                     1, 2,
                                     0, 1,
@@ -207,7 +207,7 @@ testthat::test_that("skjekk foer fjerning fungerer for avkrysninsboks", {
 test_that("kodebok_fyll_listetekstvar works", {
 
   df <- data.frame(var1 = c(1:5, 1:5),
-                   var2 = rep(c(0,1), 5),
+                   var2 = rep(c(0, 1), 5),
                    var3 = c(1, 1, 1, 1, 1, 2, 2, 2, 3, NA),
                    var4 = rep(1, 10),
                    var4_tekst = rep("gammel tekst", 10),
@@ -220,7 +220,7 @@ test_that("kodebok_fyll_listetekstvar works", {
                                        "var4",
                                        "var5", "var5",
                                        "var6", "var6"),
-                   type = rep( "Listevariabel", 14),
+                   type = rep("Listevariabel", 14),
                    listeverdier = c(1:5,
                                     0, 1,
                                     1, 2,
@@ -391,10 +391,11 @@ test_that("kodebok_beholde_bare_listetekstvar fungerer", {
 
   # Fungerer for fjerning av alle variablene:
   testthat::expect_equal(
-    ablanor::kodebok_beholde_bare_listetekstvar(df = df,
-                                                kb = kb,
-                                                suffiks = "_tekst",
-                                                fjerne_suffiks_fra_navn = TRUE) %>%
+    ablanor::kodebok_beholde_bare_listetekstvar(
+      df = df,
+      kb = kb,
+      suffiks = "_tekst",
+      fjerne_suffiks_fra_navn = TRUE) %>%
       names(),
 
     c("var1", "var2", "var2_tekst", "var3", "var4_tekst"))
@@ -402,11 +403,12 @@ test_that("kodebok_beholde_bare_listetekstvar fungerer", {
 
   # Fungerer for fjerning av en variabel
   testthat::expect_equal(
-    ablanor::kodebok_beholde_bare_listetekstvar(df = df,
-                                                kb = kb,
-                                                var1,
-                                                suffiks = "_tekst",
-                                                fjerne_suffiks_fra_navn = TRUE) %>%
+    ablanor::kodebok_beholde_bare_listetekstvar(
+      df = df,
+      kb = kb,
+      var1,
+      suffiks = "_tekst",
+      fjerne_suffiks_fra_navn = TRUE) %>%
       names(),
 
     c("var1", "var2", "var2_tekst", "var3", "var3_tekst", "var4_tekst"))
@@ -414,27 +416,27 @@ test_that("kodebok_beholde_bare_listetekstvar fungerer", {
 
   # Omdøpe uten suffiks fungerer:
   testthat::expect_equal(
-    ablanor::kodebok_beholde_bare_listetekstvar(df = df %>%
-                                                  dplyr::select("var1", "var1_tekst"),
-                                                kb = kb,
-                                                suffiks = "_tekst",
-                                                fjerne_suffiks_fra_navn = TRUE) %>%
+    ablanor::kodebok_beholde_bare_listetekstvar(
+      df = df %>% dplyr::select("var1", "var1_tekst"),
+      kb = kb,
+      suffiks = "_tekst",
+      fjerne_suffiks_fra_navn = TRUE) %>%
       names(),
     "var1")
 
   # Default verdier av funksjon fungerer
   testthat::expect_equal(
-    ablanor::kodebok_beholde_bare_listetekstvar(df = df %>%
-                                                  dplyr::select("var1", "var1_tekst"),
-                                                kb = kb) %>%
+    ablanor::kodebok_beholde_bare_listetekstvar(
+      df = df %>% dplyr::select("var1", "var1_tekst"),
+      kb = kb) %>%
       names(),
     "var1")
 
   # Innhodet i nye variabler er riktig
   testthat::expect_equal(
-    ablanor::kodebok_beholde_bare_listetekstvar(df = df %>%
-                                                  dplyr::select("var1", "var1_tekst"),
-                                                kb = kb) %>%
+    ablanor::kodebok_beholde_bare_listetekstvar(
+      df = df %>% dplyr::select("var1", "var1_tekst"),
+      kb = kb) %>%
       dplyr::pull(),
     letters[1:5])
 
@@ -525,7 +527,7 @@ test_that("kjeden av kodebok-funksjoner fungerer", {
                    var3 = c(NA, 0, 1, 0, 1),
                    var4 = c(0, 1, 0, 1, NA),
                    var5 = 1:5,
-                   var6 = c(0,1,2,0,1),
+                   var6 = c(0, 1, 2, 0, 1),
                    var7 = c(0, 1, 0, 1, 1),
                    var2_tekst = rep("finnes allerede", 5))
 
@@ -534,10 +536,10 @@ test_that("kjeden av kodebok-funksjoner fungerer", {
                                        "var4",
                                        "var5", "var5", "var5",
                                        "var6", "var7"),
-                   type = c(rep( "Listevariabel",5) ,
-                            "Avkrysningsboks", rep( "Listevariabel", 2),
+                   type = c(rep("Listevariabel", 5),
+                            "Avkrysningsboks", rep("Listevariabel", 2),
                             "Annet",
-                            rep( "Listevariabel", 3),
+                            rep("Listevariabel", 3),
                             "Avkrysningsboks", "Avkrysningsboks"),
                    listeverdier = c(1:5, NA, 0:1, NA, 1:3, NA, NA),
                    listetekst = c(letters[1:5], NA, "mann", "kvinne", NA,

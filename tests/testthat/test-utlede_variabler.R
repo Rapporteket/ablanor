@@ -2,7 +2,7 @@
 testthat::test_that("utlede_alder() works", {
 
   x <- data.frame(
-    birth_date = as.Date(c(rep("1951-12-30",4), NA,
+    birth_date = as.Date(c(rep("1951-12-30", 4), NA,
                            "2071-12-31", "1951-15-30"),
                          format = "%Y-%m-%d"),
     dato_pros = as.Date(c("2021-05-29", "2021-12-29", "2021-12-30",
@@ -32,7 +32,7 @@ testthat::test_that("utlede_alder() works", {
   testthat::expect_equal(
     x_out %>%
       dplyr::filter(!is.na(.data$birth_date) & !is.na(dato_pros)) %>%
-      dplyr::pull(.data$alder) ,
+      dplyr::pull(.data$alder),
     c(69, 69, 70, -50))
 
   # Forventer feilmedling dersom en av variablene mangler i datasettet
@@ -180,7 +180,8 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(is.na(.data$bmi)) %>%
-      dplyr::pull(.data$bmi_klasse)  %>% is.na()))
+      dplyr::pull(.data$bmi_klasse) %>%
+      is.na()))
 
 
   # forventer feilmelding dersom bmi mangler
@@ -224,7 +225,8 @@ testthat::test_that("Utlede tidsvariabler fungerer", {
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(!is.na(.data$dato_pros)) %>%
-      dplyr::pull(.data$maaned) %>% as.character(),
+      dplyr::pull(.data$maaned) %>%
+      as.character(),
     c("2021-10", "2020-11", "1998-01", "2020-07"))
 
   testthat::expect_error(
@@ -328,7 +330,7 @@ testthat::test_that("utlede kardiomyopati fungerer", {
 
 
   df <- data.frame(
-    forlopstype = c(NA, 1, rep(2,8)),
+    forlopstype = c(NA, 1, rep(2, 8)),
     kardiomyopati =  c(NA, NA, 9, 0, rep(1, 6)),
     type_kardiomyopati = c(NA, NA, NA, NA, 1, 2, 3, 4, 5, 99)
   )
@@ -354,14 +356,14 @@ testthat::test_that("utlede kardiomyopati fungerer", {
   # Forventer verdier:
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$forlopstype == 2 ,
+      dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 0) %>%
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Uten kardiomyopati"))
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$forlopstype == 2 ,
+      dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 1,
                     .data$type_kardiomyopati == 1) %>%
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
@@ -369,7 +371,7 @@ testthat::test_that("utlede kardiomyopati fungerer", {
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$forlopstype == 2 ,
+      dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 1,
                     .data$type_kardiomyopati == 2) %>%
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
@@ -377,7 +379,7 @@ testthat::test_that("utlede kardiomyopati fungerer", {
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$forlopstype == 2 ,
+      dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 1,
                     !(.data$type_kardiomyopati %in% 1:2)) %>%
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
@@ -385,7 +387,7 @@ testthat::test_that("utlede kardiomyopati fungerer", {
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$forlopstype == 2 ,
+      dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 9) %>%
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Ukjent om kardiomyopati"))
