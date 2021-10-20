@@ -126,7 +126,7 @@ getProsPatientData <- function(registryName,
 
 
   # AFLI : ICD
-  d_ablanor %<>% utlede_kateg_afli_aryt_i48(.)
+  d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
 
 
   # VT : KARDIOMYOPATI

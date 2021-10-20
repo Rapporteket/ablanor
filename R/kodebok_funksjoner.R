@@ -266,7 +266,8 @@ kodebok_fyll_avkrysningsboks <- function(df, kb, ..., suffiks = "_tekst") {
         dplyr::mutate("{tekst_variabel}" := factor(
           x = .data[[verdi_variabel]],
           levels = koder$listeverdier,
-          labels = koder$listetekst)) %>%
+          labels = koder$listetekst,
+          ordered = TRUE)) %>%
         dplyr::relocate(., tekst_variabel, .after = verdi_variabel)
     }
 
@@ -330,7 +331,8 @@ kodebok_fyll_listetekstvar <- function(df, kb, ..., suffiks = "_tekst") {
         dplyr::mutate("{tekst_variabel}" := factor(
           x = .data[[verdi_variabel]],
           levels = koder$listeverdier,
-          labels = koder$listetekst)) %>%
+          labels = koder$listetekst,
+          ordered = TRUE)) %>%
         dplyr::relocate(., tekst_variabel, .after = verdi_variabel)
     }
 

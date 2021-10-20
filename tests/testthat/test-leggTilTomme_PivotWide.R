@@ -1,17 +1,20 @@
 test_that("Expansion works", {
-  testthat::skip("Test needs fixing!")
+
   x <- data.frame(maaned = rep(c("jan", "feb", "mars", "april"), 2),
                   legend = factor(x = c(rep("en", 4), rep("to", 4)),
-                              levels = c("en", "to", "tre")),
+                                  levels = c("en", "to", "tre")),
                   value = paste0("1/", 1:8))
 
-  expect_equal(as.character(
-      ablanor::leggTilTomme_PivotWide(x, remove_NAcols = FALSE)[1, 4]),
-      " -- ")
+  expect_true(all(
+    ablanor::leggTilTomme_PivotWide(x, remove_NAcols = FALSE) %>%
+      dplyr::pull(tre) %>%
+      as.character() == " -- "))
 
-  expect_equal(colnames(
-    ablanor::leggTilTomme_PivotWide(x, remove_NAcols  = FALSE)),
-    c("maaned", "en", "to", "tre"))
+  expect_equal(
+    ablanor::leggTilTomme_PivotWide(x, remove_NAcols  = FALSE) %>%
+      names(),
+    c("maaned", "en", "to", "tre")
+  )
 
 
   x <- data.frame(maaned = rep(c("jan", "feb", "mars", "april", NA), 2),
@@ -20,16 +23,20 @@ test_that("Expansion works", {
                                   exclude = NULL),
                   value = c(paste0("1/", 1:9), NA))
 
-  expect_true("NA" %in%
-                colnames(ablanor::leggTilTomme_PivotWide(
-                  x, remove_NAcols = FALSE)))
+  expect_true(ablanor::leggTilTomme_PivotWide(x, remove_NAcols = FALSE) %>%
+                dplyr::select("NA") %>%
+                ncol() == 1
+  )
 
-  expect_true(! "NA" %in%
-                colnames(
-                  ablanor::leggTilTomme_PivotWide(x, remove_NAcols = TRUE)))
-  expect_true(NA_character_ %in%
-                (ablanor::leggTilTomme_PivotWide(
-                  x, remove_NAcols = FALSE)$maaned))
+  expect_equal(
+    ablanor::leggTilTomme_PivotWide(x, remove_NAcols = TRUE) %>% names(),
+    c("maaned", "en", "to", "tre")
+  )
+
+  expect_true(ablanor::leggTilTomme_PivotWide(x, remove_NAcols = FALSE) %>%
+                dplyr::filter(is.na(maaned)) %>%
+                nrow() ==1
+  )
 
 
   x <- data.frame(maaned = factor(x = rep(c("feb", "april", "mars", "jan", NA),
@@ -42,10 +49,16 @@ test_that("Expansion works", {
                                   exclude = NULL),
                   value = c(paste0("1/", 1:9), NA))
 
-  expect_equal(colnames(
-    ablanor::leggTilTomme_PivotWide(x, remove_NAcols  = TRUE)),
-    c("maaned", "en", "to", "tre"))
+  expect_equal(
+    ablanor::leggTilTomme_PivotWide(x, remove_NAcols  = TRUE) %>%
+      names(),
+    c("maaned", "en", "to", "tre")
+  )
 
-  expect_true(is.na(as.character(
-    ablanor::leggTilTomme_PivotWide(x, remove_NAcols  = TRUE)$maaned[6])))
+  expect_equal(
+    ablanor::leggTilTomme_PivotWide(x, remove_NAcols  = TRUE) %>%
+      dim(),
+    c(6, 4)
+  )
+
 })

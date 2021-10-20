@@ -1,3 +1,4 @@
+# Kodebok_sjekk_foer_legg_til ----
 test_that("kodebok_sjekk_foer_leggtil fungerer", {
 
 
@@ -82,7 +83,7 @@ test_that("kodebok_sjekk_foer_leggtil fungerer", {
 
 
 
-
+# kodebok_sjekk_foer_fjerning ----
 testthat::test_that("kodebok_sjekk_foer_fjerning fungerer for Listevariabel", {
 
 
@@ -146,6 +147,7 @@ testthat::test_that("kodebok_sjekk_foer_fjerning fungerer for Listevariabel", {
 
 })
 
+# Sjekk for fjerning for avkrysningsboks
 testthat::test_that("skjekk foer fjerning fungerer for avkrysninsboks", {
 
   # forventer at fungerer for binære avkrysningsbokser
@@ -203,7 +205,7 @@ testthat::test_that("skjekk foer fjerning fungerer for avkrysninsboks", {
 
 
 
-
+# Kodebok_fyll_listetekst_var
 test_that("kodebok_fyll_listetekstvar works", {
 
   df <- data.frame(var1 = c(1:5, 1:5),
@@ -285,7 +287,7 @@ test_that("kodebok_fyll_listetekstvar works", {
 })
 
 
-
+# Tekst for avkrysningsboks
 test_that("Tekst for avkrysningsboks virker", {
   #  Tester for Avkrysningsboks
   df <- data.frame(var1 = rep(0, 5),
@@ -364,7 +366,7 @@ test_that("Tekst for avkrysningsboks virker", {
 })
 
 
-
+# kodebok_beholde_bare_listetekstvar
 test_that("kodebok_beholde_bare_listetekstvar fungerer", {
   df <- data.frame(var1 = c(1:5),
                    var1_tekst = letters[1:5],
@@ -518,7 +520,7 @@ test_that("kodebok_beholde_bare_listetekstvar fungerer", {
 
 })
 
-
+#  kjeden av kodebok funkjsoner
 test_that("kjeden av kodebok-funksjoner fungerer", {
 
   . <- ""

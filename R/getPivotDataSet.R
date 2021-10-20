@@ -60,6 +60,7 @@ getPivotDataSet <- function(setId = "",
         suffiks = "_tekst",
         fjerne_suffiks_fra_navn = TRUE)
 
+    dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
 
   } else {
     dat <- NULL

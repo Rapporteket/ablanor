@@ -89,7 +89,7 @@ server <- function(input, output, session) {
   # Utforsker
   ## Data sets available
   dataSets <- list(`Bruk og valg av data` = "info",
-                   `Prosedyre og basisskjema` = "pros_patient",
+                   `Prosedyre, basisskjema og oppfølging` = "pros_patient",
                    `RAND-12` = "rand12"
   )
 

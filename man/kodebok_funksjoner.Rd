@@ -34,13 +34,13 @@ kodebok_beholde_bare_listetekstvar(
 \arguments{
 \item{df}{data.frame containing variables from AblaNor e.g. \code{d_ablanor}.}
 
-\item{verdi_variabel}{is used to check compatibility between \code{df} and \code{kb}
-for one variable. \code{verdi_variabel} is the name of variable with numerical values
-(\emph{listeverdier}).}
+\item{verdi_variabel}{is used to check compatibility between \code{df} and
+\code{kb} for one variable. \code{verdi_variabel} is the name of variable
+with numerical values (\emph{listeverdier}).}
 
-\item{tekst_variabel}{is used to check compatibility between \code{df} and \code{kb}
-for one variable. \code{tekst_variabel} is the name of variable with text values
-(\emph{listetekst}).}
+\item{tekst_variabel}{is used to check compatibility between \code{df} and
+\code{kb} for one variable. \code{tekst_variabel} is the name of variable
+with text values (\emph{listetekst}).}
 
 \item{koder}{is used to check compatibility between \code{df} and \code{kb}
 for one variable. \code{koder} contains selected rows from \code{kb}.}
