@@ -7,6 +7,7 @@
 \alias{getHospitalName}
 \alias{getRand12}
 \alias{getProsPatient}
+\alias{getFollowup}
 \title{Load data for ablanor}
 \usage{
 getDataDump(registryName, tableName, fromDate, toDate, ...)
@@ -18,6 +19,8 @@ getHospitalName(registryName, reshId)
 getRand12(registryName, singleRow, ...)
 
 getProsPatient(registryName, singleRow, ...)
+
+getFollowup(registryName, singleRow, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}

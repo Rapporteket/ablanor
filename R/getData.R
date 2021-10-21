@@ -27,6 +27,7 @@
 #' also be returned as a named list of values (see Details).
 #' @name getData
 #' @aliases getDataDump getNameReshId getHospitalName getRand12 getProsPatient
+#' getFollowup
 NULL
 
 #' @rdname getData
@@ -267,4 +268,41 @@ FROM
       followup = d_followup
     )
   }
+}
+
+
+#' @rdname getData
+#' @export
+getFollowup <- function(registryName, singleRow, ...) {
+  if (registryName == "test_ablanor_lokalt") {
+    # LASTE INN DATA LOKALT
+    load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
+
+  } else {
+    query <- paste0("
+SELECT
+  *
+FROM
+  followup"
+    )
+
+    if (singleRow) {
+      msg <- "Query metadata for followup"
+      query <- paste0(query, "\nLIMIT\n  1;")
+    } else {
+      msg <- "Query data for followup"
+      query <- paste0(query_procedure, ";")
+    }
+
+    if ("session" %in% names(list(...))) {
+      # nocov start
+      rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+      dat <- rapbase::loadRegData(registryName, query)
+      # nocov end
+    } else {
+      dat <- rapbase::loadRegData(registryName, query)
+    }
+  }
+
+  dat
 }
