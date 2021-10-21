@@ -192,6 +192,7 @@ SELECT
   MCEID,
   MCETYPE,
   PATIENT_ID,
+  PARENTMCEID,
   STATUS
 FROM
   mce"
@@ -250,7 +251,7 @@ FROM
                          msg = msg_patientlist)
       d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
       rapbase::repLogger(session = list(...)[["session"]], msg = msg_followup)
-      d_basereg <- rapbase::loadRegData(registryName, query_followup)
+      d_followup <- rapbase::loadRegData(registryName, query_followup)
       # nocov end
     } else {
       d_basereg <- rapbase::loadRegData(registryName, query_basereg)
