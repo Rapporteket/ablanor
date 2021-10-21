@@ -137,7 +137,7 @@ testthat::test_that("Utlede BMI klasse fungerer", {
 
 
   testthat::expect_true(all(
-    names(df_out) %in% c("bmi", "bmi_klasse")
+    names(df_out) %in% c("bmi", "bmi_klasse", "bmi_over35")
   ))
 
 
@@ -182,6 +182,21 @@ testthat::test_that("Utlede BMI klasse fungerer", {
       dplyr::filter(is.na(.data$bmi)) %>%
       dplyr::pull(.data$bmi_klasse) %>%
       is.na()))
+
+  # forventer min og max verdi for bmi_over35
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::filter(.data$bmi_over35 == "BMI >=35") %>%
+      dplyr::pull(.data$bmi) %>%
+      min(),
+    35.0)
+
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::filter(.data$bmi_over35 == "BMI <35") %>%
+      dplyr::pull(.data$bmi) %>%
+      max(),
+    34.9)
 
 
   # forventer feilmelding dersom bmi mangler

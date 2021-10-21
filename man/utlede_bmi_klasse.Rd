@@ -2,16 +2,17 @@
 % Please edit documentation in R/utlede_variabler.R
 \name{utlede_bmi_klasse}
 \alias{utlede_bmi_klasse}
-\title{Add varibale bmi_klasse}
+\title{Add variables bmi_klasse and bmi_over35}
 \usage{
 utlede_bmi_klasse(df)
 }
 \arguments{
-\item{df}{data.frame with abalnor-data. Must contain variable
+\item{df}{data.frame with ablanor-data. Must contain variable
 \code{bmi}.}
 }
 \value{
-Returns \code{df} with one new column: \code{bmi_klasse}.
+Returns \code{df} with 2 new columns: \code{bmi_klasse}
+and \code{bmi_over35}
 }
 \description{
 Add categories of Body Mass Index (BMI = weight in kilograms divided by

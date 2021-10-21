@@ -83,15 +83,16 @@ utlede_aldersklasse <- function(df) {
 
 
 
-#' Add varibale bmi_klasse
+#' Add variables bmi_klasse and bmi_over35
 #'
 #' Add categories of Body Mass Index (BMI = weight in kilograms divided by
 #' the square of height in meters).
 #'
-#' @param df data.frame with abalnor-data. Must contain variable
+#' @param df data.frame with ablanor-data. Must contain variable
 #' \code{bmi}.
 #'
-#' @return Returns \code{df} with one new column: \code{bmi_klasse}.
+#' @return Returns \code{df} with 2 new columns: \code{bmi_klasse}
+#' and \code{bmi_over35}
 #' @export
 #'
 #' @examples
@@ -125,9 +126,17 @@ utlede_bmi_klasse <- function(df) {
                      "Fedme, klasse II",
                      "Fedme, klasse III",
                      "ugyldig"),
-          ordered = TRUE))
+          ordered = TRUE),
+
+      bmi_over35 = dplyr::if_else(.data$bmi >= 35,
+                                  true = "BMI >=35",
+                                  false = "BMI <35",
+                                  missing = NA_character_)
+    )
 
 }
+
+
 
 
 #' Add tidsvariabler
