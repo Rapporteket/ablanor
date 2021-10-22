@@ -1,5 +1,5 @@
 # For these tests to work locally make sure an instance of mysql server is
-# available and that the necassary user privileges are provided, e.g. as SQL:
+# available and that the necessary user privileges are provided, e.g. as SQL:
 #   \code{grant all privileges on [DATABASE].* to '[USER]'@'localhost';}
 # When run at Github Actions build servers [USER] must be set to 'actions' and
 # with an empty password (as also assumed in the above localhost example).
