@@ -61,7 +61,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
   if ("session" %in% names(list(...))) {
     #nocov start
     rapbase::repLogger(session = list(...)[["session"]],
-                       msg = paste("NORIC data dump:\n", query))
+                       msg = paste("AblaNor data dump:\n", query))
     #nocov end
   }
 
