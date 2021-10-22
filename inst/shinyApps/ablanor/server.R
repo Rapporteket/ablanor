@@ -149,25 +149,29 @@ server <- function(input, output, session) {
 
 
   output$selectVars <- shiny::renderUI({
-    if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
-      shiny::h4(paste("Valgt datasett:",
-                      names(dataSets)[dataSets == input$selectedDataSet]))
+    if (length(input$isSelectAllVars) == 0) {
+      NULL
     } else {
-      if (input$isSelectAllVars) {
-        vars <- names(dat())
+      if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
+        shiny::h4(paste("Valgt datasett:",
+                        names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
-        vars <- rvals$selectedVars
-      }
+        if (input$isSelectAllVars) {
+          vars <- names(dat())
+        } else {
+          vars <- rvals$selectedVars
+        }
 
-      shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                         choices = names(dat()), multiple = TRUE,
-                         selected = vars)
+        shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
+                           choices = names(dat()), multiple = TRUE,
+                           selected = vars)
+      }
+      # @ note : Har tatt dat() og ikke metaDat som i NORIC
+      # selectInput(inputId = "selectedVars", label = "Velg variabler:",
+      #        choices = names(dat()), multiple = TRUE,
+      #        selected = vars)
+      # }
     }
-    # @ note : Har tatt dat() og ikke metaDat som i NORIC
-    # selectInput(inputId = "selectedVars", label = "Velg variabler:",
-    #        choices = names(dat()), multiple = TRUE,
-    #        selected = vars)
-    # }
   })
 
 
