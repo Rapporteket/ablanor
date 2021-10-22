@@ -1,4 +1,3 @@
-
 #' Get selected data set for Pivot Table  (Utforsker)
 #'
 #' Some tables are returned as they are, with only raw data. Other tables are
@@ -12,6 +11,8 @@
 #' @param session List shiny session object.
 #' @param singleRow Logical defining if only one row is to be returned.
 #' @param reshId Integer organization id
+#' @param allData Logical if global data set is to be returned. When FALSE
+#' (default) data will be filtered by \code{reshId}
 #'
 #' @return data frame
 #' @export
@@ -22,12 +23,18 @@ getPivotDataSet <- function(setId = "",
                             registryName,
                             session,
                             singleRow = FALSE,
-                            reshId = NULL) {
+                            reshId = NULL,
+                            allData = FALSE) {
 
   . <- ""
+
   validSetId <- c("pros_patient", "rand12")
 
   if (setId %in% validSetId) {
+
+    if (!allData) {
+      stopifnot(!is.null(reshId))
+    }
 
     if (setId == "rand12") {
       dat <- ablanor::getRand12Data(registryName = registryName,
@@ -40,10 +47,11 @@ getPivotDataSet <- function(setId = "",
                                          session = session)
     }
 
-    # # Filtrere på sykehus
-    # dat %<>%
-    #   dplyr::filter(as.numeric(.data$centreid) %in% reshId)
-    #
+    # Filtrere på sykehus
+    if (!allData) {
+      dat %<>%
+        dplyr::filter(as.numeric(.data$centreid) %in% reshId)
+    }
 
     # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
     kb <- ablanor::getKodebokData()

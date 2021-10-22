@@ -125,7 +125,8 @@ server <- function(input, output, session) {
     getPivotDataSet(setId = input$selectedDataSet,
                     registryName = registryName,
                     session = session,
-                    reshId = reshId)
+                    reshId = reshId,
+                    allData = (userRole == "SC"))
   })
 
 

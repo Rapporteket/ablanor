@@ -9,7 +9,8 @@ getPivotDataSet(
   registryName,
   session,
   singleRow = FALSE,
-  reshId = NULL
+  reshId = NULL,
+  allData = FALSE
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ containing data from rand12 questionnaire.}
 \item{singleRow}{Logical defining if only one row is to be returned.}
 
 \item{reshId}{Integer organization id}
+
+\item{allData}{Logical if global data set is to be returned. When FALSE
+(default) data will be filtered by \code{reshId}}
 }
 \value{
 data frame
