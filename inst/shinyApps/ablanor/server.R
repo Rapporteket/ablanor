@@ -4,33 +4,33 @@ library(ablanor)
 server <- function(input, output, session) {
 
 
-  rapbase::appLogger(session = session, msg = "Starting AblaNor application")
+  # rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
   ## setting values that do depend on a Rapporteket context
-  if (rapbase::isRapContext()) {
-    registryName <- "ablanor"
-    mapOrgId <- ablanor::getNameReshId(registryName)
-    reshId <- rapbase::getUserReshId(session)
-    hospitalName <- ablanor::getHospitalName(registryName, reshId)
-    userFullName <- rapbase::getUserFullName(session)
-    userRole <- rapbase::getUserRole(session)
-    userOperator <- "Test Operatoresen"
-    author <- userFullName
-    # userOperator <- ? #@fixme
-  } else {
-    ### if need be, define your (local) values here
+  # if (rapbase::isRapContext()) {
+  #   registryName <- "ablanor"
+  #   mapOrgId <- ablanor::getNameReshId(registryName)
+  #   reshId <- rapbase::getUserReshId(session)
+  #   hospitalName <- ablanor::getHospitalName(registryName, reshId)
+  #   userFullName <- rapbase::getUserFullName(session)
+  #   userRole <- rapbase::getUserRole(session)
+  #   userOperator <- "Test Operatoresen"
+  #   author <- userFullName
+  #   # userOperator <- ? #@fixme
+  # } else {
+  ### if need be, define your (local) values here
 
-    readRenviron("H:/data/.Renviron")
-    reshId <- Sys.getenv("Test_reshId")
-    hospitalName <- Sys.getenv("Test_hospitalName")
-    userFullName <- "Test Testersen"  # tester rapport per bruker
-    userOperator <- Sys.getenv("Test_operator")
-    userRole <- "LC"
-    registryName <- "test_ablanor_lokalt"
-    author <- userFullName
+  readRenviron("H:/data/.Renviron")
+  reshId <- Sys.getenv("Test_reshId")
+  hospitalName <- Sys.getenv("Test_hospitalName")
+  userFullName <- "Test Testersen"  # tester rapport per bruker
+  userOperator <- Sys.getenv("Test_operator")
+  userRole <- "LC"
+  registryName <- "test_ablanor_lokalt"
+  author <- userFullName
 
-  }
+  # }
 
 
   # Hide tabs when not role 'SC'
@@ -190,7 +190,9 @@ server <- function(input, output, session) {
 
   output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
-      rpivotTable::rpivotTable(dat()[input$selectedVars])
+      rpivotTable::rpivotTable(
+        data = dat()[input$selectedVars],
+        sorters = ablanor::make_sorters(df = dat()[input$selectedVars]))
     } else {
       rpivotTable::rpivotTable(data.frame())
     }
