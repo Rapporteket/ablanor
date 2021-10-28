@@ -220,7 +220,8 @@ utlede_kateg_afli_aryt_i48 <- function(df) {
 
         levels = c("AFLI-ICD 48.0 Paroksymal atrieflimmer",
                    "AFLI-ICD 48.1 Persisterende atrieflimmer",
-                   "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer")))
+                   "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"),
+        ordered = TRUE))
 }
 
 
