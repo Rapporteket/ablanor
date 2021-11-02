@@ -113,8 +113,8 @@ utlede_bmi_klasse <- function(df) {
             .data$bmi >= 25 & .data$bmi < 30 ~ "Overvekt",
             .data$bmi >= 30 & .data$bmi < 35 ~ "Moderat fedme, klasse I",
             .data$bmi >= 35 & .data$bmi < 40 ~ "Fedme, klasse II",
-            .data$bmi >= 40 & .data$bmi < 45 ~ "Fedme, klasse III",
-            .data$bmi >= 45 ~ "ugyldig",
+            .data$bmi >= 40 & .data$bmi < 100 ~ "Fedme, klasse III",
+            .data$bmi >= 100 ~ "ugyldig",
             TRUE ~ NA_character_),
 
           levels = c("Alvorlig undervekt",

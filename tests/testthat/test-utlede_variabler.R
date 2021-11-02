@@ -173,7 +173,7 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   # Forventer klasse ugyldig dersom BMI har svært høy verdi
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$bmi >= 45) %>%
+      dplyr::filter(.data$bmi >= 100) %>%
       dplyr::pull(.data$bmi_klasse) == "ugyldig"))
 
   # Forventer klasse NA dersom BMI mangler
