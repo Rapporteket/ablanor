@@ -12,34 +12,31 @@ date: '`r format(Sys.time(), "%d. %B %Y")`'
 ---
 
 ## Rapporteket for AblaNor `r params$hospitalName`
-
-
+ 
 
 ### Utforsker
+Denne siden inneholder en løsning som benytter R-pakken `rpivotTable`. Her kan 
+man laste inn datasett fra egen aktivitet (LC-rolle) eller nasjonal aktivitet
+(SC-rolle) og utforske disse dataene i tabell-format eller grafisk format. 
 
-__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) eller "Lokal koordinator" (LC) i Rapporteket.__
-
-Denne siden inneholder en løsnings som benytter en R-pakke som heter `rpivotTable`.
-  
-Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
-Man kan i tillegg finne mer informasjon om pakken på [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
+Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen
+fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
+Man kan i tillegg finne mer informasjon om pakken på
+[hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
 
 __Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
     
-  
-
 ### Månedsrapporter
+Månedsrapportene inneholder en oppsummering av aktiviteten for din lokale
+avdeling det siste året, sammenlignet med nasjonale tall. Du kan få tilsendt 
+rapporten automatisk per e-post (se Abonnement).
 
-Månedsrapportene inneholder oppsummeringer av viktige aktiviteter det siste året.  
-Du kan få tilsendt rapportene automatisk per e-post (se Abonnement).
-
-
-Dersom man er logget inn som "Lokal koordinator" (LC) vil man få en månedsrapport for hele enheten.
-
-Dersom man er logget inn som "Lokal bruker" (LU) vil man få en rapport for sin egen aktivitet.
-
+### Datadump
+Her kan du laste ned tabeller som inneholder ditt lokale sykehus sin aktivitet
+fra en valgfri periode i csv- eller xlsx-csv format. Tabellene er i rådata-
+format med en rad per forløp.
 
 ### Abonnement
-
 Her kan du administrere dine abonnement på månedsrapportene.  
-Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format (html eller pdf).
+Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format 
+(html eller pdf).
