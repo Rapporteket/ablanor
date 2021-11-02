@@ -101,22 +101,22 @@ test_that("tables can be dumped", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
   expect_equal(class(
-    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
     ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),allData = TRUE, reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "mce", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "mce", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "pros", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "pros", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
   ), "data.frame")
   expect_error(
-    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
   )
   rapbase::rapCloseDbConnection(con)
 })
