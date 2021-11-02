@@ -20,6 +20,7 @@
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
 #' @param reshId Integer organization id.
+#' @param allData Boolean. TRUE if national data-dump. FALSE if only one reshID.
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
@@ -31,7 +32,8 @@ NULL
 
 #' @rdname getData
 #' @export
-getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
+getDataDump <- function(registryName, tableName, fromDate, toDate,
+                        reshID = NULL, allData = FALSE, ...) {
 
   stopifnot(tableName %in% c("basereg",
                              "friendlycentre",
@@ -39,7 +41,12 @@ getDataDump <- function(registryName, tableName, fromDate, toDate, ...) {
                              "patientlist",
                              "pros"))
 
-  query <- paste("SELECT * FROM", tableName)
+ if(allData == TRUE) {
+   query <- paste("SELECT * FROM", tableName)
+
+ } else if (allData == FALSE & !is.null(reshID)){
+     query <- paste("SELECT * FROM", tableName, "WHERE CENTREID == ", reshID)
+   }
   condition <- ""
 
   if (tableName == "basereg") {

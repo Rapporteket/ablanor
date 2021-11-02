@@ -9,7 +9,15 @@
 \alias{getProsPatient}
 \title{Load data for ablanor}
 \usage{
-getDataDump(registryName, tableName, fromDate, toDate, ...)
+getDataDump(
+  registryName,
+  tableName,
+  fromDate,
+  toDate,
+  reshID = NULL,
+  allData = FALSE,
+  ...
+)
 
 getNameReshId(registryName, asNamedList = FALSE)
 
@@ -27,6 +35,8 @@ getProsPatient(registryName, singleRow, ...)
 \item{fromDate}{Character string of format YYYY-MM-DD with start date}
 
 \item{toDate}{Character string of format YYYY-MM-DD with end date}
+
+\item{allData}{Boolean. TRUE if national data-dump. FALSE if only one reshID.}
 
 \item{...}{Optional arguments to be passed to the function.}
 
