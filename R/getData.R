@@ -20,6 +20,7 @@
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
 #' @param reshId Integer organization id.
+#' @param reshID Integer dummy/placeholder organization id
 #' @param allData Boolean. TRUE if national data-dump. FALSE if only one reshID.
 #' @param ... Optional arguments to be passed to the function.
 #'

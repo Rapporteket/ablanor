@@ -36,6 +36,8 @@ getProsPatient(registryName, singleRow, ...)
 
 \item{toDate}{Character string of format YYYY-MM-DD with end date}
 
+\item{reshID}{Integer dummy/placeholder organization id}
+
 \item{allData}{Boolean. TRUE if national data-dump. FALSE if only one reshID.}
 
 \item{...}{Optional arguments to be passed to the function.}
