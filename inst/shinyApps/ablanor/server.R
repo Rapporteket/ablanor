@@ -43,13 +43,13 @@ server <- function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
   }
 
-if (userRole == "SC") {
-  allData = TRUE
-  reshID = NULL
-} else if (userRole == "LC") {
-  allData = FALSE
-  reshID = reshId
-}
+  if (userRole == "SC") {
+    allData = TRUE
+    reshID = NULL
+  } else if (userRole == "LC") {
+    allData = FALSE
+    reshID = reshId
+  }
 
   contentDump <- function(file, type, allData, reshID) {
     d <- ablanor::getDataDump(registryName, input$dumpDataSet,
@@ -219,7 +219,7 @@ if (userRole == "SC") {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat)
+      contentDump(file, input$dumpFormat, allData, reshID)
     }
   )
 
