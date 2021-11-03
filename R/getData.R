@@ -66,8 +66,6 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
 
   query <- paste0(query, condition, ";")
 
-  print(query)
-
   if ("session" %in% names(list(...))) {
     #nocov start
     rapbase::repLogger(session = list(...)[["session"]],
