@@ -41,12 +41,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "patientlist",
                              "pros"))
 
- if(allData == TRUE) {
-   query <- paste("SELECT * FROM", tableName)
+  query <- paste("SELECT * FROM", tableName)
 
- } else if (allData == FALSE & !is.null(reshID)){
-     query <- paste("SELECT * FROM", tableName, "WHERE CENTREID == ", reshID)
-   }
   condition <- ""
 
   if (tableName == "basereg") {
@@ -63,7 +59,13 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                         "' AND DATO_PROS < '", toDate, "'")
   }
 
+  if (allData == FALSE & !is.null(reshID) & !tableName %in% "friendlycentre") {
+    condition <- paste0(condition, " AND CENTREID = '", reshID, "'")
+  }
+
   query <- paste0(query, condition, ";")
+
+  print(query)
 
   if ("session" %in% names(list(...))) {
     #nocov start
