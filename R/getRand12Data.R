@@ -16,12 +16,12 @@
 
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
-                          reshID = NULL, allData = FALSE, ...) {
+                          reshId = NULL, allData = FALSE, ...) {
 
   . <- ""
 
   d <- ablanor::getRand12(registryName, singleRow,
-                          reshID = reshID, allData = allData...)
+                          reshId = reshId, allData = allData...)
   d_pros <- d$pros
   d_rand12 <- d$rand12
 

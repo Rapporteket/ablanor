@@ -14,7 +14,7 @@ getDataDump(
   tableName,
   fromDate,
   toDate,
-  reshID = NULL,
+  reshId = NULL,
   allData = FALSE,
   ...
 )
@@ -23,9 +23,9 @@ getNameReshId(registryName, asNamedList = FALSE)
 
 getHospitalName(registryName, reshId)
 
-getRand12(registryName, singleRow, reshID = NULL, allData = FALSE, ...)
+getRand12(registryName, singleRow, reshId = NULL, allData = FALSE, ...)
 
-getProsPatient(registryName, singleRow, reshID = NULL, allData = FALSE, ...)
+getProsPatient(registryName, singleRow, reshId = NULL, allData = FALSE, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
@@ -36,17 +36,15 @@ getProsPatient(registryName, singleRow, reshID = NULL, allData = FALSE, ...)
 
 \item{toDate}{Character string of format YYYY-MM-DD with end date}
 
-\item{reshID}{Integer dummy/placeholder organization id}
+\item{reshId}{Integer dummy/placeholder organization id}
 
-\item{allData}{Boolean. TRUE if national data-dump. FALSE if only one reshID.}
+\item{allData}{Boolean. TRUE if national data-dump. FALSE if only one reshId.}
 
 \item{...}{Optional arguments to be passed to the function.}
 
 \item{asNamedList}{Logical wether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
-
-\item{reshId}{Integer organization id.}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}

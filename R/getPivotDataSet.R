@@ -40,14 +40,14 @@ getPivotDataSet <- function(setId = "",
       dat <- ablanor::getRand12Data(registryName = registryName,
                                     singleRow = singleRow,
                                     session = session,
-                                    reshId = reshID,
+                                    reshId = reshId,
                                     allData = allData)
     }
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
                                          session = session,
-                                         reshId = reshID,
+                                         reshId = reshId,
                                          allData = allData)
     }
 

@@ -15,11 +15,11 @@
 
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               reshID = NULL, allData = FALSE, ...) {
+                               reshId = NULL, allData = FALSE, ...) {
 
   . <- ""
 
-  d <- ablanor::getProsPatient(registryName, singleRow, reshID = reshID,
+  d <- ablanor::getProsPatient(registryName, singleRow, reshId = reshId,
                                allData = allData, ...)
 
   d_basereg <- d$basereg
@@ -127,7 +127,6 @@ getProsPatientData <- function(registryName,
   # BMI klasse
   d_ablanor %<>%
     ablanor::utlede_bmi_klasse(.)
-
 
 
   # UKE, MÅNED, ÅR
