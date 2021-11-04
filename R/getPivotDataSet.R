@@ -39,19 +39,18 @@ getPivotDataSet <- function(setId = "",
     if (setId == "rand12") {
       dat <- ablanor::getRand12Data(registryName = registryName,
                                     singleRow = singleRow,
-                                    session = session)
+                                    session = session,
+                                    reshId = reshID,
+                                    allData = allData)
     }
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
-                                         session = session)
+                                         session = session,
+                                         reshId = reshID,
+                                         allData = allData)
     }
 
-    # Filtrere på sykehus
-    if (!allData) {
-      dat %<>%
-        dplyr::filter(as.numeric(.data$centreid) %in% reshId)
-    }
 
     # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
     kb <- ablanor::getKodebokData()
