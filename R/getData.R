@@ -40,7 +40,9 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "friendlycentre",
                              "mce",
                              "patientlist",
-                             "pros"))
+                             "pros",
+                             "followup",
+                             "rand12"))
 
   query <- paste("SELECT * FROM", tableName)
 
@@ -49,15 +51,26 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   if (tableName == "basereg") {
     condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
                         "' AND DATO_BAS < '", toDate, "'")
+
   } else if (tableName == "mce") {
     condition <- paste0(" WHERE TSCREATED >= '", fromDate,
                         "' AND TSCREATED < '", toDate, "'")
+
   } else if (tableName == "patientlist") {
     condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
                         "' AND REGISTERED_DATE < '", toDate, "'")
+
   } else if (tableName == "pros") {
     condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
                         "' AND DATO_PROS < '", toDate, "'")
+
+  } else if (tableName == "followup") {
+    condition <- paste0(" WHERE DATO_FOLLOWUP >= '", fromDate,
+                        "' AND DATO_FOLLOWUP < '", toDate, "'")
+
+  } else if (tableName == "rand12") {
+    condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
+                        "' AND DATO_RAND12 < '", toDate, "'")
   }
 
   if (allData == FALSE & !is.null(reshID) & !tableName %in% "friendlycentre") {
