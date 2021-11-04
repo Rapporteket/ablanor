@@ -32,6 +32,16 @@ server <- function(input, output, session) {
 
   }
 
+  # Hide all tabs if LU -role
+  if (userRole == "LU") {
+    shiny::hideTab(inputId = "tabs", target = "Start")
+    shiny::hideTab(inputId = "tabs", target = "Utforsker")
+    shiny::hideTab(inputId = "tabs", target = "Datadump")
+    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::hideTab(inputId = "tabs", target = "Abonnement")
+    shiny::hideTab(inputId = "tabs", target = "Verktøy")
+  }
+
 
   # Hide tabs when not role 'SC'
   if (userRole != "SC") {
