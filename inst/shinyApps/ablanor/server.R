@@ -53,20 +53,13 @@ server <- function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
   }
 
-  if (userRole == "SC") {
-    allData = TRUE
-    reshId = NULL
-  } else if (userRole == "LC") {
-    allData = FALSE
-    reshId = reshId
-  }
 
-  contentDump <- function(file, type, allData, reshId) {
+  contentDump <- function(file, type, userRole, reshId) {
     d <- ablanor::getDataDump(registryName, input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,
-                              allData = allData,
+                              userRole = userRole,
                               reshId = reshId)
     if (type == "xlsx-csv") {
       readr::write_excel_csv2(d, file)
@@ -150,7 +143,7 @@ server <- function(input, output, session) {
                     registryName = registryName,
                     session = session,
                     reshId = reshId,
-                    allData = (userRole == "SC"))
+                    userRole = userRole)
   })
 
 
@@ -234,7 +227,7 @@ server <- function(input, output, session) {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat, allData, reshId)
+      contentDump(file, input$dumpFormat, userRole, reshId)
     }
   )
 
