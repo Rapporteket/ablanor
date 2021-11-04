@@ -11,8 +11,8 @@
 #' @param session List shiny session object.
 #' @param singleRow Logical defining if only one row is to be returned.
 #' @param reshId Integer organization id
-#' @param allData Logical if global data set is to be returned. When FALSE
-#' (default) data will be filtered by \code{reshId}
+#' @param userRole String dummy/placeholder role. "LC" has access only
+#' to local data (defined by reshId), "SC" has access to national data.
 #'
 #' @return data frame
 #' @export
@@ -24,15 +24,14 @@ getPivotDataSet <- function(setId = "",
                             session,
                             singleRow = FALSE,
                             reshId = NULL,
-                            allData = FALSE) {
-
+                            userRole) {
   . <- ""
 
   validSetId <- c("pros_patient", "rand12")
 
   if (setId %in% validSetId) {
 
-    if (!allData) {
+    if (userRole != "SC") {
       stopifnot(!is.null(reshId))
     }
 
@@ -41,14 +40,14 @@ getPivotDataSet <- function(setId = "",
                                     singleRow = singleRow,
                                     session = session,
                                     reshId = reshId,
-                                    allData = allData)
+                                    userRole = userRole)
     }
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
                                          session = session,
                                          reshId = reshId,
-                                         allData = allData)
+                                         userRole = userRole)
     }
 
 

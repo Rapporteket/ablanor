@@ -6,8 +6,8 @@
 #' lokal RData-fil. Ellers er det SQL spørring
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
 #' @param reshId Integer organization id
-#' @param allData Logical if global data set is to be returned. When FALSE
-#' (default) data will be filtered by \code{reshId}
+#' @param userRole String dummy/placeholder role. "LC" has access only
+#' to local data (defined by reshId), "SC" has access to national data.
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -15,12 +15,13 @@
 
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               reshId = NULL, allData = FALSE, ...) {
+                               reshId = NULL,
+                               userRole, ...) {
 
   . <- ""
 
   d <- ablanor::getProsPatient(registryName, singleRow, reshId = reshId,
-                               allData = allData, ...)
+                               userRole = userRole, ...)
 
   d_basereg <- d$basereg
   d_pros <- d$pros

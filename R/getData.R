@@ -20,7 +20,8 @@
 #' @param singleRow Logical if only one row from the table is to be provided.
 #' Default value is FALSE.
 #' @param reshId Integer dummy/placeholder organization id
-#' @param allData Boolean. TRUE if national data-dump. FALSE if only one reshId.
+#' @param userRole String dummy/placeholder role. "LC" has access only
+#' to local data (defined by \code{reshId}), "SC" has access to national data.
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
@@ -33,7 +34,7 @@ NULL
 #' @rdname getData
 #' @export
 getDataDump <- function(registryName, tableName, fromDate, toDate,
-                        reshId = NULL, allData = FALSE, ...) {
+                        reshId = NULL, userRole, ...) {
 
   stopifnot(tableName %in% c("basereg",
                              "friendlycentre",
@@ -75,7 +76,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                           "' AND DATO_RAND12 < '", toDate, "'")
     }
 
-    if (allData == FALSE & !is.null(reshId) & !tableName %in% "friendlycentre") {
+    if (userRole != "SC" & !tableName %in% "friendlycentre") {
       condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
     }
 
@@ -94,7 +95,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
     ablanor::getProsPatientData(registryName = registryName,
                                 singleRow = FALSE,
                                 reshId = reshId,
-                                allData = allData)
+                                userRole = userRole)
 
   } else if (tableName == "kodeboken") {
     ablanor::getKodebokData()
@@ -151,7 +152,7 @@ WHERE
 #' @rdname getData
 #' @export
 getRand12 <- function(registryName, singleRow,
-                      reshId = NULL, allData = FALSE, ...) {
+                      reshId = NULL, userRole, ...) {
 
   if (registryName == "test_ablanor_lokalt") {
     # LASTE INN DATA LOKALT
@@ -160,7 +161,7 @@ getRand12 <- function(registryName, singleRow,
   } else {
 
     condition <- ""
-    if (allData == FALSE & !is.null(reshId)) {
+    if (userRole != "SC") {
       condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
     }
 
@@ -198,14 +199,14 @@ getRand12 <- function(registryName, singleRow,
 #' @rdname getData
 #' @export
 getProsPatient <- function(registryName, singleRow,
-                           reshId = NULL, allData = FALSE, ...) {
+                           reshId = NULL, userRole, ...) {
 
   if (registryName == "test_ablanor_lokalt") {
     load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
   } else {
 
     condition <- ""
-    if (allData == FALSE & !is.null(reshId)) {
+    if (userRole != "SC") {
       condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
     }
 
