@@ -61,7 +61,7 @@ string_pad <- function(string_vector) {
 #'
 #' For all factor-variables, get the order of levels and use this as input
 #' in  rpivottable.
-#' @param data ablanor table
+#' @param df ablanor table
 #'
 #' @return a text string containing a function that defines the sorters for
 #' each factor-variable. This should be given in input in the getPivotTable from shiny

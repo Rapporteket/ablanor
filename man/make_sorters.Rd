@@ -7,7 +7,7 @@
 make_sorters(df)
 }
 \arguments{
-\item{data}{ablanor table}
+\item{df}{ablanor table}
 }
 \value{
 a text string containing a function that defines the sorters for
