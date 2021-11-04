@@ -101,36 +101,36 @@ test_that("tables can be dumped", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
   expect_equal(class(
-    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
+    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), userRole == "SC", reshID = NULL)
     ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),allData = TRUE, reshID = NULL)
+    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),userRole == "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "mce", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
+    getDataDump("testReg", "mce", Sys.Date(), Sys.Date(), userRole == "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
+    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date(), userRole == "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "pros", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
+    getDataDump("testReg", "pros", Sys.Date(), Sys.Date(), userRole == "SC", reshID = NULL)
   ), "data.frame")
   expect_error(
-    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date(), allData = TRUE, reshID = NULL)
+    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date(), userRole == "SC", reshID = NULL)
   )
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("pros patient data can be read from db", {
   check_db()
-  expect_equal(class(getProsPatient("testReg", singleRow = FALSE)), "list")
-  expect_equal(class(getProsPatient("testReg", singleRow = TRUE)), "list")
+  expect_equal(class(getProsPatient("testReg", singleRow = FALSE, userRole = "SC")), "list")
+  expect_equal(class(getProsPatient("testReg", singleRow = TRUE, userRole = "SC")), "list")
 })
 
 test_that("rand12 data can be read from db", {
   check_db()
-  expect_equal(class(getRand12("testReg", singleRow = FALSE)), "list")
-  expect_equal(class(getRand12("testReg", singleRow = TRUE)), "list")
+  expect_equal(class(getRand12("testReg", singleRow = FALSE, userRole = "SC")), "list")
+  expect_equal(class(getRand12("testReg", singleRow = TRUE, userRole = "SC")), "list")
 })
 
 
