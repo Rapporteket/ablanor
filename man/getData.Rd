@@ -15,7 +15,7 @@ getDataDump(
   fromDate,
   toDate,
   reshId = NULL,
-  allData = FALSE,
+  userRole,
   ...
 )
 
@@ -23,9 +23,9 @@ getNameReshId(registryName, asNamedList = FALSE)
 
 getHospitalName(registryName, reshId)
 
-getRand12(registryName, singleRow, reshId = NULL, allData = FALSE, ...)
+getRand12(registryName, singleRow, reshId = NULL, userRole, ...)
 
-getProsPatient(registryName, singleRow, reshId = NULL, allData = FALSE, ...)
+getProsPatient(registryName, singleRow, reshId = NULL, userRole, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
@@ -38,7 +38,8 @@ getProsPatient(registryName, singleRow, reshId = NULL, allData = FALSE, ...)
 
 \item{reshId}{Integer dummy/placeholder organization id}
 
-\item{allData}{Boolean. TRUE if national data-dump. FALSE if only one reshId.}
+\item{userRole}{String dummy/placeholder role. "LC" has access only
+to local data (defined by \code{reshId}), "SC" has access to national data.}
 
 \item{...}{Optional arguments to be passed to the function.}
 

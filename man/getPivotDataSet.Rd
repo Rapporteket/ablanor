@@ -10,7 +10,7 @@ getPivotDataSet(
   session,
   singleRow = FALSE,
   reshId = NULL,
-  allData = FALSE
+  userRole
 )
 }
 \arguments{
@@ -26,8 +26,8 @@ containing data from rand12 questionnaire.}
 
 \item{reshId}{Integer organization id}
 
-\item{allData}{Logical if global data set is to be returned. When FALSE
-(default) data will be filtered by \code{reshId}}
+\item{userRole}{String dummy/placeholder role. "LC" has access only
+to local data (defined by reshId), "SC" has access to national data.}
 }
 \value{
 data frame
