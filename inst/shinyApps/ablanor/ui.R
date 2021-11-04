@@ -60,7 +60,8 @@ ui <- shiny::tagList(
                         "pros",
                         "rand12",
                         "followup",
-                        "pros_patient_followup")),
+                        "pros_patient_followup",
+                        "kodeboken")),
           dateRangeInput("dumpDateRange", "Velg periode:",
                          start = lubridate::ymd(Sys.Date()) -
                            lubridate::years(1),
