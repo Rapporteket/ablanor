@@ -39,6 +39,11 @@ getProsPatientData <- function(registryName,
                        paste0("pros_", x)
                      })
 
+  d_mce %<>%
+    dplyr::rename_at(dplyr::vars(STATUS),
+                     function(x) {
+                       paste0("mce_", x)
+                     })
 
 
   # MERGE DATASETTENE :
@@ -55,7 +60,7 @@ getProsPatientData <- function(registryName,
     dplyr::left_join(.,
                      d_mce %>% dplyr::select(.data$MCEID,
                                              .data$PATIENT_ID,
-                                             .data$STATUS),
+                                             .data$mce_STATUS),
                      by = "MCEID") %>%
     dplyr::left_join(.,
                      d_patientlist,
