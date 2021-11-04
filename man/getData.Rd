@@ -23,9 +23,9 @@ getNameReshId(registryName, asNamedList = FALSE)
 
 getHospitalName(registryName, reshId)
 
-getRand12(registryName, singleRow, ...)
+getRand12(registryName, singleRow, reshID = NULL, allData = FALSE, ...)
 
-getProsPatient(registryName, singleRow, ...)
+getProsPatient(registryName, singleRow, reshID = NULL, allData = FALSE, ...)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
