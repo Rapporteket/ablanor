@@ -100,8 +100,13 @@ server <- function(input, output, session) {
   output$veiledning <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("veiledning.Rmd", package = "ablanor"),
-      outputType = "html_fragment"
-    )
+      outputType = "html_fragment",
+      params = list(title = "empty title",
+                    author = author,
+                    hospitalName = hospitalName,
+                    tableFormat = "html",
+                    reshId = reshId)
+      )
   })
 
 
@@ -234,8 +239,6 @@ server <- function(input, output, session) {
   )
 
   # Månedlig rapport
-  # If LU-role, get report on own practice
-  # If LC-role, get report on hospital practice
   output$maanedligRapport <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
