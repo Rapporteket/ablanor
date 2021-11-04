@@ -42,9 +42,10 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "pros",
                              "followup",
                              "rand12",
-                             "pros_patient_followup"))
+                             "pros_patient_followup",
+                             "kodeboken"))
 
-  if (!tableName %in% "pros_patient_followup") {
+  if (!tableName %in% c("pros_patient_followup", "kodeboken")) {
 
     query <- paste("SELECT * FROM", tableName)
     condition <- ""
@@ -95,6 +96,8 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                 reshId = reshId,
                                 allData = allData)
 
+  } else if (tableName == "kodeboken") {
+    ablanor::getKodebokData()
   }
 }
 
@@ -158,7 +161,7 @@ getRand12 <- function(registryName, singleRow,
 
     condition <- ""
     if (allData == FALSE & !is.null(reshId)) {
-      condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+      condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
     }
 
     query_procedure <- paste0("SELECT * FROM pros", condition)
@@ -203,7 +206,7 @@ getProsPatient <- function(registryName, singleRow,
 
     condition <- ""
     if (allData == FALSE & !is.null(reshId)) {
-      condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+      condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
     }
 
     query_basereg <- paste0("SELECT * FROM basereg", condition)
