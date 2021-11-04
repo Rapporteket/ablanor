@@ -41,51 +41,61 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                              "patientlist",
                              "pros",
                              "followup",
-                             "rand12"))
+                             "rand12",
+                             "pros_patient_followup"))
 
-  query <- paste("SELECT * FROM", tableName)
+  if (!tableName %in% "pros_patient_followup") {
 
-  condition <- ""
+    query <- paste("SELECT * FROM", tableName)
+    condition <- ""
 
-  if (tableName == "basereg") {
-    condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
-                        "' AND DATO_BAS < '", toDate, "'")
+    if (tableName == "basereg") {
+      condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
+                          "' AND DATO_BAS < '", toDate, "'")
 
-  } else if (tableName == "mce") {
-    condition <- paste0(" WHERE TSCREATED >= '", fromDate,
-                        "' AND TSCREATED < '", toDate, "'")
+    } else if (tableName == "mce") {
+      condition <- paste0(" WHERE TSCREATED >= '", fromDate,
+                          "' AND TSCREATED < '", toDate, "'")
 
-  } else if (tableName == "patientlist") {
-    condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
-                        "' AND REGISTERED_DATE < '", toDate, "'")
+    } else if (tableName == "patientlist") {
+      condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
+                          "' AND REGISTERED_DATE < '", toDate, "'")
 
-  } else if (tableName == "pros") {
-    condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
-                        "' AND DATO_PROS < '", toDate, "'")
+    } else if (tableName == "pros") {
+      condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
+                          "' AND DATO_PROS < '", toDate, "'")
 
-  } else if (tableName == "followup") {
-    condition <- paste0(" WHERE DATO_FOLLOWUP >= '", fromDate,
-                        "' AND DATO_FOLLOWUP < '", toDate, "'")
+    } else if (tableName == "followup") {
+      condition <- paste0(" WHERE DATO_FOLLOWUP >= '", fromDate,
+                          "' AND DATO_FOLLOWUP < '", toDate, "'")
 
-  } else if (tableName == "rand12") {
-    condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
-                        "' AND DATO_RAND12 < '", toDate, "'")
+    } else if (tableName == "rand12") {
+      condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
+                          "' AND DATO_RAND12 < '", toDate, "'")
+    }
+
+    if (allData == FALSE & !is.null(reshId) & !tableName %in% "friendlycentre") {
+      condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+    }
+
+    query <- paste0(query, condition, ";")
+
+    if ("session" %in% names(list(...))) {
+      #nocov start
+      rapbase::repLogger(session = list(...)[["session"]],
+                         msg = paste("AblaNor data dump:\n", query))
+      #nocov end
+    }
+
+    rapbase::loadRegData(registryName, query)
+
+  } else if (tableName == "pros_patient_followup") {
+    ablanor::getProsPatientData(registryName = registryName,
+                                singleRow = FALSE,
+                                reshId = reshId,
+                                allData = allData)
+
   }
-
-  if (allData == FALSE & !is.null(reshId) & !tableName %in% "friendlycentre") {
-    condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
-  }
-
-  query <- paste0(query, condition, ";")
-
-  if ("session" %in% names(list(...))) {
-    #nocov start
-    rapbase::repLogger(session = list(...)[["session"]],
-                       msg = paste("AblaNor data dump:\n", query))
-    #nocov end
-  }
-
-  rapbase::loadRegData(registryName, query)
 }
 
 
