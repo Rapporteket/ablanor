@@ -75,8 +75,9 @@ showN <- 12
 
 ```{r GetData}
 d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName, 
-                                         singleRow = FALSE, reshID = NULL,
-                                         allData = TRUE)
+                                         singleRow = FALSE, 
+                                         reshID = params@reshID,
+                                         allData = FALSE)
                                           
 names(d_ablanor) <- tolower(names(d_ablanor))
 ```
@@ -116,12 +117,12 @@ d_ablanor %<>%
 # Men i så fall må vi passe på å få med alle mulige levels i factor-variabler
 # f.eks maaned... 
 
-if(params$userRole == "LU") {
-  d_ablanor %<>% dplyr::filter(operator == params$userOperator)
-}
-if(params$userRole == "LC"){
-  d_ablanor %<>% dplyr::filter(as.numeric(centreid) == params$reshId)
-}
+# if(params$userRole == "LU") {
+#   d_ablanor %<>% dplyr::filter(operator == params$userOperator)
+# }
+# if(params$userRole == "LC"){
+#   d_ablanor %<>% dplyr::filter(as.numeric(centreid) == params$reshId)
+# }
 ```
 
 
