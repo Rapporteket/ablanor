@@ -1,40 +1,42 @@
 ---
 title: "Veiledning"
-params:
-  title: "Emty tite"
-  author: "Anon author"
-  hospitalName: "Ukjent sykehus"
-  tableFormat: "html"
-  reshId: "999999"
 author: "AblaNor"
-date: '`r format(Sys.time(), "%d. %B %Y")`'
-
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+params:
+  title: Emty tite
+  author: Anon author
+  hospitalName: Ukjent sykehus
+  tableFormat: html
+  reshId: '999999'
 ---
 
 ## Rapporteket for AblaNor `r params$hospitalName`
- 
+
 
 ### Utforsker
-Denne siden inneholder en løsning som benytter R-pakken `rpivotTable`. Her kan 
-man laste inn datasett fra egen aktivitet (LC-rolle) eller nasjonal aktivitet
-(SC-rolle) og utforske disse dataene i tabell-format eller grafisk format. 
+Denne siden inneholder en løsning som benytter R-pakken `rpivotTable`. 
+Logget inn som lokal koordinator (LC-rolle) kan du laste inn datasett med ditt 
+eget sykehus sin aktivitet. Ansatte i registeret (logget inn med SC-rolle) kan
+laste inn data med nasjonal aktivitet. Deretter kan disse dataene utforskes 
+i tabell-format eller grafisk format.
+__Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
+ 
 
 Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen
 fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
 Man kan i tillegg finne mer informasjon om pakken på
 [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
 
-__Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
-    
-### Månedsrapporter
-Månedsrapportene inneholder en oppsummering av aktiviteten for din lokale
-avdeling det siste året, sammenlignet med nasjonale tall. Du kan få tilsendt 
-rapporten automatisk per e-post (se Abonnement).
-
 ### Datadump
 Her kan du laste ned tabeller som inneholder ditt lokale sykehus sin aktivitet
 fra en valgfri periode i csv- eller xlsx-csv format. Tabellene er i rådata-
 format med en rad per forløp.
+    
+### Månedsrapporter
+Månedsrapportene inneholder en oppsummering av aktiviteten for ditt lokale
+sykehus det siste året. Du kan laste ned rapporten når det måtte ønskes, eller
+du kan få tilsendt rapporten automatisk per e-post (se Abonnement).
+
 
 ### Abonnement
 Her kan du administrere dine abonnement på månedsrapportene.  
