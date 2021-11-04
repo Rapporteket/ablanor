@@ -5,6 +5,10 @@
 #' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
 #' lokal RData-fil. Ellers er det SQL spørring
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
+#' @param reshId Integer organization id
+#' @param allData Logical if global data set is to be returned. When FALSE
+#' (default) data will be filtered by \code{reshId}
+
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -12,11 +16,12 @@
 
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
-                          ...) {
+                          reshID = NULL, allData = FALSE, ...) {
 
   . <- ""
 
-  d <- getRand12(registryName, singleRow, ...)
+  d <- ablanor::getRand12(registryName, singleRow,
+                          reshID = reshID, allData = allData...)
   d_pros <- d$pros
   d_rand12 <- d$rand12
 

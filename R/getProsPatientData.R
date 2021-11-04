@@ -5,6 +5,9 @@
 #' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
 #' lokal RData-fil. Ellers er det SQL spørring
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
+#' @param reshId Integer organization id
+#' @param allData Logical if global data set is to be returned. When FALSE
+#' (default) data will be filtered by \code{reshId}
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -12,11 +15,12 @@
 
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               ...) {
+                               reshID = NULL, allData = FALSE, ...) {
 
   . <- ""
 
-  d <- getProsPatient(registryName, singleRow, ...)
+  d <- ablanor::getProsPatient(registryName, singleRow, reshID = reshID,
+                               allData = allData, ...)
 
   d_basereg <- d$basereg
   d_pros <- d$pros
@@ -40,7 +44,7 @@ getProsPatientData <- function(registryName,
                      })
 
   d_mce %<>%
-    dplyr::rename_at(dplyr::vars(STATUS),
+    dplyr::rename_at(dplyr::vars(.data$STATUS),
                      function(x) {
                        paste0("mce_", x)
                      })
