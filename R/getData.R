@@ -138,25 +138,22 @@ WHERE
 
 #' @rdname getData
 #' @export
-getRand12 <- function(registryName, singleRow, ...) {
+getRand12 <- function(registryName, singleRow,
+                      reshID = NULL, allData = FALSE, ...) {
+
   if (registryName == "test_ablanor_lokalt") {
     # LASTE INN DATA LOKALT
     load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
 
   } else {
-    query_procedure <- paste0("
-SELECT
-  *
-FROM
-  pros"
-    )
 
-    query_rand12 <- paste0("
-SELECT
-  *
-FROM
-  rand12"
-    )
+    condition <- ""
+    if (allData == FALSE & !is.null(reshID)) {
+      condition <- paste0(condition, " AND CENTREID = '", reshID, "'")
+    }
+
+    query_procedure <- paste0("SELECT * FROM pros", condition)
+    query_rand12 <- paste0("SELECT * FROM rand12", condition)
 
     if (singleRow) {
       msg_procedure <- "Query metadata for merged dataset, procedure"
@@ -188,49 +185,36 @@ FROM
 
 #' @rdname getData
 #' @export
-getProsPatient <- function(registryName, singleRow, ...) {
+getProsPatient <- function(registryName, singleRow,
+                           reshID = NULL, allData = FALSE, ...) {
 
   if (registryName == "test_ablanor_lokalt") {
     load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
   } else {
-    query_basereg <- paste0("
-SELECT
-  *
-FROM
-  basereg"
-    )
 
-    query_procedure <- paste0("
-SELECT
-  *
-FROM
-  pros"
-    )
+    condition <- ""
+    if (allData == FALSE & !is.null(reshID)) {
+      condition <- paste0(condition, " AND CENTREID = '", reshID, "'")
+    }
 
+    query_basereg <- paste0("SELECT * FROM basereg", condition)
+    query_procedure <- paste0("SELECT * FROM pros", condition)
     query_mce <- paste0("
-SELECT
-  MCEID,
-  MCETYPE,
-  PATIENT_ID,
-  PARENTMCEID,
-  STATUS
-FROM
-  mce"
-    )
+    SELECT
+      MCEID,
+      MCETYPE,
+      PATIENT_ID,
+      PARENTMCEID,
+      STATUS
+    FROM
+      mce", condition)
 
-    query_patientlist <- paste0("
-SELECT
-  *
-FROM
-  patientlist"
-    )
+    # Patient-list does not have variable 'CENTREID'
+    query_patientlist <- paste0("SELECT * FROM patientlist ")
+    query_followup <- paste0("SELECT * FROM followup", condition)
 
-    query_followup <- paste0("
-SELECT
-  *
-FROM
-  followup"
-    )
+
+
 
     if (singleRow) {
       msg_basereg <- "Query metadata for merged dataset, basereg"
