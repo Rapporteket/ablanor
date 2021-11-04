@@ -55,19 +55,19 @@ server <- function(input, output, session) {
 
   if (userRole == "SC") {
     allData = TRUE
-    reshID = NULL
+    reshId = NULL
   } else if (userRole == "LC") {
     allData = FALSE
-    reshID = reshId
+    reshId = reshId
   }
 
-  contentDump <- function(file, type, allData, reshID) {
+  contentDump <- function(file, type, allData, reshId) {
     d <- ablanor::getDataDump(registryName, input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,
                               allData = allData,
-                              reshID = reshID)
+                              reshId = reshId)
     if (type == "xlsx-csv") {
       readr::write_excel_csv2(d, file)
     } else {
@@ -229,7 +229,7 @@ server <- function(input, output, session) {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat, allData, reshID)
+      contentDump(file, input$dumpFormat, allData, reshId)
     }
   )
 
