@@ -36,10 +36,10 @@ test_that("env vars needed for testing is present", {
 # prep db for testing
 if (is.null(check_db(is_test_that = FALSE))) {
   con <- RMariaDB::dbConnect(RMariaDB::MariaDB(),
-                        host = Sys.getenv("DB_HOST"),
-                        user = Sys.getenv("DB_USER"),
-                        password = Sys.getenv("DB_PASS"),
-                        bigint = "integer"
+                             host = Sys.getenv("DB_HOST"),
+                             user = Sys.getenv("DB_USER"),
+                             password = Sys.getenv("DB_PASS"),
+                             bigint = "integer"
   )
   RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
   RMariaDB::dbDisconnect(con)
@@ -102,7 +102,7 @@ test_that("tables can be dumped", {
   con <- rapbase::rapOpenDbConnection("testReg")$con
   expect_equal(class(
     getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
-    ), "data.frame")
+  ), "data.frame")
   expect_equal(class(
     getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),userRole = "SC", reshID = NULL)
   ), "data.frame")
@@ -123,8 +123,14 @@ test_that("tables can be dumped", {
 
 test_that("pros patient data can be read from db", {
   check_db()
-  expect_equal(class(getProsPatient("testReg", singleRow = FALSE, userRole = "SC")), "list")
-  expect_equal(class(getProsPatient("testReg", singleRow = TRUE, userRole = "SC")), "list")
+  expect_equal(class(getProsPatient("testReg", singleRow = FALSE,
+                                    userRole = "SC",
+                                    fromDate = NULL, toDate = NULL)),
+               "list")
+  expect_equal(class(getProsPatient("testReg", singleRow = TRUE,
+                                    userRole = "SC",
+                                    fromDate = NULL, toDate = NULL)),
+               "list")
 })
 
 test_that("rand12 data can be read from db", {
