@@ -47,7 +47,9 @@ getPivotDataSet <- function(setId = "",
                                          singleRow = singleRow,
                                          session = session,
                                          reshId = reshId,
-                                         userRole = userRole)
+                                         userRole = userRole,
+                                         fromDate = NULL,
+                                         toDate = NULL)
     }
 
 
