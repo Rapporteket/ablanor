@@ -16,12 +16,15 @@
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
                                reshId = NULL,
-                               userRole, ...) {
+                               userRole,
+                               fromDate,
+                               toDate, ...) {
 
   . <- ""
 
   d <- ablanor::getProsPatient(registryName, singleRow, reshId = reshId,
-                               userRole = userRole, ...)
+                               userRole = userRole,
+                               fromDate = fromDate, toDate = toDate, ...)
 
   d_basereg <- d$basereg
   d_pros <- d$pros
@@ -53,30 +56,24 @@ getProsPatientData <- function(registryName,
 
   # MERGE DATASETTENE :
   # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for
-  # andre forløp vert filtrerte vekk. Viss ein person for eksempel berre har
-  # eit basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også
-  # vera filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
-  # pasientdatasettet og andre datasett).
-  # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
-  # finst vert tekne med.
+  # ein prosedyre (eventuelt ein avbroten ein) analyserast. Bruker derfor
+  # kun prosedyrar som finst i d_pros (Prosedyre-skjemaet)
 
-  d_ablanor <- d_pros %>%
-    dplyr::left_join(.,
-                     d_mce %>% dplyr::select(.data$MCEID,
-                                             .data$PATIENT_ID,
-                                             .data$mce_STATUS),
-                     by = "MCEID") %>%
-    dplyr::left_join(.,
-                     d_patientlist,
-                     by = c("PATIENT_ID" = "ID")) %>%
-    dplyr::left_join(.,
-                     d_basereg,
-                     by = c("MCEID", "CENTREID"))
-
-  # Sjekk at ingen variabel-navn teller dobbelt.
-  # TEST I getLocalProsedyrePasientData
-  # d_ablanor %>% dplyr::select(ends_with(".x") | ends_with(".y"))
+  # REKKEFØLGE FILER: BASISDATA + PASIENT-DATA FØRST, PROSEDYRE ETTERPÅ
+  d_ablanor <-  dplyr::right_join(d_basereg,
+                                  d_pros,
+                                  by = c("MCEID", "CENTREID")) %>%
+    # Legg til pasient_id til venstre
+    dplyr::right_join(d_mce %>% dplyr::select(.data$MCEID,
+                                              .data$PATIENT_ID,
+                                              .data$mce_STATUS),
+                      .,
+                      by = "MCEID") %>%
+    # Legg til pasientinformasjon til venstre
+    dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
+                      .,
+                      by = "PATIENT_ID") %>%
+    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
 
 
   # Forberede Followup-data
