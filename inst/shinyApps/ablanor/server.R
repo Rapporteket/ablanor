@@ -19,16 +19,16 @@ server <- function(input, output, session) {
     author <- userFullName
     # userOperator <- ? #@fixme
   } else {
-  ## if need be, define your (local) values here
+    ## if need be, define your (local) values here
 
-  # readRenviron("H:/data/.Renviron")
-  # reshId <- Sys.getenv("Test_reshId")
-  # hospitalName <- Sys.getenv("Test_hospitalName")
-  # userFullName <- "Test Testersen"  # tester rapport per bruker
-  # userOperator <- Sys.getenv("Test_operator")
-  # userRole <- "LC"
-  # registryName <- "test_ablanor_lokalt"
-  # author <- userFullName
+    # readRenviron("H:/data/.Renviron")
+    # reshId <- Sys.getenv("Test_reshId")
+    # hospitalName <- Sys.getenv("Test_hospitalName")
+    # userFullName <- "Test Testersen"  # tester rapport per bruker
+    # userOperator <- Sys.getenv("Test_operator")
+    # userRole <- "LC"
+    # registryName <- "test_ablanor_lokalt"
+    # author <- userFullName
 
   }
 
@@ -99,7 +99,7 @@ server <- function(input, output, session) {
                     hospitalName = hospitalName,
                     tableFormat = "html",
                     reshId = reshId)
-      )
+    )
   })
 
 
@@ -139,11 +139,11 @@ server <- function(input, output, session) {
 
 
   dat <- shiny::reactive({
-    getPivotDataSet(setId = input$selectedDataSet,
-                    registryName = registryName,
-                    session = session,
-                    reshId = reshId,
-                    userRole = userRole)
+    ablanor::getPivotDataSet(setId = input$selectedDataSet,
+                             registryName = registryName,
+                             session = session,
+                             reshId = reshId,
+                             userRole = userRole)
   })
 
 
@@ -270,7 +270,8 @@ server <- function(input, output, session) {
 
 
   # Values shared among subscriptions and dispatchment
-  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
+  orgs <- ablanor::getNameReshId(registryName = registryName,
+                                 asNamedList = TRUE)
 
   # Abonnement
   subReports <- list(
