@@ -227,7 +227,7 @@ server <- function(input, output, session) {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat, userRole, reshId)
+      contentDump(file, input$dumpFormat, userRole = userRole, reshId = reshId)
     }
   )
 
