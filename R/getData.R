@@ -12,9 +12,11 @@
 #'
 #' @param registryName Character string defining the registry name.
 #' @param tableName Character string with name of database table
-#' @param fromDate Character string of format YYYY-MM-DD with start date
-#' @param toDate Character string of format YYYY-MM-DD with end date
-#' @param asNamedList Logical wether to return a list of named values or not.
+#' @param fromDate Character string of format YYYY-MM-DD with start date. Value
+#' NULL if no filter on date.
+#' @param toDate Character string of format YYYY-MM-DD with end date. Value
+#' NULL if no filter on date.
+#' @param asNamedList Logical whether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
 #' @param singleRow Logical if only one row from the table is to be provided.
@@ -95,7 +97,9 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
     ablanor::getProsPatientData(registryName = registryName,
                                 singleRow = FALSE,
                                 reshId = reshId,
-                                userRole = userRole)
+                                userRole = userRole,
+                                fromDate = fromDate,
+                                toDate = toDate)
 
   } else if (tableName == "kodeboken") {
     ablanor::getKodebokData()
@@ -199,32 +203,55 @@ getRand12 <- function(registryName, singleRow,
 #' @rdname getData
 #' @export
 getProsPatient <- function(registryName, singleRow,
-                           reshId = NULL, userRole, ...) {
+                           reshId = NULL, userRole,
+                           fromDate,
+                           toDate, ...) {
 
   if (registryName == "test_ablanor_lokalt") {
     load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
+
   } else {
 
+    # SPØRRING ETTER PROSEDYRE-DATA. MED OG UTEN FILTER PÅ DATOER OG
+    # LOKALE DATA
+    # Med filter på dato, nasjonale tall
+    if ((!is.null(fromDate) & !is.null(toDate)) & userRole == "SC"){
+      condition_pros <- paste0(" WHERE DATO_PROS >= '", fromDate,
+                               "' AND DATO_PROS < '", toDate, "'")
+
+      # Med filter på dato, lokale tall
+    } else if ((!is.null(fromDate) & !is.null(toDate)) & userRole != "SC"){
+      condition_pros <- paste0(" WHERE DATO_PROS >= '", fromDate,
+                               "' AND DATO_PROS < '", toDate, "'",
+                               " AND CENTREID = '", reshId, "'")
+
+      #Ingen filter på dato, nasjonale data
+    } else if ((is.null(fromDate) | is.null(toDate)) & userRole == "SC"){
+      condition_pros <- ""
+
+      #Ingen filter på dato, lokale data
+    } else if ((is.null(fromDate) | is.null(toDate)) & userRole != "SC"){
+      condition_pros <- paste0(" WHERE CENTREID = '", reshId, "'")
+    }
+    query_procedure <- paste0("SELECT * FROM pros", condition_pros)
+
+
+    # SPØRRING ETTER ANDRE TABELLER (BASEREG, PASIENTDATA OG FOLLOWUP)
+    # FOR NASJONALE ELLER LOKALE TALL
+    # Ingen filter på dato, da vi filtrerer på prosedyre-data
     condition <- ""
     if (userRole != "SC") {
       condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
     }
 
     query_basereg <- paste0("SELECT * FROM basereg", condition)
-    query_procedure <- paste0("SELECT * FROM pros", condition)
-    query_mce <- paste0("
-    SELECT
-      MCEID,
-      MCETYPE,
-      PATIENT_ID,
-      PARENTMCEID,
-      STATUS
-    FROM
-      mce", condition)
+    query_followup <- paste0("SELECT * FROM followup", condition)
+    query_mce <- paste0(
+      "SELECT MCEID, MCETYPE, PATIENT_ID, PARENTMCEID, STATUS FROM mce",
+      condition)
 
     # Patient-list does not have variable 'CENTREID'
     query_patientlist <- paste0("SELECT * FROM patientlist ")
-    query_followup <- paste0("SELECT * FROM followup", condition)
 
 
 
