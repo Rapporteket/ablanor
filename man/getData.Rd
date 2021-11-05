@@ -25,16 +25,26 @@ getHospitalName(registryName, reshId)
 
 getRand12(registryName, singleRow, reshId = NULL, userRole, ...)
 
-getProsPatient(registryName, singleRow, reshId = NULL, userRole, ...)
+getProsPatient(
+  registryName,
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate,
+  toDate,
+  ...
+)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
 
 \item{tableName}{Character string with name of database table}
 
-\item{fromDate}{Character string of format YYYY-MM-DD with start date}
+\item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
+NULL if no filter on date.}
 
-\item{toDate}{Character string of format YYYY-MM-DD with end date}
+\item{toDate}{Character string of format YYYY-MM-DD with end date. Value
+NULL if no filter on date.}
 
 \item{reshId}{Integer dummy/placeholder organization id}
 

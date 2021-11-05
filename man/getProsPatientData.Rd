@@ -12,6 +12,8 @@ getProsPatientData(
   singleRow = FALSE,
   reshId = NULL,
   userRole,
+  fromDate,
+  toDate,
   ...
 )
 }
