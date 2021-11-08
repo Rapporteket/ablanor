@@ -29,8 +29,18 @@ Man kan i tillegg finne mer informasjon om pakken på
 
 ### Datadump
 Her kan du laste ned tabeller som inneholder ditt lokale sykehus sin aktivitet
-fra en valgfri periode i csv- eller xlsx-csv format. Tabellene er i rådata-
-format med en rad per forløp.
+fra en valgfri periode i csv- eller xlsx-csv format. 
+
+Tabellen _pros_patient_followup_ inneholder variablene fra basisskjema,
+prosedyreskjema og oppfølgingsskjema, samt noen utledete variabler, for alle 
+pasienter som har fått utført prosedyre. 
+
+De andre tabellene inneholder alle rådata, det vil si også radene for pasienter
+der ingen prosedyre har blitt utført. 
+
+Tabellen _Kodeboken_ inneholder forklaringer til de ulike variablene, 
+f.eks. variabletype, variabelnavn og hjelpetekst. 
+
     
 ### Månedsrapporter
 Månedsrapportene inneholder en oppsummering av aktiviteten for ditt lokale
