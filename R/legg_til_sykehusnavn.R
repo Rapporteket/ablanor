@@ -23,7 +23,7 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
     df %>% dplyr::mutate(
       sykehusnavn = dplyr::case_when(centreid == 102966 ~ "HUS",
                                      centreid == 104284 ~ "St.Olavs",
-                                     centreid == 4214492 ~ "LHL",
+                                     centreid == 4214492 ~ "AHus",
                                      centreid == 700328 ~ "OUS",
                                      centreid == 700728 ~ "UNN",
                                      TRUE ~ NA_character_))
@@ -32,7 +32,7 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
       sykehusnavn = dplyr::case_when(
         centreid == 102966 ~ "Haukeland Universitetssykehus",
         centreid == 104284 ~ "St.Olavs Hospital",
-        centreid == 4214492 ~ "LHL Gardermoen",
+        centreid == 4214492 ~ "AHus Gardermoen",
         centreid == 700328 ~ "Oslo Universitetssykehus",
         centreid == 700728 ~ "Universitetssykehuset Nord-Norge",
         TRUE ~ NA_character_))

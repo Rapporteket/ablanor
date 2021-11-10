@@ -22,14 +22,14 @@ test_that("legg til sykehusnavn works", {
     ablanor::legg_til_sykehusnavn(df, short = TRUE) %>%
       dplyr::filter(! is.na(.data$centreid) & .data$centreid != 123456) %>%
       dplyr::pull(.data$sykehusnavn),
-    c("HUS", "St.Olavs", "LHL", "OUS", "UNN"))
+    c("HUS", "St.Olavs", "AHus", "OUS", "UNN"))
 
   # FOrventer disse navnene (long)
   testthat::expect_equal(
     ablanor::legg_til_sykehusnavn(df, short = FALSE) %>%
       dplyr::filter(! is.na(.data$centreid) & .data$centreid != 123456) %>%
       dplyr::pull(.data$sykehusnavn),
-    c("Haukeland Universitetssykehus", "St.Olavs Hospital", "LHL Gardermoen",
+    c("Haukeland Universitetssykehus", "St.Olavs Hospital", "AHus Gardermoen",
       "Oslo Universitetssykehus", "Universitetssykehuset Nord-Norge"))
 
 
