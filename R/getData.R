@@ -94,12 +94,33 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
     rapbase::loadRegData(registryName, query)
 
   } else if (tableName == "pros_patient_followup") {
-    ablanor::getProsPatientData(registryName = registryName,
-                                singleRow = FALSE,
-                                reshId = reshId,
-                                userRole = userRole,
-                                fromDate = fromDate,
-                                toDate = toDate)
+    dat <- ablanor::getProsPatientData(registryName = registryName,
+                                       singleRow = FALSE,
+                                       reshId = reshId,
+                                       userRole = userRole,
+                                       fromDate = fromDate,
+                                       toDate = toDate)
+
+
+    # Legg til variabler med listetekst og ja/nei for avkrysningsboks
+    kb <- ablanor::getKodebokData() %>%
+      dplyr::select(.data$fysisk_feltnavn,
+                    .data$listeverdier,
+                    .data$listetekst,
+                    .data$type)
+
+    dat %>%
+      ablanor::kodebok_fyll_listetekstvar(
+        df = .,
+        kb = kb,
+        suffiks = "_tekst") %>%
+      ablanor::kodebok_fyll_avkrysningsboks(
+        df = .,
+        kb = kb,
+        suffiks = "_tekst") %>%
+      ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
+
+
 
   } else if (tableName == "kodeboken") {
     ablanor::getKodebokData()
