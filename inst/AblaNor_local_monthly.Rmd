@@ -16,7 +16,7 @@ header-includes:
   - \usepackage{float}
   - \usepackage{booktabs}
 title: Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
-abstract: Her kan det legges inn et sammendrag av rapporten, om det er ønskelig... 
+abstract: Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av  `r params$hospitalName` de siste 12 månedene . Bare forløp som har resultert i en prosedyre (eventuelt en avbrutt prosedyre) teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.  
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
@@ -27,15 +27,11 @@ output:
 ---
 
 
-
-
 ```{r knitrOptions, include=FALSE}
 library(magrittr)
 library(knitr)
 library(kableExtra)
 library(dplyr)
-# library(ablanor, lib.loc="A:/")
-#library(rapwhale)
 library(tidyverse)
 library(ablanor)
 
@@ -81,7 +77,6 @@ d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName,
                                          fromDate = NULL, 
                                          toDate = NULL)
                                           
-names(d_ablanor) <- tolower(names(d_ablanor))
 ```
 
 
@@ -114,74 +109,13 @@ d_ablanor %<>%
                                        levels = 1:4))
 
 
-# FILTRERE PÅ SYKEHUS ELLER PÅ BRUKER. 
-# Er dette greit ? Kan heller flytte dette til spørringen ?
-# Men i så fall må vi passe på å få med alle mulige levels i factor-variabler
-# f.eks maaned... 
 
-# if(params$userRole == "LU") {
-#   d_ablanor %<>% dplyr::filter(operator == params$userOperator)
-# }
-# if(params$userRole == "LC"){
-#   d_ablanor %<>% dplyr::filter(as.numeric(centreid) == params$reshId)
-# }
 ```
 
 
 
-`r if(params$registryName !="test_ablanor_lokalt") {"<!--"}`
-(Denne rapporten er laget i test-versjon av rapporteket, basert på datadump 
-i CSV format.
-<br>
-<br>
- `r  if(params$registryName !="test_ablanor_lokalt")  {"-->"}`
- 
-`r if(params$userRole !="LU") {"<!--"}`
-# Datagrunnlag- Månedsrapport per bruker
-Denne rapporten er generert via Rapporteket for AblaNor av brukeren 
-`r params$author` logget på med  `r params$userRole`-rolle ved 
-`r params$hospitalName`. Rapporten er laget den
-`r format(Sys.time(), '%d %B, %Y')` og er enten manuelt nedlastet eller 
-automatisk tilsent  av abonnementstenesten til Rapporteket.   
-
-Bare forløp som har resultert i en prosedyre (eventulet en avbrutt prosedyre) 
-blir analysert her. Denne rapporten inneholder alle forløp registrert 
-av  `r params$author` de siste
-`r showN` månedene, der første og siste forløp i denne perioden er :
-`r paste0(range(d_ablanor$dato_pros), collapse =" og ")`.  <br>
-I denne perioden har `r params$author` registrert `r nrow(d_ablanor)` forløp, 
-for `r n_distinct(d_ablanor$patient_id)` pasienter fra `r params$hospitalName`. 
-
-Alle opptellinger og statistikker er gjort per forløp. Det vil si at eventuelle
-pasienter med >1 forløp teller flere ganger.<br>
-
-<br>
-NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
- `r if(params$userRole =="LC") {"-->"}`
 
 
-`r if(params$userRole !="LC") {"<!--"}`
-# Datagrunnlag- Månedsrapport per sykehus
-Denne rapporten er generert via Rapporteket for AblaNor av brukeren 
-`r params$author` logget på med  `r params$userRole`-rolle ved 
-`r params$hospitalName`. Rapporten er laget
-den `r format(Sys.time(), '%d %B, %Y')`  og er enten manuelt nedlastet eller
-automatisk tilsent  av abonnementstenesten til Rapporteket.  
-
-Bare forløp som har resultert i en prosedyre (eventulet en avbrutt prosedyre) 
-blir analysert her. Denne rapporten inneholder alle forløp registret
-ved `r params$hospitalName` de 
-`r showN` siste månedene. Første og siste forløp i denne perioden er :
-`r paste0(range(d_ablanor$dato_pros), collapse =" og ")`.  <br>
-
-Totalt i denne perioden er det registrert `r nrow(d_ablanor)`  forløp for
-`r n_distinct(d_ablanor$patient_id)` pasienter. Alle opptellinger og 
-statistikker er gjort per forløp, eventuelle pasienter
-som har flere behandlinger vil derfor telle flere ganger. <br>
-<br>
-NB : TO DO : Sjekke om forløp som er gjort med <1 dag mellom er tatt bort!!!
-`r if(params$userRole =="LU") {"-->"}`
-<br>
 
 
 ```{r pagebreak4, results = "asis", eval = (params$tableFormat == "pdf")}
@@ -233,7 +167,7 @@ ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_t
 
 
 
-```{r pagebreak5, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak5, results = "asis", eval = (params$tableFormat == "pdf")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -356,7 +290,7 @@ knitr::kable(x = d_komp_TOTAL,
 <br>
 
 
-```{r pagebreak1, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak1, results = "asis", eval = (params$tableFormat == "pdf")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -535,7 +469,7 @@ d_komplikasjonar_pacemaker %>%
 ```
 
 
-```{r pagebreak2, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak2, results = "asis", eval = (params$tableFormat == "pdf")}
   cat("\n\n\\pagebreak\n")
 ```
 
@@ -726,7 +660,7 @@ knitr::kable(
                      full_width = FALSE)
 ```
 
-```{r pagebreak3, results = "asis", eval = (params$tableFormat == "latex")}
+```{r pagebreak3, results = "asis", eval = (params$tableFormat == "pdf")}
   cat("\n\n\\pagebreak\n")
 ```
 
