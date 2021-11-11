@@ -7,6 +7,7 @@
 \alias{getHospitalName}
 \alias{getRand12}
 \alias{getProsPatient}
+\alias{getLatestEntry}
 \title{Load data for ablanor}
 \usage{
 getDataDump(
@@ -34,6 +35,8 @@ getProsPatient(
   toDate,
   ...
 )
+
+getLatestEntry(registryName)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
@@ -53,7 +56,7 @@ to local data (defined by \code{reshId}), "SC" has access to national data.}
 
 \item{...}{Optional arguments to be passed to the function.}
 
-\item{asNamedList}{Logical wether to return a list of named values or not.
+\item{asNamedList}{Logical whether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
 

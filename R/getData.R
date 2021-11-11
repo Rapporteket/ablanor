@@ -335,3 +335,15 @@ getProsPatient <- function(registryName, singleRow,
     )
   }
 }
+
+
+
+#' @rdname getData
+#' @export
+
+getLatestEntry <- function(registryName) {
+
+  # Get date of newest registration (National data)
+  query <- "SELECT max(DATO_PROS) AS date FROM pros;"
+  rapbase::loadRegData(registryName, query = query)$date
+}
