@@ -69,13 +69,38 @@ showN <- 12
 ```
 
 
+```{r latest_entry, include=FALSE, eval=TRUE}
+
+# DATAGRUNNLAG: PERIODE
+# NYESTE DATO: 
+# Finne nyeste prosedyredato i prosedyre-tabellen. Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+
+# ELDSTE DATO: 
+# 12 komplette måneder før siste dato
+
+nyeste_reg <- ablanor::getLatestEntry(registryName = params$registryName)
+
+periode_data <- data.frame(
+  siste_dato = min((as.Date(Sys.time()) - 1), 
+                   nyeste_reg)) %>% 
+  dplyr::mutate(forste_dato  = lubridate::floor_date(.data$siste_dato, 
+                                                     "month") - months(showN))
+
+
+```
+
+
 ```{r GetData}
 d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName, 
                                          singleRow = FALSE, 
                                          reshId = params$reshId,
                                          userRole = params$userRole, 
-                                         fromDate = NULL, 
-                                         toDate = NULL)
+                                         fromDate = periode_data$forste_dato, 
+                                         toDate = periode_data$siste_dato)
                                           
 ```
 
