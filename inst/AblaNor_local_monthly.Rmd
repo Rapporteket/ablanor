@@ -105,7 +105,7 @@ d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName,
 ```
 
 
-```{r FilterData}
+```{r Oppdatere_levels}
 
 # OPPDATERE : UKE, MÅNED, ÅR for å få riktig levels i faktorer, også dersom 
 # ingen registreringer i løpet av en måned
@@ -137,7 +137,13 @@ d_ablanor %<>%
 ```
 
 # Forløpstype
-Tabell \@ref(tab:typeForlopAar) under viser totalt antall forløp de `r showN` siste månedene. 
+Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser sammenlagt antall forløp
+registrert i AblaNor fra `r params$hospitalName` de `r showN` siste 
+månedene. Alle registreringer med prosedyredato i intervallet 
+`r format(periode_data$forste, "%d/%m-%Y")` til
+`r format(periode_data$siste_dato, "%d/%m-%Y")` er inkludert i denne
+opptellingen. Figuren (Figur \@ref(fig:typeForlopFig)) viser antall forløp per
+måned, samt fordeling av forløpstypene. 
 ```{r typeForlopAar}
 cap <- paste("Totalt antall forløp de siste", showN, "månedene.")
 d_ablanor %>%  
@@ -155,8 +161,7 @@ d_ablanor %>%
 
 ```
 
-Figur \@ref(fig:typeForlopFig) viser antall forløp per måned de `r showN` siste månedene.
-```{r typeForlopFig, fig.cap = paste("Andel forløp per måned de siste", showN, "månedene"), fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
+```{r typeForlopFig, fig.cap = paste("Fordeling av forløpstyper registrert de ", showN," siste månedene."), fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
 
 d_forlop_mnd <- d_ablanor %>%
   dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
