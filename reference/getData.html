@@ -75,7 +75,7 @@ are found" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -126,15 +126,31 @@ When local files are used the environmental variable
 are found</p>
     </div>
 
-    <pre class="usage"><span class='fu'>getDataDump</span><span class='op'>(</span><span class='va'>registryName</span>, <span class='va'>tableName</span>, <span class='va'>fromDate</span>, <span class='va'>toDate</span>, <span class='va'>...</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>getDataDump</span><span class='op'>(</span>
+  <span class='va'>registryName</span>,
+  <span class='va'>tableName</span>,
+  <span class='va'>fromDate</span>,
+  <span class='va'>toDate</span>,
+  reshId <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>userRole</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
 
 <span class='fu'>getNameReshId</span><span class='op'>(</span><span class='va'>registryName</span>, asNamedList <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
 
 <span class='fu'>getHospitalName</span><span class='op'>(</span><span class='va'>registryName</span>, <span class='va'>reshId</span><span class='op'>)</span>
 
-<span class='fu'>getRand12</span><span class='op'>(</span><span class='va'>registryName</span>, <span class='va'>singleRow</span>, <span class='va'>...</span><span class='op'>)</span>
+<span class='fu'>getRand12</span><span class='op'>(</span><span class='va'>registryName</span>, <span class='va'>singleRow</span>, reshId <span class='op'>=</span> <span class='cn'>NULL</span>, <span class='va'>userRole</span>, <span class='va'>...</span><span class='op'>)</span>
 
-<span class='fu'>getProsPatient</span><span class='op'>(</span><span class='va'>registryName</span>, <span class='va'>singleRow</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'>getProsPatient</span><span class='op'>(</span>
+  <span class='va'>registryName</span>,
+  <span class='va'>singleRow</span>,
+  reshId <span class='op'>=</span> <span class='cn'>NULL</span>,
+  <span class='va'>userRole</span>,
+  <span class='va'>fromDate</span>,
+  <span class='va'>toDate</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -149,11 +165,22 @@ are found</p>
     </tr>
     <tr>
       <th>fromDate</th>
-      <td><p>Character string of format YYYY-MM-DD with start date</p></td>
+      <td><p>Character string of format YYYY-MM-DD with start date. Value
+NULL if no filter on date.</p></td>
     </tr>
     <tr>
       <th>toDate</th>
-      <td><p>Character string of format YYYY-MM-DD with end date</p></td>
+      <td><p>Character string of format YYYY-MM-DD with end date. Value
+NULL if no filter on date.</p></td>
+    </tr>
+    <tr>
+      <th>reshId</th>
+      <td><p>Integer dummy/placeholder organization id</p></td>
+    </tr>
+    <tr>
+      <th>userRole</th>
+      <td><p>String dummy/placeholder role. "LC" has access only
+to local data (defined by <code>reshId</code>), "SC" has access to national data.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -164,10 +191,6 @@ are found</p>
       <td><p>Logical wether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.</p></td>
-    </tr>
-    <tr>
-      <th>reshId</th>
-      <td><p>Integer organization id.</p></td>
     </tr>
     <tr>
       <th>singleRow</th>

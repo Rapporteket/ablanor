@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Data pronouns — .data • ablanor</title>
+<title>Add variables bmi_klasse and bmi_over35 — utlede_bmi_klasse • ablanor</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Data pronouns — .data" />
-<meta property="og:description" content="See rlang::.data for details" />
+<meta property="og:title" content="Add variables bmi_klasse and bmi_over35 — utlede_bmi_klasse" />
+<meta property="og:description" content="Add categories of Body Mass Index (BMI = weight in kilograms divided by
+the square of height in meters)." />
 
 
 
@@ -111,19 +112,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Data pronouns</h1>
-    <small class="dont-index">Source: <a href='https://github.com/rapporteket/ablanor/blob/master/R/utils.R'><code>R/utils.R</code></a></small>
-    <div class="hidden name"><code>pronoun.Rd</code></div>
+    <h1>Add variables bmi_klasse and bmi_over35</h1>
+    <small class="dont-index">Source: <a href='https://github.com/rapporteket/ablanor/blob/master/R/utlede_variabler.R'><code>R/utlede_variabler.R</code></a></small>
+    <div class="hidden name"><code>utlede_bmi_klasse.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>See <code>rlang::<a href='https://rlang.r-lib.org/reference/tidyeval-data.html'>.data</a></code> for details</p>
+    <p>Add categories of Body Mass Index (BMI = weight in kilograms divided by
+the square of height in meters).</p>
     </div>
 
-    <pre class="usage"><span class='va'>.data</span></pre>
+    <pre class="usage"><span class='fu'>utlede_bmi_klasse</span><span class='op'>(</span><span class='va'>df</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>df</th>
+      <td><p>data.frame with ablanor-data. Must contain variable
+<code>bmi</code>.</p></td>
+    </tr>
+    </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p>Returns <code>df</code> with 2 new columns: <code>bmi_klasse</code>
+and <code>bmi_over35</code></p>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='r-in'><span class='va'>df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>bmi <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>15</span>, <span class='fl'>15.2</span>, <span class='fl'>19</span>, <span class='fl'>25</span>, <span class='fl'>26.7</span>, <span class='fl'>32.1</span>, <span class='fl'>41.0</span>, <span class='cn'>NA</span><span class='op'>)</span><span class='op'>)</span></span>
+</pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
