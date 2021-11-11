@@ -106,16 +106,6 @@ d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName,
 
 
 ```{r FilterData}
-d_ablanor$nMonth <- as.numeric(
-    as.factor(
-        format(
-            d_ablanor$dato_pros ,
-            format = "%y-%m")))
-
-d_ablanor <- subset(
-    x = d_ablanor ,
-    subset = nMonth >= max(nMonth, na.rm = TRUE) - showN)
-
 
 # OPPDATERE : UKE, MÅNED, ÅR for å få riktig levels i faktorer, også dersom 
 # ingen registreringer i løpet av en måned
