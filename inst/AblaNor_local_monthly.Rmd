@@ -111,11 +111,10 @@ d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName,
 # ingen registreringer i løpet av en måned
 d_ablanor %<>%
     dplyr::mutate(
-      year = as.ordered(lubridate::year(.data$dato_pros)),
-      aar = .data$year,
+      aar = as.ordered(lubridate::year(.data$dato_pros)),
       maaned_nr = as.ordered(sprintf(fmt = "%02d",
                                      lubridate::month(.data$dato_pros))),
-      maaned = as.ordered(paste0(.data$year, "-", .data$maaned_nr))
+      maaned = as.ordered(paste0(.data$aar, "-", .data$maaned_nr))
     )
 
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
