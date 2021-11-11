@@ -1,45 +1,54 @@
 ---
 title: "Veiledning"
-params:
-  title: "Emty tite"
-  author: "Anon author"
-  hospitalName: "Ukjent sykehus"
-  tableFormat: "html"
-  reshId: "999999"
 author: "AblaNor"
-date: '`r format(Sys.time(), "%d. %B %Y")`'
-
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+params:
+  title: Emty tite
+  author: Anon author
+  hospitalName: Ukjent sykehus
+  tableFormat: html
+  reshId: '999999'
 ---
 
 ## Rapporteket for AblaNor `r params$hospitalName`
 
 
-
 ### Utforsker
-
-__Kun tilgjengelig for brukere som har rollen "Systemkoordinator" (SC) eller "Lokal koordinator" (LC) i Rapporteket.__
-
-Denne siden inneholder en løsnings som benytter en R-pakke som heter `rpivotTable`.
-  
-Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
-Man kan i tillegg finne mer informasjon om pakken på [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
-
+Denne siden inneholder en løsning som benytter R-pakken `rpivotTable`. 
+Logget inn som lokal koordinator (LC-rolle) kan du laste inn datasett med ditt 
+eget sykehus sin aktivitet. Ansatte i registeret (logget inn med SC-rolle) kan
+laste inn data med nasjonal aktivitet. Deretter kan disse dataene utforskes 
+i tabell-format eller grafisk format.
 __Den enkleste måten å bli kjent med verktøyet på er å prøve seg frem!__
+ 
+
+Det ligger en kort videosnutt som gir et overblikk over hvordan løsningen
+fungerer [her](https://i0.wp.com/nicolas.kruchten.com/pivottable/images/animation.gif "Videosnutt rpivotTable").        
+Man kan i tillegg finne mer informasjon om pakken på
+[hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
+
+### Datadump
+Her kan du laste ned tabeller som inneholder ditt lokale sykehus sin aktivitet
+fra en valgfri periode i csv- eller xlsx-csv format. 
+
+Tabellen _pros_patient_followup_ inneholder variablene fra basisskjema,
+prosedyreskjema og oppfølgingsskjema, samt noen utledete variabler, for alle 
+pasienter som har fått utført prosedyre. 
+
+De andre tabellene inneholder alle rådata, det vil si også radene for pasienter
+der ingen prosedyre har blitt utført. 
+
+Tabellen _Kodeboken_ inneholder forklaringer til de ulike variablene, 
+f.eks. variabletype, variabelnavn og hjelpetekst. 
+
     
-  
-
 ### Månedsrapporter
-
-Månedsrapportene inneholder oppsummeringer av viktige aktiviteter det siste året.  
-Du kan få tilsendt rapportene automatisk per e-post (se Abonnement).
-
-
-Dersom man er logget inn som "Lokal koordinator" (LC) vil man få en månedsrapport for hele enheten.
-
-Dersom man er logget inn som "Lokal bruker" (LU) vil man få en rapport for sin egen aktivitet.
+Månedsrapportene inneholder en oppsummering av aktiviteten for ditt lokale
+sykehus det siste året. Du kan laste ned rapporten når det måtte ønskes, eller
+du kan få tilsendt rapporten automatisk per e-post (se Abonnement).
 
 
 ### Abonnement
-
 Her kan du administrere dine abonnement på månedsrapportene.  
-Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format (html eller pdf).
+Du kan selv velge hvor ofte du får dem tilsendt (frekvens) og ønsket format 
+(html eller pdf).

@@ -1,3 +1,5 @@
+
+# TEst forlopstype kortnavn ----
 test_that("Kontroll forløpstype kortnavn", {
 
   x <- data.frame(forlopstype = rep(1:4, 2))
@@ -24,7 +26,54 @@ test_that("Kontroll forløpstype kortnavn", {
 
 })
 
+# test string pad ----
 test_that("String pad works", {
   expect_equal(ablanor::string_pad(string_vector = c("Ja", "Nei", "Kanskje")),
                c("  Ja   ", "  Nei  ", "Kanskje"))
+})
+
+
+
+
+
+
+
+# Test make_sorters
+testthat::test_that("Make_sorters works", {
+
+
+  df <- data.frame(kjonn = factor(x = c("M", "K", "M", "M"),
+                                  levels = c("M", "K"),
+                                  ordered = TRUE),
+                   alder = 50:53,
+                   suksess = factor(x = c(9, 1, 0, NA),
+                                    levels = c(1, 0, 9),
+                                    labels = c("Ja", "Nei", "Ukjent"),
+                                    ordered = TRUE),
+                   kommentar = c("Cola til folket !",
+                                 "Aha, alfabetisk",
+                                 "Dersom ikke faktor",
+                                 "Bæh, sortering"))
+
+  testthat::expect_equal(
+    ablanor::make_sorters(df),
+    paste0(
+      "function(attr) ",
+      "{\nvar sortAs = $.pivotUtilities.sortAs;\n",
+      "if (attr == \"kjonn\") { return sortAs([\"M\" , \"K\"]); }\n",
+      "if (attr == \"suksess\") { return sortAs(",
+      "[\"Ja\" , \"Nei\" , \"Ukjent\"]); }\n}"
+    ))
+
+  testthat::expect_equal(
+    NULL,
+    ablanor::make_sorters(df = data.frame()),
+  )
+
+  testthat::expect_equal(
+    NULL,
+    ablanor::make_sorters(df = df %>% dplyr::select(.data$kommentar)),
+  )
+
+
 })

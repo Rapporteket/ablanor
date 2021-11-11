@@ -4,10 +4,10 @@ library(ablanor)
 server <- function(input, output, session) {
 
 
-  rapbase::appLogger(session = session, msg = "Starting AblaNor application")
+  # rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
-  ## setting values that do depend on a Rapporteket context
+  # setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     registryName <- "ablanor"
     mapOrgId <- ablanor::getNameReshId(registryName)
@@ -19,17 +19,27 @@ server <- function(input, output, session) {
     author <- userFullName
     # userOperator <- ? #@fixme
   } else {
-    ### if need be, define your (local) values here
+    ## if need be, define your (local) values here
 
-    readRenviron("H:/data/.Renviron")
-    reshId <- Sys.getenv("Test_reshId")
-    hospitalName <- Sys.getenv("Test_hospitalName")
-    userFullName <- "Test Testersen"  # tester rapport per bruker
-    userOperator <- Sys.getenv("Test_operator")
-    userRole <- "LC"
-    registryName <- "test_ablanor_lokalt"
-    author <- userFullName
+    # readRenviron("H:/data/.Renviron")
+    # reshId <- Sys.getenv("Test_reshId")
+    # hospitalName <- Sys.getenv("Test_hospitalName")
+    # userFullName <- "Test Testersen"  # tester rapport per bruker
+    # userOperator <- Sys.getenv("Test_operator")
+    # userRole <- "LC"
+    # registryName <- "test_ablanor_lokalt"
+    # author <- userFullName
 
+  }
+
+  # Hide all tabs if LU -role
+  if (userRole == "LU") {
+    shiny::hideTab(inputId = "tabs", target = "Start")
+    shiny::hideTab(inputId = "tabs", target = "Utforsker")
+    shiny::hideTab(inputId = "tabs", target = "Datadump")
+    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::hideTab(inputId = "tabs", target = "Abonnement")
+    shiny::hideTab(inputId = "tabs", target = "Verktøy")
   }
 
 
@@ -44,11 +54,13 @@ server <- function(input, output, session) {
   }
 
 
-  contentDump <- function(file, type) {
+  contentDump <- function(file, type, userRole, reshId) {
     d <- ablanor::getDataDump(registryName, input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
-                              session = session)
+                              session = session,
+                              userRole = userRole,
+                              reshId = reshId)
     if (type == "xlsx-csv") {
       readr::write_excel_csv2(d, file)
     } else {
@@ -81,7 +93,12 @@ server <- function(input, output, session) {
   output$veiledning <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("veiledning.Rmd", package = "ablanor"),
-      outputType = "html_fragment"
+      outputType = "html_fragment",
+      params = list(title = "empty title",
+                    author = author,
+                    hospitalName = hospitalName,
+                    tableFormat = "html",
+                    reshId = reshId)
     )
   })
 
@@ -89,7 +106,7 @@ server <- function(input, output, session) {
   # Utforsker
   ## Data sets available
   dataSets <- list(`Bruk og valg av data` = "info",
-                   `Prosedyre og basisskjema` = "pros_patient",
+                   `Prosedyre, basisskjema og oppfølging` = "pros_patient",
                    `RAND-12` = "rand12"
   )
 
@@ -122,10 +139,11 @@ server <- function(input, output, session) {
 
 
   dat <- shiny::reactive({
-    getPivotDataSet(setId = input$selectedDataSet,
-                    registryName = registryName,
-                    session = session,
-                    reshId = reshId)
+    ablanor::getPivotDataSet(setId = input$selectedDataSet,
+                             registryName = registryName,
+                             session = session,
+                             reshId = reshId,
+                             userRole = userRole)
   })
 
 
@@ -148,25 +166,29 @@ server <- function(input, output, session) {
 
 
   output$selectVars <- shiny::renderUI({
-    if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
-      shiny::h4(paste("Valgt datasett:",
-                      names(dataSets)[dataSets == input$selectedDataSet]))
+    if (length(input$isSelectAllVars) == 0) {
+      NULL
     } else {
-      if (input$isSelectAllVars) {
-        vars <- names(dat())
+      if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
+        shiny::h4(paste("Valgt datasett:",
+                        names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
-        vars <- rvals$selectedVars
-      }
+        if (input$isSelectAllVars) {
+          vars <- names(dat())
+        } else {
+          vars <- rvals$selectedVars
+        }
 
-      shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                         choices = names(dat()), multiple = TRUE,
-                         selected = vars)
+        shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
+                           choices = names(dat()), multiple = TRUE,
+                           selected = vars)
+      }
+      # @ note : Har tatt dat() og ikke metaDat som i NORIC
+      # selectInput(inputId = "selectedVars", label = "Velg variabler:",
+      #        choices = names(dat()), multiple = TRUE,
+      #        selected = vars)
+      # }
     }
-    # @ note : Har tatt dat() og ikke metaDat som i NORIC
-    # selectInput(inputId = "selectedVars", label = "Velg variabler:",
-    #        choices = names(dat()), multiple = TRUE,
-    #        selected = vars)
-    # }
   })
 
 
@@ -183,23 +205,11 @@ server <- function(input, output, session) {
 
 
 
-  # @fixme : Variablene blir sortert alfabetisk. Her er et eksempel på hvordan
-  # man kan styre rekkefølgen på levels. Også gjøre for måned f.eks?
   output$pivotSurvey <- rpivotTable::renderRpivotTable({
     if (rvals$showPivotTable) {
-      rpivotTable::rpivotTable(dat()[input$selectedVars],
-                               sorters = "
-                         function(attr) {
-                    var sortAs = $.pivotUtilities.sortAs;
-                    if (attr == \"bmi_category\") { return sortAs([
-                         \"Alvorlig undervekt\",
-                         \"Moderat undervekt\",
-                         \"Normal\",
-                         \"Moderat fedme, klasse I\",
-                         \"Fedme, klasse II\",
-                         \"Fedme, klasse III\",
-                         \"Overvekt\"]); }}"
-      )
+      rpivotTable::rpivotTable(
+        data = dat()[input$selectedVars],
+        sorters = ablanor::make_sorters(df = dat()[input$selectedVars]))
     } else {
       rpivotTable::rpivotTable(data.frame())
     }
@@ -217,13 +227,11 @@ server <- function(input, output, session) {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat)
+      contentDump(file, input$dumpFormat, userRole = userRole, reshId = reshId)
     }
   )
 
   # Månedlig rapport
-  # If LU-role, get report on own practice
-  # If LC-role, get report on hospital practice
   output$maanedligRapport <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
@@ -262,7 +270,8 @@ server <- function(input, output, session) {
 
 
   # Values shared among subscriptions and dispatchment
-  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
+  orgs <- ablanor::getNameReshId(registryName = registryName,
+                                 asNamedList = TRUE)
 
   # Abonnement
   subReports <- list(

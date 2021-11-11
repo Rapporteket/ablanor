@@ -9,32 +9,53 @@
 \alias{getProsPatient}
 \title{Load data for ablanor}
 \usage{
-getDataDump(registryName, tableName, fromDate, toDate, ...)
+getDataDump(
+  registryName,
+  tableName,
+  fromDate,
+  toDate,
+  reshId = NULL,
+  userRole,
+  ...
+)
 
 getNameReshId(registryName, asNamedList = FALSE)
 
 getHospitalName(registryName, reshId)
 
-getRand12(registryName, singleRow, ...)
+getRand12(registryName, singleRow, reshId = NULL, userRole, ...)
 
-getProsPatient(registryName, singleRow, ...)
+getProsPatient(
+  registryName,
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate,
+  toDate,
+  ...
+)
 }
 \arguments{
 \item{registryName}{Character string defining the registry name.}
 
 \item{tableName}{Character string with name of database table}
 
-\item{fromDate}{Character string of format YYYY-MM-DD with start date}
+\item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
+NULL if no filter on date.}
 
-\item{toDate}{Character string of format YYYY-MM-DD with end date}
+\item{toDate}{Character string of format YYYY-MM-DD with end date. Value
+NULL if no filter on date.}
+
+\item{reshId}{Integer dummy/placeholder organization id}
+
+\item{userRole}{String dummy/placeholder role. "LC" has access only
+to local data (defined by \code{reshId}), "SC" has access to national data.}
 
 \item{...}{Optional arguments to be passed to the function.}
 
 \item{asNamedList}{Logical wether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
-
-\item{reshId}{Integer organization id.}
 
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}

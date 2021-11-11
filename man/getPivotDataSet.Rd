@@ -9,7 +9,8 @@ getPivotDataSet(
   registryName,
   session,
   singleRow = FALSE,
-  reshId = NULL
+  reshId = NULL,
+  userRole
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ containing data from rand12 questionnaire.}
 \item{singleRow}{Logical defining if only one row is to be returned.}
 
 \item{reshId}{Integer organization id}
+
+\item{userRole}{String dummy/placeholder role. "LC" has access only
+to local data (defined by reshId), "SC" has access to national data.}
 }
 \value{
 data frame

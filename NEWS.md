@@ -1,3 +1,15 @@
+
+# ablanor 0.4.0
+* added functions with tests for usual operations
+* add followup data
+* kodebok-functions to add  "listetekst"  for "listevariabler" and
+"avkrysninsboks"
+* possibility to download merged table with patient, procedure and followup
+* User sorters in RpivptTable to order factor variables
+* Cleanup in access for LC-role and SC-role
+
+
+
 # ablanor 0.3.0
 
 * Added (conceptual) page for report dispatch management using modules from rapbase ([#10](https://github.com/Rapporteket/ablanor/pull/10))

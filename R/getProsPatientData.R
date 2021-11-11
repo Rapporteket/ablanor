@@ -5,6 +5,9 @@
 #' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
 #' lokal RData-fil. Ellers er det SQL spørring
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
+#' @param reshId Integer organization id
+#' @param userRole String dummy/placeholder role. "LC" has access only
+#' to local data (defined by reshId), "SC" has access to national data.
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -12,16 +15,22 @@
 
 getProsPatientData <- function(registryName,
                                singleRow = FALSE,
-                               ...) {
+                               reshId = NULL,
+                               userRole,
+                               fromDate,
+                               toDate, ...) {
 
   . <- ""
 
-  d <- getProsPatient(registryName, singleRow, ...)
+  d <- ablanor::getProsPatient(registryName, singleRow, reshId = reshId,
+                               userRole = userRole,
+                               fromDate = fromDate, toDate = toDate, ...)
 
   d_basereg <- d$basereg
   d_pros <- d$pros
   d_mce <- d$mce
   d_patientlist <- d$patientlist
+  d_followup <- d$followup
 
   ## BEHANDLING AV DATABASEN I R:
   # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)
@@ -38,39 +47,68 @@ getProsPatientData <- function(registryName,
                        paste0("pros_", x)
                      })
 
+  d_mce %<>%
+    dplyr::rename_at(dplyr::vars(.data$STATUS),
+                     function(x) {
+                       paste0("mce_", x)
+                     })
 
 
   # MERGE DATASETTENE :
   # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for
-  # andre forløp vert filtrerte vekk. Viss ein person for eksempel berre har
-  # eit basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også
-  # vera filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
-  # pasientdatasettet og andre datasett).
-  # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
-  # finst vert tekne med.
+  # ein prosedyre (eventuelt ein avbroten ein) analyserast. Bruker derfor
+  # kun prosedyrar som finst i d_pros (Prosedyre-skjemaet)
 
-  # NB: variablene aryt_i* er duplikert i basereg datasettet, derfor fjernes de.
-  d_ablanor <- d_pros %>%
-    dplyr::left_join(., d_mce %>% dplyr::select(.data$MCEID,
-                                                .data$PATIENT_ID,
-                                                .data$STATUS),
-                     by = "MCEID") %>%
-    dplyr::left_join(., d_patientlist,
-                     by = c("PATIENT_ID" = "ID")) %>%
-    # Hm, det finnes hverken ARYT_I* vaiabler eller DATO_PROS i basreg-tabellen
-    # Utkommentert kode er erstattet av påfølgende line
-    # KRISTINA: sjekk!
-    #dplyr::left_join(., d_basereg %>%
-    #                   dplyr::select(!tidyselect::starts_with("aryt_i"),
-    #                                 -.data$DATO_PROS),
-    #                 by = c("MCEID", "CENTREID"))
-    dplyr::left_join(., d_basereg, by = c("MCEID", "CENTREID"))
+  # REKKEFØLGE FILER: BASISDATA + PASIENT-DATA FØRST, PROSEDYRE ETTERPÅ
+  d_ablanor <-  dplyr::right_join(d_basereg,
+                                  d_pros,
+                                  by = c("MCEID", "CENTREID")) %>%
+    # Legg til pasient_id til venstre
+    dplyr::right_join(d_mce %>% dplyr::select(.data$MCEID,
+                                              .data$PATIENT_ID,
+                                              .data$mce_STATUS),
+                      .,
+                      by = "MCEID") %>%
+    # Legg til pasientinformasjon til venstre
+    dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
+                      .,
+                      by = "PATIENT_ID") %>%
+    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
 
-  # Sjekk at ingen variabel-navn teller dobbelt.
-  # TEST I getLocalProsedyrePasientData
-  # d_ablanor %>% dplyr::select(ends_with(".x") | ends_with(".y"))
 
+  # Forberede Followup-data
+  followup_data <- d_followup %>%
+    dplyr::rename("MCEID_FOLLOWUP" = .data$MCEID) %>%
+    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
+                     function(x) {
+                       paste0("followup_", x)
+                     }) %>%
+    # Kobler med alle forløp av type = 9, for å legge til parentmceid.
+    # (Parentmceid er forløpet som ligger til grunn for utsending av oppf.)
+    dplyr::left_join(.,
+                     d_mce %>%
+                       dplyr::filter(.data$MCETYPE == 9) %>%
+                       dplyr::select(.data$MCEID, .data$PARENTMCEID) %>%
+                       dplyr::rename("MCEID_FOLLOWUP" = .data$MCEID,
+                                     "MCEID" = .data$PARENTMCEID),
+                     by = "MCEID_FOLLOWUP") %>%
+    dplyr::relocate(.data$MCEID, .before = "MCEID_FOLLOWUP")
+
+  # Sjekk at bare en oppfølging per forløp
+  # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
+  followup_data %<>%
+    dplyr::group_by(.data$MCEID) %>%
+    dplyr::mutate(max_mceid_followup = max(.data$MCEID_FOLLOWUP)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(.data$MCEID_FOLLOWUP == .data$max_mceid_followup) %>%
+    dplyr::select(- .data$max_mceid_followup)
+
+
+  # Legg til follow-up i pasient - prosedyre - data
+  d_ablanor %<>%
+    dplyr::left_join(.,
+                     followup_data,
+                     by = c("MCEID", "CENTREID"))
 
 
   names(d_ablanor) <- tolower(names(d_ablanor))
@@ -80,133 +118,29 @@ getProsPatientData <- function(registryName,
 
   # ALDER :
   d_ablanor %<>%
-    dplyr::mutate(alder = lubridate::as.period(
-      lubridate::interval(
-        start = .data$birth_date, end = .data$dato_pros),
-      unit = "years")$year)
+    ablanor::utlede_alder(.) %>%
+    ablanor::utlede_alder_75(.) %>%
+    ablanor::utlede_aldersklasse(.)
 
+  # BMI klasse
   d_ablanor %<>%
-    dplyr::mutate(alder_75 = ifelse(.data$alder >= 75,
-                                    yes = ">=75",
-                                    no = "<75"))
-
-
-  # BMI: (Mangler verdier i variabelem bmi for noen pasienter.
-  #       Bruker vekt og høyde for å generere denne variabelen på nytt)
-  d_ablanor %<>%
-    dplyr::mutate(
-      bmi_manual = round(.data$vekt / (.data$hoyde / 100) ^ 2, 1),
-      bmi_category_manual =
-        factor(dplyr::case_when(
-          .data$bmi_manual <= 16 ~ "Alvorlig undervekt",
-          .data$bmi_manual > 16 & .data$bmi_manual <= 17 ~ "Moderat undervekt",
-          .data$bmi_manual > 17 & .data$bmi_manual <= 18.5 ~ "Mild undervekt",
-          .data$bmi_manual > 18.5 & .data$bmi_manual < 25 ~ "Normal",
-          .data$bmi_manual >= 25 & .data$bmi_manual < 30 ~ "Overvekt",
-          .data$bmi_manual >= 30 & .data$bmi_manual < 35 ~
-            "Moderat fedme, klasse I",
-          .data$bmi_manual >= 35 & .data$bmi_manual < 40 ~ "Fedme, klasse II",
-          .data$bmi_manual >= 40 ~ "Fedme, klasse III"),
-          levels = c("Alvorlig undervekt",
-                     "Moderat undervekt",
-                     "Mild undervekt",
-                     "Normal",
-                     "Overvekt",
-                     "Moderat fedme, klasse I",
-                     "Fedme, klasse II",
-                     "Fedme, klasse III")),
-      bmi_over35 = ifelse(.data$bmi_manual >= 35,
-                          yes = "BMI >=35",
-                          no = "BMI <35")
-    )
-
-  # Kontroll 1 : Grense for normal/Mild undervekt går på 18,5.
-  # Anbefaler å bruke bmi_category_manual i stedet for bmi_category.
-  # Kan man slette bmi_categry og erstatte med bmi_category_manual ?
-
-  # d_ablanor %>%  filter(bmi_category_manual!= bmi_category) %>%
-  # select(bmi, bmi_manual, vekt, hoyde, bmi_category, bmi_category_manual)
-
-  # Kontroll 2 : Mangler BMI for noen pasienter, dette skal bli rettet opp
-  # i ny versjon av OpenQReg. Må testes
-  # d_ablanor  %>%  filter(is.na(bmi)) %>%
-  # select(bmi, bmi_manual, bmi_numeric,vekt, hoyde)
-
+    ablanor::utlede_bmi_klasse(.)
 
 
   # UKE, MÅNED, ÅR
-  d_ablanor %<>%
-    dplyr::mutate(
-      year = as.ordered(lubridate::year(.data$dato_pros)),
-      aar = .data$year,
-      maaned_nr = as.ordered(sprintf(fmt = "%02d",
-                                     lubridate::month(.data$dato_pros))),
-      maaned = as.ordered(paste0(.data$year, "-", .data$maaned_nr))
-    )
+  d_ablanor %<>% ablanor::utlede_tidsvariabler(.)
 
 
   # AFLI : ICD
-  d_ablanor %<>%
-    dplyr::mutate(
-      kategori_afli_aryt_i48 =
-        factor(dplyr::case_when(
-          .data$forlopstype == 1 & .data$aryt_i48_0 == TRUE ~
-            "AFLI-ICD 48.0 Paroksymal atrieflimmer",
-          .data$forlopstype == 1 &
-            .data$aryt_i48_1 == TRUE &
-            .data$aryt_i48_1_underkat == 1 ~
-            "AFLI-ICD 48.1 Persisterende atrieflimmer",
-          .data$forlopstype == 1 &
-            .data$aryt_i48_1 == TRUE &
-            .data$aryt_i48_1_underkat == 2 ~
-            "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"),
-          levels = c("AFLI-ICD 48.0 Paroksymal atrieflimmer",
-                     "AFLI-ICD 48.1 Persisterende atrieflimmer",
-                     "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer")))
+  d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
 
 
   # VT : KARDIOMYOPATI
-  d_ablanor %<>%
-    dplyr::mutate(
-      kategori_vt_kardiomyopati =
-        factor(dplyr::case_when(
-          .data$forlopstype == 2 & .data$kardiomyopati == 0
-          ~ "Uten kardiomyopati",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 1
-          ~ "Iskemisk KM (ICM)",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            .data$type_kardiomyopati == 2
-          ~ "Dilatert KM (DCM)",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 1 &
-            !(.data$type_kardiomyopati %in% 1:2)
-          ~ "Annen KM",
-          .data$forlopstype == 2 &
-            .data$kardiomyopati == 9
-          ~ "Ukjent om kardiomyopati"),
-          levels = c("Uten kardiomyopati",
-                     "Iskemisk KM (ICM)",
-                     "Dilatert KM (DCM)",
-                     "Annen KM",
-                     "Ukjent om kardiomyopati")))
-
+  d_ablanor %<>% ablanor::utlede_kardiomyopati(.)
 
 
   # HJERTESVIKT OG REDUSERT EF
-  d_ablanor %<>%
-    dplyr::mutate(
-      kategori_afli_hjsviktEF = dplyr::case_when(
-        .data$forlopstype ==  1 &
-          (.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
-          "AFLI-Hjertesvikt eller redusert EF",
-        .data$forlopstype ==  1 &
-          !(.data$hjertesvikt == 1 | .data$ejekfrak %in% 2:3) ~
-          "AFLI-Verken hjertesvikt eller redusert EF"))
-
-
+  d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
 
 

@@ -7,7 +7,7 @@
 getKodebokData()
 }
 \value{
-data.frame med følgende kolonnener fra kodeboken til AblanNor:
+data.frame med kodeboken til AblanNor. Nøkkelkolonner:
 \code{fysisk_feltnavn} (variabel-navn)
 \code{type} (variabeltype), \code{listeverdier} (numeriske verdier for
 Listevariabler) og \code{listetekst} (tekst-verdi for Listevariabler).
@@ -15,5 +15,5 @@ Hver variabel har en rad i \code{kodeboken}. For variabler av \code{type}
 "Listevariabel"  inneholder kodeboken en rad per listeverdi.
 }
 \description{
-Les inn kodeboken og velge ut enkelte variabler
+Les inn kodeboken
 }

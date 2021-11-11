@@ -1,5 +1,5 @@
 # For these tests to work locally make sure an instance of mysql server is
-# available and that the necassary user privileges are provided, e.g. as SQL:
+# available and that the necessary user privileges are provided, e.g. as SQL:
 #   \code{grant all privileges on [DATABASE].* to '[USER]'@'localhost';}
 # When run at Github Actions build servers [USER] must be set to 'actions' and
 # with an empty password (as also assumed in the above localhost example).
@@ -36,10 +36,10 @@ test_that("env vars needed for testing is present", {
 # prep db for testing
 if (is.null(check_db(is_test_that = FALSE))) {
   con <- RMariaDB::dbConnect(RMariaDB::MariaDB(),
-                        host = Sys.getenv("DB_HOST"),
-                        user = Sys.getenv("DB_USER"),
-                        password = Sys.getenv("DB_PASS"),
-                        bigint = "integer"
+                             host = Sys.getenv("DB_HOST"),
+                             user = Sys.getenv("DB_USER"),
+                             password = Sys.getenv("DB_PASS"),
+                             bigint = "integer"
   )
   RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
   RMariaDB::dbDisconnect(con)
@@ -101,36 +101,42 @@ test_that("tables can be dumped", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
   expect_equal(class(
-    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date())
-    ), "data.frame")
-  expect_equal(class(
-    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "mce", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "mce", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "pros", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+  ), "data.frame")
+  expect_equal(class(
+    getDataDump("testReg", "pros", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_error(
-    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date())
+    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   )
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("pros patient data can be read from db", {
   check_db()
-  expect_equal(class(getProsPatient("testReg", singleRow = FALSE)), "list")
-  expect_equal(class(getProsPatient("testReg", singleRow = TRUE)), "list")
+  expect_equal(class(getProsPatient("testReg", singleRow = FALSE,
+                                    userRole = "SC",
+                                    fromDate = NULL, toDate = NULL)),
+               "list")
+  expect_equal(class(getProsPatient("testReg", singleRow = TRUE,
+                                    userRole = "SC",
+                                    fromDate = NULL, toDate = NULL)),
+               "list")
 })
 
 test_that("rand12 data can be read from db", {
   check_db()
-  expect_equal(class(getRand12("testReg", singleRow = FALSE)), "list")
-  expect_equal(class(getRand12("testReg", singleRow = TRUE)), "list")
+  expect_equal(class(getRand12("testReg", singleRow = FALSE, userRole = "SC")), "list")
+  expect_equal(class(getRand12("testReg", singleRow = TRUE, userRole = "SC")), "list")
 })
 
 

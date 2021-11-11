@@ -1,4 +1,3 @@
-
 #' Get selected data set for Pivot Table  (Utforsker)
 #'
 #' Some tables are returned as they are, with only raw data. Other tables are
@@ -12,6 +11,8 @@
 #' @param session List shiny session object.
 #' @param singleRow Logical defining if only one row is to be returned.
 #' @param reshId Integer organization id
+#' @param userRole String dummy/placeholder role. "LC" has access only
+#' to local data (defined by reshId), "SC" has access to national data.
 #'
 #' @return data frame
 #' @export
@@ -22,31 +23,42 @@ getPivotDataSet <- function(setId = "",
                             registryName,
                             session,
                             singleRow = FALSE,
-                            reshId = NULL) {
-
+                            reshId = NULL,
+                            userRole) {
   . <- ""
+
   validSetId <- c("pros_patient", "rand12")
 
   if (setId %in% validSetId) {
 
+    if (userRole != "SC") {
+      stopifnot(!is.null(reshId))
+    }
+
     if (setId == "rand12") {
       dat <- ablanor::getRand12Data(registryName = registryName,
                                     singleRow = singleRow,
-                                    session = session)
+                                    session = session,
+                                    reshId = reshId,
+                                    userRole = userRole)
     }
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
-                                         session = session)
+                                         session = session,
+                                         reshId = reshId,
+                                         userRole = userRole,
+                                         fromDate = NULL,
+                                         toDate = NULL)
     }
-
-    # Filtrere på sykehus
-    dat %<>%
-      dplyr::filter(as.numeric(.data$centreid) %in% reshId)
 
 
     # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
-    kb <- ablanor::getKodebokData()
+    kb <- ablanor::getKodebokData() %>%
+      dplyr::select(.data$fysisk_feltnavn,
+                    .data$listeverdier,
+                    .data$listetekst,
+                    .data$type)
 
     dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
                                                  kb = kb,
@@ -60,6 +72,7 @@ getPivotDataSet <- function(setId = "",
         suffiks = "_tekst",
         fjerne_suffiks_fra_navn = TRUE)
 
+    dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
 
   } else {
     dat <- NULL
