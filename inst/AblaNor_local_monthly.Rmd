@@ -114,7 +114,7 @@ d_ablanor %<>%
       aar = as.ordered(lubridate::year(.data$dato_pros)),
       maaned_nr = as.ordered(sprintf(fmt = "%02d",
                                      lubridate::month(.data$dato_pros))),
-      maaned = as.ordered(paste0(.data$aar, "-", .data$maaned_nr))
+      maaned = as.ordered(format(.data$dato_pros, "%y-%m"))
     )
 
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
@@ -161,7 +161,7 @@ d_ablanor %>%
 
 ```
 
-```{r typeForlopFig, fig.cap = paste("Fordeling av forløpstyper registrert de ", showN," siste månedene."), fig.width = 20, fig.height = 10, fig.pos = "H", fig.align = "center", out.width = "\\textwidth" }
+```{r typeForlopFig, fig.cap = paste("Fordeling av forløpstyper registrert de ", showN," siste månedene."), fig.pos = "H", fig.align = "center", out.width = "100%" }
 
 d_forlop_mnd <- d_ablanor %>%
   dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
@@ -173,13 +173,12 @@ d_forlop_mnd <- d_ablanor %>%
 
 ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_tekst)) +
   ggplot2::geom_bar(stat = "identity", position = "stack") +
-  ggplot2::labs(fill = "Forløpstype") +
+  ggplot2::labs(fill = "Type") +
   ggplot2::scale_fill_manual(values= colPrimary[3:6]) +
-  ggplot2::geom_text(aes(label = n_uten0), position = position_stack(vjust = .5), size=10) +
+  ggplot2::geom_text(aes(label = n_uten0), position = position_stack(vjust = .5)) +
   ggplot2::scale_y_continuous(name = "Antall forløp", ) +
   ggplot2::theme(panel.grid.major.x = element_blank()) +
-  ggplot2::xlab("Måned") + 
-  ggplot2::theme(text = element_text(size = 20))
+  ggplot2::xlab("Måned")
 ```
 
 
@@ -194,7 +193,7 @@ ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_t
 # Komplikasjoner
 Figuren under viser prosentvis fordeling av forløp med minst en komplikasjon per
 måned. 
-```{r komplikasjonerFig, fig.cap = "Andel komplikasjoner per måned.", fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r komplikasjonerFig, fig.cap = "Andel komplikasjoner per måned.", fig.pos = "H", fig.align = "center", out.width = "100%"}
 
 d_kompl_fig <- d_ablanor %>%
   dplyr::select(maaned, komp_janei) %>%
@@ -318,7 +317,7 @@ knitr::kable(x = d_komp_TOTAL,
 I dette avsnittet er det kun pasienter som har blitt abladert som er
 inkludert i analysene. Figuren under viser prosentvis fordeling av forløp med
 akutt suksess. 
-```{r akuttSuksessFig, fig.cap = "Antall (prosent) forløp med akutt suksess", fig.width = 10, fig.height = 6, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+```{r akuttSuksessFig, fig.cap = "Antall (prosent) forløp med akutt suksess", fig.pos = "H", fig.align = "center", out.width = "100%"}
 
 d_akutt_suksess_fig <- d_ablanor %>%
   dplyr::select(maaned, abla_strat_ingen, akutt_suksess) %>%
@@ -445,7 +444,7 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
                      "AFLI, ICD" = 3,
                      "VT, Kardiomyopati" = 5,
                      " " = 1)) %>%
-  ablanor::mst_short(., type = params$tableFormat, lsd = FALSE, fs = 9,
+  ablanor::mst_short(., type = params$tableFormat, lsd = TRUE, fs = 9,
             full_width = FALSE)
 ```
 <br>
@@ -499,7 +498,7 @@ Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig
 kort eller lang prosedyrevarighet (prosedyrevarighet >1,5 ganger IQR). 
 
 
-```{r figProsedyreVarighetMin, fig.cap = "Prosedyrevarighet [min] per måned.", fig.align = 'center',  out.width = "\\textwidth", fig.width = 10, fig.height = 6}
+```{r figProsedyreVarighetMin, fig.cap = "Prosedyrevarighet [min] per måned.", fig.align = 'center',  out.width = "100%"}
 
 d_ablanor %>% filter(!is.na(pros_varighet)) %>% 
   ggplot2::ggplot(aes(x = maaned, y = pros_varighet)) +
@@ -650,7 +649,7 @@ knitr::kable(
                                  "BMI" = 2)) %>%
   gsub("maaned", "Måned", .) %>%
   ablanor::mst_short(., type = params$tableFormat,
-            lsd = FALSE, 
+            lsd = TRUE, 
             fs = 8, 
             full_width = FALSE)
 ```
@@ -689,7 +688,7 @@ Den blå boksen markerer verdiene til nedre og øvre kvartil, samt medianen.
 Punktene utenfor greinene viser uteliggere, det vil si forløp med usedvanlig
 kort eller lang røntgenvarighet (varighet >1,5 ganger IQR). 
 
-```{r figRontgenVarighetMin, fig.cap = "Røntgentid [min] per måned.", fig.align = 'center',  out.width = "\\textwidth", fig.width = 10, fig.height = 6 }
+```{r figRontgenVarighetMin, fig.cap = "Røntgentid [min] per måned.", fig.align = 'center',  out.width = "100%"}
 d_varighet_tot_maaned <- d_ablanor %>%
   filter(!is.na(rtg_tid)) %>% 
   dplyr::select(maaned, rtg_tid) %>%
