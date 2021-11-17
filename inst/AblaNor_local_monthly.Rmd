@@ -112,8 +112,6 @@ d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName,
 d_ablanor %<>%
     dplyr::mutate(
       aar = as.ordered(lubridate::year(.data$dato_pros)),
-      maaned_nr = as.ordered(sprintf(fmt = "%02d",
-                                     lubridate::month(.data$dato_pros))),
       maaned = as.ordered(format(.data$dato_pros, "%y-%m"))
     )
 
@@ -191,8 +189,21 @@ ggplot2::ggplot(data = d_forlop_mnd, aes(y = n, x = maaned, fill = forlopstype_t
 
 
 # Komplikasjoner
-Figuren under viser prosentvis fordeling av forløp med minst en komplikasjon per
-måned. 
+Tallgrunnlaget for figuren og tabellen under er alle registreringer gjort i 
+AblaNor fra `r params$hospitalName` med prosedyredato i intervallet 
+`r format(periode_data$forste, "%d/%m-%Y")` til
+`r format(periode_data$siste_dato, "%d/%m-%Y")`. 
+
+Figur \@ref(fig:komplikasjonerFig) viser prosentvis fordeling 
+av forløp med minst en komplikasjon. Tallet i søylen viser antall forløp med 
+komplikasjon delt på totalt antall forløp den måneden. 
+
+
+Tabell \@ref(tab:komplikasjonerMaanedTabell) viser andel forløp
+med komplikasjoner, totalt per måned og i undergruppene: 
+Forløpstype, aldersklasse <75 eller >=75 år og BMI-klasse <35 eller >=35.
+Merk at dersom Forløpstype, alder eller BMI mangler for et forløp, teller 
+ikke dette forløpet i undergruppene.
 ```{r komplikasjonerFig, fig.cap = "Andel komplikasjoner per måned.", fig.pos = "H", fig.align = "center", out.width = "100%"}
 
 d_kompl_fig <- d_ablanor %>%
@@ -223,10 +234,10 @@ ggplot2::ggplot(data = d_kompl_fig2, aes(y = komp_pros, x = maaned)) +
                      position = position_stack(vjust = .5))
 ```
 
-Tabellen viser andel forløp med komplikasjoner, totalt og i undergrupper. 
-Merk at dersom Forløpstype, Alder eller BMI mangler for et forløp, teller 
-ikke dette forløpet i undergruppene. 
+
+
 ```{r komplikasjonerMaanedTabell}
+cap <- "Andel komplikasjoner per måned, totalt og for undergrupper."
 
 d_komp_tot <- d_ablanor %>%
   dplyr::select(komp_janei, maaned) %>%
@@ -293,7 +304,8 @@ knitr::kable(x = d_komp_TOTAL,
                              pdf = "latex",
                              html = "html"),
              align = c("l", rep("c", 9)),
-             booktabs = TRUE) %>%
+             booktabs = TRUE, 
+             caption = cap) %>%
   kableExtra::add_header_above(c(" " = 1,
                      "Forløpstype" = 4,
                      "Alder" = 2,
@@ -314,10 +326,20 @@ knitr::kable(x = d_komp_TOTAL,
 
 
 # Akutt suksess
-I dette avsnittet er det kun pasienter som har blitt abladert som er
-inkludert i analysene. Figuren under viser prosentvis fordeling av forløp med
-akutt suksess. 
-```{r akuttSuksessFig, fig.cap = "Antall (prosent) forløp med akutt suksess", fig.pos = "H", fig.align = "center", out.width = "100%"}
+
+Tallgrunnlaget for figuren og tabellen under er registreringer gjort i 
+AblaNor fra `r params$hospitalName` med prosedyredato i intervallet 
+`r format(periode_data$forste, "%d/%m-%Y")` til
+`r format(periode_data$siste_dato, "%d/%m-%Y")`. Elektrofysiologiske
+undersøkelse eller forløp der akutt suksess er lik "Ikke aktuelt" er fjernet fra 
+datagrunnlaget. 
+
+Andel forløp med akutt suksess er regnet ut ved å dele antall
+forløp der akutt suksess er lik "Ja" på totalt antall forløp der akutt suksess 
+er en av "Ja", "Nei" eller "Usikker". 
+
+```{r akuttSuksessFig, fig.cap = paste0("Andel forløp med akutt suksess per måned de ", showN, " siste månedene. I datagrunnlaget telles kun abladerte pasienter.") , fig.pos = "H", fig.align = "center", out.width = "100%"}
+
 
 d_akutt_suksess_fig <- d_ablanor %>%
   dplyr::select(maaned, abla_strat_ingen, akutt_suksess) %>%
@@ -343,16 +365,22 @@ ggplot2::ggplot(data = d_akutt_suksess_fig2, aes(y = akuttSuksess_pros, x = maan
   ggplot2::geom_bar(stat = "identity", fill = colPrimary[4]) +
   ggplot2::scale_y_continuous(name = "Akutt suksess [%]") +
   ggplot2::xlab("Måned") +
-  ggplot2::theme(panel.grid.major.x = element_blank()) +
-  ggplot2::geom_text(aes(label = akuttSuksess_text),
-                     position = position_stack(vjust = .5))
+  ggplot2::theme(panel.grid.major.x = element_blank())
+
 ```
 
 
-Tabellen viser akutt suksess (blant abladerte) per måned, totalt og
-i undergrupper. 
 
 ```{r akuttSuksessMaaned}
+cap <- paste0("Andel forløp med akutt suksess. ", 
+              "I datagrunnlager telles kun abladerte pasienter (uten EFU og ",
+              "uten akutt suksess kodet 'ikke aktuelt'). ", 
+              "Opptellingen er gjort per måned de ", showN, " siste månedene. ",  
+              "Vi ser andel akutt suksess blandt alle ablanderte (Totalt), ", 
+              "per forløpstype, ", 
+              "samt for undergrupper av AFLI og VT. ", 
+              "Merk at grunnet manglende registrering av tilhørighet i ", 
+              "undergrupper av AFLI/VT for et fåtall av forløp har vi små uoverstemmelser i nevnerne.")
 
 d_akuttSuksess_tot <- d_ablanor %>%
   dplyr::select(abla_strat_ingen, akutt_suksess, maaned) %>%
@@ -438,7 +466,8 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
                                       "AFLI", "VT", "SVT",
                                       "Paroks.", "Persist.", "Langtidsp.",
                                       "Uten", "ICM", "DCM", "Annen", "Ukjent",
-                                      "Totalt"))) %>%
+                                      "Totalt")), 
+             caption = cap) %>%
   kableExtra::add_header_above(c(" " = 1,
                      "Forløpstype" = 3,
                      "AFLI, ICD" = 3,
@@ -449,6 +478,9 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
 ```
 <br>
 
+```{r pagebreak5, results = "asis", eval = (params$tableFormat == "pdf")}
+  cat("\n\n\\pagebreak\n")
+```
 
 # Prosedyrerelatert AV-blokk
 Andel forløp med AV-blokk med pacemakerimplantasjon som følge av operasjonen.
