@@ -8,6 +8,10 @@
 #' @param reshId Integer organization id
 #' @param userRole String dummy/placeholder role. "LC" has access only
 #' to local data (defined by reshId), "SC" has access to national data.
+#' @param fromDate Character string of format YYYY-MM-DD with start date. Value
+#' NULL if no filter on date.
+#' @param toDate Character string of format YYYY-MM-DD with end date. Value
+#' NULL if no filter on date.
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
