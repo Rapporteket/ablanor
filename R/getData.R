@@ -37,7 +37,7 @@ NULL
 #' @export
 getDataDump <- function(registryName, tableName, fromDate, toDate,
                         reshId = NULL, userRole, ...) {
-
+  . <- ""
   stopifnot(tableName %in% c("basereg",
                              "friendlycentre",
                              "mce",
