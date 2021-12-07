@@ -11,7 +11,7 @@ services:
   dev:
     depends_on:
       - db
-    image: rapporteket/ablanor-dev:main
+    image: rapporteket/ablanor-dev:nightly
     volumes:
       - ~/.ssh:/home/rstudio/.ssh
       - ~/.gitconfig:/home/rstudio/.gitconfig
