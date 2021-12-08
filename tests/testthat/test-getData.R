@@ -80,10 +80,12 @@ test_that("relevant test database and tables can be made", {
 test_that("hospital name can be read from db", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
-  query <- "INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1';"
+  query <- paste("INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1',",
+                 "FRIENDLYNAME='friendly1';")
   RMariaDB::dbExecute(con, query)
   expect_equal(class(getHospitalName("testReg", 1)), "character")
-  expect_equal(getHospitalName("testReg", 1), "s1")
+  expect_equal(getHospitalName("testReg", 1), "friendly1")
+  expect_equal(getHospitalName("testReg", 1, shortName = TRUE), "s1")
   expect_warning(getHospitalName("testReg", 2))
   rapbase::rapCloseDbConnection(con)
 })
