@@ -909,7 +909,7 @@ d_varighetRtg_mnd <- d_ablanor %>%
 
 # FORLØPSTYPE
 d_varighetRtg_forlop <- d_ablanor %>%
-  filter(!is.na(.data$rtg_tid)) %>% 
+  dplyr::filter(!is.na(.data$rtg_tid)) %>% 
   dplyr::select(.data$forlopstype, .data$rtg_tid, .data$maaned) %>%
   dplyr::group_by(.data$forlopstype, .data$maaned, .drop = FALSE) %>%
   dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
