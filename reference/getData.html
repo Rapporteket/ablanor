@@ -71,7 +71,7 @@ are found</p>
 
 <span class="fu">getNameReshId</span><span class="op">(</span><span class="va">registryName</span>, asNamedList <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
-<span class="fu">getHospitalName</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">reshId</span><span class="op">)</span>
+<span class="fu">getHospitalName</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">reshId</span>, shortName <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
 <span class="fu">getRand12</span><span class="op">(</span><span class="va">registryName</span>, <span class="va">singleRow</span>, reshId <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">userRole</span>, <span class="va">...</span><span class="op">)</span>
 
@@ -83,7 +83,9 @@ are found</p>
   <span class="va">fromDate</span>,
   <span class="va">toDate</span>,
   <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+<span class="op">)</span>
+
+<span class="fu">getLatestEntry</span><span class="op">(</span><span class="va">registryName</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -106,7 +108,7 @@ to local data (defined by <code>reshId</code>), "SC" has access to national data
 <dt>...</dt>
 <dd><p>Optional arguments to be passed to the function.</p></dd>
 <dt>asNamedList</dt>
-<dd><p>Logical wether to return a list of named values or not.
+<dd><p>Logical whether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.</p></dd>
 <dt>singleRow</dt>
