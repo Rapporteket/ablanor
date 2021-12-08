@@ -28,6 +28,7 @@ Suggests:
 Imports:
     binom,
     dplyr,
+    ggplot2, 
     janitor,
     kableExtra,
     knitr,

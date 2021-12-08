@@ -37,7 +37,7 @@ NULL
 #' @export
 getDataDump <- function(registryName, tableName, fromDate, toDate,
                         reshId = NULL, userRole, ...) {
-
+  . <- ""
   stopifnot(tableName %in% c("basereg",
                              "friendlycentre",
                              "mce",
@@ -138,6 +138,8 @@ SELECT
   ID AS id
 FROM
   friendlycentre
+WHERE
+  CENTRESHORTNAME NOT LIKE 'Test%'
 GROUP BY
   CENTRESHORTNAME,
   ID;"
@@ -154,11 +156,17 @@ GROUP BY
 
 #' @rdname getData
 #' @export
-getHospitalName <- function(registryName, reshId) {
+getHospitalName <- function(registryName, reshId, shortName = FALSE) {
+
+  if (shortName) {
+    dbField <- "CENTRESHORTNAME"
+  } else {
+    dbField <- "FRIENDLYNAME"
+  }
 
   query <- paste0("
 SELECT
-  CENTRESHORTNAME
+  ", dbField, "
 FROM
   friendlycentre
 WHERE
@@ -334,4 +342,16 @@ getProsPatient <- function(registryName, singleRow,
       followup = d_followup
     )
   }
+}
+
+
+
+#' @rdname getData
+#' @export
+
+getLatestEntry <- function(registryName) {
+
+  # Get date of newest registration (National data)
+  query <- "SELECT max(DATO_PROS) AS date FROM pros;"
+  rapbase::loadRegData(registryName, query = query)$date
 }

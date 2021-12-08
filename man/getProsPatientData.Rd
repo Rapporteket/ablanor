@@ -28,6 +28,12 @@ lokal RData-fil. Ellers er det SQL spørring}
 \item{userRole}{String dummy/placeholder role. "LC" has access only
 to local data (defined by reshId), "SC" has access to national data.}
 
+\item{fromDate}{Character string of format YYYY-MM-DD with start date. Value
+NULL if no filter on date.}
+
+\item{toDate}{Character string of format YYYY-MM-DD with end date. Value
+NULL if no filter on date.}
+
 \item{...}{Optional arguments to be passed to the function}
 }
 \value{
