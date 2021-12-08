@@ -225,7 +225,52 @@ server <- function(input, output, session) {
 
 
 
+  # Kodebok
+  ## innhold kontrollpanel:
+  output$kbControl <- renderUI({
+    selectInput(inputId = "kbdTab",
+                label = "Vis kodebok for tabellen:",
+                choices =  dataSets)
+  })
 
+  # vektor med alle variabelnavn i valgt tabell
+  selectedkbTabVars <- reactive({
+    if (input$kbdTab %in% c("rand12", "pros_patient")){
+      metaDat %>% names()
+    }
+    else {
+      data.frame()
+    }
+  })
+
+  kodebok <- reactive({
+    kbd <- ablanor::getKodebokData()
+    kbd %>%
+      dplyr::select(.data$fysisk_feltnavn,
+                    .data$listeverdier,
+                    .data$listetekst,
+                    .data$hjelpetekst)
+  })
+
+
+
+  output$kbdTable <- DT::renderDataTable(
+    # kodebok NORIC, Kun variabelnavn som finnes den valgte tabellen
+    kodebok()[kodebok()$fysisk_feltnavn %in% selectedkbTabVars(), ],
+    options = list(
+      lengthMenu = c(25, 50, 100, 200, 400),
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      ))
+
+  )
+
+  output$kbdData <- renderUI({
+    DT::dataTableOutput("kbdTable")
+  })
 
 
 
