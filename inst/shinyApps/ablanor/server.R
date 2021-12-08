@@ -278,24 +278,21 @@ server <- function(input, output, session) {
     Veiledning = list(
       synopsis = "Startside til AblaNor på Rapporteket som testrapport",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title"),
-      paramValues = c("veiledning", "html", "En testrapport")
+      paramNames = c("report", "outputType", "title", "orgName"),
+      paramValues = c("veiledning", "html", "En testrapport", hospitalName)
     ),
     "Månedlige resultater" = list(
       synopsis = "Månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId)
+      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
+      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId,
+                      hospitalName)
     )
   )
-  subFormat <- rapbase::autoReportFormatServer("ablanorSubscription")
-  subParamNames <- shiny::reactive(c("outputType"))
-  sunParamValues <- shiny::reactive(c(subParamNames()))
 
   rapbase::autoReportServer(
     id = "ablanorSubscription", registryName = registryName,
-    type = "subscription", paramNames = subParamNames,
-    paramValues = subParamValues, reports = subReports, orgs = orgs
+    type = "subscription", reports = subReports, orgs = orgs
   )
 
   # Utsendelse

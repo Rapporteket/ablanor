@@ -124,7 +124,7 @@ periode_data$nyeste_dato_shus <- d_ablanor %>%
 d_ablanor %<>%
   dplyr::mutate(
     aar = as.ordered(lubridate::year(.data$dato_pros)),
-    maaned = as.ordered(format(.data$dato_pros, "%y-%m"))
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
   )
 
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer

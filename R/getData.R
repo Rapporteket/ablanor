@@ -138,6 +138,8 @@ SELECT
   ID AS id
 FROM
   friendlycentre
+WHERE
+  CENTRESHORTNAME NOT LIKE 'Test%'
 GROUP BY
   CENTRESHORTNAME,
   ID;"
@@ -154,11 +156,17 @@ GROUP BY
 
 #' @rdname getData
 #' @export
-getHospitalName <- function(registryName, reshId) {
+getHospitalName <- function(registryName, reshId, shortName = FALSE) {
+
+  if (shortName) {
+    dbField <- "CENTRESHORTNAME"
+  } else {
+    dbField <- "FRIENDLYNAME"
+  }
 
   query <- paste0("
 SELECT
-  CENTRESHORTNAME
+  ", dbField, "
 FROM
   friendlycentre
 WHERE
