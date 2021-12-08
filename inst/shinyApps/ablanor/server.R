@@ -147,6 +147,14 @@ server <- function(input, output, session) {
   })
 
 
+  metaDat <- shiny::reactive({
+    ablanor::getPivotDataSet(setId = input$selectedDataSet,
+                             registryName = registryName,
+                             session = session,
+                             reshId = reshId,
+                             userRole = userRole,
+                             singleRow = TRUE)
+  })
 
 
 
@@ -180,7 +188,7 @@ server <- function(input, output, session) {
         }
 
         shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                           choices = names(dat()), multiple = TRUE,
+                           choices = names(metaDat()), multiple = TRUE,
                            selected = vars)
       }
       # @ note : Har tatt dat() og ikke metaDat som i NORIC
@@ -214,6 +222,12 @@ server <- function(input, output, session) {
       rpivotTable::rpivotTable(data.frame())
     }
   })
+
+
+
+
+
+
 
 
   # Datadump
