@@ -80,7 +80,7 @@ reportProcessor <- function(report,
       outputType = outputType,
       params = list(
         author = author,
-        hospitalName = orgName,
+        hospitalName = ablanor::getHospitalName("ablanor", orgId),
         tableFormat = outputType,
         reshId = orgId,
         registryName = registryName,

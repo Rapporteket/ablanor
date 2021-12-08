@@ -22,7 +22,7 @@ getDataDump(
 
 getNameReshId(registryName, asNamedList = FALSE)
 
-getHospitalName(registryName, reshId)
+getHospitalName(registryName, reshId, shortName = FALSE)
 
 getRand12(registryName, singleRow, reshId = NULL, userRole, ...)
 
