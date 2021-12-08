@@ -47,6 +47,12 @@ ui <- shiny::tagList(
       )
     ),
 
+    shiny::tabPanel("Kodebok",
+                    sidebarLayout(
+                      sidebarPanel(uiOutput("kbControl")),
+                      mainPanel(htmlOutput("kbdData"))
+                    ),
+
     shiny::tabPanel(
       "Datadump",
        sidebarLayout(
