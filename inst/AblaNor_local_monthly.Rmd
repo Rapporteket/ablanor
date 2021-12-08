@@ -207,7 +207,7 @@ ggplot2::ggplot(data = d_forlop_mnd,
   ggplot2::labs(title = paste0("Antall registreringer i AblaNor de ",
                                showN, " siste månedene" ),
                 subtitle = params$hospitalName) +
-  geom_vline(xintercept = 0, size = 1, colour = "gray45") +
+  ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
   ggplot2::geom_text(aes(label = .data$n_uten0),
                      family = "sans",
                      position = position_stack(vjust = 0.5, reverse = TRUE)) 
@@ -262,11 +262,11 @@ ggplot2::ggplot(data = d_kompl_fig2,
                                showN, " siste månedene"), 
                 subtitle = params$hospitalName) +
   ablanor::ablanor_plot_theme() +
-  geom_vline(xintercept = 0, size = 1, colour = "gray45") +
+  ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
   ggplot2::geom_text(aes(label = komp_text), 
                      family = "sans",
                      position = position_stack(vjust = 0.5))+
-  scale_x_continuous(labels = function(x) paste0(x * 100, "%"))
+  ggplot2::scale_x_continuous(labels = function(x) paste0(x * 100, "%"))
 
 
 
@@ -414,15 +414,15 @@ ggplot2::ggplot(data = d_akutt_suksess_fig2,
                     position = "identity",
                     fill = colPrimary[4]) +
   ablanor::ablanor_plot_theme() +
-  geom_vline(xintercept = 0, size = 1, colour = "gray45") +
-  geom_vline(xintercept = 0.95, 
+  ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
+  ggplot2::geom_vline(xintercept = 0.95, 
              size = 1,
              colour = colKontrast, 
              linetype = "dashed") +
   ggplot2::labs(title = paste0("Akutt suksess de ",
                                showN, " siste månedene"), 
                 subtitle = params$hospitalName) +
-  scale_x_continuous(labels = function(x) paste0(x * 100, "%")) 
+  ggplot2::scale_x_continuous(labels = function(x) paste0(x * 100, "%")) 
 
 ```
 
@@ -520,7 +520,7 @@ d_akuttSuksess_TOTAL <- dplyr::left_join(
   dplyr::left_join(., d_akuttSuksess_tot,
                    by  = "maaned") %>% 
   tidyr::replace_na(list(Totalt = " -- ")) %>% 
-  arrange(desc(.data$maaned))
+  dplyr::arrange(desc(.data$maaned))
 
 knitr::kable(x = d_akuttSuksess_TOTAL,
              format = switch(params$tableFormat,
@@ -652,7 +652,7 @@ d_ablanor %>%
 ```{r prosedyreVarighetTotal}
 # VARIGHET prosedyre per måned, TOTALT :
 d_varighet_pros_tot <- d_ablanor %>%
-  filter(!is.na(.data$pros_varighet)) %>% 
+  dplyr::filter(!is.na(.data$pros_varighet)) %>% 
   dplyr::select(.data$pros_varighet, .data$maaned) %>%
   dplyr::group_by(maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
@@ -665,7 +665,7 @@ d_varighet_pros_tot <- d_ablanor %>%
 
 # FORLØPSTYPE
 d_varighet_forlop <- d_ablanor %>%
-  filter(!is.na(.data$pros_varighet)) %>% 
+  dplyr::filter(!is.na(.data$pros_varighet)) %>% 
   dplyr::select(.data$forlopstype, .data$pros_varighet, .data$maaned) %>%
   dplyr::group_by(.data$forlopstype, .data$maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
@@ -883,7 +883,7 @@ d_varighet_tot_maaned <- d_ablanor %>%
 d_varighet_tot_maaned %>% 
   ggplot2::ggplot(aes(y = maaned, x = rtg_tid_min)) +
   ggplot2::geom_boxplot(fill = colPrimary[4]) +
-  ablanor_plot_theme() +
+  ablanor::ablanor_plot_theme() +
   ggplot2::scale_y_discrete(drop = FALSE) + 
   ggplot2::labs(title = paste0("Røntgenvarighet (minutter) de ",
                                showN, " siste månedene"), 
@@ -895,7 +895,7 @@ d_varighet_tot_maaned %>%
 ```{r tabellRontgenvarighetForberede}
 # VARIGHET røntgen per måned TOTALT:
 d_varighetRtg_mnd <- d_ablanor %>%
-  filter(!is.na(.data$rtg_tid)) %>% 
+  dplyr::filter(!is.na(.data$rtg_tid)) %>% 
   dplyr::select(.data$rtg_tid, .data$maaned) %>%
   dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
   dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60) %>%
