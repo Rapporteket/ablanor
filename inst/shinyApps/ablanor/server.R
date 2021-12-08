@@ -191,11 +191,6 @@ server <- function(input, output, session) {
                            choices = names(metaDat()), multiple = TRUE,
                            selected = vars)
       }
-      # @ note : Har tatt dat() og ikke metaDat som i NORIC
-      # selectInput(inputId = "selectedVars", label = "Velg variabler:",
-      #        choices = names(dat()), multiple = TRUE,
-      #        selected = vars)
-      # }
     }
   })
 
@@ -236,7 +231,7 @@ server <- function(input, output, session) {
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- reactive({
     if (input$kbdTab %in% c("rand12", "pros_patient")){
-      metaDat %>% names()
+      metaDat() %>% names()
     }
     else {
       data.frame()
