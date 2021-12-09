@@ -1,0 +1,18 @@
+﻿fysisk_feltnavn;skjemanavn;ledetekst;listeverdier;listetekst
+alder;utledet_variabel;alder ved prosedyretidspunktet;NA;NA
+alder_75;utledet_variabel;alder ved prosedyretidspunktet >= 75  år eller <75 år;NA;NA
+aldersklasse;utledet_variabel;"alder ved prosedyretidspunktete gruppert i klasser. ""18-49"", ""50-59"", ""60-69"" osv. Alder under 18 år eller over 99 år blir gitt aldersklasse NA.";NA;NA
+bmi_klasse;utledet_variabel;bmi gruppert i klasser, basert på FHI sin definisjon;NA;NA
+aar;utledet_variabel;Aar for prosedyredato;NA;NA
+maaned_nr;utledet_variabel;Måned (numerisk) for prosedyredato;NA;NA
+maaned;utledet_variabel;"År og måned for prosedyredato (f.eks ""2021-10"" for oktober 2021)";NA;NA
+kategori_afli_aryt_i46;utledet_variabel;ICD-kode for Atrieflimmer.;AFLI-ICD 48.0 Paroksymal atrieflimmer;forlopstype = 1, aryt_i48_0 = 1
+kategori_afli_aryt_i47;utledet_variabel;ICD-kode for Atrieflimmer.;AFLI-ICD 48.1 Persisterende atrieflimmer;forlopstype = 1, aryt_i48_1 = 1, aryt_i48_1_underkat = 1
+kategori_afli_aryt_i48;utledet_variabel;ICD-kode for Atrieflimmer.;AFLI-ICD 48.1 Langtidspersisterende atrieflimmer;forlopstype = 1, aryt_i48_1 = 1, aryt_i48_1_underkat = 2
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Uten kardiomyopati;forlopstype = 2, kardiomyopati = 0
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Iskemisk KM (ICM);forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = 1
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Dilatert KM (DCM);forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = 2
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Annen KM;forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = verken 1 eller 2
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Ukjent om kardiomyopati;forlopstype = 2, kardiomyopati = 9
+kategori_afli_hjsvikt_ef;utledet_variabel;kategori AFLI hjertesvikt og redusert EF;AFLI-Verken hjertesvikt eller redusert EF;forlopstype = 1,  enten  hjertesvikt = 1 eller ejekfrak = 2 eller 3
+kategori_afli_hjsvikt_ef;utledet_variabel;kategori AFLI hjertesvikt og redusert EF;AFLI-Hjertesvikt og/eller redusert EF;forlopstype = 1,  verken  hjertesvikt = 1 eller ejekfrak = 2 eller 3
