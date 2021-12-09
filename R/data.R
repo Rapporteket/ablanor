@@ -32,3 +32,17 @@
 #'   \item{hjelpetekst}{}
 #' }
 "kbd"
+
+
+
+
+#' Utledete variabler
+#' @format data frame with variables to describe "Utledete variabler".
+#' \describe{
+#'   \item{ledetekst}{}
+#'   \item{fysisk_feltnavn}{}
+#'   \item{skjemanavn}{}
+#'   \item{listeverdier}{}
+#'   \item{listetekst}{}
+#'  }
+"def_utledete_var"
