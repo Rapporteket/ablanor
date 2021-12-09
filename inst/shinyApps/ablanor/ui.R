@@ -51,11 +51,11 @@ ui <- shiny::tagList(
                     sidebarLayout(
                       sidebarPanel(uiOutput("kbControl")),
                       mainPanel(htmlOutput("kbdData"))
-                    ),
+                    )),
 
     shiny::tabPanel(
       "Datadump",
-       sidebarLayout(
+      sidebarLayout(
         sidebarPanel(
           width = 4,
           selectInput("dumpDataSet", "Velg datasett:",
@@ -113,39 +113,39 @@ ui <- shiny::tagList(
     ),
 
     shiny::navbarMenu("Verktøy",
-      shiny::tabPanel(
-        "Utsending",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::autoReportFormatInput("ablanorDispatchment"),
-            rapbase::autoReportOrgInput("ablanorDispatchment"),
-            rapbase::autoReportInput("ablanorDispatchment")
-          ),
-          shiny::mainPanel(
-            rapbase::autoReportUI("ablanorDispatchment")
-          )
-        )
-      ),
+                      shiny::tabPanel(
+                        "Utsending",
+                        shiny::sidebarLayout(
+                          shiny::sidebarPanel(
+                            rapbase::autoReportFormatInput("ablanorDispatchment"),
+                            rapbase::autoReportOrgInput("ablanorDispatchment"),
+                            rapbase::autoReportInput("ablanorDispatchment")
+                          ),
+                          shiny::mainPanel(
+                            rapbase::autoReportUI("ablanorDispatchment")
+                          )
+                        )
+                      ),
 
-      shiny::tabPanel(
-        "Eksport",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            rapbase::exportUCInput("ablanorExport")
-          ),
-          shiny::mainPanel(
-            rapbase::exportGuideUI("ablanorExportGuide")
-          )
-        )
-      ),
+                      shiny::tabPanel(
+                        "Eksport",
+                        shiny::sidebarLayout(
+                          shiny::sidebarPanel(
+                            rapbase::exportUCInput("ablanorExport")
+                          ),
+                          shiny::mainPanel(
+                            rapbase::exportGuideUI("ablanorExportGuide")
+                          )
+                        )
+                      ),
 
-      shiny::tabPanel(
-        "Bruksstatistikk",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
-          shiny::mainPanel(rapbase::statsUI("ablanorStats"))
-        )
-      )
+                      shiny::tabPanel(
+                        "Bruksstatistikk",
+                        shiny::sidebarLayout(
+                          shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
+                          shiny::mainPanel(rapbase::statsUI("ablanorStats"))
+                        )
+                      )
     )
   )
 )

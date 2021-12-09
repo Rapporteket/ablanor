@@ -238,13 +238,9 @@ server <- function(input, output, session) {
     }
   })
 
+
   kodebok <- reactive({
-    kbd <- ablanor::getKodebokData()
-    kbd %>%
-      dplyr::select(.data$fysisk_feltnavn,
-                    .data$listeverdier,
-                    .data$listetekst,
-                    .data$hjelpetekst)
+    ablanor::getKodebokMedUtledetedVar()
   })
 
 
