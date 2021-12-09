@@ -1,3 +1,7 @@
+# ablanor 0.5.0
+* Added panel "Kodebok". Contains table with metadata
+
+
 
 # ablanor 0.4.0
 * added functions with tests for usual operations
