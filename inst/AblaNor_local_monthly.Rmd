@@ -224,19 +224,24 @@ cat("\n\n\\pagebreak\n")
 
 
 # Komplikasjoner
-Figur \@ref(fig:komplikasjonerFig) viser prosentandel forløp med minst en 
-komplikasjon, per måned. Tallene i søylen viser antall forløp med minst en
-komplikasjon delt på på totalt antall forløp den måneden. Tabell
-\@ref(tab:komplikasjonerMaanedTabell) viser andel forløp med minst en 
-komplikasjon totalt per måned og i underpopulasjoner per måned. 
+I Ablanor registreres følgende: "Skjedde det komplikasjoner som følge av 
+operasjonen?". Dette kan enten være komplikasjoner som oppstod umiddelbart 
+etter operasjonen eller som var senkomplikasjoner som (sannsynligvis) skyldtes 
+operasjonen.
+
+Figur \@ref(fig:komplikasjonerFig) viser prosentandel forløp der komplikasjoner
+skjedde, per måned. Tallene i søylen viser antall forløp med komplikasjoner, 
+delt på på totalt antall forløp den måneden. Tabell
+\@ref(tab:komplikasjonerMaanedTabell) viser andel forløp med komplikasjoner
+totalt per måned og i underpopulasjoner per måned. 
 
 
 
 ```{r komplikasjonerFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8 }
 figtekst <- paste0("Andel forløp fra ", params$hospitalName, 
                    " med komplikasjoner det siste året. " ,
-                   "Tallene i søylene viser antall forløp med minst en ", 
-                   "komplikasjon delt på totalt antall forløp per måned.")
+                   "Tallene i søylene viser antall forløp med ", 
+                   "komplikasjoner delt på totalt antall forløp per måned.")
 
 d_kompl_fig <- d_ablanor %>%
   dplyr::select(.data$maaned, .data$komp_janei) %>%
@@ -374,13 +379,20 @@ cat("\n\n\\pagebreak\n")
 
 
 # Akutt suksess
+Akutt suksess er operatørens vurdering av om selve operasjonen er vellykket: 
+"Nei" dersom behandlet arytmi fortsatt er tilstede,  "Ja" dersom 
+PV isolert/AP borte/ikke utløsbar arytmi. "Usikker" dersom sett andre arytmier 
+fortsatt, men mindre arytmi og "Ikke aktuelt" dersom ikke utløst arytmi. 
+
 Elektrofysiologiske undersøkelse eller forløp der akutt suksess er lik
-"Ikke aktuelt" er fjernet fra datagrunnlaget. Andel forløp med akutt suksess er 
-regnet ut ved å dele antall forløp der akutt suksess er lik "Ja" på totalt 
+"Ikke aktuelt" er fjernet fra datagrunnlaget. 
+
+Andel forløp med akutt suksess er regnet ut ved å dele antall forløp der akutt suksess er lik "Ja" på totalt 
 antall forløp der akutt suksess er en av "Ja", "Nei" eller "Usikker". 
 Figur \@ref(fig:akuttSuksessFig) viser prosentandel forløp med akutt suksess
-blant abladerte, per måned. Tabell \@ref(tab:akuttSuksessMaaned) viser andel forløp med akutt suksess
-blant abladerte totalt og i underpopulasjoner, per måned.
+blant abladerte, per måned. Tabell \@ref(tab:akuttSuksessMaaned) viser andel
+forløp med akutt suksess blant abladerte totalt og i underpopulasjoner, per
+måned.
 
 
 
