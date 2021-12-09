@@ -60,6 +60,9 @@ to local data (defined by \code{reshId}), "SC" has access to national data.}
 Default is FALSE in which case a data frame containing name and id is
 returned.}
 
+\item{shortName}{boolean. Default value FALSE and "friendlyname" is returned.
+If TRUE shortname is returned.}
+
 \item{singleRow}{Logical if only one row from the table is to be provided.
 Default value is FALSE.}
 }
