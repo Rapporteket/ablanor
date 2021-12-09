@@ -144,28 +144,28 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   #  Forventer min og maks for disse klassene:
   testthat::expect_equal(
     df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
+      dplyr::filter(.data$bmi_klasse == "Undervekt") %>%
       dplyr::pull(.data$bmi) %>%
       min(),
     15.0)
 
   testthat::expect_equal(
     df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Alvorlig undervekt") %>%
+      dplyr::filter(.data$bmi_klasse == "Undervekt") %>%
       dplyr::pull(.data$bmi) %>%
       max(),
-    16.0)
+    18.4)
 
   testthat::expect_equal(
     df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Moderat fedme, klasse I") %>%
+      dplyr::filter(.data$bmi_klasse == "Fedme grad I") %>%
       dplyr::pull(.data$bmi) %>%
       min(),
     30.0)
 
   testthat::expect_equal(
     df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Moderat fedme, klasse I") %>%
+      dplyr::filter(.data$bmi_klasse == "Fedme grad I") %>%
       dplyr::pull(.data$bmi) %>%
       max(),
     34.9)
