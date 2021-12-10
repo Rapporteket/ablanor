@@ -7,7 +7,12 @@ server <- function(input, output, session) {
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
-  # setting values that do depend on a Rapporteket context
+  dataSets <- list(
+    `Bruk og valg av data` = "info",
+    `Prosedyre, basisskjema og oppfølging` = "pros_patient",
+    `RAND-12` = "rand12"
+  )
+  ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     registryName <- "ablanor"
     mapOrgId <- ablanor::getNameReshId(registryName)
@@ -104,13 +109,6 @@ server <- function(input, output, session) {
 
 
   # Utforsker
-  ## Data sets available
-  dataSets <- list(`Bruk og valg av data` = "info",
-                   `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-                   `RAND-12` = "rand12"
-  )
-
-
   ## reactive values
   rvals <- shiny::reactiveValues()
   rvals$showPivotTable <- FALSE
