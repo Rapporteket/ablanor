@@ -28,6 +28,9 @@
     <loc>/reference/compound_assignment_pipe.html</loc>
   </url>
   <url>
+    <loc>/reference/def_utledete_var.html</loc>
+  </url>
+  <url>
     <loc>/reference/exposition_pipe.html</loc>
   </url>
   <url>
@@ -38,6 +41,9 @@
   </url>
   <url>
     <loc>/reference/getKodebokData.html</loc>
+  </url>
+  <url>
+    <loc>/reference/getKodebokMedUtledetedVar.html</loc>
   </url>
   <url>
     <loc>/reference/getPivotDataSet.html</loc>
