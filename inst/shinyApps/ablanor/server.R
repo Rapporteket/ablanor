@@ -219,6 +219,7 @@ server <- function(input, output, session) {
 
 
   # Kodebok
+  kodebok <- ablanor::getKodebokMedUtledetedVar()
   metaDatKb <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$kbdTab,
                              registryName = registryName,
@@ -245,16 +246,9 @@ server <- function(input, output, session) {
     }
   })
 
-
-  kodebok <- reactive({
-    ablanor::getKodebokMedUtledetedVar()
-  })
-
-
-
   output$kbdTable <- DT::renderDataTable(
     # kodebok NORIC, Kun variabelnavn som finnes den valgte tabellen
-    kodebok()[kodebok()$fysisk_feltnavn %in% selectedkbTabVars(), ],
+    kodebok[kodebok$fysisk_feltnavn %in% selectedkbTabVars(), ],
     options = list(
       lengthMenu = c(25, 50, 100, 200, 400),
       language = list(
@@ -262,8 +256,8 @@ server <- function(input, output, session) {
         search = "S\u00f8k:",
         info = "Rad _START_ til _END_ av totalt _TOTAL_",
         paginate = list(previous = "Forrige", `next` = "Neste")
-      ))
-
+      )
+    )
   )
 
   output$kbdData <- renderUI({
