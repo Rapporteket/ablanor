@@ -219,6 +219,15 @@ server <- function(input, output, session) {
 
 
   # Kodebok
+  metaDatKb <- shiny::reactive({
+    ablanor::getPivotDataSet(setId = input$kbdTab,
+                             registryName = registryName,
+                             session = session,
+                             reshId = reshId,
+                             userRole = userRole,
+                             singleRow = TRUE)
+  })
+
   ## innhold kontrollpanel:
   output$kbControl <- renderUI({
     selectInput(inputId = "kbdTab",
@@ -229,7 +238,7 @@ server <- function(input, output, session) {
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- reactive({
     if (input$kbdTab %in% c("rand12", "pros_patient")){
-      metaDat() %>% names()
+      metaDatKb() %>% names()
     }
     else {
       data.frame()
