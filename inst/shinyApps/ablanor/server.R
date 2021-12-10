@@ -4,10 +4,15 @@ library(ablanor)
 server <- function(input, output, session) {
 
 
-  # rapbase::appLogger(session = session, msg = "Starting AblaNor application")
+  rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
-  # setting values that do depend on a Rapporteket context
+  dataSets <- list(
+    `Bruk og valg av data` = "info",
+    `Prosedyre, basisskjema og oppfølging` = "pros_patient",
+    `RAND-12` = "rand12"
+  )
+  ## setting values that do depend on a Rapporteket context
   if (rapbase::isRapContext()) {
     registryName <- "ablanor"
     mapOrgId <- ablanor::getNameReshId(registryName)
@@ -104,13 +109,6 @@ server <- function(input, output, session) {
 
 
   # Utforsker
-  ## Data sets available
-  dataSets <- list(`Bruk og valg av data` = "info",
-                   `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-                   `RAND-12` = "rand12"
-  )
-
-
   ## reactive values
   rvals <- shiny::reactiveValues()
   rvals$showPivotTable <- FALSE
@@ -147,6 +145,14 @@ server <- function(input, output, session) {
   })
 
 
+  metaDat <- shiny::reactive({
+    ablanor::getPivotDataSet(setId = input$selectedDataSet,
+                             registryName = registryName,
+                             session = session,
+                             reshId = reshId,
+                             userRole = userRole,
+                             singleRow = TRUE)
+  })
 
 
 
@@ -180,14 +186,9 @@ server <- function(input, output, session) {
         }
 
         shiny::selectInput(inputId = "selectedVars", label = "Velg variabler:",
-                           choices = names(dat()), multiple = TRUE,
+                           choices = names(metaDat()), multiple = TRUE,
                            selected = vars)
       }
-      # @ note : Har tatt dat() og ikke metaDat som i NORIC
-      # selectInput(inputId = "selectedVars", label = "Velg variabler:",
-      #        choices = names(dat()), multiple = TRUE,
-      #        selected = vars)
-      # }
     }
   })
 
@@ -214,6 +215,56 @@ server <- function(input, output, session) {
       rpivotTable::rpivotTable(data.frame())
     }
   })
+
+
+
+  # Kodebok
+  kodebok <- ablanor::getKodebokMedUtledetedVar()
+  metaDatKb <- shiny::reactive({
+    ablanor::getPivotDataSet(setId = input$kbdTab,
+                             registryName = registryName,
+                             session = session,
+                             reshId = reshId,
+                             userRole = userRole,
+                             singleRow = TRUE)
+  })
+
+  ## innhold kontrollpanel:
+  output$kbControl <- renderUI({
+    selectInput(inputId = "kbdTab",
+                label = "Vis kodebok for tabellen:",
+                choices =  dataSets)
+  })
+
+  # vektor med alle variabelnavn i valgt tabell
+  selectedkbTabVars <- reactive({
+    if (input$kbdTab %in% c("rand12", "pros_patient")){
+      metaDatKb() %>% names()
+    }
+    else {
+      data.frame()
+    }
+  })
+
+  output$kbdTable <- DT::renderDataTable(
+    # kodebok NORIC, Kun variabelnavn som finnes den valgte tabellen
+    kodebok[kodebok$fysisk_feltnavn %in% selectedkbTabVars(), ],
+    options = list(
+      lengthMenu = c(25, 50, 100, 200, 400),
+      language = list(
+        lengthMenu = "Vis _MENU_ rader per side",
+        search = "S\u00f8k:",
+        info = "Rad _START_ til _END_ av totalt _TOTAL_",
+        paginate = list(previous = "Forrige", `next` = "Neste")
+      )
+    )
+  )
+
+  output$kbdData <- renderUI({
+    DT::dataTableOutput("kbdTable")
+  })
+
+
 
 
   # Datadump

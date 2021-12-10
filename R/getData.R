@@ -24,6 +24,8 @@
 #' @param reshId Integer dummy/placeholder organization id
 #' @param userRole String dummy/placeholder role. "LC" has access only
 #' to local data (defined by \code{reshId}), "SC" has access to national data.
+#' @param shortName boolean. Default value FALSE and "friendlyname" is returned.
+#' If TRUE shortname is returned.
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
