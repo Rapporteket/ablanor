@@ -4,7 +4,7 @@ library(ablanor)
 server <- function(input, output, session) {
 
 
-  # rapbase::appLogger(session = session, msg = "Starting AblaNor application")
+  rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
   # setting values that do depend on a Rapporteket context
