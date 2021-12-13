@@ -28,8 +28,8 @@ Man kan i tillegg finne mer informasjon om pakken på
 [hjemmesiden til `rpivotTable`](https://pivottable.js.org/examples/ "Hjemmesiden til rpivotTable"). 
 
 ### Kodebok
-Her kan du laste inn forklaringstekster for alle variabler i de ulike tabellene
-som er tilgjengelige i Utforsker. Kodeboken er søkbar. Variabler markert med 
+Dette er et oppslagsverk der man kan se forklaringstekster for alle variablene 
+i Utforsker, tabell for tabell. Kodeboken er søkbar. Variabler markert med 
 Skjemanavn _utledete_variabel_ betyr at variabelen ikke finnes i databasen, men 
 er utledet på grunnlag av variabler i databasen. 
 
