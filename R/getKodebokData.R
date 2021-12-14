@@ -37,8 +37,8 @@ getKodebokMedUtledetedVar <- function() {
   ablanor::kbd %>%
     dplyr::mutate(fysisk_feltnavn = tolower(.data$fysisk_feltnavn)) %>%
     dplyr::select(.data$skjemanavn,
-                  .data$ledetekst,
                   .data$fysisk_feltnavn,
+                  .data$ledetekst,
                   .data$listeverdier,
                   .data$listetekst) %>%
     dplyr::mutate(listeverdier = as.character(.data$listeverdier)) %>%
