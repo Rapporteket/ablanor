@@ -94,7 +94,7 @@ utlede_aldersklasse <- function(df) {
 #' @examples
 #' df <- data.frame(hoyde = c(150, 160, 170), vekt = c(95, 85, 65))
 
-utlede_bmi <- function(df){
+utlede_bmi <- function(df) {
 
   stopifnot(c("hoyde", "vekt") %in% names(df))
 
@@ -102,7 +102,7 @@ utlede_bmi <- function(df){
     dplyr::mutate(
 
       bmi_manual = round(
-        .data$vekt / ((.data$hoyde / 100) *(.data$hoyde / 100)),
+        .data$vekt / ((.data$hoyde / 100) * (.data$hoyde / 100)),
         2))
 }
 

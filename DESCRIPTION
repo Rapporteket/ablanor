@@ -15,9 +15,7 @@ Authors@R: c(
          role = c("aut"),
          email = "biorakel@gmail.com",
          comment = c(ORCID = "0000-0002-5210-3656")))
-Description: Ymse funksjonar som kan brukast til å skriva
-    rapportar og gjera analysar for AblaNor (Nasjonalt register
-    for ablasjonsbehandling og elektrofysiologi i Norge).
+Description: An implemetation of all R related resources for AblaNor (Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge). 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -49,4 +47,4 @@ Remotes:
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)

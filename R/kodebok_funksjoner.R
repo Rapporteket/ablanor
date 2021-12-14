@@ -101,9 +101,7 @@ kodebok_sjekk_foer_leggtil <- function(df,
     return(resultat_sjekk)
   }
 
-  # Dersom en variabel har et/fleire nivå som mangler i kodeboken:
-  # manglar_i_kb <- na.omit(setdiff(df[[verdi_variabel]], koder$listeverdier))
-
+  # Dersom en variabel har et/fleire nivå som mangler i kodeboken
   manglar_i_kb <- setdiff(
     df[[verdi_variabel]][!is.na(df[[verdi_variabel]])],
     koder$listeverdier)

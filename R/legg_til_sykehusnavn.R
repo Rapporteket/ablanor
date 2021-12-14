@@ -19,7 +19,7 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
   stopifnot("centreid" %in% names(df))
   stopifnot(short %in% c(TRUE, FALSE))
 
-  if(short == TRUE) {
+  if (short == TRUE) {
     df %>% dplyr::mutate(
       sykehusnavn = dplyr::case_when(centreid == 102966 ~ "HUS",
                                      centreid == 104284 ~ "St.Olavs",
@@ -38,4 +38,3 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
         TRUE ~ NA_character_))
   }
 }
-
