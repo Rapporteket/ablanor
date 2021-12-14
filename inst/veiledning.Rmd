@@ -30,8 +30,8 @@ Man kan i tillegg finne mer informasjon om pakken på
 ### Kodebok
 Dette er et oppslagsverk der man kan se forklaringstekster for alle variablene 
 i Utforsker, tabell for tabell. Kodeboken er søkbar. Variabler markert med 
-Skjemanavn _utledete_variabel_ betyr at variabelen ikke finnes i databasen, men 
-er utledet på grunnlag av variabler i databasen. 
+Skjemanavn _utledet_variabel_ betyr at variabelen ikke finnes i selve 
+databasen, men er utledet på grunnlag av variabler i databasen. 
 
 ### Datadump
 Her kan du laste ned tabeller som inneholder ditt lokale sykehus sin aktivitet
