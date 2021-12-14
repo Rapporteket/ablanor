@@ -355,7 +355,7 @@ server <- function(input, output, session) {
       paramValues = c("veiledning", "html", "En testrapport")
     ),
     "Månedlige resultater" = list(
-      synopsis = "Månedlige resultater sykehus/avdeling",
+      synopsis = "AblaNor månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
       paramNames = c("report", "outputType", "title", "orgId"),
       paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999)
