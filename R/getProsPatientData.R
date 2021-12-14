@@ -147,7 +147,5 @@ getProsPatientData <- function(registryName,
   # HJERTESVIKT OG REDUSERT EF
   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
-
-
-  d_ablanor
+  d_ablanor %>% dplyr::arrange(.data$mceid)
 }
