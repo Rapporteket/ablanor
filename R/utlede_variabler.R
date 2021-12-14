@@ -81,7 +81,30 @@ utlede_aldersklasse <- function(df) {
 }
 
 
+#' Add variable bmi_manual
+#' Add manually calculatet value of Body Mass Index
+#'  (BMI = weight in kilograms divided by the square of height in meters).
+#'
+#' @param df data.frame with ablanor-data. Must contain variables
+#' \code{hoyde} and \code{vekt}.
+#'
+#' @return Returns \code{df} with 1 new column: \code{bmi_manual}
+#' @export
+#'
+#' @examples
+#' df <- data.frame(hoyde = c(150, 160, 170), vekt = c(95, 85, 65))
 
+utlede_bmi <- function(df){
+
+  stopifnot(c("hoyde", "vekt") %in% names(df))
+
+  df %>%
+    dplyr::mutate(
+
+      bmi_manual = round(
+        .data$vekt / ((.data$hoyde / 100) *(.data$hoyde / 100)),
+        2))
+}
 
 #' Add variables bmi_klasse and bmi_over35
 #'
@@ -96,23 +119,26 @@ utlede_aldersklasse <- function(df) {
 #' @export
 #'
 #' @examples
-#' df <- data.frame(bmi = c(15, 15.2, 19, 25, 26.7, 32.1, 41.0, NA))
+#' df <- data.frame(bmi_manual = c(15, 15.2, 19, 25, 26.7, 32.1, 41.0, NA))
 utlede_bmi_klasse <- function(df) {
 
-  stopifnot("bmi" %in% names(df))
+  stopifnot(c("bmi_manual") %in% names(df))
+
+
 
   df %>%
     dplyr::mutate(
+
       bmi_klasse =
         factor(
           x = dplyr::case_when(
-            .data$bmi < 18.5 ~ "Undervekt",
-            .data$bmi >= 18.5 & .data$bmi < 25 ~ "Normalvekt",
-            .data$bmi >= 25 & .data$bmi < 30 ~ "Overvekt",
-            .data$bmi >= 30 & .data$bmi < 35 ~ "Fedme grad I",
-            .data$bmi >= 35 & .data$bmi < 40 ~ "Fedme grad II",
-            .data$bmi >= 40 & .data$bmi < 100 ~ "Fedme grad III",
-            .data$bmi >= 100 ~ "ugyldig",
+            .data$bmi_manual < 18.5 ~ "Undervekt",
+            .data$bmi_manual >= 18.5 & .data$bmi_manual < 25 ~ "Normalvekt",
+            .data$bmi_manual >= 25 & .data$bmi_manual < 30 ~ "Overvekt",
+            .data$bmi_manual >= 30 & .data$bmi_manual < 35 ~ "Fedme grad I",
+            .data$bmi_manual >= 35 & .data$bmi_manual < 40 ~ "Fedme grad II",
+            .data$bmi_manual >= 40 & .data$bmi_manual < 100 ~ "Fedme grad III",
+            .data$bmi_manual >= 100 ~ "ugyldig",
             TRUE ~ NA_character_),
 
           levels = c("Undervekt",
@@ -124,7 +150,7 @@ utlede_bmi_klasse <- function(df) {
                      "ugyldig"),
           ordered = TRUE),
 
-      bmi_over35 = dplyr::if_else(.data$bmi >= 35,
+      bmi_over35 = dplyr::if_else(.data$bmi_manual >= 35,
                                   true = "BMI >=35",
                                   false = "BMI <35",
                                   missing = NA_character_)

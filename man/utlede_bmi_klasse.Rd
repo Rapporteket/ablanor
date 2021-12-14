@@ -19,5 +19,5 @@ Add categories of Body Mass Index (BMI = weight in kilograms divided by
 the square of height in meters).
 }
 \examples{
-df <- data.frame(bmi = c(15, 15.2, 19, 25, 26.7, 32.1, 41.0, NA))
+df <- data.frame(bmi_manual = c(15, 15.2, 19, 25, 26.7, 32.1, 41.0, NA))
 }
