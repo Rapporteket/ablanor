@@ -247,7 +247,7 @@ server <- function(input, output, session) {
   })
 
   output$kbdTable <- DT::renderDataTable(
-    # kodebok NORIC, Kun variabelnavn som finnes den valgte tabellen
+    # kodebok ablanor, Kun variabelnavn som finnes den valgte tabellen
     kodebok[kodebok$fysisk_feltnavn %in% selectedkbTabVars(), ],
     options = list(
       lengthMenu = c(25, 50, 100, 200, 400),
