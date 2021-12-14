@@ -2,7 +2,9 @@
 alder;utledet_variabel;alder ved prosedyretidspunktet;NA;NA
 alder_75;utledet_variabel;alder ved prosedyretidspunktet >= 75  år eller <75 år;NA;NA
 aldersklasse;utledet_variabel;"alder ved prosedyretidspunktete gruppert i klasser. ""18-49"", ""50-59"", ""60-69"" osv. Alder under 18 år eller over 99 år blir gitt aldersklasse NA.";NA;NA
-bmi_klasse;utledet_variabel;bmi gruppert i klasser, basert på FHI sin definisjon;NA;NA
+bmi_manual;utledet_variabel;bmi utledet med formelen : bmi = vekt/(hoyde*høyde) = [kg]/[m2];NA;NA
+bmi_klasse;utledet_variabel;bmi_manual gruppert i klasser, basert på FHI sin definisjon;NA;NA
+bmi_over35;utledet_variabel;bmi_manual >= 35 eller <35. Utledet;NA;NA
 aar;utledet_variabel;Aar for prosedyredato;NA;NA
 maaned_nr;utledet_variabel;Måned (numerisk) for prosedyredato;NA;NA
 maaned;utledet_variabel;"År og måned for prosedyredato (f.eks ""2021-10"" for oktober 2021)";NA;NA
