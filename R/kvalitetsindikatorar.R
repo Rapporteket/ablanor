@@ -80,22 +80,23 @@ ki_dod <- function(d_pros, d_mce, d_pas, dagar_innan = 29) {
                      by = c("patient_id" = "id"))
 
   d_dod <- d_dod %>%
-    dplyr::mutate(dagar_sidan_op = difftime(dato_oppdatert_dodsinfo,
-                                            .data$dato_pros,
-                                            units = "days"),
+    dplyr::mutate(
+      dagar_sidan_op = difftime(dato_oppdatert_dodsinfo,
+                                .data$dato_pros,
+                                units = "days"),
 
-                  dagar_op_til_dod = ifelse(.data$komp_dod,
-                                            0, # Død ved / rett etter prosedyren
-                                            difftime(.data$deceased_date,
-                                                     .data$dato_pros,
-                                                     units = "days")),
+      dagar_op_til_dod = ifelse(.data$komp_dod,
+                                0, # Død ved / rett etter prosedyren
+                                difftime(.data$deceased_date,
+                                         .data$dato_pros,
+                                         units = "days")),
 
-                  ki_krit_nevner = (.data$dagar_sidan_op >= dagar_innan) |
-                    .data$komp_dod,
+      ki_krit_nevner = (.data$dagar_sidan_op >= dagar_innan) |
+        .data$komp_dod,
 
-                  ki_krit_teller = .data$ki_krit_nevner &
-                    !is.na(.data$dagar_op_til_dod) &
-                    (.data$dagar_op_til_dod <= dagar_innan))
+      ki_krit_teller = .data$ki_krit_nevner &
+        !is.na(.data$dagar_op_til_dod) &
+        (.data$dagar_op_til_dod <= dagar_innan))
   d_dod
 }
 

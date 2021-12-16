@@ -64,7 +64,8 @@ string_pad <- function(string_vector) {
 #' @param df ablanor table
 #'
 #' @return a text string containing a function that defines the sorters for
-#' each factor-variable. This should be given in input in the getPivotTable from shiny
+#' each factor-variable. This should be given in input in the getPivotTable
+#' from shiny
 #' @export
 #'
 #' @examples
@@ -78,11 +79,11 @@ string_pad <- function(string_vector) {
 #' }
 make_sorters <- function(df) {
 
-  if(df %>%  ncol() == 0) return(NULL)
+  if (df %>%  ncol() == 0) return(NULL)
 
   # Choose factor variables/columns
   f <- sapply(df, is.factor)
-  if(!sum(f)) return(NULL)
+  if (!sum(f)) return(NULL)
   fcols <- names(df)[f]
 
   # Get levels for each variable

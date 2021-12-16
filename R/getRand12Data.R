@@ -46,5 +46,5 @@ getRand12Data <- function(registryName,
 
 
 
-  d_rand12_ut
+  d_rand12_ut %>% dplyr::arrange(.data$mceid)
 }

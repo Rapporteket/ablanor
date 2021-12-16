@@ -1,14 +1,18 @@
+# ablanor 1.0.0
+First version ready for prod
+
+
 # ablanor 0.5.0
-* Added panel "Kodebok". Contains table with metadata
+* Added panel "Kodebok". Contains table with metadata ([#21](https://github.com/Rapporteket/ablanor/pull/21))
 
 
 
 # ablanor 0.4.0
-* added functions with tests for usual operations
-* add followup data
+* added functions with tests for usual operations ([#17](https://github.com/Rapporteket/ablanor/pull/17))
+* add followup data ([#17](https://github.com/Rapporteket/ablanor/pull/17))
 * kodebok-functions to add  "listetekst"  for "listevariabler" and
-"avkrysninsboks"
-* possibility to download merged table with patient, procedure and followup
+"avkrysninsboks"  ([#14](https://github.com/Rapporteket/ablanor/pull/14))
+* possibility to download merged table with patient, procedure and followup  ([#17](https://github.com/Rapporteket/ablanor/pull/17))
 * User sorters in RpivptTable to order factor variables
 * Cleanup in access for LC-role and SC-role
 

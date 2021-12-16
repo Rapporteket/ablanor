@@ -246,22 +246,22 @@ getProsPatient <- function(registryName, singleRow,
     # SPØRRING ETTER PROSEDYRE-DATA. MED OG UTEN FILTER PÅ DATOER OG
     # LOKALE DATA
     # Med filter på dato, nasjonale tall
-    if ((!is.null(fromDate) & !is.null(toDate)) & userRole == "SC"){
+    if ((!is.null(fromDate) & !is.null(toDate)) & userRole == "SC") {
       condition_pros <- paste0(" WHERE DATO_PROS >= '", fromDate,
                                "' AND DATO_PROS < '", toDate, "'")
 
       # Med filter på dato, lokale tall
-    } else if ((!is.null(fromDate) & !is.null(toDate)) & userRole != "SC"){
+    } else if ((!is.null(fromDate) & !is.null(toDate)) & userRole != "SC") {
       condition_pros <- paste0(" WHERE DATO_PROS >= '", fromDate,
                                "' AND DATO_PROS < '", toDate, "'",
                                " AND CENTREID = '", reshId, "'")
 
       #Ingen filter på dato, nasjonale data
-    } else if ((is.null(fromDate) | is.null(toDate)) & userRole == "SC"){
+    } else if ((is.null(fromDate) | is.null(toDate)) & userRole == "SC") {
       condition_pros <- ""
 
       #Ingen filter på dato, lokale data
-    } else if ((is.null(fromDate) | is.null(toDate)) & userRole != "SC"){
+    } else if ((is.null(fromDate) | is.null(toDate)) & userRole != "SC") {
       condition_pros <- paste0(" WHERE CENTREID = '", reshId, "'")
     }
     query_procedure <- paste0("SELECT * FROM pros", condition_pros)

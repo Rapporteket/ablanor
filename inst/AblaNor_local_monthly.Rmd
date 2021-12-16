@@ -152,6 +152,11 @@ cat("\n\n\\pagebreak\n")
 ```
 
 # Forløpstype
+Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
+(AFLI), Ventrikkeltakykardi (VT), Supraventrikulær takykardi (SVT) eller 
+Elektrofysiologisk undersøkelse (EFU). Dersom forløpstype ikke er registrert
+blir verdien NA (not available), dette gjelder forløp der prosedyreskjema ikke
+er ferdigstilte. 
 Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
 registrert i AblaNor fra `r params$hospitalName` de `r showN` siste månedene, 
 for hver forløpstype og sammenlagt. 
@@ -160,7 +165,11 @@ måned, samt fordeling etter forløpstype.
 
 ```{r typeForlopAar}
 cap <- paste("Totalt antall forløp fra ", 
-             params$hospitalName, " de ", showN, " siste månedene.")
+             params$hospitalName, " de ", showN, " siste månedene.",
+             "For hver av de 4 forløpstypene: ",
+             "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
+             "Supraventrikulær takykardi (SVT) eller ", 
+             "Elektrofysiologisk undersøkelse (EFU). ")
 
 d_ablanor %>%  
   dplyr::count(.data$forlopstype) %>% 
@@ -184,7 +193,11 @@ d_ablanor %>%
 figtekst <- paste0("Antall registreringer i AblaNor fra ", 
                    params$hospitalName, " hver måned det siste året. ", 
                    "Tallene i søylene viser antall registrerte forløp per ", 
-                   "forløpstype.")
+                   "forløpstype.", 
+                   "Atrieflimmer/atypisk flutter (AFLI), ", 
+                   "Ventrikkeltakykardi (VT), ", 
+                   "Supraventrikulær takykardi (SVT) eller ", 
+                   "Elektrofysiologisk undersøkelse (EFU).")
 
 d_forlop_mnd <- d_ablanor %>%
   dplyr::count(.data$maaned, .data$forlopstype, .drop = FALSE) %>%
@@ -428,9 +441,9 @@ ggplot2::ggplot(data = d_akutt_suksess_fig2,
   ablanor::ablanor_plot_theme() +
   ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
   ggplot2::geom_vline(xintercept = 0.95, 
-             size = 1,
-             colour = colKontrast, 
-             linetype = "dashed") +
+                      size = 1,
+                      colour = colKontrast, 
+                      linetype = "dashed") +
   ggplot2::labs(title = paste0("Akutt suksess de ",
                                showN, " siste månedene"), 
                 subtitle = params$hospitalName) +

@@ -38,7 +38,6 @@ getProsPatientData <- function(registryName,
 
   ## BEHANDLING AV DATABASEN I R:
   # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)
-  # intersect(names(d_pros), names(d_basereg)) # samme variabel-navn.
   # Vi angir en prefix for å få med variablene fra begge tabellene
   d_basereg %<>%
     dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
@@ -128,6 +127,7 @@ getProsPatientData <- function(registryName,
 
   # BMI klasse
   d_ablanor %<>%
+    ablanor::utlede_bmi(.) %>%
     ablanor::utlede_bmi_klasse(.)
 
 
@@ -146,7 +146,5 @@ getProsPatientData <- function(registryName,
   # HJERTESVIKT OG REDUSERT EF
   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
-
-
-  d_ablanor
+  d_ablanor %>% dplyr::arrange(.data$mceid)
 }

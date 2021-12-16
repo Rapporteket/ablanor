@@ -128,16 +128,42 @@ testthat::test_that("Aldersklasse fungerer", {
 })
 
 
+
+
+# Test BMImanual ----
+testthat::test_that("Utlede BMI klasse fungerer", {
+
+
+  df <- data.frame(
+    vekt = c(80, 70, 100, 50, 90, NA, 80),
+    hoyde = c(150, 160, 170, 180, 190, 160, NA))
+
+  df_out <- ablanor::utlede_bmi(df)
+
+  testthat::expect_true(all(
+    names(df_out) %in% c("hoyde", "vekt", "bmi_manual")
+  ))
+
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::filter(!is.na(.data$bmi_manual)) %>%
+      dplyr::pull(bmi_manual),
+    c(35.56, 27.34, 34.60, 15.43, 24.93)
+  )
+
+
+
+})
 # test BMI- klasse ----
 testthat::test_that("Utlede BMI klasse fungerer", {
 
 
-  df <- data.frame(bmi = c(NA, seq(from = 15, to = 41, by = 0.1), 220))
+  df <- data.frame(bmi_manual = c(NA, seq(from = 15, to = 41, by = 0.1), 220))
   df_out <- ablanor::utlede_bmi_klasse(df)
 
 
   testthat::expect_true(all(
-    names(df_out) %in% c("bmi", "bmi_klasse", "bmi_over35")
+    names(df_out) %in% c("bmi_manual", "bmi_klasse", "bmi_over35")
   ))
 
 
@@ -145,41 +171,41 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Undervekt") %>%
-      dplyr::pull(.data$bmi) %>%
+      dplyr::pull(.data$bmi_manual) %>%
       min(),
     15.0)
 
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Undervekt") %>%
-      dplyr::pull(.data$bmi) %>%
+      dplyr::pull(.data$bmi_manual) %>%
       max(),
     18.4)
 
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Fedme grad I") %>%
-      dplyr::pull(.data$bmi) %>%
+      dplyr::pull(.data$bmi_manual) %>%
       min(),
     30.0)
 
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_klasse == "Fedme grad I") %>%
-      dplyr::pull(.data$bmi) %>%
+      dplyr::pull(.data$bmi_manual) %>%
       max(),
     34.9)
 
   # Forventer klasse ugyldig dersom BMI har svært høy verdi
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$bmi >= 100) %>%
+      dplyr::filter(.data$bmi_manual >= 100) %>%
       dplyr::pull(.data$bmi_klasse) == "ugyldig"))
 
   # Forventer klasse NA dersom BMI mangler
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(is.na(.data$bmi)) %>%
+      dplyr::filter(is.na(.data$bmi_manual)) %>%
       dplyr::pull(.data$bmi_klasse) %>%
       is.na()))
 
@@ -187,14 +213,14 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_over35 == "BMI >=35") %>%
-      dplyr::pull(.data$bmi) %>%
+      dplyr::pull(.data$bmi_manual) %>%
       min(),
     35.0)
 
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(.data$bmi_over35 == "BMI <35") %>%
-      dplyr::pull(.data$bmi) %>%
+      dplyr::pull(.data$bmi_manual) %>%
       max(),
     34.9)
 
@@ -453,22 +479,22 @@ testthat::test_that("AFLI hjertesvik redusert EF", {
       dplyr::pull(.data$kategori_afli_hjsvikt_ef) ==
       "AFLI-Verken hjertesvikt eller redusert EF"))
 
-testthat::expect_true(all(
-  df_out %>%
-    dplyr::filter(.data$forlopstype !=  1 |
-                    is.na(.data$forlopstype)) %>%
-    dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
-    as.character() %>%
-    is.na()))
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype !=  1 |
+                      is.na(.data$forlopstype)) %>%
+      dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
+      as.character() %>%
+      is.na()))
 
-testthat::expect_equal(
-  df_out %>%
-    dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
-    as.character(),
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
+      as.character(),
 
-  c(NA_character_, NA_character_,
-    rep("AFLI-Verken hjertesvikt eller redusert EF", 4),
-    rep("AFLI-Hjertesvikt og/eller redusert EF", 4)))
+    c(NA_character_, NA_character_,
+      rep("AFLI-Verken hjertesvikt eller redusert EF", 4),
+      rep("AFLI-Hjertesvikt og/eller redusert EF", 4)))
 
 
 })
