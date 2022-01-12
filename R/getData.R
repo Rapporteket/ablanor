@@ -104,15 +104,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                        toDate = toDate)
 
 
-    # Legg til variabler med listetekst og ja/nei for avkrysningsboks
-    kb <- ablanor::getKodebokData() %>%
-      dplyr::select(.data$fysisk_feltnavn,
-                    .data$listeverdier,
-                    .data$listetekst,
-                    .data$type)
-
-    dat %>%
-          ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
+    dat %>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
 
 
 
