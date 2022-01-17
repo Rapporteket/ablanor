@@ -11,7 +11,8 @@ make_sorters(df)
 }
 \value{
 a text string containing a function that defines the sorters for
-each factor-variable. This should be given in input in the getPivotTable from shiny
+each factor-variable. This should be given in input in the getPivotTable
+from shiny
 }
 \description{
 For all factor-variables, get the order of levels and use this as input

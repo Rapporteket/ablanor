@@ -1,3 +1,6 @@
+#ablanor 1.0.1
+Bugfix: Do not add listetekst-vars before download of pros_patient_followup
+
 # ablanor 1.0.0
 First version ready for prod
 
