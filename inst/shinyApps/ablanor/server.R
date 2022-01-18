@@ -42,6 +42,7 @@ server <- function(input, output, session) {
     shiny::hideTab(inputId = "tabs", target = "Start")
     shiny::hideTab(inputId = "tabs", target = "Utforsker")
     shiny::hideTab(inputId = "tabs", target = "Datadump")
+    shiny::hideTab(inputId = "tabs", target = "Kodebok")
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::hideTab(inputId = "tabs", target = "Abonnement")
     shiny::hideTab(inputId = "tabs", target = "Verktøy")
