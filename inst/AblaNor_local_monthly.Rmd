@@ -169,12 +169,12 @@ cap <- paste("Totalt antall forløp fra ",
              "For hver av de 4 forløpstypene: ",
              "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
              "Supraventrikulær takykardi (SVT) eller ", 
-             "Elektrofysiologisk undersøkelse (EFU). ")
+             "Elektrofysiologisk undersøkelse (EFU).")
 
 d_ablanor %>%  
   dplyr::count(.data$forlopstype) %>% 
   janitor::adorn_totals() %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select(.data$forlopstype_tekst, .data$n) %>% 
   dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
                 "Antall" = .data$n) %>% 

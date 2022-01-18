@@ -26,6 +26,49 @@ test_that("Kontroll forløpstype kortnavn", {
 
 })
 
+test_that("Kontroll forløpstype kortnavn for langtnavn", {
+
+  x <- data.frame(forlopstype = rep(1:4, 2))
+  x_kb <- ablanor::legg_til_forlopstype_kortnavn(x,
+                                                 total = FALSE,
+                                                 langtnavn = TRUE)
+  expect_true(all(
+    x_kb %>%
+      dplyr::filter(.data$forlopstype == 1) %>%
+      dplyr::pull(.data$forlopstype_tekst) ==
+      "Atrieflimmer/atypisk flutter (AFLI)"))
+
+  expect_true(all(
+    x_kb %>%
+      dplyr::filter(.data$forlopstype == 2) %>%
+      dplyr::pull(.data$forlopstype_tekst) ==
+      "Ventrikkeltakykardi (VT)"))
+
+
+  expect_true(all(
+    x_kb %>%
+      dplyr::filter(.data$forlopstype == 3) %>%
+      dplyr::pull(.data$forlopstype_tekst) ==
+      "Supraventrikulær takykardi (SVT)"))
+
+  expect_true(all(
+    x_kb %>%
+      dplyr::filter(.data$forlopstype == 4) %>%
+      dplyr::pull(.data$forlopstype_tekst) ==
+      "Elektrofysiologisk undersøkelse (EFU)"))
+
+
+
+  x <- data.frame(forlopstype = c(1, 2, 3, 4, "Total"),
+                  n = c(2, 7, 5, 1, 15))
+  x_kb <- ablanor::legg_til_forlopstype_kortnavn(x,
+                                                 total = TRUE,
+                                                 langtnavn = TRUE)
+  expect_true(x_kb$forlopstype_tekst[5] == "Totalt")
+
+
+})
+
 # test string pad ----
 test_that("String pad works", {
   expect_equal(ablanor::string_pad(string_vector = c("Ja", "Nei", "Kanskje")),

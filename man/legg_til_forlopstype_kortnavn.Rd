@@ -4,13 +4,15 @@
 \alias{legg_til_forlopstype_kortnavn}
 \title{Hent kortnavn for forløpstype}
 \usage{
-legg_til_forlopstype_kortnavn(df, total = FALSE)
+legg_til_forlopstype_kortnavn(df, total = FALSE, langtnavn = FALSE)
 }
 \arguments{
 \item{df}{prosedyredatasett som inkluderer forlopstype}
 
 \item{total}{bools, dersom FALSE har vi ikkje en rad med totalsum. Dersom
-TRUE har vi en rad med totalsum.
+TRUE har vi en rad med totalsum.}
+
+\item{langtnavn}{boolsk. Dersom TRUE bruker vi lang tekst (ikke forkortning)
 #'}
 }
 \value{
@@ -24,6 +26,6 @@ forbedre lesbarhet.
 }
 \examples{
 \dontrun{
-legg_til_forlopstype_kortnavn(df = d_ablanor, total = TRUE)
+legg_til_forlopstype_kortnavn(df = d_ablanor, total = TRUE, langtnavn = FALSE)
 }
 }

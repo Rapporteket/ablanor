@@ -8,6 +8,7 @@
 #' @param df prosedyredatasett som inkluderer forlopstype
 #' @param total bools, dersom FALSE har vi ikkje en rad med totalsum. Dersom
 #' TRUE har vi en rad med totalsum.
+#' @param langtnavn boolsk. Dersom TRUE bruker vi lang tekst (ikke forkortning)
 #'#'
 #' @return Returnerer inndata med en ekstra kolonne 'forlopstype_tekst'
 #' som er en faktor med kortnavn for de ulike forløpstypene.
@@ -15,25 +16,49 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' legg_til_forlopstype_kortnavn(df = d_ablanor, total = TRUE)
+#' legg_til_forlopstype_kortnavn(df = d_ablanor, total = TRUE, langtnavn = FALSE)
 #' }
-legg_til_forlopstype_kortnavn <- function(df, total = FALSE) {
+legg_til_forlopstype_kortnavn <- function(df,
+                                          total = FALSE,
+                                          langtnavn = FALSE) {
 
   if (total) {
-    df %>%
-      dplyr::mutate(forlopstype_tekst = dplyr::case_when(
-        forlopstype == 1 ~ "AFLI",
-        forlopstype == 2 ~ "VT",
-        forlopstype == 3 ~ "SVT",
-        forlopstype == 4 ~ "EFU",
-        forlopstype == "Total" ~ "Totalt"))
+    if (langtnavn) {
+      df %>%
+        dplyr::mutate(forlopstype_tekst = dplyr::case_when(
+          forlopstype == 1 ~ "Atrieflimmer/atypisk flutter (AFLI)",
+          forlopstype == 2 ~ "Ventrikkeltakykardi (VT)",
+          forlopstype == 3 ~ "Supraventrikulær takykardi (SVT)",
+          forlopstype == 4 ~ "Elektrofysiologisk undersøkelse (EFU)",
+          forlopstype == "Total" ~ "Totalt"))
+    } else{
+      df %>%
+        dplyr::mutate(forlopstype_tekst = dplyr::case_when(
+          forlopstype == 1 ~ "AFLI",
+          forlopstype == 2 ~ "VT",
+          forlopstype == 3 ~ "SVT",
+          forlopstype == 4 ~ "EFU",
+          forlopstype == "Total" ~ "Totalt"))
+    }
+
   } else {
-    df %>%
-      dplyr::mutate(forlopstype_tekst = dplyr::case_when(
-        forlopstype == 1 ~ "AFLI",
-        forlopstype == 2 ~ "VT",
-        forlopstype == 3 ~ "SVT",
-        forlopstype == 4 ~ "EFU"))
+    if (langtnavn) {
+      df %>%
+        dplyr::mutate(forlopstype_tekst = dplyr::case_when(
+          forlopstype == 1 ~ "Atrieflimmer/atypisk flutter (AFLI)",
+          forlopstype == 2 ~ "Ventrikkeltakykardi (VT)",
+          forlopstype == 3 ~ "Supraventrikulær takykardi (SVT)",
+          forlopstype == 4 ~ "Elektrofysiologisk undersøkelse (EFU)"))
+    }
+    else{
+      df %>%
+        dplyr::mutate(forlopstype_tekst = dplyr::case_when(
+          forlopstype == 1 ~ "AFLI",
+          forlopstype == 2 ~ "VT",
+          forlopstype == 3 ~ "SVT",
+          forlopstype == 4 ~ "EFU"))
+    }
+
   }
 }
 

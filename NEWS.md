@@ -1,5 +1,6 @@
 # ablanor 1.0.2
 Bugfix: Ikke abonnere på veiledning + Fikse header slik at html ser bra ut
+Ny parameter i legg_til_forlopstype_kortnavn
 
 # ablanor 1.0.1
 Bugfix: Do not add listetekst-vars before download of pros_patient_followup
