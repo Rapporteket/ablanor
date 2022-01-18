@@ -169,12 +169,12 @@ cap <- paste("Totalt antall forløp fra ",
              "For hver av de 4 forløpstypene: ",
              "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
              "Supraventrikulær takykardi (SVT) eller ", 
-             "Elektrofysiologisk undersøkelse (EFU). ")
+             "Elektrofysiologisk undersøkelse (EFU).")
 
 d_ablanor %>%  
   dplyr::count(.data$forlopstype) %>% 
   janitor::adorn_totals() %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select(.data$forlopstype_tekst, .data$n) %>% 
   dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
                 "Antall" = .data$n) %>% 
@@ -193,7 +193,7 @@ d_ablanor %>%
 figtekst <- paste0("Antall registreringer i AblaNor fra ", 
                    params$hospitalName, " hver måned det siste året. ", 
                    "Tallene i søylene viser antall registrerte forløp per ", 
-                   "forløpstype.", 
+                   "forløpstype. ", 
                    "Atrieflimmer/atypisk flutter (AFLI), ", 
                    "Ventrikkeltakykardi (VT), ", 
                    "Supraventrikulær takykardi (SVT) eller ", 
@@ -545,7 +545,16 @@ d_akuttSuksess_TOTAL <- dplyr::left_join(
   dplyr::left_join(., d_akuttSuksess_tot,
                    by  = "maaned") %>% 
   tidyr::replace_na(list(Totalt = " -- ")) %>% 
-  dplyr::arrange(desc(.data$maaned))
+  dplyr::arrange(desc(.data$maaned)) %>% 
+  dplyr::rename("Paroks." = "AFLI-ICD 48.0 Paroksymal atrieflimmer", 
+                "Persist." = "AFLI-ICD 48.1 Persisterende atrieflimmer", 
+                "Langtidsp." = "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer", 
+                "Uten" = "Uten kardiomyopati", 
+                "ICM" = "Iskemisk KM (ICM)", 
+                "DCM" ="Dilatert KM (DCM)", 
+                "Annen" = "Annen KM", 
+                "Ukjent" = "Ukjent om kardiomyopati")
+
 
 knitr::kable(x = d_akuttSuksess_TOTAL,
              format = switch(params$tableFormat,
@@ -553,12 +562,6 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
                              html = "html"),
              align = c("l", rep("c",12)),
              booktabs = TRUE,
-             col.names = ablanor::string_pad(c(
-               "Måned",
-               "AFLI", "VT", "SVT",
-               "Paroks.", "Persist.", "Langtidsp.",
-               "Uten", "ICM", "DCM", "Annen", "Ukjent",
-               "Totalt")), 
              cap = cap) %>%
   kableExtra::add_header_above(c(" " = 1,
                                  "Forløpstype" = 3,
@@ -569,6 +572,11 @@ knitr::kable(x = d_akuttSuksess_TOTAL,
                      lsd = TRUE,
                      fs = 9,
                      full_width = FALSE)
+
+
+
+
+
 ```
 <br>
 
@@ -808,7 +816,15 @@ d_varighet_pros_TOTAL <-
   dplyr::left_join(., d_varighet_bmi_pros, by = "maaned") %>%
   dplyr::left_join(., d_varighet_afli_icd_pros, by = "maaned") %>%
   dplyr::left_join(., d_varighet_vt_kardiomyopati_pros, by = "maaned") %>% 
-  dplyr::arrange(desc(.data$maaned))
+  dplyr::arrange(desc(.data$maaned)) %>% 
+  dplyr::rename("Paroks." = "AFLI-ICD 48.0 Paroksymal atrieflimmer", 
+                "Persist." = "AFLI-ICD 48.1 Persisterende atrieflimmer", 
+                "Langtidsp." = "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer", 
+                "Uten" = "Uten kardiomyopati", 
+                "ICM" = "Iskemisk KM (ICM)", 
+                "DCM" ="Dilatert KM (DCM)", 
+                "Annen" = "Annen KM", 
+                "Ukjent" = "Ukjent om kardiomyopati")
 
 ```
 
@@ -857,10 +873,7 @@ knitr::kable(
                   html = "html"),
   align = c("l", rep("c", 8)),
   caption = cap,
-  booktabs = TRUE,
-  col.names = ablanor::string_pad(c("Måned",
-                                    "Paroks.", "Persist.", "Langtidsp.",
-                                    "Uten", "ICM", "DCM", "Annen", "Ukjent"))) %>%
+  booktabs = TRUE) %>%
   kableExtra::add_header_above(c(" " = 1,
                                  "AFLI - ICD" = 3,
                                  "VT - Kardiomyopati" = 5)) %>%
