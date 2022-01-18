@@ -326,12 +326,6 @@ server <- function(input, output, session) {
 
   # Abonnement
   subReports <- list(
-    Veiledning = list(
-      synopsis = "Startside til AblaNor på Rapporteket som testrapport",
-      fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgName"),
-      paramValues = c("veiledning", "html", "En testrapport", hospitalName)
-    ),
     "Månedlige resultater" = list(
       synopsis = "Månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
@@ -348,12 +342,6 @@ server <- function(input, output, session) {
 
   # Utsendelse
   disReports <- list(
-    Veiledning = list(
-      synopsis = "Startside til AblaNor på Rapporteket som testrapport",
-      fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title"),
-      paramValues = c("veiledning", "html", "En testrapport")
-    ),
     "Månedlige resultater" = list(
       synopsis = "AblaNor månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
