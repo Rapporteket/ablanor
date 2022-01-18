@@ -1,4 +1,7 @@
-#ablanor 1.0.1
+# ablanor 1.0.2
+Bugfix: Ikke abonnere på veiledning + Fikse header slik at html ser bra ut
+
+# ablanor 1.0.1
 Bugfix: Do not add listetekst-vars before download of pros_patient_followup
 
 # ablanor 1.0.0
