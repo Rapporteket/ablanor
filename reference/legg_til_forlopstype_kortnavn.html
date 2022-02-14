@@ -19,7 +19,7 @@ forbedre lesbarhet."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/a
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
       </span>
     </div>
 
@@ -57,7 +57,7 @@ forbedre lesbarhet.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">legg_til_forlopstype_kortnavn</span><span class="op">(</span><span class="va">df</span>, total <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">legg_til_forlopstype_kortnavn</span><span class="op">(</span><span class="va">df</span>, total <span class="op">=</span> <span class="cn">FALSE</span>, langtnavn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -66,7 +66,9 @@ forbedre lesbarhet.</p>
 <dd><p>prosedyredatasett som inkluderer forlopstype</p></dd>
 <dt>total</dt>
 <dd><p>bools, dersom FALSE har vi ikkje en rad med totalsum. Dersom
-TRUE har vi en rad med totalsum.
+TRUE har vi en rad med totalsum.</p></dd>
+<dt>langtnavn</dt>
+<dd><p>boolsk. Dersom TRUE bruker vi lang tekst (ikke forkortning)
 #'</p></dd>
 </dl></div>
     <div id="value">
@@ -78,7 +80,7 @@ som er en faktor med kortnavn for de ulike forløpstypene.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">legg_til_forlopstype_kortnavn</span><span class="op">(</span>df <span class="op">=</span> <span class="va">d_ablanor</span>, total <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu">legg_til_forlopstype_kortnavn</span><span class="op">(</span>df <span class="op">=</span> <span class="va">d_ablanor</span>, total <span class="op">=</span> <span class="cn">TRUE</span>, langtnavn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"><span class="op">}</span></span>
 </code></pre></div>
     </div>
