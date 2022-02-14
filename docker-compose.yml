@@ -22,6 +22,7 @@ services:
       - 8.8.8.8
     restart: "no"
     environment:
+      USERID: $USERID
       PASSWORD: password
       DB_HOST: db
       DB_USER: root
