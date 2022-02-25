@@ -1,3 +1,8 @@
+# ablanor 1.0.3
+* Nye versjoner av kvalitetsindikatorene. 
+* Legge indikatorene i utforsker for testing
+
+
 # ablanor 1.0.2
 Bugfix: Ikke abonnere på veiledning + Fikse header slik at html ser bra ut
 Ny parameter i legg_til_forlopstype_kortnavn
