@@ -29,7 +29,7 @@
 #'   verdien \emph{nei} dersom \code{indik_avbrudd_data} = \emph{ja} og
 #'   ingen avbrudd eller avbrudd av andre årsaker.
 #'  Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
-
+#'  }
 #'
 #' @param df data.frame med ablanor-data. Må inneholde ulike variabler for de
 #' ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
@@ -85,6 +85,14 @@ indik_tamponade <- function(df) {
 #' @rdname utlede_kvalitetsindikatorer
 #' @export
 indik_avbrudd <- function(df){
+
+
+  stopifnot(c("forlopstype",
+              "abla_strat_av_his",
+              "abla_strat_ingen",
+              "abla_strat_ingen_arsak") %in% names(df))
+
+
 
   df %>% dplyr::mutate(
     indik_avbrudd_data = ifelse(
