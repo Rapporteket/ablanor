@@ -17,6 +17,20 @@
 #'   og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 #' }
 #'
+#' \code{indik_avbrudd()}
+#' \itemize{
+#' \item nevneren \code{indik_avbrudd_data} (datagrunnlag) har
+#' verdien \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
+#' uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom pasienten er abladert
+#' (\code{abla_strat_ingen} er ikke manglende).
+#' \item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
+#'  \code{indik_avbrudd_data} = \emph{ja} og
+#'  \code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
+#'   verdien \emph{nei} dersom \code{indik_avbrudd_data} = \emph{ja} og
+#'   ingen avbrudd eller avbrudd av andre årsaker.
+#'  Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
+
+#'
 #' @param df data.frame med ablanor-data. Må inneholde ulike variabler for de
 #' ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
 #' \code{komp_tamp} for indikatoren "Komplikasjon tamponade for AFLI uten AV knuter" .
@@ -64,4 +78,38 @@ indik_tamponade <- function(df) {
 
         TRUE ~ NA_character_))
 
+}
+
+
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+indik_avbrudd <- function(df){
+
+  df %>% dplyr::mutate(
+    indik_avbrudd_data = ifelse(
+      test = (!is.na(.data$abla_strat_ingen) &
+                .data$forlopstype %in% 1 &
+                ! .data$abla_strat_av_his %in% 1),
+      yes = "ja",
+      no = "nei"),
+
+    indik_avbrudd = dplyr::case_when(
+
+      # dersom avbrudd på grunn av komplikasjoner blir det "ja"
+      .data$indik_avbrudd_data == "ja" &
+        .data$abla_strat_ingen == 1 &
+        .data$abla_strat_ingen_arsak %in% 4:5 ~ "ja",
+
+      # ingen avbrudd eller avbrudd av andre årsaker er "nei"
+      .data$indik_avbrudd_data == "ja" &
+        .data$abla_strat_ingen == 1 &
+        .data$abla_strat_ingen_arsak %in% c(1, 2, 3, 9) ~ "nei",
+
+      .data$indik_avbrudd_data == "ja" &
+        .data$abla_strat_ingen == 0 ~ "nei",
+
+      .data$indik_avbrudd_data == "nei" ~ NA_character_,
+
+      TRUE ~ NA_character_))
 }

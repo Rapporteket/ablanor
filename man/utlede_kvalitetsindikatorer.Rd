@@ -3,9 +3,12 @@
 \name{utlede_kvalitetsindikatorer}
 \alias{utlede_kvalitetsindikatorer}
 \alias{indik_tamponade}
+\alias{indik_avbrudd}
 \title{Kvalitetsindikatorer for AblaNor}
 \usage{
 indik_tamponade(df)
+
+indik_avbrudd(df)
 }
 \arguments{
 \item{df}{data.frame med ablanor-data. Må inneholde ulike variabler for de
@@ -16,20 +19,7 @@ ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
 Oppdaterte versjoner av kvalitetsindikatorer. I bruk fra og med våren 2022.
 }
 \details{
-For hver av kvalitetsindikatorene, legge til en variabel for datagrunnlag
-(suffix 'data') og en for indikatoren ja/nei.
 
-\code{indik_tamponade()}
-\itemize{
-\item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
-forløpstype er AFLI (\code{forlopstype} = 1)
-uten AV-knuter (\code{abla_strat_av_his} = 0).
-\item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
-\code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
-verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
-verdien \emph{manglende} dersom \code{komp_tamp} er manglende
-og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
-}
 }
 \examples{
  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
