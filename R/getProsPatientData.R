@@ -147,8 +147,10 @@ getProsPatientData <- function(registryName,
   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
 
-  # Indikator tamponade
-  d_ablanor %<>% ablanor::indik_tamponade(.)
+  # Indikator tamponade, indikator for avbrudd
+  d_ablanor %<>%
+    ablanor::indik_tamponade(.) %>%
+    ablanor::indik_avbrudd(.)
 
   d_ablanor %>% dplyr::arrange(.data$mceid)
 
