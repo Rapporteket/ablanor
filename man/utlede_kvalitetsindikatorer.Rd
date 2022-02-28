@@ -23,11 +23,11 @@ For hver av kvalitetsindikatorene, legge til en variabel for datagrunnlag
 \itemize{
 \item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
 forløpstype er AFLI (\code{forlopstype} = 1)
-uten AV-knuter (\code{abla_strat_av_his} = 0) og
-\code{komp_tamp} ikke er manglende.
+uten AV-knuter (\code{abla_strat_av_his} = 0).
 \item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
 \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
 verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
+verdien \emph{manglende} dersom \code{komp_tamp} er manglende
 og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 }
 }

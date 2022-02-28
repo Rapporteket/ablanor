@@ -9,11 +9,11 @@
 #' \itemize{
 #' \item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
 #' forløpstype er AFLI (\code{forlopstype} = 1)
-#' uten AV-knuter (\code{abla_strat_av_his} = 0) og
-#'  \code{komp_tamp} ikke er manglende.
+#' uten AV-knuter (\code{abla_strat_av_his} = 0).
 #' \item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
 #'  \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
 #'   verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
+#'  verdien \emph{manglende} dersom \code{komp_tamp} er manglende
 #'   og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 #' }
 #'
@@ -43,18 +43,25 @@ indik_tamponade <- function(df) {
     dplyr::mutate(
       indik_tamp_data = dplyr::if_else(
         condition = (.data$forlopstype %in% 1  &
-                       .data$abla_strat_av_his %in% 0 &
-                       !is.na(.data$komp_tamp)),
-
+                       .data$abla_strat_av_his %in% 0),
         true = "ja",
         false = "nei",
         missing = "nei"),
 
       indik_tamp = dplyr::case_when(
-        .data$indik_tamp_data %in% "ja" & .data$komp_tamp %in% 1 ~ "ja",
-        .data$indik_tamp_data %in% "ja" & .data$komp_tamp %in% 0 ~ "nei",
+        .data$indik_tamp_data %in% "ja" &
+          .data$komp_tamp %in% 1  &
+          !is.na(.data$komp_tamp) ~ "ja",
+
+        .data$indik_tamp_data %in% "ja" &
+          .data$komp_tamp %in% 0 &
+          !is.na(.data$komp_tamp) ~ "nei",
+
+        .data$indik_tamp_data %in% "ja" &
+          is.na(.data$komp_tamp) ~ "manglende",
+
         .data$indik_tamp_data %in% "nei" ~ NA_character_,
-        TRUE ~ NA_character_)
-    )
+
+        TRUE ~ NA_character_))
 
 }
