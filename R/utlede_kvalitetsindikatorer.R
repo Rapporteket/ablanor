@@ -47,6 +47,13 @@
 #'                   abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
 #'                   komp_tamp = c(rep(0, 6), 1, 1))
 #' ablanor::indik_tamponade(df = df)
+#'
+#'  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
+#'                   abla_strat_av_his = c(NA, 1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
+#'                   abla_strat_ingen = c(rep(0, 6), NA,  1, 1,1, 1, 0),
+#'                   abla_strat_ingen_arsak = c(rep(NA, 7), 1, 4,5, NA, NA))
+#'  ablanor::indik_avbrudd(df = df)
+
 NULL
 
 #' @rdname utlede_kvalitetsindikatorer
