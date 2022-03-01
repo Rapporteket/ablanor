@@ -22,6 +22,7 @@ Oppdaterte versjoner av kvalitetsindikatorer. I bruk fra og med våren 2022.
 For hver av kvalitetsindikatorene, legge til en variabel for datagrunnlag
 (suffix 'data') og en for indikatoren ja/nei.
 
+\strong{Tamponade i forbindelse med prosedyren}
 \code{indik_tamponade()}
 \itemize{
 \item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
@@ -30,10 +31,12 @@ uten AV-knuter (\code{abla_strat_av_his} = 0).
 \item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
 \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
 verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
-verdien \emph{manglende} dersom \code{komp_tamp} er manglende
-og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
+verdien \emph{manglende} dersom \code{indik_tamp_data} = \emph{ja} og
+\code{komp_tamp} er manglende,
+og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget (\code{indik_tamp_data} = \emph{nei}).
 }
 
+\strong{Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner}
 \code{indik_avbrudd()}
 \itemize{
 \item nevneren \code{indik_avbrudd_data} (datagrunnlag) har

@@ -5,6 +5,7 @@
 #' For hver av kvalitetsindikatorene, legge til en variabel for datagrunnlag
 #' (suffix 'data') og en for indikatoren ja/nei.
 #'
+#' __Tamponade i forbindelse med prosedyren__
 #' \code{indik_tamponade()}
 #' \itemize{
 #' \item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
@@ -13,10 +14,12 @@
 #' \item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
 #'  \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
 #'   verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
-#'  verdien \emph{manglende} dersom \code{komp_tamp} er manglende
-#'   og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
+#'  verdien \emph{manglende} dersom \code{indik_tamp_data} = \emph{ja} og
+#'   \code{komp_tamp} er manglende,
+#'   og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget (\code{indik_tamp_data} = \emph{nei}).
 #' }
 #'
+#' __Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner__
 #' \code{indik_avbrudd()}
 #' \itemize{
 #' \item nevneren \code{indik_avbrudd_data} (datagrunnlag) har
@@ -98,7 +101,7 @@ indik_avbrudd <- function(df){
     indik_avbrudd_data = ifelse(
       test = (!is.na(.data$abla_strat_ingen) &
                 .data$forlopstype %in% 1 &
-                ! .data$abla_strat_av_his %in% 1),
+                 .data$abla_strat_av_his %in% 0),
       yes = "ja",
       no = "nei"),
 
