@@ -34,13 +34,44 @@
 #'  Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 #'  }
 #'
+#' _Overlevelse 30 dager etter prosedyren__
+#' \code{indik_overlevelse30dg}
+#' \itemize{
+#'
+#' \item nevneren \code{indik_overlevelse30dg_data} (datagrunnlag) har verdien
+#' \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
+#' uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom tid til sensur er
+#' over 30 dager (\code{dager_pros_sensur_gyldig} = \emp{ja]}). Variabelen har
+#'  verdi \emph{nei} for andre forløpstyper, for kort sensur-tid. Dersom
+#'  flere enn et forløp (AFLI, uten AV knuter, med gyldig tid) i et 30-dagers
+#'  intervall, brukes kun nyeste forløp og alle eldre forløp har verdi
+#'  \code{indik_overlevelse_30dg} = \emp{nei}.
+#'
+#' \item telleren \code{indik_overlevelse30dg} har verdien \emph{ja} dersom
+#' pasienten er levende 30 dager etter prosedyren, var verdien \emph{nei}
+#' dersom pasienten er død 0-29 dager etter prosedyren.
+#' }
+#'
+#' \code{indik_overlevelse30dg} bruker hjelpe-funksjonen
+#' \code{utlede_dager_sensur} som lager to nye variabler
+#' \code{dager_pros_sensur} og \code{dager_pros_sensur_gyldig}.
+#' \code{indik_overlevelse30dg} inneholder antall dager fra proseyre til
+#' dødsdato for avdøde pasienter og antall dager fra proseydre til sensurdato
+#' (dato for nedlastet datadump) for levende pasienter.
+#' \code{indik_overlevelse30dg_gyldig} har verdien nei/manglende dersom for
+#' kort sensur-tid eller datoer er manglende.
+#'
 #' @param df data.frame med ablanor-data. Må inneholde ulike variabler for de
 #' ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
-#' \code{komp_tamp} for indikatoren "Komplikasjon tamponade for AFLI uten AV knuter" .
+#' \code{komp_tamp} for indikatoren "Komplikasjon tamponade for AFLI uten AV
+#' knuter" .
 #'
 #' @name utlede_kvalitetsindikatorer
 #' @aliases
 #' indik_tamponade
+#' indik_avbrudd
+#' utlede_dager_sensur
+#' indik_overlevelse30dg
 #'
 #' @examples
 #'  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
@@ -48,10 +79,10 @@
 #'                   komp_tamp = c(rep(0, 6), 1, 1))
 #' ablanor::indik_tamponade(df = df)
 #'
-#'  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
-#'                   abla_strat_av_his = c(NA, 1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
-#'                   abla_strat_ingen = c(rep(0, 6), NA,  1, 1,1, 1, 0),
-#'                   abla_strat_ingen_arsak = c(rep(NA, 7), 1, 4,5, NA, NA))
+#'  df <- data.frame(forlopstype = c(3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
+#'                   abla_strat_av_his = c(1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
+#'                   abla_strat_ingen = c(rep(0, 5), NA,  1, 1,1, 1, 0),
+#'                   abla_strat_ingen_arsak = c(rep(NA, 6), 1, 4,5, NA, NA))
 #'  ablanor::indik_avbrudd(df = df)
 
 NULL
@@ -108,7 +139,7 @@ indik_avbrudd <- function(df){
     indik_avbrudd_data = ifelse(
       test = (!is.na(.data$abla_strat_ingen) &
                 .data$forlopstype %in% 1 &
-                 .data$abla_strat_av_his %in% 0),
+                .data$abla_strat_av_his %in% 0),
       yes = "ja",
       no = "nei"),
 
@@ -131,3 +162,158 @@ indik_avbrudd <- function(df){
 
       TRUE ~ NA_character_))
 }
+
+
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+utlede_dager_sensur <- function(df, dato_sensur) {
+
+
+  stopifnot(c("dato_pros", "deceased", "deceased_date") %in% names(df))
+
+
+  df %>% dplyr::mutate(
+
+    # FOR ALLE: Antall dager mellom prosedyre og sensur/død
+    dager_pros_sensur = dplyr::case_when(
+      # For avdøde:
+      .data$deceased == 1 ~ as.numeric(difftime(deceased_date,
+                                                .data$dato_pros,
+                                                units = "days")),
+      # For levende
+      .data$deceased == 0 ~ as.numeric(difftime(dato_sensur,
+                                                .data$dato_pros,
+                                                units = "days")),
+      TRUE ~ NA_real_),
+
+
+    # FOR ALLE: er dager_pros_sensur gyldig (ja, nei, manglende) ?
+    dager_pros_sensur_gyldig = dplyr::case_when(
+
+      # alle døde, som har datoer, er med
+      .data$deceased == 1 &
+        !is.na(.data$dato_pros) &
+        !is.na(.data$deceased_date) ~ "ja",
+
+
+      # døde, som manger datoer, er ikke med
+      .data$deceased == 1 &
+        (is.na(.data$dato_pros) | is.na(.data$deceased_date)) ~ "manglende",
+
+
+      # levende med lang nok sensur er med
+      .data$deceased == 0 &
+        !is.na(.data$dato_pros) &
+        .data$dager_pros_sensur >= 30 ~ "ja",
+
+      # levende med for kort sensur er ikke med
+      .data$deceased == 0 &
+        !is.na(.data$dato_pros) &
+        .data$dager_pros_sensur < 30  ~ "nei",
+
+      # levende manglende dato for prosedyre er ikke med
+      .data$deceased == 0 &
+        is.na(.data$dato_pros) ~ "manglende",
+
+      TRUE ~ NA_character_))
+
+}
+
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+indik_overlevelse30dg <- function(df) {
+
+  stopifnot(c("forlopstype", "abla_strat_av_his",
+              "dager_pros_sensur", "dager_pros_sensur_gyldig",
+              "dato_pros", "deceased",
+              "patient_id") %in% names(df))
+
+
+  # Hjelpevariabel: Filter på riktig forløpstype
+  # (vi ser kun på 30-dagers intervall for disse)
+  df %>% dplyr::mutate(
+    utvalgt = case_when(
+      # Kun AFLI uten AV-knuter, med gyldig overlevelses-tid:
+      .data$forlopstype %in% 1 &
+        .data$abla_strat_av_his %in% 0 &
+        .data$dager_pros_sensur_gyldig %in% "ja" ~ "ja",
+      TRUE ~ "nei")) %>%
+
+
+
+    # Dager mellom forløpene, Kun dersom utvalgt er "ja" at dette er aktuelt
+    dplyr::group_by(.data$patient_id, .data$utvalgt) %>%
+    dplyr::arrange(.data$dato_pros) %>%
+    dplyr::mutate(
+
+      # Antall dager mellom forløpene, lead og lag
+      time.diff_lag = as.numeric(difftime(.data$dato_pros,
+                                          lag(.data$dato_pros),
+                                          unit = 'days')),
+      time.diff_lead = -1 * as.numeric(difftime(.data$dato_pros,
+                                                lead(.data$dato_pros),
+                                                unit = 'days')),
+
+      # For pasienter med >1 forløp innen et 30 dagers intervall,
+      # teller kun det SISTE forløpet:
+      indik_overlevelse30dg_data = dplyr::case_when(
+
+        # INGEN DOBLE FORLØP (Kun et forløp)
+        is.na(.data$time.diff_lead) &
+          is.na(.data$time.diff_lag) &
+          .data$utvalgt == "ja" ~ "ja",
+
+        # ENESTE FORLØP I INTERVALLET
+        (.data$time.diff_lag >= 31 | is.na(.data$time.diff_lag)  ) &
+          (.data$time.diff_lead >= 31 | is.na(.data$time.diff_lead)) &
+          .data$utvalgt == "ja" ~ "ja",
+
+        # FLERE FORLØP, DETTE ER DET SISTE
+        (.data$time.diff_lead >= 31 |is.na(.data$time.diff_lead)) &
+          .data$time.diff_lag < 31 &
+          .data$utvalgt == "ja" ~ "ja",
+
+        # FLERE FORLØP, DETTE ER IKKE DET SISTE
+        .data$time.diff_lead < 31 &
+          .data$utvalgt == "ja" ~ "nei",
+
+        # IKKE I DATAGRUNNLAGET
+        .data$utvalgt == "nei" ~ "nei",
+
+        TRUE ~ NA_character_ )) %>%
+    dplyr::ungroup() %>%
+
+
+    # Indikator ja/nei
+    dplyr::mutate(
+      indik_overlevelse30dg  = factor(
+        x = case_when(
+          #ikke død
+          indik_overlevelse30dg_data == "ja" &
+            deceased == 0 ~ "ja",
+
+          #død etter 30 dager
+          indik_overlevelse30dg_data == "ja" &
+            deceased == 1 &
+            dager_pros_sensur >= 30 ~ "ja",
+
+          # død 0-29 dager
+          indik_overlevelse30dg_data == "ja" &
+            deceased == 1 &
+            dager_pros_sensur < 30 ~ "nei",
+
+          #ikke i datagrunnlaget
+          indik_overlevelse30dg_data == "nei" ~ NA_character_),
+
+        levels = c("ja", "nei"),
+        labels = c("ja", "nei"),
+        ordered = TRUE)) %>%
+
+    dplyr::select(- data$utvalgt, .data$time.diff_lag, .data$time.diff_lead)
+
+}
+
+
+
