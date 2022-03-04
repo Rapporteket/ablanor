@@ -34,18 +34,18 @@
 #'  Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 #'  }
 #'
-#' _Overlevelse 30 dager etter prosedyren__
+#' __Overlevelse 30 dager etter prosedyren__
 #' \code{indik_overlevelse30dg}
 #' \itemize{
 #'
 #' \item nevneren \code{indik_overlevelse30dg_data} (datagrunnlag) har verdien
 #' \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
 #' uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom tid til sensur er
-#' over 30 dager (\code{dager_pros_sensur_gyldig} = \emp{ja]}). Variabelen har
+#' over 30 dager (\code{dager_pros_sensur_gyldig} = \emph{ja]}). Variabelen har
 #'  verdi \emph{nei} for andre forløpstyper, for kort sensur-tid. Dersom
 #'  flere enn et forløp (AFLI, uten AV knuter, med gyldig tid) i et 30-dagers
 #'  intervall, brukes kun nyeste forløp og alle eldre forløp har verdi
-#'  \code{indik_overlevelse_30dg} = \emp{nei}.
+#'  \code{indik_overlevelse_30dg} = \emph{nei}.
 #'
 #' \item telleren \code{indik_overlevelse30dg} har verdien \emph{ja} dersom
 #' pasienten er levende 30 dager etter prosedyren, var verdien \emph{nei}
@@ -61,6 +61,25 @@
 #' \code{indik_overlevelse30dg_gyldig} har verdien nei/manglende dersom for
 #' kort sensur-tid eller datoer er manglende.
 #'
+#' __Klinisk effekt 12 måneder etter prosedyren__
+#' \code{indik_prom_klineff}
+#' \itemize{
+#'
+#' \item nevneren \code{indik_prom_klineff_data} (datagrunnlag) har verdien
+#' \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
+#' uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom  oppfølgingsskjema
+#' er utfylt. Variabelen har
+#'  verdi \emph{nei} for andre forløpstyper eller manglende oppfølging.
+#'
+#' \item telleren \code{indik_prom_klineff} har verdien \emph{ja} dersom
+#' pasienten har svart \emph{Helt bra}, \emph{Mye bedre} eller \emph{Bedre}
+#' sammenlignet med før prosedyre. Variabelen har verdien  \emph{nei} dersom
+#' pasienten svarer \emph{Uforandret} eller \emph{Verre}. Variabelen har verdien
+#' \emph{manglende} dersom oppfølgingsskjemaet er fylt ut, men spørsmålet om
+#' klinisk effekt er ubesvart.
+#' }
+#'
+#'
 #' @param df data.frame med ablanor-data. Må inneholde ulike variabler for de
 #' ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
 #' \code{komp_tamp} for indikatoren "Komplikasjon tamponade for AFLI uten AV
@@ -72,6 +91,7 @@
 #' indik_avbrudd
 #' utlede_dager_sensur
 #' indik_overlevelse30dg
+#' indik_prom_klineff
 #'
 #' @examples
 #'  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
@@ -314,6 +334,41 @@ indik_overlevelse30dg <- function(df) {
     dplyr::select(- data$utvalgt, .data$time.diff_lag, .data$time.diff_lead)
 
 }
+
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+indik_prom_klineff <- function(df){
+
+
+  stopifnot(c("forlopstype",
+              "abla_strat_av_his",
+              "followup_status",
+              "q2") %in% names(df))
+
+
+
+  df %>% dplyr::mutate(
+
+    # INDIKATOR: OPPFØLGING ETTER 12 MND
+    # klinisk forbedring, kun AFLI uten HIS
+    indik_prom_klineff_data = dplyr::if_else(
+      condition = (.data$followup_status %in% c(-1, 0, 1) &
+                     .data$forlopstype %in% 1 &
+                     .data$abla_strat_av_his %in% 0),
+      true = "ja",
+      false = "nei",
+      missing = "nei"),
+
+    indik_prom_klineff = case_when(
+      .data$indik_prom_klineff_data == "ja" & .data$q2 %in% 1:3 ~"ja",
+      .data$indik_prom_klineff_data == "ja" & .data$q2 %in% 4:5 ~ "nei",
+      .data$indik_prom_klineff_data == "ja" & is.na(.data$q2) ~ "manglende",
+      .data$indik_prom_klineff_data == "nei" ~ NA_character_,
+      TRUE ~ NA_character_))
+
+}
+
 
 
 

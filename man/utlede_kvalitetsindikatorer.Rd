@@ -6,6 +6,7 @@
 \alias{indik_avbrudd}
 \alias{utlede_dager_sensur}
 \alias{indik_overlevelse30dg}
+\alias{indik_prom_klineff}
 \title{Kvalitetsindikatorer for AblaNor}
 \usage{
 indik_tamponade(df)
@@ -15,6 +16,8 @@ indik_avbrudd(df)
 utlede_dager_sensur(df, dato_sensur)
 
 indik_overlevelse30dg(df)
+
+indik_prom_klineff(df)
 }
 \arguments{
 \item{df}{data.frame med ablanor-data. Må inneholde ulike variabler for de
@@ -65,11 +68,11 @@ Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 \item nevneren \code{indik_overlevelse30dg_data} (datagrunnlag) har verdien
 \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
 uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom tid til sensur er
-over 30 dager (\code{dager_pros_sensur_gyldig} = \emp{ja]}). Variabelen har
+over 30 dager (\code{dager_pros_sensur_gyldig} = \emph{ja]}). Variabelen har
 verdi \emph{nei} for andre forløpstyper, for kort sensur-tid. Dersom
 flere enn et forløp (AFLI, uten AV knuter, med gyldig tid) i et 30-dagers
 intervall, brukes kun nyeste forløp og alle eldre forløp har verdi
-\code{indik_overlevelse_30dg} = \emp{nei}.
+\code{indik_overlevelse_30dg} = \emph{nei}.
 
 \item telleren \code{indik_overlevelse30dg} har verdien \emph{ja} dersom
 pasienten er levende 30 dager etter prosedyren, var verdien \emph{nei}
@@ -84,6 +87,24 @@ dødsdato for avdøde pasienter og antall dager fra proseydre til sensurdato
 (dato for nedlastet datadump) for levende pasienter.
 \code{indik_overlevelse30dg_gyldig} har verdien nei/manglende dersom for
 kort sensur-tid eller datoer er manglende.
+
+\strong{Klinisk effekt 12 måneder etter prosedyren}
+\code{indik_prom_klineff}
+\itemize{
+
+\item nevneren \code{indik_prom_klineff_data} (datagrunnlag) har verdien
+\emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
+uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom  oppfølgingsskjema
+er utfylt. Variabelen har
+verdi \emph{nei} for andre forløpstyper eller manglende oppfølging.
+
+\item telleren \code{indik_prom_klineff} har verdien \emph{ja} dersom
+pasienten har svart \emph{Helt bra}, \emph{Mye bedre} eller \emph{Bedre}
+sammenlignet med før prosedyre. Variabelen har verdien  \emph{nei} dersom
+pasienten svarer \emph{Uforandret} eller \emph{Verre}. Variabelen har verdien
+\emph{manglende} dersom oppfølginsskjemaet er fylt ut, men spørsmål om
+klinisk effekt er ubesvart.
+}
 }
 \examples{
  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
