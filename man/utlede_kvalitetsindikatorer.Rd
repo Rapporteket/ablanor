@@ -7,6 +7,7 @@
 \alias{utlede_dager_sensur}
 \alias{indik_overlevelse30dg}
 \alias{indik_prom_klineff}
+\alias{indik_pacemaker}
 \title{Kvalitetsindikatorer for AblaNor}
 \usage{
 indik_tamponade(df)
@@ -18,6 +19,8 @@ utlede_dager_sensur(df, dato_sensur)
 indik_overlevelse30dg(df)
 
 indik_prom_klineff(df)
+
+indik_pacemaker(df)
 }
 \arguments{
 \item{df}{data.frame med ablanor-data. Må inneholde ulike variabler for de
@@ -61,7 +64,7 @@ ingen avbrudd eller avbrudd av andre årsaker.
 Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
 }
 
-\emph{Overlevelse 30 dager etter prosedyren}_
+\strong{Overlevelse 30 dager etter prosedyren}
 \code{indik_overlevelse30dg}
 \itemize{
 
@@ -102,8 +105,23 @@ verdi \emph{nei} for andre forløpstyper eller manglende oppfølging.
 pasienten har svart \emph{Helt bra}, \emph{Mye bedre} eller \emph{Bedre}
 sammenlignet med før prosedyre. Variabelen har verdien  \emph{nei} dersom
 pasienten svarer \emph{Uforandret} eller \emph{Verre}. Variabelen har verdien
-\emph{manglende} dersom oppfølginsskjemaet er fylt ut, men spørsmål om
+\emph{manglende} dersom oppfølgingsskjemaet er fylt ut, men spørsmålet om
 klinisk effekt er ubesvart.
+}
+
+\strong{Behov for pacemaker}
+\code{indik_pacemaker}
+\itemize{
+
+\item nevneren \code{indik_pacemaker_data} (datagrunnlag) har verdien
+\emph{ja} dersom forløpstype er SVT (\code{forlopstype} = 3)
+uten AV-knuter (\code{abla_strat_av_his} = 0). Variabelen har
+verdi \emph{nei} for andre forløpstyper.
+
+\item telleren \code{indik_pacemaker} har verdien \emph{ja} dersom
+pasienten har hatt komplikasjon AV-blokk etterfulgt av innsetting av
+pacemaker (\code{komp_avblokk_pm} = 1). Variabelen har verdien  \emph{nei}
+eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
 }
 }
 \examples{
@@ -117,4 +135,16 @@ ablanor::indik_tamponade(df = df)
                   abla_strat_ingen = c(rep(0, 5), NA,  1, 1,1, 1, 0),
                   abla_strat_ingen_arsak = c(rep(NA, 6), 1, 4,5, NA, NA))
  ablanor::indik_avbrudd(df = df)
+
+df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
+                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+                  followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
+                  q2 = c(NA, NA, NA, 1:5))
+ablanor::indik_prom_klineff(df = df)
+
+
+df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 3, 3, 3),
+                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+                  komp_avblokk_pm = c(NA, NA, NA, 0, 1, 0, 1, 0))
+ablanor::indik_pacemaker(df = df)
 }

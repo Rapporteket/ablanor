@@ -79,6 +79,21 @@
 #' klinisk effekt er ubesvart.
 #' }
 #'
+#' __Behov for pacemaker__
+#' \code{indik_pacemaker}
+#' \itemize{
+#'
+#' \item nevneren \code{indik_pacemaker_data} (datagrunnlag) har verdien
+#' \emph{ja} dersom forløpstype er SVT (\code{forlopstype} = 3)
+#' uten AV-knuter (\code{abla_strat_av_his} = 0). Variabelen har
+#'  verdi \emph{nei} for andre forløpstyper.
+#'
+#' \item telleren \code{indik_pacemaker} har verdien \emph{ja} dersom
+#' pasienten har hatt komplikasjon AV-blokk etterfulgt av innsetting av
+#' pacemaker (\code{komp_avblokk_pm} = 1). Variabelen har verdien  \emph{nei}
+#' eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
+#' }
+#'
 #'
 #' @param df data.frame med ablanor-data. Må inneholde ulike variabler for de
 #' ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
@@ -92,6 +107,7 @@
 #' utlede_dager_sensur
 #' indik_overlevelse30dg
 #' indik_prom_klineff
+#' indik_pacemaker
 #'
 #' @examples
 #'  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
@@ -104,6 +120,20 @@
 #'                   abla_strat_ingen = c(rep(0, 5), NA,  1, 1,1, 1, 0),
 #'                   abla_strat_ingen_arsak = c(rep(NA, 6), 1, 4,5, NA, NA))
 #'  ablanor::indik_avbrudd(df = df)
+#'
+#' df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
+#'                   abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+#'                   followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
+#'                   q2 = c(NA, NA, NA, 1:5))
+#' ablanor::indik_prom_klineff(df = df)
+#'
+#'
+#' df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 3, 3, 3),
+#'                   abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+#'                   komp_avblokk_pm = c(NA, NA, NA, 0, 1, 0, 1, 0))
+#' ablanor::indik_pacemaker(df = df)
+
+
 
 NULL
 
@@ -370,5 +400,39 @@ indik_prom_klineff <- function(df){
 }
 
 
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+indik_pacemaker <- function(df){
+
+  stopifnot(c("forlopstype",
+              "abla_strat_av_his",
+              "komp_avblokk_pm") %in% names(df))
+
+
+
+  df %>% dplyr::mutate(
+    indik_pacemaker_data = ifelse(
+      test = (.data$forlopstype %in% 3 &
+                .data$abla_strat_av_his %in% 0),
+      yes = "ja",
+      no = "nei"),
+
+    indik_pacemaker = dplyr::case_when(
+
+      .data$indik_pacemaker_data == "ja" &
+        .data$komp_avblokk_pm %in% 1  ~ "ja",
+
+      .data$indik_pacemaker_data == "ja" &
+        .data$komp_avblokk_pm %in% 0  ~ "nei",
+
+      .data$indik_pacemaker_data == "ja" &
+        is.na(.data$komp_avblokk_pm) ~ "manglende",
+
+      .data$indik_pacemaker_data == "nei" ~ NA_character_,
+
+      TRUE ~ NA_character_))
+
+}
 
 
