@@ -143,17 +143,20 @@ og verdien \emph{manglende} dersom \code{akutt_suksess} mangler.
 }
 }
 \examples{
+# TAMPONADE
  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
                   abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
                   komp_tamp = c(rep(0, 6), 1, 1))
 ablanor::indik_tamponade(df = df)
 
+# AVBRUDD
  df <- data.frame(forlopstype = c(3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
                   abla_strat_av_his = c(1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
                   abla_strat_ingen = c(rep(0, 5), NA,  1, 1,1, 1, 0),
                   abla_strat_ingen_arsak = c(rep(NA, 6), 1, 4,5, NA, NA))
  ablanor::indik_avbrudd(df = df)
 
+# KLINISK EFFEKT
 df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
                   abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
                   followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
@@ -161,8 +164,33 @@ df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
 ablanor::indik_prom_klineff(df = df)
 
 
+#PACEMAKERBEHOV
 df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 3, 3, 3),
                   abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
                   komp_avblokk_pm = c(NA, NA, NA, 0, 1, 0, 1, 0))
 ablanor::indik_pacemaker(df = df)
+
+# AKUTT SUKSESS
+df <- data.frame(
+   abla_strat_ingen = c(1, NA, rep(0, 18)),
+   abla_strat_av_his = c(0, 0, 1, NA,  rep(0, 16)),
+   forlopstype = c(rep(1, 4), NA, rep(1, 5), rep(2, 3), rep(3, 6), 4),
+   aryt_i47_1_underkat = c(rep(NA, 13), NA, 1:5, NA),
+   akutt_suksess = c(rep(NA, 5), NA, 9, 0, 1, 2, 0:2, 0:2, 0:2 , 1))
+ablanor::indik_akuttsuksess(df)
+
+# OVERLEVELSE
+data.frame(
+    patient_id = rep(1, 3),
+    forlopstype = rep(1, 3),
+    abla_strat_av_his = rep(0, 3),
+    dato_pros = as.Date(c(rep("2020-10-15",2),"2021-10-15"),
+                        format = "\%Y-\%m-\%d"),
+    deceased = c(0, 1, 0),
+    deceased_date = as.Date(c(NA, "2020-10-18", NA),
+                        format = "\%Y-\%m-\%d")) \%>\%
+ablanor::utlede_dager_sensur(
+    df=.,
+    dato_sensur = as.Date("2021-10-20", format = "\%Y-\%m-\%d")) \%>\%
+ablanor::indik_overlevelse30dg()
 }
