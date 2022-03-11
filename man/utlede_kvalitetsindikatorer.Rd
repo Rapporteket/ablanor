@@ -8,6 +8,7 @@
 \alias{indik_overlevelse30dg}
 \alias{indik_prom_klineff}
 \alias{indik_pacemaker}
+\alias{indik_akuttsuksess}
 \title{Kvalitetsindikatorer for AblaNor}
 \usage{
 indik_tamponade(df)
@@ -21,6 +22,8 @@ indik_overlevelse30dg(df)
 indik_prom_klineff(df)
 
 indik_pacemaker(df)
+
+indik_akuttsuksess(df)
 }
 \arguments{
 \item{df}{data.frame med ablanor-data. Må inneholde ulike variabler for de
@@ -53,9 +56,7 @@ og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget (\code{indik_tamp
 \code{indik_avbrudd()}
 \itemize{
 \item nevneren \code{indik_avbrudd_data} (datagrunnlag) har
-verdien \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
-uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom pasienten er abladert
-(\code{abla_strat_ingen} er ikke manglende).
+verdien \emph{ja} dersom forløpstype ikke er manglende.
 \item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
 \code{indik_avbrudd_data} = \emph{ja} og
 \code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
@@ -122,6 +123,22 @@ verdi \emph{nei} for andre forløpstyper.
 pasienten har hatt komplikasjon AV-blokk etterfulgt av innsetting av
 pacemaker (\code{komp_avblokk_pm} = 1). Variabelen har verdien  \emph{nei}
 eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
+}
+
+\strong{Vellykket prosedyre (akutt suksess)}
+\code{indik_akuttsuksess}
+\itemize{
+
+\item nevneren \code{indik_akuttsuksess_data} (datagrunnlag) har verdiene
+\emph{AFLI}, \emph{VT}, \emph{AVRT} eller \emph{AVNRT} avhenging av
+forløpstype (forlopstype og aryt_i47_1_underkat) og kun dersom pasienten er
+abladert (\code{abla_strat_ingen} =0) og uten AV-knuter
+(\code{abla_strat_av_his} = 0).  Variabelen har
+verdi \emph{nei} for andre forløpstyper, ikke abladert, eller AV-knuter.
+
+\item telleren \code{indik_akuttsuksess} har verdien \emph{ja} dersom
+\code{akutt_suksess} = 1.
+Variabelen har verdien  \emph{nei} dersom \code{akutt_suksess} = 0 eller 2.
 }
 }
 \examples{

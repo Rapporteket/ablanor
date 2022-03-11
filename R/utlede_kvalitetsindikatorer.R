@@ -23,9 +23,7 @@
 #' \code{indik_avbrudd()}
 #' \itemize{
 #' \item nevneren \code{indik_avbrudd_data} (datagrunnlag) har
-#' verdien \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
-#' uten AV-knuter (\code{abla_strat_av_his} = 0) og dersom pasienten er abladert
-#' (\code{abla_strat_ingen} er ikke manglende).
+#' verdien \emph{ja} dersom forløpstype ikke er manglende.
 #' \item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
 #'  \code{indik_avbrudd_data} = \emph{ja} og
 #'  \code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
@@ -94,6 +92,23 @@
 #' eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
 #' }
 #'
+#' __Vellykket prosedyre (akutt suksess)__
+#' \code{indik_akuttsuksess}
+#' \itemize{
+#'
+#' \item nevneren \code{indik_akuttsuksess_data} (datagrunnlag) har verdiene
+#' \emph{AFLI}, \emph{VT}, \emph{AVRT} eller \emph{AVNRT} avhenging av
+#' forløpstype (forlopstype og aryt_i47_1_underkat) og kun dersom pasienten er
+#' abladert (\code{abla_strat_ingen} =0) og uten AV-knuter
+#' (\code{abla_strat_av_his} = 0).  Variabelen har
+#'  verdi \emph{nei} for andre forløpstyper, ikke abladert, eller AV-knuter.
+#'
+#' \item telleren \code{indik_akuttsuksess} har verdien \emph{ja} dersom
+#' \code{akutt_suksess} = 1.
+#'  Variabelen har verdien  \emph{nei} dersom \code{akutt_suksess} = 0 eller 2,
+#'  og verdien \emph{manglende} dersom \code{akutt_suksess} mangler.
+#' }
+#'
 #'
 #' @param df data.frame med ablanor-data. Må inneholde ulike variabler for de
 #' ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
@@ -108,6 +123,7 @@
 #' indik_overlevelse30dg
 #' indik_prom_klineff
 #' indik_pacemaker
+#' indik_akuttsuksess
 #'
 #' @examples
 #'  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
@@ -435,4 +451,76 @@ indik_pacemaker <- function(df){
 
 }
 
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+indik_akuttsuksess <- function(df){
+
+  stopifnot(all(c("forlopstype",
+                  "abla_strat_av_his",
+                  "abla_strat_ingen",
+                  "aryt_i47_1_underkat",
+                  "akutt_suksess") %in% names(df)))
+
+
+  df %>% dplyr::mutate(
+
+    indik_akuttsuksess_data = factor(
+      x = dplyr::case_when(
+
+        # datagrunnlag: abladerte, AFLI
+        .data$abla_strat_ingen %in% 0 &
+          .data$abla_strat_av_his %in% 0 &
+          .data$forlopstype %in% 1 ~ "AFLI",
+
+
+        # datagrunnlag: abladerte, VT
+        .data$abla_strat_ingen %in% 0 &
+          .data$abla_strat_av_his %in% 0 &
+          .data$forlopstype %in% 2 ~ "VT",
+
+
+        # datagrunnlag: abladerte, SVT - AVRT
+        .data$abla_strat_ingen %in% 0 &
+          .data$abla_strat_av_his %in% 0 &
+          .data$forlopstype %in% 3 &
+          .data$aryt_i47_1_underkat %in% 4 ~ "AVRT",
+
+        # datagrunnlag: abladerte, SVT - AVNRT
+        .data$abla_strat_ingen %in% 0 &
+          .data$abla_strat_av_his %in% 0 &
+          .data$forlopstype %in% 3 &
+          .data$aryt_i47_1_underkat %in% 1:2 ~ "AVNRT",
+
+        TRUE ~ "nei"),
+      levels = c("AFLI",
+                 "VT",
+                 "AVRT",
+                 "AVNRT",
+                 "nei"),
+      labels = c("AFLI",
+                 "VT",
+                 "AVRT",
+                 "AVNRT",
+                 "nei"),
+      ordered =TRUE),
+
+
+
+    indik_akuttsuksess = dplyr::case_when(
+      ! .data$indik_akuttsuksess_data %in% "nei" &
+        .data$akutt_suksess %in% 1 ~ "ja",
+
+      ! .data$indik_akuttsuksess_data %in% "nei" &
+        .data$akutt_suksess %in% c(0, 2) ~ "nei",
+
+      ! .data$indik_akuttsuksess_data %in% "nei" &
+        (is.na(.data$akutt_suksess) |
+           ! .data$akutt_suksess %in% c(0, 2) ) ~ "manglende",
+
+      .data$indik_akuttsuksess_data %in% "nei"  ~ NA_character_,
+      TRUE ~ NA_character_)
+
+  )
+}
 

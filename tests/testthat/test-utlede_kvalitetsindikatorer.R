@@ -146,3 +146,116 @@ test_that("KI-AVBRUDD wokrs", {
 
 })
 
+
+# Test indikator: AKutt suksess  ----
+testthat::test_that("KI: Akutt suksess fungerer", {
+  df <- data.frame(
+    abla_strat_ingen = c(1, NA, rep(0, 18)),
+    abla_strat_av_his = c(0, 0, 1, NA,  rep(0, 16)),
+    forlopstype = c(rep(1, 4), NA, rep(1, 5), rep(2, 3), rep(3, 6), 4),
+    aryt_i47_1_underkat = c(rep(NA, 13), NA, 1:5, NA),
+    akutt_suksess = c(rep(NA, 5), NA, 9, 0, 1, 2, 0:2, 0:2, 0:2 , 1)
+  )
+
+
+  df_out <- ablanor::indik_akuttsuksess(df)
+
+  # Forventer ikke i datagrunnlag
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$abla_strat_ingen %in% 0) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$abla_strat_av_his %in% 0) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(is.na(.data$forlopstype),
+                    !.data$forlopstype %in% 1:3) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype %in% 3,
+                    !.data$aryt_i47_1_underkat %in% c(1, 2, 4)) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "nei"))
+
+  # Forventer i datagrunnlaget
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$abla_strat_ingen %in% 0,
+                    .data$abla_strat_av_his %in% 0,
+                    .data$forlopstype %in% 1) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "AFLI"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$abla_strat_ingen %in% 0,
+                    .data$abla_strat_av_his %in% 0,
+                    .data$forlopstype %in% 2) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "VT"))
+
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$abla_strat_ingen %in% 0,
+                    .data$abla_strat_av_his %in% 0,
+                    .data$forlopstype %in% 3,
+                    .data$aryt_i47_1_underkat %in% c(1, 2)) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "AVNRT"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$abla_strat_ingen %in% 0,
+                    .data$abla_strat_av_his %in% 0,
+                    .data$forlopstype %in% 3,
+                    .data$aryt_i47_1_underkat %in% 4) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) == "AVRT"))
+
+  # Forventer disse niv?ene (ingen NA)
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::count(.data$indik_akuttsuksess_data) %>%
+      dplyr::pull(.data$indik_akuttsuksess_data) %>%
+      as.character() ==
+    c("AFLI","VT", "AVRT", "AVNRT", "nei")))
+
+  # Forventer at dersom ikke i datagrunnlaget er alle NA
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_akuttsuksess_data %in% "nei") %>%
+      dplyr::pull(.data$indik_akuttsuksess) %>%
+      is.na()))
+
+  # Forventet utkomme dersom i datagrunnlaget
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$indik_akuttsuksess_data %in% "nei",
+                    (is.na(.data$akutt_suksess) |
+                       !.data$akutt_suksess %in% 0:2)) %>%
+      dplyr::pull(.data$indik_akuttsuksess) == "manglende"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$indik_akuttsuksess_data %in% "nei",
+                    .data$akutt_suksess %in% c(0, 2)) %>%
+      dplyr::pull(.data$indik_akuttsuksess) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$indik_akuttsuksess_data %in% "nei",
+                    .data$akutt_suksess %in% 1) %>%
+      dplyr::pull(.data$indik_akuttsuksess) == "ja"))
+
+
+  # Forventer feilmelding
+  testthat::expect_error(
+    ablanor::indik_akuttsuksess(df = data.frame(forlopstpe = 1,
+                                                abla_strat_av_his = 0,
+                                                akutt_suksess = NA))
+  )
+})
+
