@@ -138,7 +138,8 @@ verdi \emph{nei} for andre forløpstyper, ikke abladert, eller AV-knuter.
 
 \item telleren \code{indik_akuttsuksess} har verdien \emph{ja} dersom
 \code{akutt_suksess} = 1.
-Variabelen har verdien  \emph{nei} dersom \code{akutt_suksess} = 0 eller 2.
+Variabelen har verdien  \emph{nei} dersom \code{akutt_suksess} = 0 eller 2,
+og verdien \emph{manglende} dersom \code{akutt_suksess} mangler.
 }
 }
 \examples{

@@ -406,7 +406,7 @@ indik_prom_klineff <- function(df){
       false = "nei",
       missing = "nei"),
 
-    indik_prom_klineff = case_when(
+    indik_prom_klineff = dplyr::case_when(
       .data$indik_prom_klineff_data == "ja" & .data$q2 %in% 1:3 ~"ja",
       .data$indik_prom_klineff_data == "ja" & .data$q2 %in% 4:5 ~ "nei",
       .data$indik_prom_klineff_data == "ja" & is.na(.data$q2) ~ "manglende",

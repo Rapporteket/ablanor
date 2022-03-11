@@ -147,6 +147,157 @@ test_that("KI-AVBRUDD wokrs", {
 })
 
 
+# Test indikator: klinisk effekt 12mnd etter -----
+testthat::test_that("KI: Klinisk effekt fungerer", {
+  df <- data.frame(
+    forlopstype = c(2, 3, 4, 5, NA, rep(1, 10)),
+    abla_strat_av_his = c(rep(0, 5), 1, rep(0, 9)),
+    followup_status = c(rep(1, 6), NA, 0, -1, rep(1, 6)),
+    q2 = c(rep(4, 6), NA, 1, NA, 1:5, 3)
+  )
+
+  df_out <- ablanor::indik_prom_klineff(df)
+
+  # Forventer ikke i datagrunnlag
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$forlopstype %in% 1) %>%
+      dplyr::pull(.data$indik_prom_klineff_data) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$abla_strat_av_his %in% 0) %>%
+      dplyr::pull(.data$indik_prom_klineff_data) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(is.na(.data$followup_status)) %>%
+      dplyr::pull(.data$indik_prom_klineff_data) == "nei"))
+
+
+  # Forventer i datagrunnlaget
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!is.na(.data$followup_status),
+                    .data$abla_strat_av_his %in% 0,
+                    .data$forlopstype %in% 1) %>%
+      dplyr::pull(.data$indik_prom_klineff_data) == "ja"))
+
+  # Forventer at alle er enten ja eller nei (ingen NA)
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::count(.data$indik_prom_klineff_data) %>%
+      dplyr::pull(.data$indik_prom_klineff_data),
+    c("ja", "nei"))
+
+  # Forventer at dersom ikke i datagrunnlaget er alle NA
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_prom_klineff_data %in% "nei") %>%
+      dplyr::pull(.data$indik_prom_klineff) %>%
+      is.na()))
+
+  # Forventet utkomme dersom i datagrunnlaget
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_prom_klineff_data %in% "ja",
+                    is.na(.data$q2)) %>%
+      dplyr::pull(.data$indik_prom_klineff) == "manglende"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_prom_klineff_data %in% "ja",
+                    .data$q2 %in% 1:3) %>%
+      dplyr::pull(.data$indik_prom_klineff) == "ja"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_prom_klineff_data %in% "ja",
+                    .data$q2 %in% 4:5) %>%
+      dplyr::pull(.data$indik_prom_klineff) == "nei"))
+
+
+  # Forventer feilmelding
+  testthat::expect_error(
+    ablanor::indik_prom_klineff(df = data.frame(forlopstpe = 1,
+                                                abla_strat_av_his = 0,
+                                                followup_status = NA))
+  )
+})
+
+
+
+# Test indikator: Pacemakerbehov
+testthat::test_that("KI: pacemakerbehov fungerer", {
+
+  df <- data.frame(
+    forlopstype = c(1, 2, 4, 9, NA, rep(3, 5)),
+    abla_strat_av_his = c(rep(0, 5), 1, NA, rep(0, 3)),
+    komp_avblokk_pm = c(rep(1, 7), NA, 0, 1)
+  )
+
+  df_out <- ablanor::indik_pacemaker(df)
+
+  # Forventer ikke i datagrunnlaget
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$forlopstype %in% 3) %>%
+      dplyr::pull(.data$indik_pacemaker_data) == "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!.data$abla_strat_av_his %in% 0) %>%
+      dplyr::pull(.data$indik_pacemaker_data) == "nei"))
+
+
+  # Forventer i datagrunnlaget
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$abla_strat_av_his %in% 0,
+                    .data$forlopstype %in% 3) %>%
+      dplyr::pull(.data$indik_pacemaker_data) == "ja"))
+
+  # Forventer disse verdiene i datagrunnlaget
+  testthat::expect_equal(
+    df_out %>%
+      dplyr::count(.data$indik_pacemaker_data) %>%
+      dplyr::pull(.data$indik_pacemaker_data),
+    c("ja", "nei"))
+
+  # Forventer NA for alle dersom NEI
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_pacemaker_data == "nei") %>%
+      dplyr::pull(.data$indik_pacemaker) %>% is.na()))
+
+  # Forventede verdier dersom JA
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_pacemaker_data == "ja",
+                    .data$komp_avblokk_pm %in% 0) %>%
+      dplyr::pull(.data$indik_pacemaker)== "nei"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_pacemaker_data == "ja",
+                    .data$komp_avblokk_pm %in% 1) %>%
+      dplyr::pull(.data$indik_pacemaker)== "ja"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$indik_pacemaker_data == "ja",
+                    is.na(.data$komp_avblokk_pm)) %>%
+      dplyr::pull(.data$indik_pacemaker) == "manglende"))
+
+  # Forventer feilmelding
+  testthat::expect_error(
+    ablanor::indik_pacemaker(
+      df = data.frame(tullevariabel_med_feil_navn = 1)))
+
+
+})
+
+
 # Test indikator: AKutt suksess  ----
 testthat::test_that("KI: Akutt suksess fungerer", {
   df <- data.frame(
@@ -258,4 +409,8 @@ testthat::test_that("KI: Akutt suksess fungerer", {
                                                 akutt_suksess = NA))
   )
 })
+
+
+
+
 
