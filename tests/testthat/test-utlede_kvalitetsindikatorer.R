@@ -128,7 +128,7 @@ test_that("KI-AVBRUDD wokrs", {
       dplyr::filter(.data$indik_avbrudd_data == "ja",
                     .data$abla_strat_ingen %in% 1,
                     is.na(.data$abla_strat_ingen_arsak)) %>%
-      dplyr::pull(.data$indik_avbrudd) %>% is.na()))
+      dplyr::pull(.data$indik_avbrudd)  == "manglende"))
 
 
   testthat::expect_true(all(

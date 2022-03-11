@@ -252,6 +252,11 @@ indik_avbrudd <- function(df){
       .data$indik_avbrudd_data == "ja" &
         .data$abla_strat_ingen == 0 ~ "nei",
 
+      .data$indik_avbrudd_data == "ja" &
+        .data$abla_strat_ingen == 1 &
+        !.data$abla_strat_ingen_arsak %in% c(1, 2, 3, 4, 5, 9) ~ "manglende",
+
+
       .data$indik_avbrudd_data == "nei" ~ NA_character_,
 
       TRUE ~ NA_character_))
@@ -344,10 +349,10 @@ indik_overlevelse30dg <- function(df) {
 
       # Antall dager mellom forløpene, lead og lag
       time.diff_lag = as.numeric(difftime(.data$dato_pros,
-                                          lag(.data$dato_pros),
+                                          dplyr::lag(.data$dato_pros),
                                           unit = 'days')),
       time.diff_lead = -1 * as.numeric(difftime(.data$dato_pros,
-                                                lead(.data$dato_pros),
+                                                dplyr::lead(.data$dato_pros),
                                                 unit = 'days')),
 
       # For pasienter med >1 forløp innen et 30 dagers intervall,
