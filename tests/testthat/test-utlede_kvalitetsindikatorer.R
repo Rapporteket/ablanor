@@ -384,7 +384,32 @@ testthat::test_that("KI: Klinisk effekt fungerer", {
 })
 
 
+# Test indikator utfylt komplikasjoner
+testthat::test_that("KI: ferdig utflyt komplikasjoenr", {
 
+  df <- data.frame(komp_janei = c(NA, 0, 1))
+  df_out <- ablanor::indik_ferdig_komplik(df)
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::pull(.data$indik_komp_data) == "ja"
+  ))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(is.na(komp_janei)) %>%
+      dplyr::pull(.data$indik_komp) == "nei"
+  ))
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(!is.na(komp_janei)) %>%
+      dplyr::pull(.data$indik_komp) == "ja"
+  ))
+
+  testthat::expect_error(
+    ablanor::indik_ferdig_komplik(df = data.frame(feil_variabel = 1))
+  )
+})
 
 # Test indikator: AKutt suksess  ----
 testthat::test_that("KI: Akutt suksess fungerer", {

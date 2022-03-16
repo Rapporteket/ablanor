@@ -6,6 +6,7 @@
 \alias{indik_overlevelse30dg}
 \alias{indik_tamponade}
 \alias{indik_prom_klineff}
+\alias{indik_ferdig_komplik}
 \alias{indik_akuttsuksess}
 \alias{indik_pacemaker}
 \alias{indik_avbrudd}
@@ -18,6 +19,8 @@ indik_overlevelse30dg(df)
 indik_tamponade(df)
 
 indik_prom_klineff(df)
+
+indik_ferdig_komplik(df)
 
 indik_akuttsuksess(df)
 
@@ -101,6 +104,18 @@ pasienten svarer \emph{Uforandret} eller \emph{Verre}. Variabelen har verdien
 klinisk effekt er ubesvart.
 }
 
+\strong{Ferdig utfylt komplikasjonsskjema}
+\code{indik_ferdig_komplik}
+\itemize{
+
+\item nevneren \code{indik_ferdig_komp_data} har verdien \emph{ja} for alle
+prosedyrer.
+\item tellerne \code{indik_ferdig_komp} har verdien \emph{ja} dersom
+spørsmålet \code{komp_janei} er utfylt med en av verdiene \emph{ja} eller
+\emph{nei}, \code{indik_ferdig_komp} har verdien \emph{nei} dersom
+\code{komp_janei} er manglende.
+}
+
 \strong{Vellykket prosedyre (akutt suksess)}
 \code{indik_akuttsuksess}
 \itemize{
@@ -175,6 +190,9 @@ df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
                   followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
                   q2 = c(NA, NA, NA, 1:5))
 ablanor::indik_prom_klineff(df = df)
+
+# FERDIG UTFYLT KOMPLIKASJONER
+ablanor::indik_ferdig_komplik(df = data.frame(komp_janei = c(NA, 0, 1)))
 
 # AKUTT SUKSESS
 df <- data.frame(

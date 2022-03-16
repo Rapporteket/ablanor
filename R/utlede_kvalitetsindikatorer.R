@@ -64,6 +64,18 @@
 #' klinisk effekt er ubesvart.
 #' }
 #'
+#' __Ferdig utfylt komplikasjonsskjema__
+#' \code{indik_ferdig_komplik}
+#' \itemize{
+#'
+#' \item nevneren \code{indik_ferdig_komp_data} har verdien \emph{ja} for alle
+#' prosedyrer.
+#' \item tellerne \code{indik_ferdig_komp} har verdien \emph{ja} dersom
+#' spørsmålet \code{komp_janei} er utfylt med en av verdiene \emph{ja} eller
+#'  \emph{nei}, \code{indik_ferdig_komp} har verdien \emph{nei} dersom
+#'  \code{komp_janei} er manglende.
+#' }
+#'
 #' __Vellykket prosedyre (akutt suksess)__
 #' \code{indik_akuttsuksess}
 #' \itemize{
@@ -125,6 +137,7 @@
 #' indik_overlevelse30dg
 #' indik_tamponade
 #' indik_prom_klineff
+#' indik_ferdig_komplik
 #' indik_akuttsuksess
 #' indik_pacemaker
 #' indik_avbrudd
@@ -157,6 +170,9 @@
 #'                   followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
 #'                   q2 = c(NA, NA, NA, 1:5))
 #' ablanor::indik_prom_klineff(df = df)
+#'
+#' # FERDIG UTFYLT KOMPLIKASJONER
+#' ablanor::indik_ferdig_komplik(df = data.frame(komp_janei = c(NA, 0, 1)))
 #'
 #' # AKUTT SUKSESS
 #' df <- data.frame(
@@ -413,6 +429,24 @@ indik_prom_klineff <- function(df){
       .data$indik_prom_klineff_data == "nei" ~ NA_character_,
       TRUE ~ NA_character_))
 
+}
+
+
+
+#' @rdname utlede_kvalitetsindikatorer
+#' @export
+indik_ferdig_komplik <- function(df){
+
+  stopifnot("komp_janei" %in% names(df))
+
+  df %>%
+    dplyr::mutate(
+      indik_ferdig_komp_data  = "ja",
+
+      indik_ferdig_komp = ifelse(
+        test = !is.na(.data$komp_janei),
+        yes ="ja",
+        no = "nei"))
 }
 
 
