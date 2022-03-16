@@ -103,7 +103,7 @@
 #' verdiene \emph{AFLI} eller \emph{VT, SVT, AV-knuter} avhengig av
 #' forløpstype, og verdien \emph{nei} dersom forløpstype \emph{EFU}.
 #' \item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
-#'  \code{indik_avbrudd_data} = \emph{AFLU} eller \emp{VT, SVT, AV-knuter} og
+#'  \code{indik_avbrudd_data} = \emph{AFLU} eller \emph{VT, SVT, AV-knuter} og
 #'  \code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
 #'   verdien \emph{nei} dersom \code{indik_avbrudd_data} = \emph{ja} og
 #'   ingen avbrudd eller avbrudd av andre årsaker.
@@ -209,6 +209,8 @@ utlede_dager_sensur <- function(df, dato_sensur) {
 
     # FOR ALLE: er dager_pros_sensur gyldig (ja, nei, manglende) ?
     dager_pros_sensur_gyldig = dplyr::case_when(
+      # dersom feilregistring og negativ tid, ikke med
+      .data$dager_pros_sensur < 0 ~ "nei",
 
       # alle døde, som har datoer, er med
       .data$deceased == 1 &
@@ -234,6 +236,10 @@ utlede_dager_sensur <- function(df, dato_sensur) {
       # levende manglende dato for prosedyre er ikke med
       .data$deceased == 0 &
         is.na(.data$dato_pros) ~ "manglende",
+
+      # manglende dødsdatus
+      is.na(.data$deceased) ~ "manglende",
+
 
       TRUE ~ NA_character_))
 
@@ -330,7 +336,10 @@ indik_overlevelse30dg <- function(df) {
         labels = c("ja", "nei"),
         ordered = TRUE)) %>%
 
-    dplyr::select(- .data$utvalgt, -.data$time.diff_lag, -.data$time.diff_lead)
+    dplyr::select(- .data$utvalgt,
+                  -.data$time.diff_lag,
+                  -.data$time.diff_lead) %>%
+    dplyr::arrange(.data$mceid)
 
 }
 

@@ -140,7 +140,7 @@ eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
 verdiene \emph{AFLI} eller \emph{VT, SVT, AV-knuter} avhengig av
 forløpstype, og verdien \emph{nei} dersom forløpstype \emph{EFU}.
 \item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
-\code{indik_avbrudd_data} = \emph{AFLU} eller \emp{VT, SVT, AV-knuter} og
+\code{indik_avbrudd_data} = \emph{AFLU} eller \emph{VT, SVT, AV-knuter} og
 \code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
 verdien \emph{nei} dersom \code{indik_avbrudd_data} = \emph{ja} og
 ingen avbrudd eller avbrudd av andre årsaker.
