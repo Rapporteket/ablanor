@@ -269,7 +269,7 @@ indik_overlevelse30dg <- function(df) {
   stopifnot(c("forlopstype", "abla_strat_av_his",
               "dager_pros_sensur", "dager_pros_sensur_gyldig",
               "dato_pros", "deceased",
-              "patient_id") %in% names(df))
+              "patient_id", "mceid") %in% names(df))
 
 
   # Hjelpevariabel: Filter på riktig forløpstype

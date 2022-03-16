@@ -102,6 +102,7 @@ testthat::test_that("Ki overlevelse fungerer - sensur", {
 
   # dEL 2 : Indikator - et forløp per pasient
   df <- data.frame(
+    mceid = 1:15,
     forlopstype = c(2:4, NA, rep(1, 11)),
     abla_strat_av_his = c(rep(0, 4), 1, rep(0, 10)),
     patient_id = c(1:15),
