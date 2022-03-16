@@ -55,7 +55,7 @@ testthat::test_that("Ki overlevelse fungerer - sensur", {
   # Forventede verdier for dager_pros_sensur_yldig
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(is.na(.data$dager_pros_sensur )) %>%
+      dplyr::filter(is.na(.data$dager_pros_sensur)) %>%
       dplyr::pull(.data$dager_pros_sensur)  == "manglende"
   ))
 
@@ -107,8 +107,9 @@ testthat::test_that("Ki overlevelse fungerer - sensur", {
     abla_strat_av_his = c(rep(0, 4), 1, rep(0, 10)),
     patient_id = c(1:15),
     deceased = c(rep(0, 10), rep(1, 5)),
-    dager_pros_sensur_gyldig = c(rep("ja", 5), "nei", "manglende", rep("ja", 8)),
-    dager_pros_sensur = c(rep(40, 5),29, NA, rep(40, 3), 28:32),
+    dager_pros_sensur_gyldig = c(rep("ja", 5),
+                                 "nei", "manglende", rep("ja", 8)),
+    dager_pros_sensur = c(rep(40, 5), 29, NA, rep(40, 3), 28:32),
     dato_pros = rep(as.Date("2020-10-20", format = "%Y-%m-%d"), 15))
 
 
@@ -180,7 +181,7 @@ testthat::test_that("Ki overlevelse fungerer - sensur", {
     abla_strat_av_his = rep(0, 10),
     patient_id = c(1, 1, 1, 2,  2, 3, 3, 3, 4, 4),
     deceased = c(rep(0, 5), rep(1, 5)),
-    deceased_date = as.Date(c(NA, NA, NA,NA, NA,
+    deceased_date = as.Date(c(NA, NA, NA, NA, NA,
                               rep("2020-12-24", 3),
                               rep("2021-12-01", 2)),
                             format = "%Y-%m-%d"),
@@ -233,7 +234,8 @@ testthat::test_that("Ki overlevelse fungerer - sensur", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$indik_overlevelse30dg_data == "nei") %>%
-      dplyr::pull(.data$indik_overlevelse30dg) %>%  is.na()
+      dplyr::pull(.data$indik_overlevelse30dg) %>%
+      is.na()
   ))
 
 })
@@ -290,12 +292,13 @@ test_that("KI-TAMPONADE wokss", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$indik_tamp_data == "nei") %>%
-      dplyr::pull(.data$indik_tamp) %>% is.na()))
+      dplyr::pull(.data$indik_tamp) %>%
+      is.na()))
 
   # Forventer feilmelding
   testthat::expect_error(
     ablanor::indik_tamponade(data.frame(forlopstype = 1,
-                                        abla_strat_av_his =0))
+                                        abla_strat_av_his = 0))
   )
 
 
@@ -416,10 +419,10 @@ testthat::test_that("KI: ferdig utflyt komplikasjoenr", {
 testthat::test_that("KI: Akutt suksess fungerer", {
   df <- data.frame(
     abla_strat_ingen = c(1, NA, rep(0, 18)),
-    abla_strat_av_his = c(0, 0, 1, NA,  rep(0, 16)),
+    abla_strat_av_his = c(0, 0, 1, NA, rep(0, 16)),
     forlopstype = c(rep(1, 4), NA, rep(1, 5), rep(2, 3), rep(3, 6), 4),
     aryt_i47_1_underkat = c(rep(NA, 13), NA, 1:5, NA),
-    akutt_suksess = c(rep(NA, 5), NA, 9, 0, 1, 2, 0:2, 0:2, 0:2 , 1)
+    akutt_suksess = c(rep(NA, 5), NA, 9, 0, 1, 2, 0:2, 0:2, 0:2, 1)
   )
 
 
@@ -486,7 +489,7 @@ testthat::test_that("KI: Akutt suksess fungerer", {
       dplyr::count(.data$indik_akuttsuksess_data) %>%
       dplyr::pull(.data$indik_akuttsuksess_data) %>%
       as.character() ==
-      c("AFLI","VT", "AVRT", "AVNRT", "nei")))
+      c("AFLI", "VT", "AVRT", "AVNRT", "nei")))
 
   # Forventer at dersom ikke i datagrunnlaget er alle NA
   testthat::expect_true(all(
@@ -566,20 +569,21 @@ testthat::test_that("KI: pacemakerbehov fungerer", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$indik_pacemaker_data == "nei") %>%
-      dplyr::pull(.data$indik_pacemaker) %>% is.na()))
+      dplyr::pull(.data$indik_pacemaker) %>%
+      is.na()))
 
   # Forventede verdier dersom JA
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$indik_pacemaker_data == "ja",
                     .data$komp_avblokk_pm %in% 0) %>%
-      dplyr::pull(.data$indik_pacemaker)== "nei"))
+      dplyr::pull(.data$indik_pacemaker) == "nei"))
 
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$indik_pacemaker_data == "ja",
                     .data$komp_avblokk_pm %in% 1) %>%
-      dplyr::pull(.data$indik_pacemaker)== "ja"))
+      dplyr::pull(.data$indik_pacemaker) == "ja"))
 
   testthat::expect_true(all(
     df_out %>%
@@ -603,9 +607,9 @@ test_that("KI-AVBRUDD wokrs", {
 
   df <- data.frame(
     forlopstype = c(4, NA, rep(1, 7), 2, 3, 1, 2, 2, 2, 2),
-    abla_strat_av_his = c (0, 0,  NA, rep(0, 6), NA, 1, 1, 0, 1, 0, 0),
+    abla_strat_av_his = c(0, 0, NA, rep(0, 6), NA, 1, 1, 0, 1, 0, 0),
     abla_strat_ingen = c(rep(0, 3), NA,  1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, NA),
-    abla_strat_ingen_arsak = c(rep(NA, 4), 1, 4,5, rep(NA, 5), 4, NA, 99, NA))
+    abla_strat_ingen_arsak = c(rep(NA, 4), 1, 4, 5, rep(NA, 5), 4, NA, 99, NA))
 
   df_out <- ablanor::indik_avbrudd(df = df)
 
@@ -687,15 +691,13 @@ test_that("KI-AVBRUDD wokrs", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$indik_avbrudd_data == "nei") %>%
-      dplyr::pull(.data$indik_avbrudd) %>%  is.na()))
+      dplyr::pull(.data$indik_avbrudd) %>%
+      is.na()))
 
 
   # Forventer feilmelding
   testthat::expect_error(
     ablanor::indik_avbrudd(data.frame(forlopstype = 1,
-                                      abla_strat_av_his =0))
+                                      abla_strat_av_his = 0))
   )
-
-
 })
-

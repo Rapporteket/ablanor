@@ -35,15 +35,17 @@
 #' __Tamponade i forbindelse med prosedyren__
 #' \code{indik_tamponade()}
 #' \itemize{
-#' \item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
-#' forløpstype er AFLI (\code{forlopstype} = 1)
+#' \item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien
+#'  \emph{ja} dersom forløpstype er AFLI (\code{forlopstype} = 1)
 #' uten AV-knuter (\code{abla_strat_av_his} = 0).
 #' \item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
 #'  \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
-#'   verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
+#'   verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og
+#'   \code{komp_tamp} = 0,
 #'  verdien \emph{manglende} dersom \code{indik_tamp_data} = \emph{ja} og
 #'   \code{komp_tamp} er manglende,
-#'   og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget (\code{indik_tamp_data} = \emph{nei}).
+#'   og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget
+#'   (\code{indik_tamp_data} = \emph{nei}).
 #' }
 #'
 #' __Klinisk effekt 12 måneder etter prosedyren__
@@ -292,10 +294,10 @@ indik_overlevelse30dg <- function(df) {
       # Antall dager mellom forløpene, lead og lag
       time.diff_lag = as.numeric(difftime(.data$dato_pros,
                                           dplyr::lag(.data$dato_pros),
-                                          unit = 'days')),
+                                          unit = "days")),
       time.diff_lead = -1 * as.numeric(difftime(.data$dato_pros,
                                                 dplyr::lead(.data$dato_pros),
-                                                unit = 'days')),
+                                                unit = "days")),
 
       # For pasienter med >1 forløp innen et 30 dagers intervall,
       # teller kun det SISTE forløpet:
@@ -307,12 +309,12 @@ indik_overlevelse30dg <- function(df) {
           .data$utvalgt == "ja" ~ "ja",
 
         # ENESTE FORLØP I INTERVALLET
-        (.data$time.diff_lag >= 31 | is.na(.data$time.diff_lag)  ) &
+        (.data$time.diff_lag >= 31 | is.na(.data$time.diff_lag)) &
           (.data$time.diff_lead >= 31 | is.na(.data$time.diff_lead)) &
           .data$utvalgt == "ja" ~ "ja",
 
         # FLERE FORLØP, DETTE ER DET SISTE
-        (.data$time.diff_lead >= 31 |is.na(.data$time.diff_lead)) &
+        (.data$time.diff_lead >= 31 | is.na(.data$time.diff_lead)) &
           .data$time.diff_lag < 31 &
           .data$utvalgt == "ja" ~ "ja",
 
@@ -323,7 +325,7 @@ indik_overlevelse30dg <- function(df) {
         # IKKE I DATAGRUNNLAGET
         .data$utvalgt == "nei" ~ "nei",
 
-        TRUE ~ NA_character_ )) %>%
+        TRUE ~ NA_character_)) %>%
     dplyr::ungroup() %>%
 
 
@@ -400,7 +402,7 @@ indik_tamponade <- function(df) {
 
 #' @rdname utlede_kvalitetsindikatorer
 #' @export
-indik_prom_klineff <- function(df){
+indik_prom_klineff <- function(df) {
 
 
   stopifnot(c("forlopstype",
@@ -435,24 +437,24 @@ indik_prom_klineff <- function(df){
 
 #' @rdname utlede_kvalitetsindikatorer
 #' @export
-indik_ferdig_komplik <- function(df){
+indik_ferdig_komplik <- function(df) {
 
   stopifnot("komp_janei" %in% names(df))
 
   df %>%
     dplyr::mutate(
-      indik_ferdig_komp_data  = "ja",
+      indik_ferdig_komp_data = "ja",
 
       indik_ferdig_komp = ifelse(
         test = !is.na(.data$komp_janei),
-        yes ="ja",
+        yes = "ja",
         no = "nei"))
 }
 
 
 #' @rdname utlede_kvalitetsindikatorer
 #' @export
-indik_akuttsuksess <- function(df){
+indik_akuttsuksess <- function(df) {
 
   stopifnot(all(c("forlopstype",
                   "abla_strat_av_his",
@@ -501,7 +503,7 @@ indik_akuttsuksess <- function(df){
                  "AVRT",
                  "AVNRT",
                  "nei"),
-      ordered =TRUE),
+      ordered = TRUE),
 
 
 
@@ -514,7 +516,7 @@ indik_akuttsuksess <- function(df){
 
       ! .data$indik_akuttsuksess_data %in% "nei" &
         (is.na(.data$akutt_suksess) |
-           ! .data$akutt_suksess %in% c(0, 2) ) ~ "manglende",
+           ! .data$akutt_suksess %in% c(0, 2)) ~ "manglende",
 
       .data$indik_akuttsuksess_data %in% "nei"  ~ NA_character_,
       TRUE ~ NA_character_)
@@ -525,7 +527,7 @@ indik_akuttsuksess <- function(df){
 
 #' @rdname utlede_kvalitetsindikatorer
 #' @export
-indik_pacemaker <- function(df){
+indik_pacemaker <- function(df) {
 
   stopifnot(c("forlopstype",
               "abla_strat_av_his",
@@ -560,7 +562,7 @@ indik_pacemaker <- function(df){
 
 #' @rdname utlede_kvalitetsindikatorer
 #' @export
-indik_avbrudd <- function(df){
+indik_avbrudd <- function(df) {
 
 
   stopifnot(c("forlopstype",
@@ -610,5 +612,3 @@ indik_avbrudd <- function(df){
 
         TRUE ~ NA_character_))
 }
-
-
