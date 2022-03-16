@@ -66,10 +66,11 @@ test_that("KI-TAMPONADE wokss", {
 # Tester for AVBRUDD -----
 test_that("KI-AVBRUDD wokrs", {
 
-  df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
-                   abla_strat_av_his = c(NA, 1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
-                   abla_strat_ingen = c(rep(0, 6), NA,  1, 1,1, 1, 0),
-                   abla_strat_ingen_arsak = c(rep(NA, 7), 1, 4,5, NA, NA))
+  df <- data.frame(
+    forlopstype = c(4, NA, rep(1, 7), 2, 3, 1, 2, 2, 2, 2),
+    abla_strat_av_his = c (0, 0,  NA, rep(0, 6), NA, 1, 1, 0, 1, 0, 0),
+    abla_strat_ingen = c(rep(0, 3), NA,  1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, NA),
+    abla_strat_ingen_arsak = c(rep(NA, 4), 1, 4,5, rep(NA, 5), 4, NA, 99, NA))
 
   df_out <- ablanor::indik_avbrudd(df = df)
 
@@ -77,12 +78,14 @@ test_that("KI-AVBRUDD wokrs", {
   # Forventer ikke i datagrunnlaget for disse:
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(! .data$forlopstype %in% 1) %>%
+      dplyr::filter(.data$forlopstype %in% 4 | is.na(.data$forlopstype)) %>%
       dplyr::pull(.data$indik_avbrudd_data) == "nei"))
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(! .data$abla_strat_av_his %in% 0) %>%
+      dplyr::filter(
+        .data$forlopstype == 1,
+        is.na(.data$abla_strat_av_his)) %>%
       dplyr::pull(.data$indik_avbrudd_data) == "nei"))
 
 
@@ -99,33 +102,48 @@ test_that("KI-AVBRUDD wokrs", {
       dplyr::filter(.data$forlopstype %in% 1,
                     .data$abla_strat_av_his %in% 0,
                     !is.na(.data$abla_strat_ingen)) %>%
-      dplyr::pull(.data$indik_avbrudd_data) == "ja"))
+      dplyr::pull(.data$indik_avbrudd_data) == "AFLI"))
+
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype %in% 2:3,
+                    !is.na(.data$abla_strat_ingen)) %>%
+      dplyr::pull(.data$indik_avbrudd_data) == "VT, SVT, AV-knuter"))
+
+  testthat::expect_true(all(
+    df_out %>%
+      dplyr::filter(.data$forlopstype %in% 1:3,
+                    !is.na(.data$abla_strat_ingen),
+                    .data$abla_strat_av_his %in% 1) %>%
+      dplyr::pull(.data$indik_avbrudd_data) == "VT, SVT, AV-knuter"))
+
 
 
   # Forventer ja/nei/manglende
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$indik_avbrudd_data == "ja",
+      dplyr::filter(!.data$indik_avbrudd_data %in% "nei",
                     .data$abla_strat_ingen %in% 1,
                     .data$abla_strat_ingen_arsak %in% 4:5) %>%
       dplyr::pull(.data$indik_avbrudd) == "ja"))
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$indik_avbrudd_data == "ja",
+      dplyr::filter(!.data$indik_avbrudd_data %in% "nei",
                     .data$abla_strat_ingen %in% 0) %>%
       dplyr::pull(.data$indik_avbrudd) == "nei"))
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$indik_avbrudd_data == "ja",
+      dplyr::filter(!.data$indik_avbrudd_data %in% "nei",
                     .data$abla_strat_ingen %in% 1,
                     .data$abla_strat_ingen_arsak %in% c(1, 2, 3, 9)) %>%
       dplyr::pull(.data$indik_avbrudd) == "nei"))
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::filter(.data$indik_avbrudd_data == "ja",
+      dplyr::filter(!.data$indik_avbrudd_data %in% "nei",
                     .data$abla_strat_ingen %in% 1,
                     is.na(.data$abla_strat_ingen_arsak)) %>%
       dplyr::pull(.data$indik_avbrudd)  == "manglende"))
@@ -372,7 +390,7 @@ testthat::test_that("KI: Akutt suksess fungerer", {
       dplyr::count(.data$indik_akuttsuksess_data) %>%
       dplyr::pull(.data$indik_akuttsuksess_data) %>%
       as.character() ==
-    c("AFLI","VT", "AVRT", "AVNRT", "nei")))
+      c("AFLI","VT", "AVRT", "AVNRT", "nei")))
 
   # Forventer at dersom ikke i datagrunnlaget er alle NA
   testthat::expect_true(all(

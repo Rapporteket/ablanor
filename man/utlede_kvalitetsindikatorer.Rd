@@ -2,34 +2,38 @@
 % Please edit documentation in R/utlede_kvalitetsindikatorer.R
 \name{utlede_kvalitetsindikatorer}
 \alias{utlede_kvalitetsindikatorer}
-\alias{indik_tamponade}
-\alias{indik_avbrudd}
 \alias{utlede_dager_sensur}
 \alias{indik_overlevelse30dg}
+\alias{indik_tamponade}
 \alias{indik_prom_klineff}
-\alias{indik_pacemaker}
 \alias{indik_akuttsuksess}
+\alias{indik_pacemaker}
+\alias{indik_avbrudd}
 \title{Kvalitetsindikatorer for AblaNor}
 \usage{
-indik_tamponade(df)
-
-indik_avbrudd(df)
-
 utlede_dager_sensur(df, dato_sensur)
 
 indik_overlevelse30dg(df)
 
+indik_tamponade(df)
+
 indik_prom_klineff(df)
+
+indik_akuttsuksess(df)
 
 indik_pacemaker(df)
 
-indik_akuttsuksess(df)
+indik_avbrudd(df)
 }
 \arguments{
 \item{df}{data.frame med ablanor-data. Må inneholde ulike variabler for de
 ulike funksjonene.  F.eks. \code{forlopstype}, \code{abla_strat_av_his} og
 \code{komp_tamp} for indikatoren "Komplikasjon tamponade for AFLI uten AV
-knuter" .}
+knuter".}
+
+\item{dato_sensur}{dato for sensur til overlevelsesanalyser. Anbefaler
+3mnd før datadump, da det kan ta så lang tid å få overført datoen fra
+folkeregisteret.}
 }
 \description{
 Oppdaterte versjoner av kvalitetsindikatorer. I bruk fra og med våren 2022.
@@ -37,33 +41,6 @@ Oppdaterte versjoner av kvalitetsindikatorer. I bruk fra og med våren 2022.
 \details{
 For hver av kvalitetsindikatorene, legge til en variabel for datagrunnlag
 (suffix 'data') og en for indikatoren ja/nei.
-
-\strong{Tamponade i forbindelse med prosedyren}
-\code{indik_tamponade()}
-\itemize{
-\item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
-forløpstype er AFLI (\code{forlopstype} = 1)
-uten AV-knuter (\code{abla_strat_av_his} = 0).
-\item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
-\code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
-verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
-verdien \emph{manglende} dersom \code{indik_tamp_data} = \emph{ja} og
-\code{komp_tamp} er manglende,
-og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget (\code{indik_tamp_data} = \emph{nei}).
-}
-
-\strong{Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner}
-\code{indik_avbrudd()}
-\itemize{
-\item nevneren \code{indik_avbrudd_data} (datagrunnlag) har
-verdien \emph{ja} dersom forløpstype ikke er manglende.
-\item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
-\code{indik_avbrudd_data} = \emph{ja} og
-\code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
-verdien \emph{nei} dersom \code{indik_avbrudd_data} = \emph{ja} og
-ingen avbrudd eller avbrudd av andre årsaker.
-Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
-}
 
 \strong{Overlevelse 30 dager etter prosedyren}
 \code{indik_overlevelse30dg}
@@ -92,6 +69,20 @@ dødsdato for avdøde pasienter og antall dager fra proseydre til sensurdato
 \code{indik_overlevelse30dg_gyldig} har verdien nei/manglende dersom for
 kort sensur-tid eller datoer er manglende.
 
+\strong{Tamponade i forbindelse med prosedyren}
+\code{indik_tamponade()}
+\itemize{
+\item nevneren \code{indik_tamponade_data} (datagrunnlag) har verdien \emph{ja} dersom
+forløpstype er AFLI (\code{forlopstype} = 1)
+uten AV-knuter (\code{abla_strat_av_his} = 0).
+\item telleren \code{indik_tamponade} har verdien \emph{ja} dersom
+\code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 1,
+verdien \emph{nei} dersom \code{indik_tamp_data} = \emph{ja} og \code{komp_tamp} = 0,
+verdien \emph{manglende} dersom \code{indik_tamp_data} = \emph{ja} og
+\code{komp_tamp} er manglende,
+og verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget (\code{indik_tamp_data} = \emph{nei}).
+}
+
 \strong{Klinisk effekt 12 måneder etter prosedyren}
 \code{indik_prom_klineff}
 \itemize{
@@ -110,21 +101,6 @@ pasienten svarer \emph{Uforandret} eller \emph{Verre}. Variabelen har verdien
 klinisk effekt er ubesvart.
 }
 
-\strong{Behov for pacemaker}
-\code{indik_pacemaker}
-\itemize{
-
-\item nevneren \code{indik_pacemaker_data} (datagrunnlag) har verdien
-\emph{ja} dersom forløpstype er SVT (\code{forlopstype} = 3)
-uten AV-knuter (\code{abla_strat_av_his} = 0). Variabelen har
-verdi \emph{nei} for andre forløpstyper.
-
-\item telleren \code{indik_pacemaker} har verdien \emph{ja} dersom
-pasienten har hatt komplikasjon AV-blokk etterfulgt av innsetting av
-pacemaker (\code{komp_avblokk_pm} = 1). Variabelen har verdien  \emph{nei}
-eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
-}
-
 \strong{Vellykket prosedyre (akutt suksess)}
 \code{indik_akuttsuksess}
 \itemize{
@@ -141,44 +117,37 @@ verdi \emph{nei} for andre forløpstyper, ikke abladert, eller AV-knuter.
 Variabelen har verdien  \emph{nei} dersom \code{akutt_suksess} = 0 eller 2,
 og verdien \emph{manglende} dersom \code{akutt_suksess} mangler.
 }
+
+\strong{Behov for pacemaker}
+\code{indik_pacemaker}
+\itemize{
+
+\item nevneren \code{indik_pacemaker_data} (datagrunnlag) har verdien
+\emph{ja} dersom forløpstype er SVT (\code{forlopstype} = 3)
+uten AV-knuter (\code{abla_strat_av_his} = 0). Variabelen har
+verdi \emph{nei} for andre forløpstyper.
+
+\item telleren \code{indik_pacemaker} har verdien \emph{ja} dersom
+pasienten har hatt komplikasjon AV-blokk etterfulgt av innsetting av
+pacemaker (\code{komp_avblokk_pm} = 1). Variabelen har verdien  \emph{nei}
+eller og verdien \emph{manglende} dersom \code{komp_avblokk_pm} mangler.
+}
+
+\strong{Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner}
+\code{indik_avbrudd()}
+\itemize{
+\item nevneren \code{indik_avbrudd_data} (datagrunnlag) har
+verdiene \emph{AFLI} eller \emph{VT, SVT, AV-knuter} avhengig av
+forløpstype, og verdien \emph{nei} dersom forløpstype \emph{EFU}.
+\item telleren \code{indik_avbrudd} har verdien \emph{ja} dersom
+\code{indik_avbrudd_data} = \emph{AFLU} eller \emp{VT, SVT, AV-knuter} og
+\code{abla_strat_ingen_arsak} = 4(tekniske problemer) eller 5(Komplikasjon),
+verdien \emph{nei} dersom \code{indik_avbrudd_data} = \emph{ja} og
+ingen avbrudd eller avbrudd av andre årsaker.
+Verdien \emph{NA} dersom forløpet ikke er i datagrunnlaget.
+}
 }
 \examples{
-# TAMPONADE
- df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
-                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
-                  komp_tamp = c(rep(0, 6), 1, 1))
-ablanor::indik_tamponade(df = df)
-
-# AVBRUDD
- df <- data.frame(forlopstype = c(3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
-                  abla_strat_av_his = c(1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
-                  abla_strat_ingen = c(rep(0, 5), NA,  1, 1,1, 1, 0),
-                  abla_strat_ingen_arsak = c(rep(NA, 6), 1, 4,5, NA, NA))
- ablanor::indik_avbrudd(df = df)
-
-# KLINISK EFFEKT
-df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
-                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
-                  followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
-                  q2 = c(NA, NA, NA, 1:5))
-ablanor::indik_prom_klineff(df = df)
-
-
-#PACEMAKERBEHOV
-df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 3, 3, 3),
-                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
-                  komp_avblokk_pm = c(NA, NA, NA, 0, 1, 0, 1, 0))
-ablanor::indik_pacemaker(df = df)
-
-# AKUTT SUKSESS
-df <- data.frame(
-   abla_strat_ingen = c(1, NA, rep(0, 18)),
-   abla_strat_av_his = c(0, 0, 1, NA,  rep(0, 16)),
-   forlopstype = c(rep(1, 4), NA, rep(1, 5), rep(2, 3), rep(3, 6), 4),
-   aryt_i47_1_underkat = c(rep(NA, 13), NA, 1:5, NA),
-   akutt_suksess = c(rep(NA, 5), NA, 9, 0, 1, 2, 0:2, 0:2, 0:2 , 1))
-ablanor::indik_akuttsuksess(df)
-
 # OVERLEVELSE
 data.frame(
     patient_id = rep(1, 3),
@@ -193,4 +162,42 @@ ablanor::utlede_dager_sensur(
     df=.,
     dato_sensur = as.Date("2021-10-20", format = "\%Y-\%m-\%d")) \%>\%
 ablanor::indik_overlevelse30dg()
+
+# TAMPONADE
+ df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
+                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+                  komp_tamp = c(rep(0, 6), 1, 1))
+ablanor::indik_tamponade(df = df)
+
+# KLINISK EFFEKT
+df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 1, 1, 1),
+                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+                  followup_status = c(0, 0, 0, 1, 1, 1, 1, 1),
+                  q2 = c(NA, NA, NA, 1:5))
+ablanor::indik_prom_klineff(df = df)
+
+# AKUTT SUKSESS
+df <- data.frame(
+   abla_strat_ingen = c(1, NA, rep(0, 18)),
+   abla_strat_av_his = c(0, 0, 1, NA,  rep(0, 16)),
+   forlopstype = c(rep(1, 4), NA, rep(1, 5), rep(2, 3), rep(3, 6), 4),
+   aryt_i47_1_underkat = c(rep(NA, 13), NA, 1:5, NA),
+   akutt_suksess = c(rep(NA, 5), NA, 9, 0, 1, 2, 0:2, 0:2, 0:2 , 1))
+ablanor::indik_akuttsuksess(df)
+
+
+
+#PACEMAKERBEHOV
+df <- data.frame(forlopstype = c(2, 3, 4, NA, 1, 3, 3, 3),
+                  abla_strat_av_his = c(NA, 1, 0, 0, 1, 0, 0, 0),
+                  komp_avblokk_pm = c(NA, NA, NA, 0, 1, 0, 1, 0))
+ablanor::indik_pacemaker(df = df)
+
+# AVBRUDD
+ df <- data.frame(forlopstype = c(3, 4, NA, 1, 1, 1, 1, 1, 1, 1, 1),
+                  abla_strat_av_his = c(1, 0, 0, 1, NA, 0, 0, 0, 0, 0, 0),
+                  abla_strat_ingen = c(rep(0, 5), NA,  1, 1,1, 1, 0),
+                  abla_strat_ingen_arsak = c(rep(NA, 6), 1, 4,5, NA, NA))
+ ablanor::indik_avbrudd(df = df)
+
 }
