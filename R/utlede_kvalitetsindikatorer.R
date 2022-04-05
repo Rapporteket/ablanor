@@ -148,6 +148,7 @@
 #' # OVERLEVELSE
 #' data.frame(
 #'     patient_id = rep(1, 3),
+#'     mceid =  1:3,
 #'     forlopstype = rep(1, 3),
 #'     abla_strat_av_his = rep(0, 3),
 #'     dato_pros = as.Date(c(rep("2020-10-15",2),"2021-10-15"),
