@@ -149,10 +149,16 @@ getProsPatientData <- function(registryName,
 
   # Indikator tamponade, indikator for avbrudd
   d_ablanor %<>%
+    # ablanor::utlede_dager_sensur(df=., dager_sensur =?? ) %>%
+    # ablanor::indik_overlevelse30dg() %>%
     ablanor::indik_tamponade(.) %>%
+    ablanor::indik_prom_klineff(.) %>%
+    ablanor::indik_ferdig_komplik(.) %>%
+    ablanor::indik_akuttsuksess(.) %>%
+    ablanor::indik_pacemaker(.) %>%
     ablanor::indik_avbrudd(.)
 
-  d_ablanor %>% dplyr::arrange(.data$mceid)
+    d_ablanor %>% dplyr::arrange(.data$mceid)
 
 
 }
