@@ -43,47 +43,46 @@ testthat::test_that("Ki overlevelse fungerer - sensur", {
   ))
 
   # Forventer disse tidsdifferansene her:
-  testthat::expect_equal(
+  testthat::expect_true(all(
     df_out %>%
       dplyr::filter(!is.na(.data$dager_pros_sensur)) %>%
-      dplyr::pull(.data$dager_pros_sensur),
-
-    c(-148, 0, 26, 370, 30, -360, 5)
-  )
+      dplyr::pull(.data$dager_pros_sensur) ==
+      c(-148, 0, 26, 370, 30, -360, 5)
+  ))
 
 
   # Forventede verdier for dager_pros_sensur_yldig
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(is.na(.data$dager_pros_sensur)) %>%
-      dplyr::pull(.data$dager_pros_sensur)  == "manglende"
+      dplyr::pull(.data$dager_pros_sensur_gyldig)  == "manglende"
   ))
 
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$dager_pros_sensur < 0) %>%
-      dplyr::pull(.data$dager_pros_sensur)  == "nei"
+      dplyr::pull(.data$dager_pros_sensur_gyldig)  == "nei"
   ))
 
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$dager_pros_sensur < 30,
                     .data$deceased %in% 0) %>%
-      dplyr::pull(.data$dager_pros_sensur)  == "nei"
+      dplyr::pull(.data$dager_pros_sensur_gyldig)  == "nei"
   ))
 
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$dager_pros_sensur >= 0,
                     .data$deceased %in% 1) %>%
-      dplyr::pull(.data$dager_pros_sensur)  == "ja"
+      dplyr::pull(.data$dager_pros_sensur_gyldig)  == "ja"
   ))
 
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(.data$dager_pros_sensur >= 30,
                     .data$deceased %in% 0) %>%
-      dplyr::pull(.data$dager_pros_sensur)  == "ja"
+      dplyr::pull(.data$dager_pros_sensur_gyldig)  == "ja"
   ))
 
   # Forventer feil
@@ -396,18 +395,18 @@ testthat::test_that("KI: ferdig utflyt komplikasjoenr", {
 
   testthat::expect_true(all(
     df_out %>%
-      dplyr::pull(.data$indik_komp_data) == "ja"
+      dplyr::pull(.data$indik_ferdig_komp_data) == "ja"
   ))
 
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(is.na(komp_janei)) %>%
-      dplyr::pull(.data$indik_komp) == "nei"
+      dplyr::pull(.data$indik_ferdig_komp) == "nei"
   ))
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(!is.na(komp_janei)) %>%
-      dplyr::pull(.data$indik_komp) == "ja"
+      dplyr::pull(.data$indik_ferdig_komp) == "ja"
   ))
 
   testthat::expect_error(
