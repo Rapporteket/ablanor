@@ -294,10 +294,10 @@ indik_overlevelse30dg <- function(df) {
       # Antall dager mellom forløpene, lead og lag
       time.diff_lag = as.numeric(difftime(.data$dato_pros,
                                           dplyr::lag(.data$dato_pros),
-                                          unit = "days")),
+                                          units = "days")),
       time.diff_lead = -1 * as.numeric(difftime(.data$dato_pros,
                                                 dplyr::lead(.data$dato_pros),
-                                                unit = "days")),
+                                                units = "days")),
 
       # For pasienter med >1 forløp innen et 30 dagers intervall,
       # teller kun det SISTE forløpet:
