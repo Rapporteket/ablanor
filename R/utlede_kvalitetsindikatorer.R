@@ -148,6 +148,7 @@
 #' # OVERLEVELSE
 #' data.frame(
 #'     patient_id = rep(1, 3),
+#'     mceid =  1:3,
 #'     forlopstype = rep(1, 3),
 #'     abla_strat_av_his = rep(0, 3),
 #'     dato_pros = as.Date(c(rep("2020-10-15",2),"2021-10-15"),
@@ -294,10 +295,10 @@ indik_overlevelse30dg <- function(df) {
       # Antall dager mellom forløpene, lead og lag
       time.diff_lag = as.numeric(difftime(.data$dato_pros,
                                           dplyr::lag(.data$dato_pros),
-                                          unit = "days")),
+                                          units = "days")),
       time.diff_lead = -1 * as.numeric(difftime(.data$dato_pros,
                                                 dplyr::lead(.data$dato_pros),
-                                                unit = "days")),
+                                                units = "days")),
 
       # For pasienter med >1 forløp innen et 30 dagers intervall,
       # teller kun det SISTE forløpet:
