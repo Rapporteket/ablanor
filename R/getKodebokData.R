@@ -42,7 +42,8 @@ getKodebokMedUtledetedVar <- function() {
                   .data$listeverdier,
                   .data$listetekst) %>%
     dplyr::mutate(listeverdier = as.character(.data$listeverdier)) %>%
-    dplyr::bind_rows(ablanor::def_utledete_var)
+    dplyr::bind_rows(ablanor::def_utledete_var %>%
+                       tidyr::replace_na(replace = list(listeverdier= "NA")))
 
 
 }
