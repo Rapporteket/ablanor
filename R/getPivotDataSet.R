@@ -52,7 +52,7 @@ getPivotDataSet <- function(setId = "",
                                          toDate = NULL)
     }
 
-
+    if(singleRow == FALSE){
     # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
     kb <- ablanor::getKodebokData() %>%
       dplyr::select(.data$fysisk_feltnavn,
@@ -71,6 +71,7 @@ getPivotDataSet <- function(setId = "",
         kb = kb,
         suffiks = "_tekst",
         fjerne_suffiks_fra_navn = TRUE)
+    }
 
     dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
 
