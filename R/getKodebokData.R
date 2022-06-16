@@ -12,7 +12,51 @@
 getKodebokData <- function() {
 
   ablanor::kbd %>%
-    dplyr::mutate(fysisk_feltnavn = tolower(.data$fysisk_feltnavn))
+    dplyr::mutate(
+
+      fysisk_feltnavn = tolower(.data$fysisk_feltnavn),
+
+      # Dersom identitiske "fysisk_feltnavn" gi samme prefix som i utforsker.
+      fysisk_feltnavn = dplyr::case_when(
+
+        # FRA GKV:
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "incomplete_reason",
+                                     "status",
+                                     "usercomment") &
+          .data$skjemanavn == "GKV spørreskjema somatikk, voksne, døgn" ~
+          paste0("gkv_", .data$fysisk_feltnavn),
+
+        # FRA RAND12
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "incomplete_reason",
+                                     "status",
+                                     "usercomment") &
+          .data$skjemanavn == "Livskvalitetsskjema" ~
+          paste0("rand_", .data$fysisk_feltnavn),
+
+        # FRA OPPFØLGING
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "incomplete_reason",
+                                     "status",
+                                     "usercomment") &
+          .data$skjemanavn == "Oppfølging etter 1 år" ~
+          paste0("followup_", .data$fysisk_feltnavn),
+
+        # FRA PROSEDYRE
+        .data$fysisk_feltnavn %in% c("status",
+                                     "usercomment") &
+          .data$skjemanavn == "Prosedyre" ~
+          paste0("pros_", .data$fysisk_feltnavn),
+
+        # FRA BASISSKJEMAET
+        .data$fysisk_feltnavn %in% c("status",
+                                     "usercomment") &
+          .data$skjemanavn == "Basisskjema" ~
+          paste0("basereg_", .data$fysisk_feltnavn),
+
+
+        TRUE ~ .data$fysisk_feltnavn))
 }
 
 
@@ -34,8 +78,7 @@ getKodebokData <- function() {
 
 getKodebokMedUtledetedVar <- function() {
 
-  ablanor::kbd %>%
-    dplyr::mutate(fysisk_feltnavn = tolower(.data$fysisk_feltnavn)) %>%
+   ablanor::getKodebokData() %>%
     dplyr::select(.data$skjemanavn,
                   .data$fysisk_feltnavn,
                   .data$ledetekst,
