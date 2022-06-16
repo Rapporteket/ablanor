@@ -82,7 +82,8 @@ getProsPatientData <- function(registryName,
   # Forberede Followup-data
   followup_data <- d_followup %>%
     dplyr::rename("MCEID_FOLLOWUP" = .data$MCEID) %>%
-    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
+    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY,
+                                 .data$COMPLETE, .data$INCOMPLETE_REASON),
                      function(x) {
                        paste0("followup_", x)
                      }) %>%
