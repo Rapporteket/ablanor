@@ -1,7 +1,11 @@
-# ablanor 1.0.3
+# ablanor 1.1.0
+## Nytt
 * Nye versjoner av kvalitetsindikatorene. 
-* Legge indikatorene i utforsker for testing
+* Legge til indikatorene i utforsker 
 
+## Bugfix
+* Fjerne unødvendig bruk av _kodebok_fyll_ ved SINGLE-row-spørringer. Sparer
+mye tid ved innlasting av kodebok og navn til variabelliste i utforsker
 
 # ablanor 1.0.2
 Bugfix: Ikke abonnere på veiledning + Fikse header slik at html ser bra ut
