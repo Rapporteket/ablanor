@@ -82,7 +82,8 @@ getProsPatientData <- function(registryName,
   # Forberede Followup-data
   followup_data <- d_followup %>%
     dplyr::rename("MCEID_FOLLOWUP" = .data$MCEID) %>%
-    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
+    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY,
+                                 .data$COMPLETE, .data$INCOMPLETE_REASON),
                      function(x) {
                        paste0("followup_", x)
                      }) %>%
@@ -146,5 +147,19 @@ getProsPatientData <- function(registryName,
   # HJERTESVIKT OG REDUSERT EF
   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
-  d_ablanor %>% dplyr::arrange(.data$mceid)
+
+  # Indikator tamponade, indikator for avbrudd
+  d_ablanor %<>%
+    # ablanor::utlede_dager_sensur(df=., dager_sensur =?? ) %>%
+    # ablanor::indik_overlevelse30dg() %>%
+    ablanor::indik_tamponade(.) %>%
+    ablanor::indik_prom_klineff(.) %>%
+    ablanor::indik_ferdig_komplik(.) %>%
+    ablanor::indik_akuttsuksess(.) %>%
+    ablanor::indik_pacemaker(.) %>%
+    ablanor::indik_avbrudd(.)
+
+    d_ablanor %>% dplyr::arrange(.data$mceid)
+
+
 }

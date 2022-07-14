@@ -39,7 +39,6 @@ server <- function(input, output, session) {
 
   # Hide all tabs if LU -role
   if (userRole == "LU") {
-    shiny::hideTab(inputId = "tabs", target = "Start")
     shiny::hideTab(inputId = "tabs", target = "Utforsker")
     shiny::hideTab(inputId = "tabs", target = "Datadump")
     shiny::hideTab(inputId = "tabs", target = "Kodebok")

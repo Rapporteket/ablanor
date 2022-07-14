@@ -40,7 +40,9 @@ getRand12Data <- function(registryName,
 
   d_rand12_ut <- d_pros %>%
     dplyr::select(.data$MCEID, .data$CENTREID) %>%
-    dplyr::left_join(., d_rand12, by = c("MCEID", "CENTREID"))
+    dplyr::left_join(., d_rand12, by = c("MCEID", "CENTREID")) %>%
+    dplyr::rename("RAND_COMPLETE" = .data$COMPLETE,
+                  "RAND_INCOMPLETE_REASON"= .data$INCOMPLETE_REASON)
 
   names(d_rand12_ut) <- tolower(names(d_rand12_ut))
 
