@@ -1,7 +1,13 @@
-# shiny app server logic
-library(ablanor)
+#' Server logic for the Ablanor app
+#'
+#' @param input shiny input object
+#' @param output shiny output object
+#' @param session shiny session object
+#'
+#' @return A shiny app server object
+#' @export
 
-server <- function(input, output, session) {
+app_server <- function(input, output, session) {
 
 
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
