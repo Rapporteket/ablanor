@@ -8,7 +8,7 @@ WORKDIR /app/R
 # hadolint ignore=DL3010
 COPY *.tar.gz .
 
-RUN R -e "remotes::install_local(list.files(pattern = \"*.tar.gz\"))"
+RUN R -e "remotes::install_local(list.files(pattern = \"*.tar.gz\"))" \
     && rm ./*.tar.gz
 
 EXPOSE 3008
