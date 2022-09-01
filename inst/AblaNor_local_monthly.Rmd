@@ -22,6 +22,7 @@ output:
 
 
 ```{r knitrOptions, include=FALSE}
+library(ablanor)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
