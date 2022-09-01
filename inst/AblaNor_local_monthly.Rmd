@@ -693,7 +693,7 @@ d_varighet_pros_tot <- d_ablanor %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)), 
                                        " [", 
-                                       sprintf("%0.0f",n()),
+                                       sprintf("%0.0f", dplyr::n()),
                                        "]"),
                    .groups = 'drop') %>% 
   dplyr::transmute(maaned = .data$maaned, value = .data$pros_meanN) 
@@ -706,7 +706,7 @@ d_varighet_forlop <- d_ablanor %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(pros_varighet)), 
                                        " [",
-                                       sprintf("%0.0f", n()), "]"),
+                                       sprintf("%0.0f", dplyr::n()), "]"),
                    .groups = 'drop') %>%
   dplyr::mutate(pros_meanN = dplyr::recode(.data$pros_meanN, 
                                            "NaN [0]" = " -- ")) %>% 
@@ -732,7 +732,7 @@ d_varighet_alder_pros<- d_ablanor %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)),
                                        " [",
-                                       sprintf("%0.0f", n()), "]"),
+                                       sprintf("%0.0f", dplyr::n()), "]"),
                    .groups = 'drop') %>%
   dplyr::mutate(pros_meanN = dplyr::recode(.data$pros_meanN, 
                                            "NaN [0]" = " -- ")) %>% 
@@ -755,7 +755,7 @@ d_varighet_bmi_pros <- d_ablanor %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)), 
                                        " [",
-                                       sprintf("%0.0f", n()), "]"),
+                                       sprintf("%0.0f", dplyr::n()), "]"),
                    .groups ='drop') %>%
   dplyr::mutate(pros_meanN = dplyr::recode(.data$pros_meanN, 
                                            "NaN [0]" = " -- ")) %>% 
@@ -776,7 +776,7 @@ d_varighet_afli_icd_pros <- d_ablanor %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)),
                                        " [",
-                                       sprintf("%0.0f" ,n()), "]"),
+                                       sprintf("%0.0f" , dplyr::n()), "]"),
                    .groups ='drop') %>%
   dplyr::mutate(pros_meanN = dplyr::recode(.data$pros_meanN, 
                                            "NaN [0]" = " -- ")) %>% 
@@ -800,7 +800,7 @@ d_varighet_vt_kardiomyopati_pros <- d_ablanor %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)), 
                                        " [",
-                                       sprintf("%0.0f", n()), "]"),
+                                       sprintf("%0.0f", dplyr::n()), "]"),
                    .groups='drop') %>%
   dplyr::mutate(pros_meanN = dplyr::recode(.data$pros_meanN, 
                                            "NaN [0]" = " -- ")) %>% 
@@ -945,7 +945,7 @@ d_varighetRtg_mnd <- d_ablanor %>%
   dplyr::group_by(.data$maaned, .drop = FALSE) %>%
   dplyr::summarise(rtg_meanN = paste0(sprintf("%0.0f",
                                               mean(.data$rtg_tid_min)), 
-                                      " [", sprintf("%0.0f", n()), "]"),
+                                      " [", sprintf("%0.0f", dplyr::n()), "]"),
                    .groups = 'drop') %>%
   dplyr::transmute(maaned = .data$maaned, Totalt = .data$rtg_meanN) 
 
@@ -960,7 +960,7 @@ d_varighetRtg_forlop <- d_ablanor %>%
   dplyr::summarise(rtg_meanN = paste0(sprintf("%0.0f",
                                               mean(.data$rtg_tid_min)),
                                       " [",
-                                      sprintf("%0.0f", n()), "]"),
+                                      sprintf("%0.0f", dplyr::n()), "]"),
                    .groups = 'drop') %>%
   dplyr::mutate(rtg_meanN = dplyr::recode(.data$rtg_meanN, 
                                           "NaN [0]" = " -- ")) %>% 
