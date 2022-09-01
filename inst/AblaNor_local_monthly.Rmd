@@ -9,12 +9,6 @@ params:
   userFullName: Tore Tester
   userRole: ukjent rolle
   userOperator: ukjent operatør
-header-includes:
-  - \usepackage[english, norsk]{babel}
-  - \usepackage{booktabs}
-  - \usepackage{rotating}
-  - \usepackage{float}
-  - \usepackage{booktabs}
 title: Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
 abstract: Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av  `r params$hospitalName` de 12 siste månedene . Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.    
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
@@ -28,12 +22,6 @@ output:
 
 
 ```{r knitrOptions, include=FALSE}
-library(magrittr)
-library(knitr)
-library(kableExtra)
-library(dplyr)
-library(tidyverse)
-library(ablanor)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
