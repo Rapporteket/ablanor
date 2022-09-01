@@ -191,8 +191,11 @@ figtekst <- paste0("Antall registreringer i AblaNor fra ",
 d_forlop_mnd <- d_ablanor %>%
   dplyr::count(.data$maaned, .data$forlopstype, .drop = FALSE) %>%
   ablanor::legg_til_forlopstype_kortnavn() %>% 
-  dplyr::mutate(n_uten0 = case_when(.data$n == 0 ~ "",
-                                    .data$n != 0 ~ as.character(.data$n))) %>% 
+  dplyr::mutate(
+    n_uten0 = dplyr::case_when(
+      .data$n == 0 ~ "", .data$n != 0 ~ as.character(.data$n)
+    )
+  ) %>% 
   dplyr::mutate(forlopstype_tekst = factor(
     x = .data$forlopstype_tekst, 
     levels = c("AFLI", "VT", "SVT", "EFU")))
