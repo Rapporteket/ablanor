@@ -210,7 +210,7 @@ ggplot2::ggplot(
   )
 ) +
   ggplot2::geom_bar(stat = "identity", 
-                    position = position_stack(reverse = TRUE)) +
+                    position = ggplot2::position_stack(reverse = TRUE)) +
   ggplot2::scale_fill_manual(values = colPrimary[3:6]) +
   ablanor::ablanor_plot_theme() + 
   ggplot2::labs(title = paste0("Antall registreringer i AblaNor de ",
