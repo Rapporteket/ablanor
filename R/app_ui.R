@@ -50,38 +50,41 @@ app_ui <- function() {
         )
       ),
 
-      shiny::tabPanel("Kodebok",
-                      sidebarLayout(
-                        sidebarPanel(uiOutput("kbControl")),
-                        mainPanel(htmlOutput("kbdData"))
-                      )),
+      shiny::tabPanel(
+        "Kodebok",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(shiny::uiOutput("kbControl")),
+          shiny::mainPanel(shiny::htmlOutput("kbdData"))
+        )
+      ),
 
       shiny::tabPanel(
         "Datadump",
-        sidebarLayout(
-          sidebarPanel(
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
             width = 4,
-            selectInput("dumpDataSet", "Velg datasett:",
-                        c("basereg",
-                          "friendlycentre",
-                          "mce",
-                          "patientlist",
-                          "pros",
-                          "rand12",
-                          "followup",
-                          "pros_patient_followup",
-                          "kodeboken")),
-            dateRangeInput("dumpDateRange", "Velg periode:",
-                           start = lubridate::ymd(Sys.Date()) -
-                             lubridate::years(1),
-                           end = Sys.Date(), separator = "-",
-                           weekstart = 1),
-            radioButtons("dumpFormat", "Velg filformat:",
+            shiny::selectInput("dumpDataSet", "Velg datasett:",
+                               c("basereg",
+                                 "friendlycentre",
+                                 "mce",
+                                 "patientlist",
+                                 "pros",
+                                 "rand12",
+                                 "followup",
+                                 "pros_patient_followup",
+                                 "kodeboken")),
+            shiny::dateRangeInput(
+              "dumpDateRange", "Velg periode:",
+              start = lubridate::ymd(Sys.Date()) - lubridate::years(1),
+              end = Sys.Date(), separator = "-",
+              weekstart = 1
+            ),
+            shiny::radioButtons("dumpFormat", "Velg filformat:",
                          choices = c("csv", "xlsx-csv")),
-            downloadButton("dumpDownload", "Hent!")
+            shiny::downloadButton("dumpDownload", "Hent!")
           ),
-          mainPanel(
-            htmlOutput("dataDumpInfo")
+          shiny::mainPanel(
+            shiny::htmlOutput("dataDumpInfo")
           )
         )
       ),
@@ -100,7 +103,6 @@ app_ui <- function() {
           shiny::mainPanel(
             shiny::htmlOutput("maanedligRapport", inline = TRUE)
           )
-
         )
       ),
 
