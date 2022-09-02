@@ -17,7 +17,6 @@ check_db <- function(is_test_that = TRUE) {
 
 withr::with_envvar(
   new = c(
-    "R_RAP_INSTANCE" = "DEV",
     "R_RAP_CONFIG_PATH" = tempdir()
   ),
   code = {
