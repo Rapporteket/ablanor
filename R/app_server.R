@@ -18,30 +18,16 @@ app_server <- function(input, output, session) {
     `Prosedyre, basisskjema og oppfølging` = "pros_patient",
     `RAND-12` = "rand12"
   )
-  ## setting values that do depend on a Rapporteket context
-  if (rapbase::isRapContext()) {
-    registryName <- "ablanor"
-    mapOrgId <- ablanor::getNameReshId(registryName)
-    reshId <- rapbase::getUserReshId(session)
-    hospitalName <- ablanor::getHospitalName(registryName, reshId)
-    userFullName <- rapbase::getUserFullName(session)
-    userRole <- rapbase::getUserRole(session)
-    userOperator <- "Test Operatoresen"
-    author <- userFullName
-    # userOperator <- ? #@fixme
-  } else {
-    ## if need be, define your (local) values here
 
-    # readRenviron("H:/data/.Renviron")
-    # reshId <- Sys.getenv("Test_reshId")
-    # hospitalName <- Sys.getenv("Test_hospitalName")
-    # userFullName <- "Test Testersen"  # tester rapport per bruker
-    # userOperator <- Sys.getenv("Test_operator")
-    # userRole <- "LC"
-    # registryName <- "test_ablanor_lokalt"
-    # author <- userFullName
-
-  }
+  registryName <- "ablanor"
+  mapOrgId <- ablanor::getNameReshId(registryName)
+  reshId <- rapbase::getUserReshId(session)
+  hospitalName <- ablanor::getHospitalName(registryName, reshId)
+  userFullName <- rapbase::getUserFullName(session)
+  userRole <- rapbase::getUserRole(session)
+  userOperator <- "Test Operatoresen"
+  author <- userFullName
+  # userOperator <- ? #@fixme
 
   # Hide all tabs if LU -role
   if (userRole == "LU") {
