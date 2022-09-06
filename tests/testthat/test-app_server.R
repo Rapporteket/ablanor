@@ -109,9 +109,8 @@ withr::with_envvar(
     # rapbase modules are already tested. For now, just make sure the server run
     # by dummy class test of auto report list
     test_that("server can run", {
+      check_db()
       shiny::testServer(app = app_server, {
-        registryName <- "rapbase"
-        userRole <- "LC"
         expect_equal(class(subReports), "list")
       })
     })
