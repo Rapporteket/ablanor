@@ -30,7 +30,7 @@ listeverdi-variables from df.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -76,85 +76,102 @@ in <code>df</code>.</p></li>
 </ul></div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">kodebok_sjekk_foer_leggtil</span><span class="op">(</span><span class="va">df</span>, <span class="va">verdi_variabel</span>, <span class="va">tekst_variabel</span>, <span class="va">koder</span><span class="op">)</span>
-
-<span class="fu">kodebok_sjekk_foer_fjerning</span><span class="op">(</span>
-  <span class="va">df</span>,
-  <span class="va">kb</span>,
-  <span class="va">verdi_variabel</span>,
-  <span class="va">tekst_variabel</span>,
-  type <span class="op">=</span> <span class="st">"Listevariabel"</span>
-<span class="op">)</span>
-
-<span class="fu">kodebok_fyll_avkrysningsboks</span><span class="op">(</span><span class="va">df</span>, <span class="va">kb</span>, <span class="va">...</span>, suffiks <span class="op">=</span> <span class="st">"_tekst"</span><span class="op">)</span>
-
-<span class="fu">kodebok_fyll_listetekstvar</span><span class="op">(</span><span class="va">df</span>, <span class="va">kb</span>, <span class="va">...</span>, suffiks <span class="op">=</span> <span class="st">"_tekst"</span><span class="op">)</span>
-
-<span class="fu">kodebok_beholde_bare_listetekstvar</span><span class="op">(</span>
-  <span class="va">df</span>,
-  <span class="va">kb</span>,
-  <span class="va">...</span>,
-  suffiks <span class="op">=</span> <span class="st">"_tekst"</span>,
-  fjerne_suffiks_fra_navn <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">kodebok_sjekk_foer_leggtil</span><span class="op">(</span><span class="va">df</span>, <span class="va">verdi_variabel</span>, <span class="va">tekst_variabel</span>, <span class="va">koder</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">kodebok_sjekk_foer_fjerning</span><span class="op">(</span></span>
+<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">kb</span>,</span>
+<span>  <span class="va">verdi_variabel</span>,</span>
+<span>  <span class="va">tekst_variabel</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"Listevariabel"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">kodebok_fyll_avkrysningsboks</span><span class="op">(</span><span class="va">df</span>, <span class="va">kb</span>, <span class="va">...</span>, suffiks <span class="op">=</span> <span class="st">"_tekst"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">kodebok_fyll_listetekstvar</span><span class="op">(</span><span class="va">df</span>, <span class="va">kb</span>, <span class="va">...</span>, suffiks <span class="op">=</span> <span class="st">"_tekst"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">kodebok_beholde_bare_listetekstvar</span><span class="op">(</span></span>
+<span>  <span class="va">df</span>,</span>
+<span>  <span class="va">kb</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  suffiks <span class="op">=</span> <span class="st">"_tekst"</span>,</span>
+<span>  fjerne_suffiks_fra_navn <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>df</dt>
 <dd><p>data.frame containing variables from AblaNor e.g. <code>d_ablanor</code>.</p></dd>
+
+
 <dt>verdi_variabel</dt>
 <dd><p>is used to check compatibility between <code>df</code> and
 <code>kb</code> for one variable. <code>verdi_variabel</code> is the name of variable
 with numerical values (<em>listeverdier</em>).</p></dd>
+
+
 <dt>tekst_variabel</dt>
 <dd><p>is used to check compatibility between <code>df</code> and
 <code>kb</code> for one variable. <code>tekst_variabel</code> is the name of variable
 with text values (<em>listetekst</em>).</p></dd>
+
+
 <dt>koder</dt>
 <dd><p>is used to check compatibility between <code>df</code> and <code>kb</code>
 for one variable. <code>koder</code> contains selected rows from <code>kb</code>.</p></dd>
+
+
 <dt>kb</dt>
 <dd><p>data.frame with <code>kodeboken</code>. Must contain variables
 <code>type</code>, <code>fysisk_feltnavn</code>, <code>listeverdier</code> and
 <code>listetekst</code>. One row for each level of all variables.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>String. Contains the <code>type</code> of variable as defined in
 <code>kb</code> <em>Listevariabel</em> or <em>Avkrysninsboks</em></p></dd>
+
+
 <dt>...</dt>
 <dd><p>If only selected <em>listetekst</em>- or <em>listeverdi</em>-
 variables are to be added or removed in <code>df</code>, the selected variables
 should be listed here, separated by commas.</p></dd>
+
+
 <dt>suffiks</dt>
 <dd><p>string value that contains suffix of new <em>listetekst</em>-
 variables to be added to or <em>listeverdi</em>-variables to be removed from
 <code>df</code>. Default value is <em>"_tekst"</em>.</p></dd>
+
+
 <dt>fjerne_suffiks_fra_navn</dt>
 <dd><p>boolean. If TRUE the <em>listetekst</em>-
 variables are renamed and suffix is removed from variable names. If FALSE,
 variable-names are not changed and will contain suffix.</p></dd>
+
 </dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"> <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
-<span class="r-in">                  var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"> <span class="va">kb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>fysisk_feltnavn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var1"</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"var2"</span>, <span class="st">"var2"</span><span class="op">)</span>,</span>
-<span class="r-in">                  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Listevariabel"</span>, <span class="fl">7</span><span class="op">)</span>,</span>
-<span class="r-in">                  listeverdier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                  listetekst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="st">"nei"</span>, <span class="st">"ja"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"> <span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_sjekk_foer_leggtil</span><span class="op">(</span></span>
-<span class="r-in">                         df <span class="op">=</span> <span class="va">df</span>,</span>
-<span class="r-in">                         tekst_variabel <span class="op">=</span> <span class="st">"var2_tekst"</span>,</span>
-<span class="r-in">                         verdi_variabel <span class="op">=</span> <span class="st">"var2"</span>,</span>
-<span class="r-in">                         koder <span class="op">=</span> <span class="va">kb</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span>
-<span class="r-in">                           <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.data</span><span class="op">$</span><span class="va">fysisk_feltnavn</span> <span class="op">==</span> <span class="st">"var2"</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span> <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  var2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="va">kb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>fysisk_feltnavn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var1"</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"var2"</span>, <span class="st">"var2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Listevariabel"</span>, <span class="fl">7</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  listeverdier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  listetekst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="st">"nei"</span>, <span class="st">"ja"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span> <span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_sjekk_foer_leggtil</span><span class="op">(</span></span></span>
+<span class="r-in"><span>                         df <span class="op">=</span> <span class="va">df</span>,</span></span>
+<span class="r-in"><span>                         tekst_variabel <span class="op">=</span> <span class="st">"var2_tekst"</span>,</span></span>
+<span class="r-in"><span>                         verdi_variabel <span class="op">=</span> <span class="st">"var2"</span>,</span></span>
+<span class="r-in"><span>                         koder <span class="op">=</span> <span class="va">kb</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>                           <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.data</span><span class="op">$</span><span class="va">fysisk_feltnavn</span> <span class="op">==</span> <span class="st">"var2"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_fyll_listetekstvar</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df</span>,</span>
-<span class="r-in">                                    kb <span class="op">=</span> <span class="va">kb</span>,</span>
-<span class="r-in">                                    suffiks <span class="op">=</span> <span class="st">"_tekst"</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_fyll_listetekstvar</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df</span>,</span></span>
+<span class="r-in"><span>                                    kb <span class="op">=</span> <span class="va">kb</span>,</span></span>
+<span class="r-in"><span>                                    suffiks <span class="op">=</span> <span class="st">"_tekst"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    var1 var1_tekst var2 var2_tekst</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1     1          a    0        nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2     2          b    1         ja</span>
@@ -166,26 +183,26 @@ variable-names are not changed and will contain suffix.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8     3          c    1         ja</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9     4          d    0        nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10    5          e    1         ja</span>
-<span class="r-in"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
-<span class="r-in">                 var1_tekst <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,</span>
-<span class="r-in">                 var3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                 var3_tekst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nei"</span>, <span class="st">"nei"</span>, <span class="st">"ja"</span>, <span class="st">"ja"</span>, <span class="st">"ja"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">kb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>fysisk_feltnavn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var1"</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"var3"</span>, <span class="st">"var3"</span><span class="op">)</span>,</span>
-<span class="r-in">                 type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Listevariabel"</span>, <span class="fl">7</span><span class="op">)</span>,</span>
-<span class="r-in">                 listeverdier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                 listetekst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,<span class="st">"nei"</span>, <span class="st">"ja"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_sjekk_foer_fjerning</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df</span>,</span>
-<span class="r-in">                                     <span class="va">kb</span>,</span>
-<span class="r-in">                                     verdi_variabel <span class="op">=</span> <span class="st">"var3"</span>,</span>
-<span class="r-in">                                     tekst_variabel <span class="op">=</span> <span class="st">"var3_tekst"</span>,</span>
-<span class="r-in">                                     type <span class="op">=</span> <span class="st">"Listevariabel"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>var1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 var1_tekst <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>                 var3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 var3_tekst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nei"</span>, <span class="st">"nei"</span>, <span class="st">"ja"</span>, <span class="st">"ja"</span>, <span class="st">"ja"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">kb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>fysisk_feltnavn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"var1"</span>, <span class="fl">5</span><span class="op">)</span>, <span class="st">"var3"</span>, <span class="st">"var3"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Listevariabel"</span>, <span class="fl">7</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 listeverdier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                 listetekst <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>,<span class="st">"nei"</span>, <span class="st">"ja"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_sjekk_foer_fjerning</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df</span>,</span></span>
+<span class="r-in"><span>                                     <span class="va">kb</span>,</span></span>
+<span class="r-in"><span>                                     verdi_variabel <span class="op">=</span> <span class="st">"var3"</span>,</span></span>
+<span class="r-in"><span>                                     tekst_variabel <span class="op">=</span> <span class="st">"var3_tekst"</span>,</span></span>
+<span class="r-in"><span>                                     type <span class="op">=</span> <span class="st">"Listevariabel"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"><span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_beholde_bare_listetekstvar</span><span class="op">(</span></span>
-<span class="r-in">                           df <span class="op">=</span> <span class="va">df</span>,</span>
-<span class="r-in">                           kb <span class="op">=</span> <span class="va">kb</span>,</span>
-<span class="r-in">                           suffiks <span class="op">=</span> <span class="st">"_tekst"</span>,</span>
-<span class="r-in">                           fjerne_suffiks_fra_navn <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">ablanor</span><span class="fu">::</span><span class="fu">kodebok_beholde_bare_listetekstvar</span><span class="op">(</span></span></span>
+<span class="r-in"><span>                           df <span class="op">=</span> <span class="va">df</span>,</span></span>
+<span class="r-in"><span>                           kb <span class="op">=</span> <span class="va">kb</span>,</span></span>
+<span class="r-in"><span>                           suffiks <span class="op">=</span> <span class="st">"_tekst"</span>,</span></span>
+<span class="r-in"><span>                           fjerne_suffiks_fra_navn <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   var1 var3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1    a  nei</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    b  nei</span>
@@ -206,7 +223,7 @@ variable-names are not changed and will contain suffix.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

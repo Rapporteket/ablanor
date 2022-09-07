@@ -25,7 +25,7 @@ for å få en rad per måned og en kolonne per nivå av faktoren "legend"'><!-- 
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -67,31 +67,36 @@ for å få en rad per måned og en kolonne per nivå av faktoren "legend"</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">leggTilTomme_PivotWide</span><span class="op">(</span><span class="va">data</span>, remove_NAcols <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">leggTilTomme_PivotWide</span><span class="op">(</span><span class="va">data</span>, remove_NAcols <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data</dt>
 <dd><p>datasett med variablene maaned,legend og value</p></dd>
+
+
 <dt>remove_NAcols</dt>
 <dd><p>Boolsk variabel. Remove_NA =TRUE dersom nivået "NA" skal
 fjernes. FALSE, dersom vi ønsker beholde nivået "NA" og ha en kolonne for
 dette nivået</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>data.frame med en rad per nivå av maaned og en kolonne per nivå av
+    
+
+<p>data.frame med en rad per nivå av maaned og en kolonne per nivå av
 "legend"</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>maaned <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"jan"</span>, <span class="st">"feb"</span>, <span class="st">"mars"</span>, <span class="st">"april"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span class="r-in">  legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"en"</span>,<span class="fl">4</span><span class="op">)</span> ,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"to"</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"en"</span>, <span class="st">"to"</span>, <span class="st">"tre"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"1/"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">leggTilTomme_PivotWide</span><span class="op">(</span><span class="va">x</span>, remove_NA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>maaned <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"jan"</span>, <span class="st">"feb"</span>, <span class="st">"mars"</span>, <span class="st">"april"</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"en"</span>,<span class="fl">4</span><span class="op">)</span> ,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"to"</span>,<span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"en"</span>, <span class="st">"to"</span>, <span class="st">"tre"</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"1/"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">leggTilTomme_PivotWide</span><span class="op">(</span><span class="va">x</span>, remove_NA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 4</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   maaned en    to    tre   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span>
@@ -113,7 +118,7 @@ dette nivået</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

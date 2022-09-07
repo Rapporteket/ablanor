@@ -25,6 +25,12 @@
     <loc>/reference/aggreger_ki_prop.html</loc>
   </url>
   <url>
+    <loc>/reference/app_server.html</loc>
+  </url>
+  <url>
+    <loc>/reference/app_ui.html</loc>
+  </url>
+  <url>
     <loc>/reference/compound_assignment_pipe.html</loc>
   </url>
   <url>
@@ -103,6 +109,9 @@
     <loc>/reference/reportProcessor.html</loc>
   </url>
   <url>
+    <loc>/reference/run_app.html</loc>
+  </url>
+  <url>
     <loc>/reference/string_pad.html</loc>
   </url>
   <url>
@@ -128,6 +137,9 @@
   </url>
   <url>
     <loc>/reference/utlede_kateg_afli_aryt_i48.html</loc>
+  </url>
+  <url>
+    <loc>/reference/utlede_kvalitetsindikatorer.html</loc>
   </url>
   <url>
     <loc>/reference/utlede_tidsvariabler.html</loc>

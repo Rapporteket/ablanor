@@ -24,7 +24,7 @@ default value."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/l
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -67,18 +67,18 @@ default value.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">reportProcessor</span><span class="op">(</span>
-  <span class="va">report</span>,
-  outputType <span class="op">=</span> <span class="st">"pdf"</span>,
-  title <span class="op">=</span> <span class="st">""</span>,
-  author <span class="op">=</span> <span class="st">"unknown author"</span>,
-  orgName <span class="op">=</span> <span class="st">"unknown organization"</span>,
-  orgId <span class="op">=</span> <span class="fl">999999</span>,
-  registryName <span class="op">=</span> <span class="st">"ablanor"</span>,
-  userFullName <span class="op">=</span> <span class="st">"unknown person name"</span>,
-  userRole <span class="op">=</span> <span class="st">"unknown role"</span>,
-  userOperator <span class="op">=</span> <span class="st">"unknown operator"</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">reportProcessor</span><span class="op">(</span></span>
+<span>  <span class="va">report</span>,</span>
+<span>  outputType <span class="op">=</span> <span class="st">"pdf"</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  author <span class="op">=</span> <span class="st">"unknown author"</span>,</span>
+<span>  orgName <span class="op">=</span> <span class="st">"unknown organization"</span>,</span>
+<span>  orgId <span class="op">=</span> <span class="fl">999999</span>,</span>
+<span>  registryName <span class="op">=</span> <span class="st">"ablanor"</span>,</span>
+<span>  userFullName <span class="op">=</span> <span class="st">"unknown person name"</span>,</span>
+<span>  userRole <span class="op">=</span> <span class="st">"unknown role"</span>,</span>
+<span>  userOperator <span class="op">=</span> <span class="st">"unknown operator"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -86,45 +86,66 @@ default value.</p>
     <dl><dt>report</dt>
 <dd><p>Character string identifying the report to be processed by this
 function.</p></dd>
+
+
 <dt>outputType</dt>
 <dd><p>Character string with output format. Must be one of
 <code>c("html", "pdf")</code>. Defaults to "pdf".</p></dd>
+
+
 <dt>title</dt>
 <dd><p>Character string giving the report title. Empty string by
 default.</p></dd>
+
+
 <dt>author</dt>
 <dd><p>Character string providing the report author. Default value is
 "unknown author".</p></dd>
+
+
 <dt>orgName</dt>
 <dd><p>Character string with the name of the organization/hospital.
 Default is "unknown organization".</p></dd>
+
+
 <dt>orgId</dt>
 <dd><p>Integer (?) with the id of the organization/hospital. Default is
 999999.</p></dd>
+
+
 <dt>registryName</dt>
 <dd><p>Character string with registry name. Default is
 "ablanor".</p></dd>
+
+
 <dt>userFullName</dt>
 <dd><p>Character string giving the person name, normally the
 user requesting the report. Default is "unknown person name".</p></dd>
+
+
 <dt>userRole</dt>
 <dd><p>Character string giving a user role, normally the one of the
 user requesting the report. Default is "unknown role".</p></dd>
+
+
 <dt>userOperator</dt>
 <dd><p>Character string with some name of an operator, whatever
 that is... Default is "unknown operator".</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A character string with a path to where the produced file is located.</p>
+    
+
+<p>A character string with a path to where the produced file is located.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">## Make the start page for ablanor</span></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="va">reportFilePath</span> <span class="op">&lt;-</span> <span class="fu">reportProcessor</span><span class="op">(</span>report <span class="op">=</span> <span class="st">"veiledning"</span>,</span>
-<span class="r-in">                                  title <span class="op">=</span> <span class="st">"Example report"</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## Make the start page for ablanor</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="va">reportFilePath</span> <span class="op">&lt;-</span> <span class="fu">reportProcessor</span><span class="op">(</span>report <span class="op">=</span> <span class="st">"veiledning"</span>,</span></span>
+<span class="r-in"><span>                                  title <span class="op">=</span> <span class="st">"Example report"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -139,7 +160,7 @@ that is... Default is "unknown operator".</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

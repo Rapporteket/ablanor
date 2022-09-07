@@ -19,7 +19,7 @@ variables) before the data frame is returned."><!-- mathjax --><script src="http
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -57,14 +57,14 @@ variables) before the data frame is returned.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">getPivotDataSet</span><span class="op">(</span>
-  setId <span class="op">=</span> <span class="st">""</span>,
-  <span class="va">registryName</span>,
-  <span class="va">session</span>,
-  singleRow <span class="op">=</span> <span class="cn">FALSE</span>,
-  reshId <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">userRole</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getPivotDataSet</span><span class="op">(</span></span>
+<span>  setId <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  <span class="va">registryName</span>,</span>
+<span>  <span class="va">session</span>,</span>
+<span>  singleRow <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  reshId <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">userRole</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,27 +73,40 @@ variables) before the data frame is returned.</p>
 <dd><p>String providing name of data set to be returned. One of the
 values "pros_patient" containing procedure and patient data or "rand12"
 containing data from rand12 questionnaire.</p></dd>
+
+
 <dt>registryName</dt>
 <dd><p>String providing registry name.</p></dd>
+
+
 <dt>session</dt>
 <dd><p>List shiny session object.</p></dd>
+
+
 <dt>singleRow</dt>
 <dd><p>Logical defining if only one row is to be returned.</p></dd>
+
+
 <dt>reshId</dt>
 <dd><p>Integer organization id</p></dd>
+
+
 <dt>userRole</dt>
 <dd><p>String dummy/placeholder role. "LC" has access only
 to local data (defined by reshId), "SC" has access to national data.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>data frame</p>
+    
+
+<p>data frame</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="va">d_ablanor</span> <span class="op">&lt;-</span> <span class="fu">getPivotDataSet</span><span class="op">(</span>setId <span class="op">=</span> <span class="st">"pros_patient"</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="va">d_ablanor</span> <span class="op">&lt;-</span> <span class="fu">getPivotDataSet</span><span class="op">(</span>setId <span class="op">=</span> <span class="st">"pros_patient"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -108,7 +121,7 @@ to local data (defined by reshId), "SC" has access to national data.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

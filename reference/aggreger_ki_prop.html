@@ -23,7 +23,7 @@ datasett på 101-format, og returnerer et estimert resultat"><!-- mathjax --><sc
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -63,30 +63,37 @@ datasett på 101-format, og returnerer et estimert resultat</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">aggreger_ki_prop</span><span class="op">(</span><span class="va">d_ki_ind</span>, alfa <span class="op">=</span> <span class="fl">0.05</span>, forenklet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">aggreger_ki_prop</span><span class="op">(</span><span class="va">d_ki_ind</span>, alfa <span class="op">=</span> <span class="fl">0.05</span>, forenklet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>d_ki_ind</dt>
 <dd><p>Inndata på 101-format</p></dd>
+
+
 <dt>alfa</dt>
 <dd><p>Verdi for å bestemme bredde på konfidensintervall,
 standardverid er 0.05</p></dd>
+
+
 <dt>forenklet</dt>
 <dd><p>bools. FALSE gir estimatet bare etter testing av d_ki_ind.
 TRUE gir estimatet uten testing.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Sammendrag av estimert proporsjon med konfidensintervall.</p>
+    
+
+<p>Sammendrag av estimert proporsjon med konfidensintervall.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="fu">aggreger_ki_prop</span><span class="op">(</span><span class="va">d_ki_ind</span>, alfa <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">aggreger_ki_prop</span><span class="op">(</span><span class="va">d_ki_ind</span>, alfa <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -101,7 +108,7 @@ TRUE gir estimatet uten testing.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

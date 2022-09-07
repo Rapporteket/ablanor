@@ -23,7 +23,7 @@ visst tal dagar frå prosedyren."><!-- mathjax --><script src="https://cdnjs.clo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -63,26 +63,35 @@ visst tal dagar frå prosedyren.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">ki_dod</span><span class="op">(</span><span class="va">d_pros</span>, <span class="va">d_mce</span>, <span class="va">d_pas</span>, dagar_innan <span class="op">=</span> <span class="fl">29</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ki_dod</span><span class="op">(</span><span class="va">d_pros</span>, <span class="va">d_mce</span>, <span class="va">d_pas</span>, dagar_innan <span class="op">=</span> <span class="fl">29</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>d_pros</dt>
 <dd><p>Prosedyredatasett.</p></dd>
+
+
 <dt>d_mce</dt>
 <dd><p>Forløpsdatasett.</p></dd>
+
+
 <dt>d_pas</dt>
 <dd><p>Pasientdatasett (<code>patientlist</code>-tabellen).</p></dd>
+
+
 <dt>dagar_innan</dt>
 <dd><p>Talet på dagar som ein skal sjå om
 pasienten døde innan. Dødsfall <em>på</em> denne dagen
 vert òg rekna med. Standardverdien er 29, dvs. ein
 ser om pasienten døde &lt; 30 dagar frå prosedyredatoen.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>KI-datasett eigna for bruk med <code><a href="aggreger_ki_prop.html">aggreger_ki_prop()</a></code>.</p>
+    
+
+<p>KI-datasett eigna for bruk med <code><a href="aggreger_ki_prop.html">aggreger_ki_prop()</a></code>.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -113,7 +122,7 @@ for når me har oppdatert dødsdatoinformasjon frå.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

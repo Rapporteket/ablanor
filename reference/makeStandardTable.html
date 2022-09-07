@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -53,44 +53,52 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">mst</span><span class="op">(</span>
-  <span class="va">tab</span>,
-  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="st">"pdf"</span>,
-  cap <span class="op">=</span> <span class="st">""</span>,
-  label <span class="op">=</span> <span class="st">""</span>,
-  digs <span class="op">=</span> <span class="fl">0</span>,
-  align <span class="op">=</span> <span class="cn">NULL</span>,
-  fs <span class="op">=</span> <span class="fl">14</span>,
-  lsd <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span>
-
-<span class="fu">mst_short</span><span class="op">(</span>
-  <span class="va">tab</span>,
-  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span>,
-  type <span class="op">=</span> <span class="st">"pdf"</span>,
-  cap <span class="op">=</span> <span class="st">""</span>,
-  label <span class="op">=</span> <span class="st">""</span>,
-  digs <span class="op">=</span> <span class="fl">0</span>,
-  align <span class="op">=</span> <span class="cn">NULL</span>,
-  fs <span class="op">=</span> <span class="fl">14</span>,
-  lsd <span class="op">=</span> <span class="cn">FALSE</span>,
-  full_width <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">mst</span><span class="op">(</span></span>
+<span>  <span class="va">tab</span>,</span>
+<span>  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"pdf"</span>,</span>
+<span>  cap <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  digs <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  align <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fs <span class="op">=</span> <span class="fl">14</span>,</span>
+<span>  lsd <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">mst_short</span><span class="op">(</span></span>
+<span>  <span class="va">tab</span>,</span>
+<span>  col_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"pdf"</span>,</span>
+<span>  cap <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  digs <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  align <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fs <span class="op">=</span> <span class="fl">14</span>,</span>
+<span>  lsd <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  full_width <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>tab</dt>
 <dd><p>Data frame or matrix represetnting the table</p></dd>
+
+
 <dt>col_names</dt>
 <dd><p>Character vector with column names. Defaults
 <code>colnames(tab)</code></p></dd>
+
+
 <dt>type</dt>
 <dd><p>Character string defining output, either 'html' or 'latex'.
 Default is 'latex'</p></dd>
+
+
 <dt>cap</dt>
 <dd><p>Character string with table caption. Empty string by default</p></dd>
+
+
 <dt>label</dt>
 <dd><p>Character string defining the label in case the table needs to
 be referenced elsewhere in the overall document. For instance, setting this
@@ -99,25 +107,38 @@ to 'my_table' the corresponding inline rmarkdown reference to use is
 LaTex and HTML the bookdown document processing functions must be used,
 <em>i.e.</em> bookdown:pdf_document2() and bookdown::html_document2(),
 respectively. Default value is <code>knitr::opts_current$get("label")</code>.</p></dd>
+
+
 <dt>digs</dt>
 <dd><p>Numeric number of digits to use. = by default</p></dd>
+
+
 <dt>align</dt>
 <dd><p>Character vector specifying column alignment in the LaTeX way,
 <em>e.g.</em> <code>c("l", "c", "r")</code> will align the first column to the left,
 center the second and right-aling the last one. Default is NULL in which case</p></dd>
+
+
 <dt>fs</dt>
 <dd><p>Numeric providing the font size. Only apply for LaTeX output.
 Default value is 14</p></dd>
+
+
 <dt>lsd</dt>
 <dd><p>Logical if table is to be scaled down. Only apply for LaTeX
 output. FALSE by default</p></dd>
+
+
 <dt>full_width</dt>
 <dd><p>Logical, if table should use full page width. FALSE by
 default</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Character string containing RMarkdown table code or an R data object</p>
+    
+
+<p>Character string containing RMarkdown table code or an R data object</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -128,7 +149,7 @@ is made already</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">mst</span><span class="op">(</span>tab <span class="op">=</span> <span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">mst</span><span class="op">(</span>tab <span class="op">=</span> <span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \begin{table}[H]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> \caption{\label{tab:}}</span>
@@ -166,7 +187,7 @@ is made already</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

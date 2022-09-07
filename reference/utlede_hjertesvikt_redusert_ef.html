@@ -18,7 +18,7 @@ based on variables hjertesvikt and ejekfrak."><!-- mathjax --><script src="https
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -55,7 +55,7 @@ based on variables <code>hjertesvikt</code> and <code>ejekfrak</code>.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">utlede_hjertesvikt_redusert_ef</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">utlede_hjertesvikt_redusert_ef</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -63,19 +63,22 @@ based on variables <code>hjertesvikt</code> and <code>ejekfrak</code>.</p>
     <dl><dt>df</dt>
 <dd><p>data.frame with Ablanor-data. Must contain variables
 <code>forlopstype</code>, <code>hjertesvikt</code> and <code>ejekfrak</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns <code>df</code> with 1 new column</p>
+    
+
+<p>Returns <code>df</code> with 1 new column</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in">  <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span class="r-in">    forlopstype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span>,</span>
-<span class="r-in">    hjertesvikt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1</span>, <span class="cn">NA</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">9</span>, <span class="fl">9</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">    ejekfrak <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">9</span>, <span class="fl">1</span>, <span class="fl">9</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"> <span class="fu">ablanor</span><span class="fu">::</span><span class="fu">utlede_hjertesvikt_redusert_ef</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    forlopstype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    hjertesvikt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1</span>, <span class="cn">NA</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">9</span>, <span class="fl">9</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    ejekfrak <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">9</span>, <span class="fl">1</span>, <span class="fl">9</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span> <span class="fu">ablanor</span><span class="fu">::</span><span class="fu">utlede_hjertesvikt_redusert_ef</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    forlopstype hjertesvikt ejekfrak                  kategori_afli_hjsvikt_ef</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1           NA          NA       NA                                      &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2            2           1        9                                      &lt;NA&gt;</span>
@@ -101,7 +104,7 @@ based on variables <code>hjertesvikt</code> and <code>ejekfrak</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>
