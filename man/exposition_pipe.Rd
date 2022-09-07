@@ -7,6 +7,6 @@
 lhs \%$\% rhs
 }
 \description{
-See \code{magrittr::\link[magrittr:pipe]{\%$\%}} for details.
+See \code{magrittr::\link[magrittr:exposition]{\%$\%}} for details.
 }
 \keyword{internal}

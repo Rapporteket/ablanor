@@ -2,8 +2,10 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^docker-compose.yml$
+^docker-compose_app.yml$
 ^\.github$
 ^.lintr$
 ^codecov.yml$
 ^CODE_OF_CONDUCT\.md$
 ^data-raw$
+^Dockerfile$

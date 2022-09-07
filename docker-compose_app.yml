@@ -1,0 +1,56 @@
+version: '3.3'
+
+services:
+  db:
+    image: mysql:5.7
+    command: --innodb-log-file-size=500M --innodb_strict_mode=0
+    restart: "no"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  dev:
+    depends_on:
+      - db
+    image: rapporteket/ablanor-dev:nightly
+    volumes:
+      - ~/.ssh:/home/rstudio/.ssh
+      - ~/.gitconfig:/home/rstudio/.gitconfig
+      - config:/home/rstudio/rap_config
+    ports:
+      - "8787:8787"
+      - "3838:3838"
+    dns:
+      - 8.8.8.8
+    restart: "no"
+    environment:
+      USERID: $USERID
+      PASSWORD: password
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: root
+
+  app:
+    depends_on:
+      - dev
+    image: rapporteket/ablanor:main
+    volumes:
+      - config:/app/R
+    ports:
+      - "3008:3008"
+    restart: "no"
+    environment:
+      R_RAP_CONFIG_PATH: /app/R
+      R_RAP_INSTANCE: DEV
+
+  adminer:
+    depends_on:
+      - db
+    image: adminer
+    restart: "no"
+    environment:
+      ADMINER_PLUGINS: frames
+    ports:
+      - 8888:8080
+
+volumes:
+  config:

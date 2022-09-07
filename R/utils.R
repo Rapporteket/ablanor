@@ -12,7 +12,7 @@ NULL
 
 #' Compound assignment pipe operator
 #'
-#' See \code{magrittr::\link[magrittr:pipe]{\%<>\%}} for details.
+#' See \code{magrittr::\link[magrittr:compound]{\%<>\%}} for details.
 #'
 #' @name %<>%
 #' @rdname compound_assignment_pipe
@@ -24,7 +24,7 @@ NULL
 
 #' Exposition pipe operator
 #'
-#' See \code{magrittr::\link[magrittr:pipe]{\%$\%}} for details.
+#' See \code{magrittr::\link[magrittr:exposition]{\%$\%}} for details.
 #'
 #' @name %$%
 #' @rdname exposition_pipe
