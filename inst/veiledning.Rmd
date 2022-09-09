@@ -12,6 +12,29 @@ params:
 
 ## Rapporteket for AblaNor `r params$hospitalName`
 
+### Test of staging data
+Please remove this section once no longer needed for testing of staged data.
+
+```{r stagingDataTest, echo=FALSE, eval=TRUE}
+
+testData <- rapbase::loadStagingData(
+  registryName = "ablanor", dataName = "ablanorData"
+)
+
+if (isFALSE(testData)) {
+  message("Staged data not found. I will create it!")
+  testData <- dplyr::storms
+  rapbase::saveStagingData(
+    registryName = "ablanor",
+    dataName = "ablanorData",
+    data = testData
+  )
+} else {
+  message("Staging data found. Cool!")
+}
+```
+
+Staging data consists of `r dim(testData)[1]` observations on `r dim(testData)[2]` variables.
 
 ### Utforsker
 Denne siden inneholder en løsning som benytter R-pakken `rpivotTable`. 
