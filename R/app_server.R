@@ -9,6 +9,8 @@
 
 app_server <- function(input, output, session) {
 
+  # Store user default group in session object
+  session$userData$defaultGroup <- packageName()
 
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
