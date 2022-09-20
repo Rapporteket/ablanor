@@ -68,24 +68,8 @@ app_server <- function(input, output, session) {
   }
 
 
-  # widget
-  output$appUserName <- shiny::renderText(userFullName)
-  output$appOrgName <- shiny::renderText(
-    paste(hospitalName, userRole, sep = ", "))
-
-  # User info in widget
-  userInfo <- rapbase::howWeDealWithPersonalData(session,
-                                                 callerPkg = "ablanor")
-  shiny::observeEvent(input$userInfo, {
-    shinyalert::shinyalert(
-      "Dette vet Rapporteket om deg:", userInfo,
-      type = "", imageUrl = "rap/logo.svg",
-      closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-      html = TRUE, confirmButtonText = rapbase::noOptOutOk()
-    )
-  })
-
-
+  # User widget
+  rapbase::navbarWidgetServer("ablanorWidget", orgName = "Ablanor")
 
 
   # Start
