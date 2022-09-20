@@ -26,13 +26,7 @@ app_ui <- function() {
         shiny::mainPanel(
           width = 12,
           shiny::htmlOutput("veiledning", inline = TRUE),
-          rapbase::appNavbarUserWidget(
-            user = shiny::uiOutput("appUserName"),
-            organization = shiny::uiOutput("appOrgName"),
-            addUserInfo = TRUE),
-          shiny::tags$head(
-            shiny::tags$link(rel = "shortcut icon", href = "rap/favicon.ico")
-          )
+          rapbase::navbarWidgetInput("ablanorWidget")
         )
       ),
 
