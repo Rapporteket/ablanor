@@ -18,7 +18,7 @@ services:
       - config:/home/rstudio/rap_config
     ports:
       - "8787:8787"
-      - "3838:3838"
+      #- "3838:3838"
     dns:
       - 8.8.8.8
     restart: "no"
@@ -32,11 +32,11 @@ services:
   app:
     depends_on:
       - dev
-    image: rapporteket/ablanor:main
+    image: rapporteket/ablanor:poc
     volumes:
       - config:/app/R
     ports:
-      - "3008:3008"
+      - "3008:3838"
     restart: "no"
     environment:
       R_RAP_CONFIG_PATH: /app/R
