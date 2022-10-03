@@ -26,7 +26,7 @@ app_ui <- function() {
         shiny::mainPanel(
           width = 12,
           shiny::htmlOutput("veiledning", inline = TRUE),
-          rapbase::navbarWidgetInput("ablanorWidget")
+          rapbase::navbarWidgetInput("ablanorWidget", selectOrganization = TRUE)
         )
       ),
 
@@ -111,43 +111,45 @@ app_ui <- function() {
         )
       ),
 
-      shiny::navbarMenu(
-        "Verktøy",
+      shiny::uiOutput("tools")
 
-        shiny::tabPanel(
-          "Utsending",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              rapbase::autoReportFormatInput("ablanorDispatchment"),
-              rapbase::autoReportOrgInput("ablanorDispatchment"),
-              rapbase::autoReportInput("ablanorDispatchment")
-            ),
-            shiny::mainPanel(
-              rapbase::autoReportUI("ablanorDispatchment")
-            )
-          )
-        ),
-
-        shiny::tabPanel(
-          "Eksport",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              rapbase::exportUCInput("ablanorExport")
-            ),
-            shiny::mainPanel(
-              rapbase::exportGuideUI("ablanorExportGuide")
-            )
-          )
-        ),
-
-        shiny::tabPanel(
-          "Bruksstatistikk",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
-            shiny::mainPanel(rapbase::statsUI("ablanorStats"))
-          )
-        )
-      )
+      # shiny::navbarMenu(
+      #   "Verktøy",
+      #
+      #   shiny::tabPanel(
+      #     "Utsending",
+      #     shiny::sidebarLayout(
+      #       shiny::sidebarPanel(
+      #         rapbase::autoReportFormatInput("ablanorDispatchment"),
+      #         rapbase::autoReportOrgInput("ablanorDispatchment"),
+      #         rapbase::autoReportInput("ablanorDispatchment")
+      #       ),
+      #       shiny::mainPanel(
+      #         rapbase::autoReportUI("ablanorDispatchment")
+      #       )
+      #     )
+      #   ),
+      #
+      #   shiny::tabPanel(
+      #     "Eksport",
+      #     shiny::sidebarLayout(
+      #       shiny::sidebarPanel(
+      #         rapbase::exportUCInput("ablanorExport")
+      #       ),
+      #       shiny::mainPanel(
+      #         rapbase::exportGuideUI("ablanorExportGuide")
+      #       )
+      #     )
+      #   ),
+      #
+      #   shiny::tabPanel(
+      #     "Bruksstatistikk",
+      #     shiny::sidebarLayout(
+      #       shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
+      #       shiny::mainPanel(rapbase::statsUI("ablanorStats"))
+      #     )
+      #   )
+      # )
     )
   )
 }

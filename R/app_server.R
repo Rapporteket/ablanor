@@ -14,6 +14,10 @@ app_server <- function(input, output, session) {
 
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
+  privs <- rapbase::navbarWidgetServer(
+    "ablanorWidget", "Ablanor", packageName()
+  )
+
   # Parameters that will remain throughout the session
   dataSets <- list(
     `Bruk og valg av data` = "info",
@@ -23,34 +27,34 @@ app_server <- function(input, output, session) {
 
   registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId(registryName)
-  reshId <- rapbase::getUserReshId(session)
-  hospitalName <- ablanor::getHospitalName(registryName, reshId)
-  userFullName <- rapbase::getUserFullName(session)
-  userRole <- rapbase::getUserRole(session)
+  #reshId <- rapbase::getUserReshId(session)
+  #hospitalName <- ablanor::getHospitalName(registryName, reshId)
+  userFullName <- rapbase::getUserFullName(session, registryName)
+  #userRole <- rapbase::getUserRole(session)
   userOperator <- "Test Operatoresen"
   author <- userFullName
   # userOperator <- ? #@fixme
 
   # Hide all tabs if LU -role
-  if (userRole == "LU") {
-    shiny::hideTab(inputId = "tabs", target = "Utforsker")
-    shiny::hideTab(inputId = "tabs", target = "Datadump")
-    shiny::hideTab(inputId = "tabs", target = "Kodebok")
-    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-    shiny::hideTab(inputId = "tabs", target = "Abonnement")
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-  }
+  # if (userRole == "LU") {
+  #   shiny::hideTab(inputId = "tabs", target = "Utforsker")
+  #   shiny::hideTab(inputId = "tabs", target = "Datadump")
+  #   shiny::hideTab(inputId = "tabs", target = "Kodebok")
+  #   shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+  #   shiny::hideTab(inputId = "tabs", target = "Abonnement")
+  #   shiny::hideTab(inputId = "tabs", target = "Verktøy")
+  # }
 
 
   # Hide tabs when not role 'SC'
-  if (userRole != "SC") {
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-  }
+  # if (userRole != "SC") {
+  #   shiny::hideTab(inputId = "tabs", target = "Verktøy")
+  # }
 
   # Hide tabs when role 'SC'
-  if (userRole == "SC") {
-    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-  }
+  # if (userRole == "SC") {
+  #   shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+  # }
 
 
   contentDump <- function(file, type, userRole, reshId) {
@@ -68,21 +72,22 @@ app_server <- function(input, output, session) {
   }
 
 
-  # User widget
-  rapbase::navbarWidgetServer("ablanorWidget", orgName = "Ablanor")
-
-
   # Start
   output$veiledning <- shiny::renderUI({
-    rapbase::renderRmd(
-      system.file("veiledning.Rmd", package = "ablanor"),
-      outputType = "html_fragment",
-      params = list(title = "empty title",
-                    author = author,
-                    hospitalName = hospitalName,
-                    tableFormat = "html",
-                    reshId = reshId)
-    )
+    if (is.null(privs$org())) {
+      NULL
+    } else {
+      print(privs$org())
+      rapbase::renderRmd(
+        system.file("veiledning.Rmd", package = "ablanor"),
+        outputType = "html_fragment",
+        params = list(title = "empty title",
+                      author = author,
+                      hospitalName = getHospitalName(registryName, privs$org()),
+                      tableFormat = "html",
+                      reshId = privs$org())
+      )
+    }
   })
 
 
@@ -303,13 +308,15 @@ app_server <- function(input, output, session) {
                                  asNamedList = TRUE)
 
   # Abonnement
-  subReports <- list(
-    "Månedlige resultater" = list(
-      synopsis = "Månedlige resultater sykehus/avdeling",
-      fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId,
-                      hospitalName)
+  subReports <- shiny::reactive(
+    list(
+      "Månedlige resultater" = list(
+        synopsis = "Månedlige resultater sykehus/avdeling",
+        fun = "reportProcessor",
+        paramNames = c("report", "outputType", "title", "orgId", "orgName"),
+        paramValues = c("local_monthly", "pdf", "Månedsresultater", privs$org(),
+                        hospitalName)
+      )
     )
   )
 
@@ -341,14 +348,58 @@ app_server <- function(input, output, session) {
     eligible = (userRole == "SC")
   )
 
-  # Eksport
+
+  # Tools, menu only when role SC
+  output$tools <- shiny::renderUI({
+    if (privs$role() == "SC") {
+      #shiny::tagList(
+        shiny::navbarMenu(
+          "Verktøy",
+
+          shiny::tabPanel(
+            "Utsending",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::autoReportFormatInput("ablanorDispatchment"),
+                rapbase::autoReportOrgInput("ablanorDispatchment"),
+                rapbase::autoReportInput("ablanorDispatchment")
+              ),
+              shiny::mainPanel(
+                rapbase::autoReportUI("ablanorDispatchment")
+              )
+            )
+          ),
+
+          shiny::tabPanel(
+            "Eksport",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::exportUCInput("ablanorExport")
+              ),
+              shiny::mainPanel(
+                rapbase::exportGuideUI("ablanorExportGuide")
+              )
+            )
+          ),
+
+          shiny::tabPanel(
+            "Bruksstatistikk",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
+              shiny::mainPanel(rapbase::statsUI("ablanorStats"))
+            )
+          )
+        )
+      #)
+    } else {
+      NULL
+    }
+  })
   ## brukerkontroller
-  rapbase::exportUCServer("ablanorExport", registryName,
-                          eligible = (userRole == "SC"))
+  rapbase::exportUCServer("ablanorExport", registryName)
   ## veileding
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
-  rapbase::statsServer("ablanorStats", registryName,
-                       eligible = (userRole == "SC"))
+  rapbase::statsServer("ablanorStats", registryName)
 }
