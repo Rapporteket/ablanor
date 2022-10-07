@@ -34,7 +34,7 @@ app_server <- function(input, output, session) {
       shiny::hideTab(inputId = "tabs", target = "Datadump")
       shiny::hideTab(inputId = "tabs", target = "Kodebok")
       shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-      shiny::hideTab(inputId = "tabs", target = "Abonnement")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
       shiny::hideTab(inputId = "tabs", target = "Verktøy")
     }
     if (user$role() == "LC") {
@@ -315,21 +315,23 @@ app_server <- function(input, output, session) {
   orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
 
   # Abonnement
-  subReports <- shiny::reactive(
-    list(
-      "Månedlige resultater" = list(
-        synopsis = "Månedlige resultater sykehus/avdeling",
-        fun = "reportProcessor",
-        paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-        paramValues = c("local_monthly", "pdf", "Månedsresultater", user$org(),
-                        hospitalName)
-      )
+  subReports <- list(
+    "Månedlige resultater" = list(
+      synopsis = "Månedlige resultater sykehus/avdeling",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
+      paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999,
+                      "unknownHospital")
     )
   )
 
-  rapbase::autoReportServer(
+  subParamNames <- shiny::reactive(c("orgId", "orgName"))
+  subParamValues <- shiny::reactive(c(user$org(), user$orgName()))
+
+  rapbase::autoReportServer2(
     id = "ablanorSubscription", registryName = registryName,
-    type = "subscription", reports = subReports, orgs = orgs
+    type = "subscription", paramNames = subParamNames,
+    paramValues = subParamValues, reports = subReports, orgs = orgs, user = user
   )
 
   # Utsendelse
@@ -348,11 +350,11 @@ app_server <- function(input, output, session) {
   disParamNames <- shiny::reactive(c("orgId", "outputType"))
   disParamValues <- shiny::reactive(c(org$value(), disFormat()))
 
-  rapbase::autoReportServer(
+  rapbase::autoReportServer2(
     id = "ablanorDispatchment", registryName = registryName,
     type = "dispatchment", org = org$value, paramNames = disParamNames,
     paramValues = disParamValues, reports = disReports, orgs = orgs,
-    userName = user$name, userOrg = user$org, userRole = user$role
+    user = user
   )
 
 
