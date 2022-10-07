@@ -9,12 +9,9 @@
 
 app_server <- function(input, output, session) {
 
-  # Store user default group in session object
-  #session$userData$defaultGroup <- packageName()
-
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
-  privs <- rapbase::navbarWidgetServer(
+  user <- rapbase::navbarWidgetServer(
     "ablanorWidget", "Ablanor", packageName()
   )
 
@@ -27,34 +24,40 @@ app_server <- function(input, output, session) {
 
   registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId(registryName)
-  #reshId <- rapbase::getUserReshId(session)
-  #hospitalName <- ablanor::getHospitalName(registryName, reshId)
-  userFullName <- rapbase::getUserFullName(session, registryName)
-  #userRole <- rapbase::getUserRole(session)
   userOperator <- "Test Operatoresen"
-  author <- userFullName
   # userOperator <- ? #@fixme
 
-  # Hide all tabs if LU -role
-  # if (userRole == "LU") {
-  #   shiny::hideTab(inputId = "tabs", target = "Utforsker")
-  #   shiny::hideTab(inputId = "tabs", target = "Datadump")
-  #   shiny::hideTab(inputId = "tabs", target = "Kodebok")
-  #   shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-  #   shiny::hideTab(inputId = "tabs", target = "Abonnement")
-  #   shiny::hideTab(inputId = "tabs", target = "Verktøy")
-  # }
+  shiny::observeEvent(user$role(), {
+    if (user$role() == "LU") {
+      shiny::showTab(inputId = "tabs", target = "Start")
+      shiny::hideTab(inputId = "tabs", target = "Utforsker")
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::hideTab(inputId = "tabs", target = "Abonnement")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    }
+    if (user$role() == "LC") {
+      shiny::showTab(inputId = "tabs", target = "Start")
+      shiny::showTab(inputId = "tabs", target = "Utforsker")
+      shiny::showTab(inputId = "tabs", target = "Datadump")
+      shiny::showTab(inputId = "tabs", target = "Kodebok")
+      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    }
 
-
-  # Hide tabs when not role 'SC'
-  # if (userRole != "SC") {
-  #   shiny::hideTab(inputId = "tabs", target = "Verktøy")
-  # }
-
-  # Hide tabs when role 'SC'
-  # if (userRole == "SC") {
-  #   shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-  # }
+    # Hide tabs when role 'SC'
+    if (user$role() == "SC") {
+      shiny::showTab(inputId = "tabs", target = "Start")
+      shiny::showTab(inputId = "tabs", target = "Utforsker")
+      shiny::showTab(inputId = "tabs", target = "Datadump")
+      shiny::showTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
+      shiny::showTab(inputId = "tabs", target = "Verktøy")
+    }
+  })
 
 
   contentDump <- function(file, type, userRole, reshId) {
@@ -74,18 +77,17 @@ app_server <- function(input, output, session) {
 
   # Start
   output$veiledning <- shiny::renderUI({
-    if (is.null(privs$org())) {
+    if (is.null(user$org())) {
       NULL
     } else {
-      print(privs$org())
       rapbase::renderRmd(
         system.file("veiledning.Rmd", package = "ablanor"),
         outputType = "html_fragment",
         params = list(title = "empty title",
-                      author = author,
-                      hospitalName = getHospitalName(registryName, privs$org()),
+                      author = user$fullName(),
+                      hospitalName = getHospitalName(registryName, user$org()),
                       tableFormat = "html",
-                      reshId = privs$org())
+                      reshId = user$org())
       )
     }
   })
@@ -123,8 +125,8 @@ app_server <- function(input, output, session) {
     ablanor::getPivotDataSet(setId = input$selectedDataSet,
                              registryName = registryName,
                              session = session,
-                             reshId = reshId,
-                             userRole = userRole)
+                             reshId = user$org(),
+                             userRole = user$role())
   })
 
 
@@ -132,8 +134,8 @@ app_server <- function(input, output, session) {
     ablanor::getPivotDataSet(setId = input$selectedDataSet,
                              registryName = registryName,
                              session = session,
-                             reshId = reshId,
-                             userRole = userRole,
+                             reshId = user$org(),
+                             userRole = user$role(),
                              singleRow = TRUE)
   })
 
@@ -158,7 +160,7 @@ app_server <- function(input, output, session) {
     if (length(input$isSelectAllVars) == 0) {
       NULL
     } else {
-      if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
+      if (length(rvals$showPivotTable) == 0 || rvals$showPivotTable) {
         shiny::h4(paste("Valgt datasett:",
                         names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
@@ -207,8 +209,8 @@ app_server <- function(input, output, session) {
     ablanor::getPivotDataSet(setId = input$kbdTab,
                              registryName = registryName,
                              session = session,
-                             reshId = reshId,
-                             userRole = userRole,
+                             reshId = user$org(),
+                             userRole = user$role(),
                              singleRow = TRUE)
   })
 
@@ -261,7 +263,9 @@ app_server <- function(input, output, session) {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat, userRole = userRole, reshId = reshId)
+      contentDump(
+        file, input$dumpFormat, userRole = user$role(), reshId = user$org()
+      )
     }
   )
 
@@ -270,13 +274,15 @@ app_server <- function(input, output, session) {
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
       outputType = "html_fragment",
-      params = list(author = author,
-                    hospitalName = hospitalName,
-                    tableFormat = "html",
-                    reshId = reshId,
-                    registryName = registryName,
-                    userRole = userRole,
-                    userOperator = userOperator)
+      params = list(
+        author = user$fullName,
+        hospitalName = ablanor::getHospitalName(registryName, user$org()),
+        tableFormat = "html",
+        reshId = user$org(),
+        registryName = registryName,
+        userRole = user$role(),
+        userOperator = userOperator
+      )
     )
   })
 
@@ -289,14 +295,16 @@ app_server <- function(input, output, session) {
       fn <- rapbase::renderRmd(
         system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
         outputType = input$formatReport,
-        params = list(author = author,
-                      hospitalName = hospitalName,
-                      tableFormat = input$formatReport,
-                      reshId = reshId,
-                      registryName = registryName,
-                      userFullName = userFullName,
-                      userRole = userRole,
-                      userOperator = userOperator)
+        params = list(
+          author = user$fullName(),
+          hospitalName = getHospitalName(registryName, user$org()),
+          tableFormat = input$formatReport,
+          reshId = user$org(),
+          registryName = registryName,
+          userFullName = user$fullName(),
+          userRole = user$role(),
+          userOperator = userOperator
+        )
       )
       file.rename(fn, file)
     }
@@ -304,8 +312,7 @@ app_server <- function(input, output, session) {
 
 
   # Values shared among subscriptions and dispatchment
-  orgs <- ablanor::getNameReshId(registryName = registryName,
-                                 asNamedList = TRUE)
+  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
 
   # Abonnement
   subReports <- shiny::reactive(
@@ -314,7 +321,7 @@ app_server <- function(input, output, session) {
         synopsis = "Månedlige resultater sykehus/avdeling",
         fun = "reportProcessor",
         paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-        paramValues = c("local_monthly", "pdf", "Månedsresultater", privs$org(),
+        paramValues = c("local_monthly", "pdf", "Månedsresultater", user$org(),
                         hospitalName)
       )
     )
@@ -345,59 +352,12 @@ app_server <- function(input, output, session) {
     id = "ablanorDispatchment", registryName = registryName,
     type = "dispatchment", org = org$value, paramNames = disParamNames,
     paramValues = disParamValues, reports = disReports, orgs = orgs,
-    eligible = (userRole == "SC")
+    userName = user$name, userOrg = user$org, userRole = user$role
   )
 
 
-  # Tools, menu only when role SC
-  output$tools <- shiny::renderUI({
-    if (privs$role() == "SC") {
-      #shiny::tagList(
-        shiny::navbarMenu(
-          "Verktøy",
-
-          shiny::tabPanel(
-            "Utsending",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::autoReportFormatInput("ablanorDispatchment"),
-                rapbase::autoReportOrgInput("ablanorDispatchment"),
-                rapbase::autoReportInput("ablanorDispatchment")
-              ),
-              shiny::mainPanel(
-                rapbase::autoReportUI("ablanorDispatchment")
-              )
-            )
-          ),
-
-          shiny::tabPanel(
-            "Eksport",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::exportUCInput("ablanorExport")
-              ),
-              shiny::mainPanel(
-                rapbase::exportGuideUI("ablanorExportGuide")
-              )
-            )
-          ),
-
-          shiny::tabPanel(
-            "Bruksstatistikk",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
-              shiny::mainPanel(rapbase::statsUI("ablanorStats"))
-            )
-          )
-        )
-      #)
-    } else {
-      NULL
-    }
-  })
-  ## brukerkontroller
+  # Eksport
   rapbase::exportUCServer("ablanorExport", registryName)
-  ## veileding
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
