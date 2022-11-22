@@ -316,6 +316,13 @@ app_server <- function(input, output, session) {
 
   # Abonnement
   subReports <- list(
+    "Veiledning" = list(
+      synopsis = "Veiledningsteksten for testformål",
+      fun = "reportProcessor",
+      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
+      paramValues =c("veiledning", "pdf", "Veiledning", 999999,
+                     "unknownHospital")
+    ),
     "Månedlige resultater" = list(
       synopsis = "Månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
