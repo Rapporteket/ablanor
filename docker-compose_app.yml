@@ -45,6 +45,7 @@ services:
       SHINYPROXY_USERNAME: ttesterc
       SHINYPROXY_USERGROUPS: "LC,LC,SC,LC"
       USERORGID: "[1, 2, 3, 4]"
+      USEREMAIL: ttesterc@holigong.no
 
   adminer:
     depends_on:
