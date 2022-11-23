@@ -91,6 +91,24 @@ app_server <- function(input, output, session) {
       )
     }
   })
+  output$download_report <- shiny::downloadHandler(
+    filename = function() {
+      basename(tempfile(pattern = "veiledning",
+                        fileext = paste0(".", input$format_report)))
+    },
+    content = function(file) {
+      fn <- rapbase::renderRmd(
+        system.file("veiledning.Rmd", package = "ablanor"),
+        outputType = input$format_report,
+        params = list(
+          author = user$fullName(),
+          tableFormat = input$format_report,
+          reshId = user$org()
+        )
+      )
+      file.rename(fn, file)
+    }
+  )
 
 
   # Utforsker
