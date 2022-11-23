@@ -46,6 +46,24 @@ services:
       SHINYPROXY_USERGROUPS: "LC,LC,SC,LC"
       USERORGID: "[1, 2, 3, 4]"
       USEREMAIL: ttesterc@holigong.no
+  
+  rapadm:
+    depends_on:
+      - dev
+    image: rapporteket/rapadm:main
+    volumes:
+      - config:/app/R
+    ports:
+      - "3088:3838"
+    restart: "no"
+    environment:
+      R_RAP_CONFIG_PATH: /app/R
+      R_RAP_INSTANCE: QAC
+      USERFULLNAME: Tore Tester Container
+      SHINYPROXY_USERNAME: ttesterc
+      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC"
+      USERORGID: "[1, 2, 3, 4]"
+      USEREMAIL: ttesterc@holigong.no
 
   adminer:
     depends_on:
