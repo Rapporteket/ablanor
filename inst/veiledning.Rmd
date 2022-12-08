@@ -19,7 +19,7 @@ Please remove this section once no longer needed for testing of staged data.
 testData <- data.frame()
 ```
 
-```{r stagingDataTest, echo=FALSE, eval=FALSE}
+```{r stagingDataTest, echo=FALSE, eval=TRUE}
 
 testData <- rapbase::loadStagingData(
   registryName = "ablanor", dataName = "ablanorData"
@@ -38,7 +38,7 @@ if (isFALSE(testData)) {
 }
 ```
 
-```{r stagingDataStatus, echo=FALSE, eval=TRUE}
+```{r stagingDataStatus, echo=FALSE, eval=FALSE}
 if (dim(testData)[1] == 0) {
   cat("Data set is empty. Most likely, the test is not being evaluated.\n")
 }
