@@ -61,9 +61,11 @@ services:
       R_RAP_INSTANCE: QAC
       USERFULLNAME: Tore Tester Container
       SHINYPROXY_USERNAME: ttesterc
-      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC"
-      USERORGID: "[1, 2, 3, 4]"
+      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC,SC,SC"
+      USERORGID: "[1, 2, 3, 4, 5, 6]"
       USEREMAIL: ttesterc@holigong.no
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
 
   adminer:
     depends_on:
