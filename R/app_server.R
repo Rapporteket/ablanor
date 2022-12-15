@@ -11,6 +11,11 @@ app_server <- function(input, output, session) {
 
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
+  ### Remove after debugging
+  testData <- rapbase::loadStagingData(
+    registryName = "ablanor", dataName = "ablanorData"
+  )
+
   user <- rapbase::navbarWidgetServer2(
     "ablanorWidget", "Ablanor", packageName()
   )
