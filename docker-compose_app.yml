@@ -18,7 +18,7 @@ services:
       - config:/home/rstudio/rap_config
     ports:
       - "8787:8787"
-      #- "3838:3838"
+      - "3838:3838"
     dns:
       - 8.8.8.8
     restart: "no"
@@ -40,7 +40,32 @@ services:
     restart: "no"
     environment:
       R_RAP_CONFIG_PATH: /app/R
-      R_RAP_INSTANCE: DEV
+      R_RAP_INSTANCE: QAC
+      USERFULLNAME: Tore Tester Container
+      SHINYPROXY_USERNAME: ttesterc
+      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC"
+      USERORGID: "[1, 2, 3, 4]"
+      USEREMAIL: ttesterc@holigong.no
+  
+  rapadm:
+    depends_on:
+      - dev
+    image: rapporteket/rapadm:main
+    volumes:
+      - config:/app/R
+    ports:
+      - "3088:3838"
+    restart: "no"
+    environment:
+      R_RAP_CONFIG_PATH: /app/R
+      R_RAP_INSTANCE: QAC
+      USERFULLNAME: Tore Tester Container
+      SHINYPROXY_USERNAME: ttesterc
+      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC,SC,SC"
+      USERORGID: "[1, 2, 3, 4, 5, 6]"
+      USEREMAIL: ttesterc@holigong.no
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
 
   adminer:
     depends_on:
