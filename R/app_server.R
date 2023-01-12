@@ -316,44 +316,77 @@ app_server <- function(input, output, session) {
   orgs <- ablanor::getNameReshId(registryName = registryName,
                                  asNamedList = TRUE)
 
+
+
+  pn <- c("outputType",
+          "title",
+          "author",
+          "orgName",
+          "orgId",
+          "registryName",
+          "userFullName",
+          "userRole",
+          "userOperator")
+
+
+
+
+  pv <- c("pdf",
+          "Månedsresultater",
+          "unknown author",
+          hospitalName,
+          102966,
+          registryName,
+          userFullName,
+          userRole,
+          "unknown operator")
+
+
+
+
   # Abonnement
   subReports <- list(
     "Månedlige resultater" = list(
       synopsis = "Månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId,
-                      hospitalName)
+      # paramNames = c("report", "outputType", "title", "orgId", "orgName"),
+      # paramValues = c("veiledning", "pdf", "Månedsresultater", reshId,
+      #                 hospitalName)
+      paramNames = c("report", pn),
+      paramValues = c("veiledning", pv)
+      )
     )
-  )
+
 
   rapbase::autoReportServer(
-    id = "ablanorSubscription", registryName = registryName,
-    type = "subscription", reports = subReports, orgs = orgs
-  )
+    id = "ablanorSubscription",
+    registryName = "ablanor",
+    type = "subscription",
+    reports = subReports,
+    orgs = orgs)
 
-  # Utsendelse
-  disReports <- list(
-    "Månedlige resultater" = list(
-      synopsis = "AblaNor månedlige resultater sykehus/avdeling",
-      fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999)
-    )
-  )
-
-  org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
-  disFormat <- rapbase::autoReportFormatServer("ablanorDispatchment")
-
-  disParamNames <- shiny::reactive(c("orgId", "outputType"))
-  disParamValues <- shiny::reactive(c(org$value(), disFormat()))
-
-  rapbase::autoReportServer(
-    id = "ablanorDispatchment", registryName = registryName,
-    type = "dispatchment", org = org$value, paramNames = disParamNames,
-    paramValues = disParamValues, reports = disReports, orgs = orgs,
-    eligible = (userRole == "SC")
-  )
+  # # Utsendelse
+  # disReports <- list(
+  #   "Månedlige resultater" = list(
+  #     synopsis = "AblaNor månedlige resultater sykehus/avdeling",
+  #     fun = "reportProcessor",
+  #     paramNames = c("report", "outputType", "title", "orgId"),
+  #     paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999)
+  #   )
+  # )
+  #
+  # org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
+  # disFormat <- rapbase::autoReportFormatServer("ablanorDispatchment")
+  #
+  # disParamNames <- shiny::reactive(c("orgId", "outputType"))
+  # disParamValues <- shiny::reactive(c(org$value(), disFormat()))
+  #
+  # rapbase::autoReportServer(
+  #   id = "ablanorDispatchment", registryName = registryName,
+  #   type = "dispatchment", org = org$value, paramNames = disParamNames,
+  #   paramValues = disParamValues, reports = disReports, orgs = orgs,
+  #   eligible = (userRole == "SC")
+  # )
 
   # Eksport
   ## brukerkontroller

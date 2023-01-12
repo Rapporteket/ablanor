@@ -109,7 +109,7 @@ app_ui <- function() {
       shiny::tabPanel(
         "Abonnement",
         shiny::sidebarPanel(
-          rapbase::autoReportFormatInput("ablanorSubscription"),
+          # rapbase::autoReportFormatInput("ablanorSubscription"),
           rapbase::autoReportInput("ablanorSubscription")
         ),
         shiny::mainPanel(
