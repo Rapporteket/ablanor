@@ -23,15 +23,17 @@ app_ui <- function() {
       shiny::tabPanel(
         "Start",
         shinyalert::useShinyalert(),
-        shiny::mainPanel(
-          width = 12,
-          shiny::htmlOutput("veiledning", inline = TRUE),
-          rapbase::appNavbarUserWidget(
-            user = shiny::uiOutput("appUserName"),
-            organization = shiny::uiOutput("appOrgName"),
-            addUserInfo = TRUE),
-          shiny::tags$head(
-            shiny::tags$link(rel = "shortcut icon", href = "rap/favicon.ico")
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            shiny::radioButtons("format_report",
+                                "Format for nedlasting",
+                                list(PDF = "pdf", HTML = "html"),
+                                inline = FALSE),
+            shiny::downloadButton("download_report", "Last ned!")
+          ),
+          shiny::mainPanel(
+            shiny::htmlOutput("veiledning", inline = TRUE),
+            rapbase::navbarWidgetInput("ablanorWidget", selectOrganization = TRUE)
           )
         )
       ),
@@ -119,7 +121,6 @@ app_ui <- function() {
 
       shiny::navbarMenu(
         "Verktøy",
-
         shiny::tabPanel(
           "Utsending",
           shiny::sidebarLayout(
