@@ -72,8 +72,9 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                           "' AND DATO_PROS < '", toDate, "'")
 
     } else if (tableName == "followup") {
-      condition <- paste0(" WHERE DATO_FOLLOWUP >= '", fromDate,
-                          "' AND DATO_FOLLOWUP < '", toDate, "'")
+      # condition <- paste0(" WHERE DATO_FOLLOWUP >= '", fromDate,
+      #                     "' AND DATO_FOLLOWUP < '", toDate, "'")
+      ##
 
     } else if (tableName == "rand12") {
       condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
@@ -260,7 +261,7 @@ getProsPatient <- function(registryName, singleRow,
     }
 
     query_basereg <- paste0("SELECT * FROM basereg", condition)
-    query_followup <- paste0("SELECT * FROM followup", condition)
+    query_followup <- paste0("SELECT * FROM followup")
     query_mce <- paste0(
       "SELECT MCEID, MCETYPE, PATIENT_ID, PARENTMCEID, STATUS FROM mce",
       condition)
