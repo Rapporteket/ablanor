@@ -27,7 +27,7 @@ getPivotDataSet <- function(setId = "",
                             userRole) {
   . <- ""
 
-  validSetId <- c("pros_patient", "rand12")
+  validSetId <- c("pros_patient", "rand12", "basereg")
 
   if (setId %in% validSetId) {
 
@@ -42,6 +42,22 @@ getPivotDataSet <- function(setId = "",
                                     reshId = reshId,
                                     userRole = userRole)
     }
+
+
+    if (setId == "basereg") {
+      dat <- ablanor::getBaseregData(registryName = registryName,
+                                     singleRow = singleRow,
+                                     session = session,
+                                     reshId = reshId,
+                                     userRole = userRole)
+    }
+
+
+
+
+
+
+
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
@@ -53,24 +69,24 @@ getPivotDataSet <- function(setId = "",
     }
 
     if(singleRow == FALSE){
-    # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
-    kb <- ablanor::getKodebokData() %>%
-      dplyr::select(.data$fysisk_feltnavn,
-                    .data$listeverdier,
-                    .data$listetekst,
-                    .data$type)
+      # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
+      kb <- ablanor::getKodebokData() %>%
+        dplyr::select(.data$fysisk_feltnavn,
+                      .data$listeverdier,
+                      .data$listetekst,
+                      .data$type)
 
-    dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
-                                                 kb = kb,
-                                                 suffiks = "_tekst") %>%
-      ablanor::kodebok_fyll_avkrysningsboks(df = .,
-                                            kb = kb,
-                                            suffiks = "_tekst") %>%
-      ablanor::kodebok_beholde_bare_listetekstvar(
-        df = .,
-        kb = kb,
-        suffiks = "_tekst",
-        fjerne_suffiks_fra_navn = TRUE)
+      dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
+                                                   kb = kb,
+                                                   suffiks = "_tekst") %>%
+        ablanor::kodebok_fyll_avkrysningsboks(df = .,
+                                              kb = kb,
+                                              suffiks = "_tekst") %>%
+        ablanor::kodebok_beholde_bare_listetekstvar(
+          df = .,
+          kb = kb,
+          suffiks = "_tekst",
+          fjerne_suffiks_fra_navn = TRUE)
     }
 
     dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
