@@ -16,7 +16,9 @@ app_server <- function(input, output, session) {
   dataSets <- list(
     `Bruk og valg av data` = "info",
     `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-    `RAND-12` = "rand12"
+    `RAND-12` = "rand12",
+    `Basisskjema` = "basereg"
+
   )
 
   registryName <- "ablanor"
@@ -172,7 +174,7 @@ app_server <- function(input, output, session) {
                         names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
         if (input$isSelectAllVars) {
-          vars <- names(dat())
+          vars <- names(metaDat())
         } else {
           vars <- rvals$selectedVars
         }
