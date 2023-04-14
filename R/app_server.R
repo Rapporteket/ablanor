@@ -17,7 +17,9 @@ app_server <- function(input, output, session) {
     `Bruk og valg av data` = "info",
     `Prosedyre, basisskjema og oppfølging` = "pros_patient",
     `RAND-12` = "rand12",
-    `Basisskjema` = "basereg"
+    `Basisskjema` = "basereg",
+    `Oppfølging 1 år` = "followup"
+
 
   )
 
@@ -232,7 +234,7 @@ app_server <- function(input, output, session) {
 
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- reactive({
-    if (input$kbdTab %in% c("rand12", "pros_patient", "basereg")) {
+    if (input$kbdTab %in% c("rand12", "pros_patient", "basereg", "followup")) {
       metaDatKb() %>% names()
     }
     else {
