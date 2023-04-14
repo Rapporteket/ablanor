@@ -1,3 +1,12 @@
+# ablanor 1.2.0
+## Nytt
+* Nedlasting av proms-tabell
+* Rådata i utforsker
+
+## Bugfix
+* Nedlasting av followup uten datofilter (status -1 forsvant før)
+
+
 # ablanor 1.1.0
 ## Nytt
 * Nye versjoner av kvalitetsindikatorene. 
