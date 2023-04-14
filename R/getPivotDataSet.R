@@ -27,7 +27,7 @@ getPivotDataSet <- function(setId = "",
                             userRole) {
   . <- ""
 
-  validSetId <- c("pros_patient", "rand12", "basereg")
+  validSetId <- c("pros_patient", "rand12", "basereg", "followup")
 
   if (setId %in% validSetId) {
 
@@ -54,10 +54,6 @@ getPivotDataSet <- function(setId = "",
 
 
 
-
-
-
-
     if (setId == "pros_patient") {
       dat <- ablanor::getProsPatientData(registryName = registryName,
                                          singleRow = singleRow,
@@ -67,6 +63,17 @@ getPivotDataSet <- function(setId = "",
                                          fromDate = NULL,
                                          toDate = NULL)
     }
+
+
+    if (setId == "followup") {
+      dat <- ablanor::getFollowupData(registryName = registryName,
+                                     singleRow = singleRow,
+                                     session = session,
+                                     reshId = reshId,
+                                     userRole = userRole)
+    }
+
+
 
     if(singleRow == FALSE){
       # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks

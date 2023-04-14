@@ -252,6 +252,58 @@ getBasereg <- function(registryName, singleRow,
 }
 
 
+#' @rdname getData
+#' @export
+getFollowup <- function(registryName, singleRow,
+                       reshId = NULL, userRole, ...) {
+
+  condition <- ""
+  if (userRole != "SC") {
+    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  }
+
+  query_procedure <- paste0("SELECT MCEID, CENTREID, DATO_PROS FROM pros", condition)
+  query_mce <-  paste0("SELECT MCEID, PARENTMCEID, MCETYPE, CENTREID FROM mce", condition)
+  query <- paste0("SELECT * FROM followup", condition)
+
+  if (singleRow) {
+    msg_procedure <- "Query metadata for merged dataset, procedure"
+    query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
+    msg_mce <- "Query metadata for merged dataset, mce"
+    query_mce <- paste0(query_mce, "\nLIMIT\n  1;")
+    msg <- "Query metadata for followup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg_procedure <- "Query data for merged dataset, procedure"
+    query_procedure <- paste0(query_procedure, ";")
+    msg_mce <- "Query data for merged dataset, mce"
+    query_mce <- paste0(query_mce, ";")
+    msg <- "Query data for followup"
+    query <- paste0(query, ";")
+  }
+
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
+    d_pros <- rapbase::loadRegData(registryName, query_procedure)
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg_mce)
+    d_pros <- rapbase::loadRegData(registryName, query_mce)
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_basereg <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_pros <- rapbase::loadRegData(registryName, query_procedure)
+    d_mce <- rapbase::loadRegData(registryName, query_mce)
+    d_followup <- rapbase::loadRegData(registryName, query)
+  }
+
+
+  list(followup = d_followup,
+       pros = d_pros,
+       mce = d_mce)
+}
+
+
 
 
 #' @rdname getData
