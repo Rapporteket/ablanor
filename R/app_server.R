@@ -19,8 +19,6 @@ app_server <- function(input, output, session) {
     `RAND-12` = "rand12",
     `Basisskjema` = "basereg",
     `Oppfølging 1 år` = "followup"
-
-
   )
 
   registryName <- "ablanor"

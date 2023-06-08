@@ -287,9 +287,9 @@ getFollowup <- function(registryName, singleRow,
     rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
     d_pros <- rapbase::loadRegData(registryName, query_procedure)
     rapbase::repLogger(session = list(...)[["session"]], msg = msg_mce)
-    d_pros <- rapbase::loadRegData(registryName, query_mce)
+    d_mce <- rapbase::loadRegData(registryName, query_mce)
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_basereg <- rapbase::loadRegData(registryName, query)
+    d_followup <- rapbase::loadRegData(registryName, query)
     # nocov end
   } else {
     d_pros <- rapbase::loadRegData(registryName, query_procedure)

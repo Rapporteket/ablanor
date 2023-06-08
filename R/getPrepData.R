@@ -187,14 +187,31 @@ getFollowupData <- function(registryName,
 
 
   d_ablanor <- dplyr::left_join(d_pros,
-                               followup_data,
-                               by = c("MCEID", "CENTREID")) %>%
+                                followup_data,
+                                by = c("MCEID", "CENTREID")) %>%
     dplyr::relocate(.data$followup_STATUS, .before = "followup_COMPLETE")
 
 
 
   names(d_ablanor) <- tolower(names(d_ablanor))
 
-  d_ablanor
+  d_ablanor %>%
+    mutate(
+
+      # Tidsvariabler for prosedyre
+      aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
+      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
+                                               lubridate::month(.data$dato_pros))),
+      maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
+                                yes = NA,
+                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre)),
+
+    # Tidsvariabler for oppfolging
+    aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
+    maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
+                                             lubridate::month(.data$dato_followup))),
+    maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
+                              yes = NA,
+                              no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)))
 
 }

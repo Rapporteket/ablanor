@@ -27,7 +27,7 @@ getPivotDataSet <- function(setId = "",
                             userRole) {
   . <- ""
 
-  validSetId <- c("pros_patient", "rand12", "basereg", "followup")
+  validSetId <- c("pros_patient", "rand12", "basereg", "followup", "mce", "gkv")
 
   if (setId %in% validSetId) {
 
@@ -72,6 +72,7 @@ getPivotDataSet <- function(setId = "",
                                      reshId = reshId,
                                      userRole = userRole)
     }
+
 
 
 
