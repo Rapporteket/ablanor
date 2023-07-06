@@ -1,7 +1,11 @@
 # ablanor 1.2.0
 ## Nytt
 * Nedlasting av proms-tabell
-* Rådata i utforsker
+* Rådata i utforsker (kun dersom det finnes prosedyredato)
+* Kalender i utforsker
+* samle alle getData
+* samle alle getPrepData
+* getDataDump bruker getData
 
 ## Bugfix
 * Nedlasting av followup uten datofilter (status -1 forsvant før)

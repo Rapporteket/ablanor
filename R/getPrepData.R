@@ -196,7 +196,7 @@ getFollowupData <- function(registryName,
   names(d_ablanor) <- tolower(names(d_ablanor))
 
   d_ablanor %>%
-    mutate(
+    dplyr::mutate(
 
       # Tidsvariabler for prosedyre
       aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),

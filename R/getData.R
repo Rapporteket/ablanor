@@ -42,56 +42,71 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   . <- ""
   stopifnot(tableName %in% c("basereg",
                              "friendlycentre",
+                             "followup",
+                             "gkv",
                              "mce",
                              "patientlist",
                              "pros",
-                             "followup",
                              "rand12",
                              "pros_patient_followup",
                              "kodeboken"))
 
+  # if (!tableName %in% c("pros_patient_followup", "kodeboken")) {
+  #
+  #   query <- paste("SELECT * FROM", tableName)
+  #   condition <- ""
+  #
+  #   if (tableName == "basereg") {
+  #     condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
+  #                         "' AND DATO_BAS < '", toDate, "'")
+  #
+  #   } else if (tableName == "mce") {
+  #     condition <- paste0(" WHERE TSCREATED >= '", fromDate,
+  #                         "' AND TSCREATED < '", toDate, "'")
+  #
+  #   } else if (tableName == "patientlist") {
+  #     condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
+  #                         "' AND REGISTERED_DATE < '", toDate, "'")
+  #
+  #   } else if (tableName == "pros") {
+  #     condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
+  #                         "' AND DATO_PROS < '", toDate, "'")
+  #
+  #   } else if (tableName == "followup") {
+  #
+  #   } else if (tableName == "rand12") {
+  #     condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
+  #                         "' AND DATO_RAND12 < '", toDate, "'")
+  #   }
+  #
+  #   if (userRole != "SC" & !tableName %in% "friendlycentre") {
+  #     condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+  #   }
+  #
+  #   query <- paste0(query, condition, ";")
+  #
+  #   if ("session" %in% names(list(...))) {
+  #     #nocov start
+  #     rapbase::repLogger(session = list(...)[["session"]],
+  #                        msg = paste("AblaNor data dump:\n", query))
+  #     #nocov end
+  #   }
+  #
+  #   rapbase::loadRegData(registryName, query)
+
+
   if (!tableName %in% c("pros_patient_followup", "kodeboken")) {
 
-    query <- paste("SELECT * FROM", tableName)
-    condition <- ""
-
     if (tableName == "basereg") {
-      condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
-                          "' AND DATO_BAS < '", toDate, "'")
-
-    } else if (tableName == "mce") {
-      condition <- paste0(" WHERE TSCREATED >= '", fromDate,
-                          "' AND TSCREATED < '", toDate, "'")
-
-    } else if (tableName == "patientlist") {
-      condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
-                          "' AND REGISTERED_DATE < '", toDate, "'")
-
-    } else if (tableName == "pros") {
-      condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
-                          "' AND DATO_PROS < '", toDate, "'")
-
-    } else if (tableName == "followup") {
-
-    } else if (tableName == "rand12") {
-      condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
-                          "' AND DATO_RAND12 < '", toDate, "'")
+      tab_list <- ablanor::getBasereg(registryName = registryName,
+                                      singleRow = FALSE,
+                                      reshId = reshId,
+                                      userRole = userRole,
+                                      fromDate = fromDate,
+                                      toDate = toDate)
+      dat <- tab_list$basereg
     }
 
-    if (userRole != "SC" & !tableName %in% "friendlycentre") {
-      condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
-    }
-
-    query <- paste0(query, condition, ";")
-
-    if ("session" %in% names(list(...))) {
-      #nocov start
-      rapbase::repLogger(session = list(...)[["session"]],
-                         msg = paste("AblaNor data dump:\n", query))
-      #nocov end
-    }
-
-    rapbase::loadRegData(registryName, query)
 
   } else if (tableName == "pros_patient_followup") {
     dat <- ablanor::getProsPatientData(registryName = registryName,
@@ -212,50 +227,66 @@ getRand12 <- function(registryName, singleRow,
 #' @rdname getData
 #' @export
 getBasereg <- function(registryName, singleRow,
-                       reshId = NULL, userRole, ...) {
+                       reshId = NULL, userRole,
+                       fromDate = NULL, toDate = NULL,...) {
 
-  condition <- ""
-  if (userRole != "SC") {
-    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry(registryName)
   }
 
-  query_procedure <- paste0("SELECT MCEID, CENTREID FROM pros", condition)
-  query <- paste0("SELECT * FROM basereg", condition)
+  # only in defined interval, with non-missing dates.
+  condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
+                      "' AND pros.DATO_PROS < '", toDate, "'",
+                      "pros.DATO_PROS IS NOT NULL")
+
+  # and not nationnal (SC) - only for local hosputal
+  if (userRole != "SC") {
+    condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+  }
+
+  query <- paste0("
+  SELECT basereg.*,
+         pros.MCEID,
+         pros.CENTREID,
+         pros.DATO_PROS
+  FROM
+         pros
+  LEFT JOIN basereg  ON
+        pros.MCEID = basereg.MCEID AND
+        pros.CENTREID = basereg.CENTREID",
+                  condition)
 
   if (singleRow) {
-    msg_procedure <- "Query metadata for merged dataset, procedure"
-    query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
-    msg <- "Query metadata for basereg"
+    msg <- "Query single row data for basereg"
     query <- paste0(query, "\nLIMIT\n  1;")
   } else {
-    msg_procedure <- "Query data for merged dataset, procedure"
-    query_procedure <- paste0(query_procedure, ";")
     msg <- "Query data for basereg"
     query <- paste0(query, ";")
   }
 
   if ("session" %in% names(list(...))) {
     # nocov start
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
-    d_pros <- rapbase::loadRegData(registryName, query_procedure)
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
     d_basereg <- rapbase::loadRegData(registryName, query)
     # nocov end
   } else {
-    d_pros <- rapbase::loadRegData(registryName, query_procedure)
     d_basereg <- rapbase::loadRegData(registryName, query)
   }
 
 
-  list(pros = d_pros,
-       basereg = d_basereg)
+  d_basereg
 }
 
 
 #' @rdname getData
 #' @export
 getFollowup <- function(registryName, singleRow,
-                       reshId = NULL, userRole, ...) {
+                        reshId = NULL, userRole, ...) {
 
   condition <- ""
   if (userRole != "SC") {
