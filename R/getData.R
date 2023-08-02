@@ -56,9 +56,6 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   #   query <- paste("SELECT * FROM", tableName)
   #   condition <- ""
   #
-  #   if (tableName == "basereg") {
-  #     condition <- paste0(" WHERE DATO_BAS >= '", fromDate,
-  #                         "' AND DATO_BAS < '", toDate, "'")
   #
   #   } else if (tableName == "mce") {
   #     condition <- paste0(" WHERE TSCREATED >= '", fromDate,
@@ -74,10 +71,6 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
   #
   #   } else if (tableName == "followup") {
   #
-  #   } else if (tableName == "rand12") {
-  #     condition <- paste0(" WHERE DATO_RAND12 >= '", fromDate,
-  #                         "' AND DATO_RAND12 < '", toDate, "'")
-  #   }
   #
   #   if (userRole != "SC" & !tableName %in% "friendlycentre") {
   #     condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
@@ -105,6 +98,17 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                       fromDate = fromDate,
                                       toDate = toDate)
       dat <- tab_list$d_basereg
+    }
+
+
+    if (tableName == "rand12") {
+      tab_list <- ablanor::getRand12(registryName = registryName,
+                                      singleRow = FALSE,
+                                      reshId = reshId,
+                                      userRole = userRole,
+                                      fromDate = fromDate,
+                                      toDate = toDate)
+      dat <- tab_list$d_rand12
     }
 
 
@@ -183,44 +187,69 @@ WHERE
 
 #' @rdname getData
 #' @export
-getRand12 <- function(registryName, singleRow,
-                      reshId = NULL, userRole, ...) {
+getRand12 <- function(registryName,
+                      singleRow,
+                      reshId = NULL,
+                      userRole,
+                      fromDate = NULL,
+                      toDate = NULL, ...) {
 
 
-  condition <- ""
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry(registryName)
+  }
+
+  # SQL only in defined interval, with non-missing dates.
+  condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
+                      "' AND pros.DATO_PROS < '", toDate, "'",
+                      "AND pros.DATO_PROS IS NOT NULL")
+
+  # national or local hospital
   if (userRole != "SC") {
-    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+    condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
   }
 
-  query_procedure <- paste0("SELECT MCEID, CENTREID FROM pros", condition)
-  query_rand12 <- paste0("SELECT * FROM rand12", condition)
 
+  # Kun rand12-skjema for fullførte prosedyrer (med prosedyredato!)
+  query <- paste0("
+  SELECT rand12.*,
+         pros.DATO_PROS
+  FROM pros
+  LEFT JOIN rand12  ON
+        pros.MCEID = rand12.MCEID AND
+        pros.CENTREID = rand12.CENTREID",
+                  condition)
+
+
+  # En eller alle rader:
   if (singleRow) {
-    msg_procedure <- "Query metadata for merged dataset, procedure"
-    msg_rand12 <- "Query metadata for merged dataset, rand12"
-    query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
-    query_rand12 <- paste0(query_rand12, "\nLIMIT\n  1;")
+    msg <- "Query single row data for rand12"
+    query <- paste0(query, "\nLIMIT\n  1;")
   } else {
-    msg_procedure <- "Query data for merged dataset, procedure"
-    msg_rand12 <- "Query data for merged dataset, rand12"
-    query_procedure <- paste0(query_procedure, ";")
-    query_rand12 <- paste0(query_rand12, ";")
+    msg <- "Query data for rand12"
+    query <- paste0(query, ";")
   }
 
+
+
+
+  # ENDELIG SQL SPØRRING
   if ("session" %in% names(list(...))) {
     # nocov start
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
-    d_pros <- rapbase::loadRegData(registryName, query_procedure)
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg_rand12)
-    d_rand12 <- rapbase::loadRegData(registryName, query_rand12)
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_rand12 <- rapbase::loadRegData(registryName, query)
     # nocov end
   } else {
-    d_pros <- rapbase::loadRegData(registryName, query_procedure)
-    d_rand12 <- rapbase::loadRegData(registryName, query_rand12)
-
+    d_rand12 <- rapbase::loadRegData(registryName, query)
   }
 
-  list(pros = d_pros, rand12 = d_rand12)
+
+  list(d_rand12 = d_rand12)
+
 }
 
 

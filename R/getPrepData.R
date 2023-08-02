@@ -16,39 +16,39 @@
 
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
-                          reshId = NULL, userRole, ...) {
+                          reshId = NULL,
+                          userRole,
+                          fromDate = NULL,
+                          toDate = NULL, ...) {
 
   . <- ""
 
-  d <- ablanor::getRand12(registryName, singleRow,
-                          reshId = reshId, userRole = userRole, ...)
-  d_pros <- d$pros
-  d_rand12 <- d$rand12
+  d <- ablanor::getRand12(registryName = registryName,
+                          singleRow = singleRow,
+                          reshId = reshId,
+                          userRole = userRole,
+                          fromDate = fromDate,
+                          toDate = toDate)
+  d_rand12 <- d$d_rand12
+
+  names(d_rand12) <- tolower(names(d_rand12))
+
+  d_rand12 %>%
+    dplyr::arrange(mceid) %>%
+    dplyr::relocate(dato_pros, .after = "centreid") %>%
+    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+    ablanor::utlede_tidsvariabler(.) %>%
+    dplyr::mutate(
+      aar_rand12 = as.ordered(lubridate::year(.data$dato_rand12)),
+      maaned_nr_rand12 = as.ordered(sprintf(fmt = "%02d",
+                                            lubridate::month(.data$dato_rand12))),
+      maaned_rand12 = ifelse(
+        test = is.na(.data$aar_rand12) | is.na(.data$maaned_nr_rand12),
+        yes = NA,
+        no = paste0(.data$aar_rand12, "-", .data$maaned_nr_rand12)))
 
 
 
-  # MERGE DATASETTENE :
-  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein
-  # prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for andre
-  # forløp vert filtrerte vekk. Viss ein person for eksempel berre har eit
-  # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
-  # filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
-  # pasientdatasettet og andre datasett).
-  # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
-  # finst vert tekne med.
-
-  d_rand12_ut <- d_pros %>%
-    dplyr::select(.data$MCEID, .data$CENTREID) %>%
-    dplyr::left_join(., d_rand12, by = c("MCEID", "CENTREID")) %>%
-    dplyr::rename("RAND_COMPLETE" = .data$COMPLETE,
-                  "RAND_INCOMPLETE_REASON"= .data$INCOMPLETE_REASON)
-
-  names(d_rand12_ut) <- tolower(names(d_rand12_ut))
-
-
-
-  d_rand12_ut %>% dplyr::arrange(.data$mceid)
 }
 
 
@@ -87,12 +87,11 @@ getBaseregData <- function(registryName,
 
   names(d_basereg) <- tolower(names(d_basereg))
 
-   d_basereg %>%
-     dplyr::arrange(mceid) %>%
-     dplyr::relocate(dato_pros, .after = "centreid") %>%
-     ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
-     ablanor::utlede_tidsvariabler(.)
-
+  d_basereg %>%
+    dplyr::arrange(mceid) %>%
+    dplyr::relocate(dato_pros, .after = "centreid") %>%
+    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+    ablanor::utlede_tidsvariabler(.)
 }
 
 
@@ -187,12 +186,12 @@ getFollowupData <- function(registryName,
                                 yes = NA,
                                 no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre)),
 
-    # Tidsvariabler for oppfolging
-    aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
-    maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
-                                             lubridate::month(.data$dato_followup))),
-    maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
-                              yes = NA,
-                              no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)))
+      # Tidsvariabler for oppfolging
+      aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
+      maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
+                                              lubridate::month(.data$dato_followup))),
+      maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
+                               yes = NA,
+                               no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)))
 
 }
