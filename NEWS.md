@@ -1,3 +1,10 @@
+# ablanor 1.2.0
+Små justeringer på Rapporteket etter overgang til FALK som innloggings-
+portal i prod. 
+En ny reshid. 
+Bruker egendefinerte (finere) sykehusnavn i Rapporteket og i rapporter. 
+
+
 # ablanor 1.1.0
 ## Nytt
 * Nye versjoner av kvalitetsindikatorene. 
