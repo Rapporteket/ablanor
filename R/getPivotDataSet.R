@@ -24,7 +24,9 @@ getPivotDataSet <- function(setId = "",
                             session,
                             singleRow = FALSE,
                             reshId = NULL,
-                            userRole) {
+                            userRole,
+                            fromDate = NULL,
+                            doDate = NULL) {
   . <- ""
 
   validSetId <- c("pros_patient", "rand12", "basereg", "followup", "mce", "gkv")
@@ -49,7 +51,9 @@ getPivotDataSet <- function(setId = "",
                                      singleRow = singleRow,
                                      session = session,
                                      reshId = reshId,
-                                     userRole = userRole)
+                                     userRole = userRole,
+                                     fromDate = fromDate,
+                                     toDate = doDate)
     }
 
 
@@ -67,10 +71,10 @@ getPivotDataSet <- function(setId = "",
 
     if (setId == "followup") {
       dat <- ablanor::getFollowupData(registryName = registryName,
-                                     singleRow = singleRow,
-                                     session = session,
-                                     reshId = reshId,
-                                     userRole = userRole)
+                                      singleRow = singleRow,
+                                      session = session,
+                                      reshId = reshId,
+                                      userRole = userRole)
     }
 
 

@@ -53,17 +53,17 @@ getRand12Data <- function(registryName,
 
 
 
-#' Hent merget datasett
-#' Hent datasett fra basisskje,a,og rand12. Merge
-#' sammen, filtrere på forløp der prosedyre er utført. Legge til evt utledete
-#' variabler og nye variabler.
-#' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
-#' lokal RData-fil. Ellers er det SQL spørring
+#' Hent berabeidet datasett
+#'
+#' Inneholder kun basisskjema for forløp der prosedyre er utført (har dato).
+#' Legge til evt utledete variabler her.
+#' @param registryName "ablanor"
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
 #' @param reshId Integer organization id
 #' @param userRole String dummy/placeholder role. "LC" has access only
 #' to local data (defined by reshId), "SC" has access to national data.
-
+#' @param fromDate first date (dato_pros)
+#' @param toDate laste date (dato_pros)
 #' @param ... Optional arguments to be passed to the function
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
@@ -71,47 +71,28 @@ getRand12Data <- function(registryName,
 getBaseregData <- function(registryName,
                            singleRow = FALSE,
                            reshId = NULL,
-                           userRole, ...) {
+                           userRole,
+                           fromDate = NULL,
+                           toDate = NULL, ...) {
 
   . <- ""
 
   d <- ablanor::getBasereg(registryName = registryName,
                            singleRow = singleRow,
                            reshId = reshId,
-                           userRole = userRole, ...)
-  d_basereg <- d$basereg
-  d_pros <- d$pros
+                           userRole = userRole,
+                           fromDate = fromDate,
+                           toDate = toDate)
+  d_basereg <- d$d_basereg
 
+  names(d_basereg) <- tolower(names(d_basereg))
 
-  ## BEHANDLING AV DATABASEN I R:
-  # FELLES VARIABEL-NAVN I TO TABELLER (status for skjema etc)
-  # Vi angir en prefix for å få med variablene fra begge tabellene
-  d_basereg %<>%
-    dplyr::rename_at(dplyr::vars(.data$USERCOMMENT:.data$CREATEDBY),
-                     function(x) {
-                       paste0("basereg_", x)
-                     })
-  d_pros %<>%
-    dplyr::select(MCEID, CENTREID)
+   d_basereg %>%
+     dplyr::arrange(mceid) %>%
+     dplyr::relocate(dato_pros, .after = "centreid") %>%
+     ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+     ablanor::utlede_tidsvariabler(.)
 
-
-  # MERGE DATASETTENE :
-  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein
-  # prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for andre
-  # forløp vert filtrerte vekk. Viss ein person for eksempel berre har eit
-  # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
-  # filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
-  # pasientdatasettet og andre datasett).
-  # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
-  # finst vert tekne med.
-
-  d_basereg_ut <-dplyr::right_join(d_basereg,
-                                   d_pros,
-                                   by = c("MCEID", "CENTREID"))
-
-  names(d_basereg_ut) <- tolower(names(d_basereg_ut))
-  d_basereg_ut %>% dplyr::arrange(.data$mceid)
 }
 
 

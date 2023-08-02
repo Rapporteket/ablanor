@@ -104,7 +104,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
                                       userRole = userRole,
                                       fromDate = fromDate,
                                       toDate = toDate)
-      dat <- tab_list$basereg
+      dat <- tab_list$d_basereg
     }
 
 
@@ -226,9 +226,12 @@ getRand12 <- function(registryName, singleRow,
 
 #' @rdname getData
 #' @export
-getBasereg <- function(registryName, singleRow,
-                       reshId = NULL, userRole,
-                       fromDate = NULL, toDate = NULL,...) {
+getBasereg <- function(registryName,
+                       singleRow,
+                       reshId = NULL,
+                       userRole,
+                       fromDate = NULL,
+                       toDate = NULL,...) {
 
 
   # SQL possible for defined time-interval:
@@ -239,28 +242,28 @@ getBasereg <- function(registryName, singleRow,
     toDate <- ablanor::getLatestEntry(registryName)
   }
 
-  # only in defined interval, with non-missing dates.
+  # SQL only in defined interval, with non-missing dates.
   condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
                       "' AND pros.DATO_PROS < '", toDate, "'",
-                      "pros.DATO_PROS IS NOT NULL")
+                      "AND pros.DATO_PROS IS NOT NULL")
 
-  # and not nationnal (SC) - only for local hosputal
+  # national or local hospital
   if (userRole != "SC") {
-    condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+    condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
   }
 
+
+  # Kun basereg-skjema for fullførte prosedyrer (med prosedyredato!)
   query <- paste0("
   SELECT basereg.*,
-         pros.MCEID,
-         pros.CENTREID,
          pros.DATO_PROS
-  FROM
-         pros
+  FROM pros
   LEFT JOIN basereg  ON
         pros.MCEID = basereg.MCEID AND
         pros.CENTREID = basereg.CENTREID",
                   condition)
 
+  # En eller alle rader:
   if (singleRow) {
     msg <- "Query single row data for basereg"
     query <- paste0(query, "\nLIMIT\n  1;")
@@ -269,6 +272,8 @@ getBasereg <- function(registryName, singleRow,
     query <- paste0(query, ";")
   }
 
+
+  # ENDELIG SQL SPØRRING
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
@@ -279,7 +284,7 @@ getBasereg <- function(registryName, singleRow,
   }
 
 
-  d_basereg
+  list(d_basereg = d_basereg)
 }
 
 
