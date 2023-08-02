@@ -103,11 +103,11 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
 
     if (tableName == "rand12") {
       tab_list <- ablanor::getRand12(registryName = registryName,
-                                      singleRow = FALSE,
-                                      reshId = reshId,
-                                      userRole = userRole,
-                                      fromDate = fromDate,
-                                      toDate = toDate)
+                                     singleRow = FALSE,
+                                     reshId = reshId,
+                                     userRole = userRole,
+                                     fromDate = fromDate,
+                                     toDate = toDate)
       dat <- tab_list$d_rand12
     }
 
@@ -183,6 +183,39 @@ WHERE
 
   name
 }
+
+
+
+
+
+
+get_mce <- function(registryName,
+                    singleRow,
+                    reshId = NULL,
+                    userRole,
+                    fromDate = NULL,
+                    toDate = NULL, ...){}
+
+
+
+
+
+get_mce <- function(registryName,
+                    singleRow,
+                    reshId = NULL,
+                    userRole,
+                    fromDate = NULL,
+                    toDate = NULL, ...){}
+
+
+
+get_friendlycentre <- function(registryName,
+                    singleRow,
+                    reshId = NULL,
+                    userRole,
+                    fromDate = NULL,
+                    toDate = NULL, ...){}
+
 
 
 #' @rdname getData
