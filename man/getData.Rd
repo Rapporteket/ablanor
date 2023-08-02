@@ -20,9 +20,14 @@ getDataDump(
   ...
 )
 
-getNameReshId(registryName, asNamedList = FALSE)
+getNameReshId(
+  registryName,
+  asNamedList = FALSE,
+  shortNames = FALSE,
+  newNames = FALSE
+)
 
-getHospitalName(registryName, reshId, shortName = FALSE)
+getHospitalName(registryName, reshId, shortName = FALSE, newNames = FALSE)
 
 getRand12(registryName, singleRow, reshId = NULL, userRole, ...)
 

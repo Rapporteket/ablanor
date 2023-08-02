@@ -22,7 +22,7 @@ app_server <- function(input, output, session) {
   registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId(registryName)
   reshId <- rapbase::getUserReshId(session)
-  hospitalName <- ablanor::getHospitalName(registryName, reshId)
+  hospitalName <- ablanor::getHospitalName(registryName, reshId, shortName = FALSE, newNames = TRUE)
   userFullName <- rapbase::getUserFullName(session)
   userRole <- rapbase::getUserRole(session)
   userOperator <- "Test Operatoresen"
@@ -314,7 +314,9 @@ app_server <- function(input, output, session) {
 
   # Values shared among subscriptions and dispatchment
   orgs <- ablanor::getNameReshId(registryName = registryName,
-                                 asNamedList = TRUE)
+                                 asNamedList = TRUE,
+                                 shortName = FALSE,
+                                 newNames = TRUE)
 
   # Abonnement
   subReports <- list(

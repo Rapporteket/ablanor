@@ -116,7 +116,7 @@ getDataDump <- function(registryName, tableName, fromDate, toDate,
 
 #' @rdname getData
 #' @export
-getNameReshId <- function(registryName, asNamedList = FALSE) {
+getNameReshId <- function(registryName, asNamedList = FALSE, shortNames = FALSE, newNames = FALSE) {
 
   query <- "
 SELECT
@@ -132,6 +132,15 @@ GROUP BY
 
   res <- rapbase::loadRegData(registryName, query)
 
+  if(newNames){
+    res %<>%
+      dplyr::mutate(centreid = id) %>%
+      ablanor::legg_til_sykehusnavn(., short = shortNames) %>%
+      dplyr::select(id, sykehusnavn) %>%
+      dplyr::rename("name" = "sykehusnavn") %>%
+      dplyr::filter(!is.na(name))
+  }
+
   if (asNamedList) {
     res <- stats::setNames(res$id, res$name)
     res <- as.list(res)
@@ -142,7 +151,7 @@ GROUP BY
 
 #' @rdname getData
 #' @export
-getHospitalName <- function(registryName, reshId, shortName = FALSE) {
+getHospitalName <- function(registryName, reshId, shortName = FALSE, newNames = FALSE) {
 
   if (shortName) {
     dbField <- "CENTRESHORTNAME"
@@ -158,7 +167,15 @@ FROM
 WHERE
   ID = ", reshId, ";")
 
-  name <- rapbase::loadRegData(registryName, query)[1, ]
+  if(newNames) {
+    name <- ablanor::legg_til_sykehusnavn(
+        df = data.frame(centreid = reshId),
+        short = shortName) %>%
+      dplyr::pull(sykehusnavn)
+    } else {
+      name <- rapbase::loadRegData(registryName, query)[1, ]
+    }
+
 
   if (is.na(name)) {
     warning(paste("Resh ID", reshId, "did not match any names!"))
