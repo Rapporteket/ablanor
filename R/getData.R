@@ -218,15 +218,12 @@ getPatientlist <- function(registryName,
                            fromDate = NULL,
                            toDate = NULL, ...){
 
-  # SQL NOT possible for defined time-interval. Use ALL patientlist entries.
-  # Patient registered only once, even though mulitple prodecures are possible
+  # SQL NOT possible for defined time-interval or one hopsital.
+  # Use ALL patientlist entries.
+  # Patient registered only once, even though multitple prodecures are possible
 
-  # NO FILTER ON HOSPITAL. One patient can have registrations on mulitple
-  # hospitals. Only for SC-role.
 
-  # ALLE pasienter i registeret
   query <- "SELECT * FROM patientlist"
-
 
   # En eller alle rader:
   if (singleRow) {
@@ -259,7 +256,31 @@ getFriendlycentre <- function(registryName,
                               reshId = NULL,
                               userRole,
                               fromDate = NULL,
-                              toDate = NULL, ...){}
+                              toDate = NULL, ...){
+
+  query <- "SELECT * FROM friendlycentre"
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for friendlycentre"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for friendlycentre"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_friendlycentre <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_friendlycentre <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_friendlycentre = d_friendlycentre)
+}
 
 
 

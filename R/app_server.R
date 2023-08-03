@@ -270,13 +270,13 @@ app_server <- function(input, output, session) {
   dataSetsDump <- c("basereg",
                     "pros",
                     "rand12",
-                    "friendlycentre",
                     "mce",
                     "followup",
                     "pros_patient_followup",
                     "kodeboken")
   if (userRole == "SC") {
     dataSetsDump <- c("patientlist",
+                      "friendlycentre",
                       dataSetsDump)
   }
 
