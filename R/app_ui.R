@@ -59,20 +59,11 @@ app_ui <- function() {
       ),
 
       shiny::tabPanel(
-        "Datadump",
+        title = "Datadump",
         shiny::sidebarLayout(
           shiny::sidebarPanel(
             width = 4,
-            shiny::selectInput("dumpDataSet", "Velg datasett:",
-                               c("basereg",
-                                 "pros",
-                                 "rand12",
-                                 "friendlycentre",
-                                 "mce",
-                                 "patientlist",
-                                 "followup",
-                                 "pros_patient_followup",
-                                 "kodeboken")),
+            shiny::uiOutput(outputId = "selectDumpSet"),
             shiny::dateRangeInput(
               "dumpDateRange", "Velg periode:",
               start = lubridate::ymd(Sys.Date()) - lubridate::years(1),

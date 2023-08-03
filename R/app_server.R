@@ -265,6 +265,30 @@ app_server <- function(input, output, session) {
 
 
   # Datadump
+
+  # Datasets avaliable for download
+  dataSetsDump <- c("basereg",
+                    "pros",
+                    "rand12",
+                    "friendlycentre",
+                    "mce",
+                    "followup",
+                    "pros_patient_followup",
+                    "kodeboken")
+  if (userRole == "SC") {
+    dataSetsDump <- c("patientlist",
+                      dataSetsDump)
+  }
+
+  output$selectDumpSet <- shiny::renderUI({
+    htmltools::tagList(
+      shiny::selectInput(inputId = "dumpDataSet",
+                         label = "Velg datasett:",
+                         choices = dataSetsDump))
+  })
+
+
+
   output$dataDumpInfo <- shiny::renderUI({
     shiny::p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })

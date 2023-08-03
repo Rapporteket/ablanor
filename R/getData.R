@@ -13,11 +13,10 @@
 #' @param reshId Integer organization id. From login settings.
 #' @param userRole String dummy/placeholder role. "LC" has access only
 #' to local data (defined by reshId), "SC" has access to national data.
-#' @param fromDate NULL default is 01-01-1900. Can be set to start date if
-#' calendar is chosen (downoad/pivot table) or any other start-date (report).
-#' @param fromDate NULL default is newest registration in Abalnor.
-#' Can be set to end date if calendar is chosen (downoad/pivot table) or any
-#' other end-date (report).
+#' @param fromDate NULL default is 01-01-1900. If datadump or pivot table,
+#' start date of calendar is used.
+#' @param toDate NULL default is newest registration in Abalnor. If datadump or
+#'  pivot table, end date of calendar is used.
 #' @param asNamedList Logical whether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
@@ -31,6 +30,7 @@
 #' getBasereg
 #' getRand12
 #' getMce
+#' getPatientlist
 #' getFriendlycentre
 #' getFollowup
 #' getLatestEntry
@@ -95,17 +95,80 @@ getPros <- function(registryName,
 }
 
 
+#' @rdname getDataAblanor
+#' @export
+getBasereg <- function(registryName,
+                       singleRow,
+                       reshId = NULL,
+                       userRole,
+                       fromDate = NULL,
+                       toDate = NULL,...) {
+
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry(registryName)
+  }
+
+  # SQL only in defined interval, with non-missing dates.
+  condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
+                      "' AND pros.DATO_PROS < '", toDate, "'",
+                      "AND pros.DATO_PROS IS NOT NULL")
+
+  # national or local hospital
+  if (userRole != "SC") {
+    condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
+  }
+
+
+  # Kun basereg-skjema for fullførte prosedyrer (med prosedyredato!)
+  query <- paste0("
+  SELECT basereg.*,
+         pros.DATO_PROS
+  FROM pros
+  LEFT JOIN basereg  ON
+        pros.MCEID = basereg.MCEID AND
+        pros.CENTREID = basereg.CENTREID",
+                  condition)
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for basereg"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for basereg"
+    query <- paste0(query, ";")
+  }
+
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_basereg <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_basereg <- rapbase::loadRegData(registryName, query)
+  }
+
+
+  list(d_basereg = d_basereg)
+}
+
 
 
 
 #' @rdname getDataAblanor
 #' @export
 getMce <- function(registryName,
-                    singleRow,
-                    reshId = NULL,
-                    userRole,
-                    fromDate = NULL,
-                    toDate = NULL, ...){
+                   singleRow,
+                   reshId = NULL,
+                   userRole,
+                   fromDate = NULL,
+                   toDate = NULL, ...){
 
   # SQL NOT possible for defined time-interval. Use ALL mce entries
 
@@ -148,12 +211,55 @@ getMce <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
+getPatientlist <- function(registryName,
+                           singleRow,
+                           reshId = NULL,
+                           userRole,
+                           fromDate = NULL,
+                           toDate = NULL, ...){
+
+  # SQL NOT possible for defined time-interval. Use ALL patientlist entries.
+  # Patient registered only once, even though mulitple prodecures are possible
+
+  # NO FILTER ON HOSPITAL. One patient can have registrations on mulitple
+  # hospitals. Only for SC-role.
+
+  # ALLE pasienter i registeret
+  query <- "SELECT * FROM patientlist"
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for patientlist"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for patientlist"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_patientlist <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_patientlist <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_patientlist = d_patientlist)
+}
+
+
+
+#' @rdname getDataAblanor
+#' @export
 getFriendlycentre <- function(registryName,
-                    singleRow,
-                    reshId = NULL,
-                    userRole,
-                    fromDate = NULL,
-                    toDate = NULL, ...){}
+                              singleRow,
+                              reshId = NULL,
+                              userRole,
+                              fromDate = NULL,
+                              toDate = NULL, ...){}
 
 
 
@@ -224,69 +330,6 @@ getRand12 <- function(registryName,
 
 }
 
-
-#' @rdname getDataAblanor
-#' @export
-getBasereg <- function(registryName,
-                       singleRow,
-                       reshId = NULL,
-                       userRole,
-                       fromDate = NULL,
-                       toDate = NULL,...) {
-
-
-  # SQL possible for defined time-interval:
-  if (is.null(fromDate)) {
-    fromDate <- as.Date("1900-01-01")
-  }
-  if (is.null(toDate)) {
-    toDate <- ablanor::getLatestEntry(registryName)
-  }
-
-  # SQL only in defined interval, with non-missing dates.
-  condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
-                      "' AND pros.DATO_PROS < '", toDate, "'",
-                      "AND pros.DATO_PROS IS NOT NULL")
-
-  # national or local hospital
-  if (userRole != "SC") {
-    condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
-  }
-
-
-  # Kun basereg-skjema for fullførte prosedyrer (med prosedyredato!)
-  query <- paste0("
-  SELECT basereg.*,
-         pros.DATO_PROS
-  FROM pros
-  LEFT JOIN basereg  ON
-        pros.MCEID = basereg.MCEID AND
-        pros.CENTREID = basereg.CENTREID",
-                  condition)
-
-  # En eller alle rader:
-  if (singleRow) {
-    msg <- "Query single row data for basereg"
-    query <- paste0(query, "\nLIMIT\n  1;")
-  } else {
-    msg <- "Query data for basereg"
-    query <- paste0(query, ";")
-  }
-
-
-  # ENDELIG SQL SPØRRING
-  if ("session" %in% names(list(...))) {
-    # nocov start
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_basereg <- rapbase::loadRegData(registryName, query)
-    # nocov end
-  } else {
-    d_basereg <- rapbase::loadRegData(registryName, query)
-  }
-
-
-  list(d_basereg = d_basereg)
-}
 
 
 #' @rdname getDataAblanor

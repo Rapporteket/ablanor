@@ -12,11 +12,10 @@
 #' @param reshId Integer organization id. From login settings.
 #' @param userRole String dummy/placeholder role. "LC" has access only
 #' to local data (defined by reshId), "SC" has access to national data.
-#' @param fromDate NULL default is 01-01-1900. Can be set to start date if
-#' calendar is chosen (downoad/pivot table) or any other start-date (report).
-#' @param fromDate NULL default is newest registration in Abalnor.
-#' Can be set to end date if calendar is chosen (downoad/pivot table) or any
-#'other end-date (report).
+#' @param fromDate NULL default is 01-01-1900. If datadump or pivot table,
+#' start date of calendar is used.
+#' @param toDate NULL default is newest registration in Abalnor. If datadump or
+#'  pivot table, end date of calendar is used.
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
 #'
@@ -24,7 +23,7 @@
 #' @aliases getProsData
 #' getBaseregData
 #' getRand12Data
-#'
+#' getMceData
 NULL
 
 
