@@ -15,12 +15,23 @@ app_server <- function(input, output, session) {
   # Parameters that will remain throughout the session
   dataSets <- list(
     `Bruk og valg av data` = "info",
-    `Basisskjema rådata` = "basereg",
-    `Prosedyre rådata` = "pros",
-    `Mce rådata alle` = "mce",
-    `RAND-12 rådata` = "rand12",
-    `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-    `Oppfølging 1 år` = "followup"
+
+    # RÅDATA:
+    `Basisskjema` = "basereg",
+    `Prosedyreskjema` = "pros",
+    `Forløpsoversikt` = "mce",
+    `RAND-12: basis, 1 og 5 år` = "rand12",
+    `eProm: basis, 1 og 5 år` = "followup",
+    `GKV (pasienterfaring) basis` = "gkv",
+
+    # SAMLETABELLER MED UTLEDETE VARIABLER
+    `Pasient og prosedyre` = "pros_pasient",
+    `Pasient, prosedyre og kvalitetsindikatorer` = "indikatorer",
+    `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup",
+    `eProm basis` = "pros_pat_followup0",
+    `eProm 1 år` = "pros_pat_followup1",
+    `eProm 5 år` = "pros_pat_followup5"
+
   )
 
   registryName <- "ablanor"
@@ -269,15 +280,17 @@ app_server <- function(input, output, session) {
   # Datasets avaliable for download
   dataSetsDump <- c("basereg",
                     "pros",
-                    "rand12",
                     "mce",
+                    "rand12",
                     "followup",
-                    "pros_patient_followup",
+                    "gkv",
+                    "proms",
                     "kodeboken")
   if (userRole == "SC") {
-    dataSetsDump <- c("patientlist",
+    dataSetsDump <- c(dataSetsDump,
+                      "patientlist",
                       "friendlycentre",
-                      dataSetsDump)
+                      "mce_patient_data")
   }
 
   output$selectDumpSet <- shiny::renderUI({

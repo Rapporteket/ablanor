@@ -4,10 +4,13 @@
 #'
 #' @param registryName "ablanor"
 #' @param tableName Selected table for download
-#' @param fromDate default 01-01-1900. Otherwise start date i calendar.
-#' @param toDate default is newest registration. Otherwise end date i calendar.
+#' @param fromDate default 01-01-1900. Start date in calendar if
+#' tableName is pros or basereg, argument ignored for other tableNames.
+#' @param toDate default is newest registration. End date i calendar
+#' if tableName is pros or basereg, argument ignored for other tableNames.
 #' @param reshId from session information
 #' @param userRole "SC" gets National data, "LC" get local hospital's data.
+#' Some tables are only available for SC users.
 #' @param ...
 #'
 #' @return data.frame
@@ -21,14 +24,15 @@ getDataDump <- function(registryName,
   . <- ""
   stopifnot(tableName %in% c("basereg",
                              "pros",
-                             "friendlycentre",
                              "mce",
                              "rand12",
-                             "patientlist",
                              "followup",
                              "gkv",
-                             "pros_patient_followup",
-                             "kodeboken"))
+                             "proms",
+                             "kodeboken",
+                             "friendlycentre",
+                             "mce_patient_data",
+                             "patientlist"))
 
 
   if (tableName == "basereg") {
@@ -51,6 +55,15 @@ getDataDump <- function(registryName,
     dat <- tab_list$d_pros
   }
 
+  if (tableName == "mce") {
+    tab_list <- ablanor::getMce(registryName = registryName,
+                                singleRow = FALSE,
+                                reshId = reshId,
+                                userRole = userRole,
+                                fromDate = fromDate,
+                                toDate = toDate)
+    dat <- tab_list$d_mce
+  }
 
   if (tableName == "rand12") {
     tab_list <- ablanor::getRand12(registryName = registryName,
@@ -62,24 +75,24 @@ getDataDump <- function(registryName,
     dat <- tab_list$d_rand12
   }
 
-  if (tableName == "mce") {
-    tab_list <- ablanor::getMce(registryName = registryName,
+  if (tableName == "followup") {
+    tab_list <- ablanor::getFollowup(registryName = registryName,
+                                     singleRow = FALSE,
+                                     reshId = reshId,
+                                     userRole = userRole,
+                                     fromDate = fromDate,
+                                     toDate = toDate)
+    dat <- tab_list$d_followup
+  }
+
+  if (tableName == "gkv") {
+    tab_list <- ablanor::getGkv(registryName = registryName,
                                 singleRow = FALSE,
                                 reshId = reshId,
                                 userRole = userRole,
                                 fromDate = fromDate,
                                 toDate = toDate)
-    dat <- tab_list$d_mce
-  }
-
-  if (tableName == "patientlist") {
-    tab_list <- ablanor::getPatientlist(registryName = registryName,
-                                        singleRow = FALSE,
-                                        reshId = reshId,
-                                        userRole = userRole,
-                                        fromDate = fromDate,
-                                        toDate = toDate)
-    dat <- tab_list$d_patientlist
+    dat <- tab_list$d_gkv
   }
 
   if (tableName == "friendlycentre") {
@@ -92,19 +105,26 @@ getDataDump <- function(registryName,
     dat <- tab_list$d_friendlycentre
   }
 
-
-
-
-  if (tableName == "pros_patient_followup") {
-    dat <- ablanor::getProsPatientData(registryName = registryName,
-                                       singleRow = FALSE,
-                                       reshId = reshId,
-                                       userRole = userRole,
-                                       fromDate = fromDate,
-                                       toDate = toDate)
-    dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
-
+  if (tableName == "mce_patient_data") {
+    tab_list <- ablanor::getMcepatientdata(registryName = registryName,
+                                           singleRow = FALSE,
+                                           reshId = reshId,
+                                           userRole = userRole,
+                                           fromDate = fromDate,
+                                           toDate = toDate)
+    dat <- tab_list$d_mce_patient_data
   }
+
+  if (tableName == "patientlist") {
+    tab_list <- ablanor::getPatientlist(registryName = registryName,
+                                        singleRow = FALSE,
+                                        reshId = reshId,
+                                        userRole = userRole,
+                                        fromDate = fromDate,
+                                        toDate = toDate)
+    dat <- tab_list$d_patientlist
+  }
+
   if (tableName == "kodeboken") {
     dat <- ablanor::getKodebokData()
   }

@@ -6,10 +6,31 @@
 \alias{getBaseregData}
 \alias{getRand12Data}
 \alias{getMceData}
+\alias{getGkvData}
 \alias{getFollowupData}
 \title{Data managment on tables}
 \usage{
+getBaseregData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
 getProsData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getMceData(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
@@ -29,17 +50,7 @@ getRand12Data(
   ...
 )
 
-getBaseregData(
-  registryName,
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
-getMceData(
+getGkvData(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
@@ -61,9 +72,11 @@ getFollowupData(registryName, singleRow = FALSE, reshId = NULL, userRole, ...)
 \item{userRole}{String dummy/placeholder role. "LC" has access only
 to local data (defined by reshId), "SC" has access to national data.}
 
-\item{fromDate}{NULL default is newest registration in Abalnor.
-Can be set to end date if calendar is chosen (downoad/pivot table) or any
-other end-date (report).}
+\item{fromDate}{NULL default is 01-01-1900. If datadump or pivot table,
+start date of calendar is used.}
+
+\item{toDate}{NULL default is newest registration in Abalnor. If datadump or
+pivot table, end date of calendar is used.}
 }
 \value{
 data.frame med rad per forløp og kolonner for variabler

@@ -31,11 +31,16 @@ getPivotDataSet <- function(setId = "",
 
   validSetId <- c("basereg",
                   "pros",
-                  "rand12",
                   "mce",
-                  "pros_patient",
+                  "rand12",
                   "followup",
-                  "gkv")
+                  "gkv",
+                  "pros_patient",
+                  "indikatorer",
+                  "pros_patient_followup",
+                  "pros_pat_followup0",
+                  "pros_pat_followup1",
+                  "pros_pat_followup5")
 
   if (setId %in% validSetId) {
 
@@ -64,6 +69,15 @@ getPivotDataSet <- function(setId = "",
                                   toDate = doDate)
     }
 
+    if (setId == "mce") {
+      dat <- ablanor::getMceData(registryName = registryName,
+                                 singleRow = singleRow,
+                                 session = session,
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = NULL,
+                                 toDate = NULL)
+    }
 
     if (setId == "rand12") {
       dat <- ablanor::getRand12Data(registryName = registryName,
@@ -75,16 +89,26 @@ getPivotDataSet <- function(setId = "",
                                     toDate = doDate)
     }
 
-    # Tvinge alle mceid for MCE (mce dato er prosedydedato men også followup)
-    if (setId == "mce") {
-      dat <- ablanor::getMceData(registryName = registryName,
-                                    singleRow = singleRow,
-                                    session = session,
-                                    reshId = reshId,
-                                    userRole = userRole,
-                                    fromDate = NULL,
-                                    toDate = NULL)
+
+
+    if (setId == "gkv") {
+      dat <- ablanor::getGkvData(registryName = registryName,
+                                 singleRow = singleRow,
+                                 session = session,
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = fromDate,
+                                 toDate = doDate)
     }
+
+
+    # if (setId == "followup") {
+    #   dat <- ablanor::getFollowupData(registryName = registryName,
+    #                                   singleRow = singleRow,
+    #                                   session = session,
+    #                                   reshId = reshId,
+    #                                   userRole = userRole)
+    # }
 
 
 
@@ -99,14 +123,7 @@ getPivotDataSet <- function(setId = "",
     # }
 
 
-    # if (setId == "followup") {
-    #   dat <- ablanor::getFollowupData(registryName = registryName,
-    #                                   singleRow = singleRow,
-    #                                   session = session,
-    #                                   reshId = reshId,
-    #                                   userRole = userRole)
-    # }
-    #
+
 
 
 
