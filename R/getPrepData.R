@@ -184,7 +184,7 @@ getGkvData <- function(registryName,
     dplyr::mutate(
       aar_gkv = as.ordered(lubridate::year(.data$dato_gkv)),
       maaned_nr_gkv = as.ordered(sprintf(fmt = "%02d",
-                                            lubridate::month(.data$dato_gkv))),
+                                         lubridate::month(.data$dato_gkv))),
       maaned_gkv = ifelse(
         test = is.na(.data$aar_gkv) | is.na(.data$maaned_nr_gkv),
         yes = NA,
@@ -195,8 +195,91 @@ getGkvData <- function(registryName,
 
 
 
+getBaseregProsData <- function(registryName,
+                               singleRow = FALSE,
+                               reshId = NULL,
+                               userRole,
+                               fromDate = NULL,
+                               toDate = NULL, ...){
+
+  . <- ""
+
+  d <- ablanor::getBaseregPros(registryName = registryName,
+                               singleRow = singleRow,
+                               reshId = reshId,
+                               userRole = userRole,
+                               fromDate = fromDate,
+                               toDate = toDate)
+  d_pros <- d$pros
+  d_basereg <- d$basereg
+  d_mce <- d$mce
+  d_patientlist <- d$patientlist
+  d_mcepatientdata <- d$mcepatientdata
 
 
+  # MERGE DATASETTENE :
+  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
+  # ein
+  # prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for andre
+  # forløp vert filtrerte vekk. Viss ein person for eksempel berre har eit
+  # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
+  # filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
+  # pasientdatasettet og andre datasett).
+  # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
+  # finst vert tekne med.
+
+
+  d_pros %<>%
+    dplyr::select(- TSUPDATED,
+                  - UPDATEDBY,
+                  - FIRST_TIME_CLOSED,
+                  - FIRST_TIME_CLOSED_BY,
+                  - TSCREATED,
+                  - CREATEDBY) %>%
+    dplyr::rename("PROS_STATUS" = "STATUS",
+                  "PROS_USERCOMMENT" = "USERCOMMENT")
+
+  d_basereg %<>%
+    dplyr::select(- TSUPDATED,
+                  - UPDATEDBY,
+                  - FIRST_TIME_CLOSED,
+                  - FIRST_TIME_CLOSED_BY,
+                  - TSCREATED,
+                  - CREATEDBY,
+                  - DATO_PROS) %>%
+    dplyr::rename("BASEREG_STATUS" = "STATUS",
+                  "BASEREG_USERCOMMENT" = "USERCOMMENT")
+
+  # REKKEFØLGE FILER: BASISDATA + PASIENT-DATA FØRST, PROSEDYRE ETTERPÅ
+  d_ablanor <-  dplyr::right_join(d_basereg,
+                                  d_pros,
+                                  by = c("MCEID", "CENTREID")) %>%
+    # Legg til pasient_id til venstre
+    dplyr::right_join(d_mce %>% dplyr::select(MCEID,
+                                              PATIENT_ID),
+                      .,
+                      by = "MCEID") %>%
+    # Legg til pasientinformasjon til venstre
+    dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
+                      .,
+                      by = "PATIENT_ID") %>%
+    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
+
+
+ names(d_ablanor) <- tolower(names(d_ablanor))
+
+  d_ablanor %>%
+    dplyr::mutate(
+
+      # Tidsvariabler for prosedyre
+      aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
+      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
+                                               lubridate::month(.data$dato_pros))),
+      maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
+                                yes = NA,
+                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre)))
+
+}
 
 
 #' @rdname getPrepDataAblanor

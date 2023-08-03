@@ -89,8 +89,6 @@ getPivotDataSet <- function(setId = "",
                                     toDate = doDate)
     }
 
-
-
     if (setId == "gkv") {
       dat <- ablanor::getGkvData(registryName = registryName,
                                  singleRow = singleRow,

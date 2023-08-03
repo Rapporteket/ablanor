@@ -595,6 +595,108 @@ getProsPatient <- function(registryName, singleRow,
 
 #' @rdname getDataAblanor
 #' @export
+getBaseregPros <- function(registryName,
+                           singleRow,
+                           reshId = NULL,
+                           userRole,
+                           fromDate,
+                           toDate, ...) {
+
+  d_pros <- ablanor::getPros(registryName = registryName,
+                             singleRow = singleRow,
+                             reshId =reshId,
+                             userRole = userRole,
+                             fromDate = fromDate,
+                             toDate = toDate)
+
+  d_basereg <- ablanor::getBasereg(registryName = registryName,
+                                   singleRow = singleRow,
+                                   reshId =reshId,
+                                   userRole = userRole,
+                                   fromDate = fromDate,
+                                   toDate = toDate)
+
+
+  condition <- ""
+  if (userRole != "SC") {
+    condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+  }
+  query_mce <- paste0(
+    "SELECT
+      MCEID, PATIENT_ID
+      FROM mce
+      WHERE MCETYPE >=1
+      AND MCETYPE <= 4 ", # uten eprom/followup/rand12/gkv
+    condition)
+
+
+  query_patientlist <- paste0(
+    "SELECT
+      ID, BIRTH_DATE, GENDER, DECEASED, DECEASED_DATE, SSN_TYPE, SSNSUBTYPE
+      FROM patientlist")
+
+
+  query_mcepatientdata <- paste0(
+    "SELECT
+      PID, MCEID, ZIPCODE
+      FROM mce_patient_data")
+
+
+
+
+  if (singleRow) {
+    msg_mce <- "Query metadata for merged dataset, mce"
+    msg_patientlist <- "Query metadata for merged dataset, patientlist"
+    msg_mcepatientdata <- "Query metadata for merged dataset, mcepatientdata"
+
+    query_mce <- paste0(query_mce, "\nLIMIT\n  1;")
+    query_patientlist <- paste0(query_patientlist, "\nLIMIT\n  1;")
+    query_mcepatientdata <- paste0(query_mcepatientdata, "\nLIMIT\n  1;")
+  } else {
+    msg_mce <- "Query data for merged dataset, mce"
+    msg_patientlist <- "Query data for merged dataset, patientlist"
+    msg_mcepatientdata <- "Query data for merged dataset, mcepatientdata"
+
+    query_mce <- paste0(query_mce, ";")
+    query_patientlist <- paste0(query_patientlist, ";")
+    query_mcepatientdata <- paste0(query_mcepatientdata, ";")
+
+  }
+
+  # log db request if shiny app session object is provided
+  if ("session" %in% names(list(...))) {
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg_mce)
+    d_mce <- rapbase::loadRegData(registryName, query_mce)
+
+    rapbase::repLogger(session = list(...)[["session"]],
+                       msg = msg_patientlist)
+    d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
+
+    rapbase::repLogger(session = list(...)[["session"]],
+                       msg = msg_mcepatientdata)
+    d_mcepatientdata <- rapbase::loadRegData(registryName, query_mcepatientdata)
+
+
+    # nocov end
+  } else {
+    d_mce <- rapbase::loadRegData(registryName, query_mce)
+    d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
+    d_mcepatientdata <- rapbase::loadRegData(registryName, query_mcepatientdata)
+  }
+
+  list(
+    basereg = d_basereg$d_basereg,
+    pros = d_pros$d_pros,
+    mce = d_mce,
+    patientlist = d_patientlist,
+    mcepatientdata = d_mcepatientdata)
+
+}
+
+
+
+#' @rdname getDataAblanor
+#' @export
 getLatestEntry <- function(registryName) {
 
   # Get date of newest registration (National data)
