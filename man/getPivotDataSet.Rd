@@ -10,7 +10,9 @@ getPivotDataSet(
   session,
   singleRow = FALSE,
   reshId = NULL,
-  userRole
+  userRole,
+  fromDate = NULL,
+  doDate = NULL
 )
 }
 \arguments{

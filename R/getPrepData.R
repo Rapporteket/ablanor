@@ -1,19 +1,62 @@
-#' Hent merget datasett
-#' Hent datasett fra prosedyreskjema,og rand12. Merge
-#' sammen, filtrere på forløp der prosedyre er utført. Legge til evt utledete
-#' variabler og nye variabler.
-#' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
-#' lokal RData-fil. Ellers er det SQL spørring
+#' Data managment on tables
+#'
+#' Load data and apply data-management operations. Tables can be used in
+#' \emph{pivot-tables} or monthly reports. Notice, only tables when a
+#' procedure-date exists!
+#'
+#'
+
+
+#' @param registryName "ablanor"
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
-#' @param reshId Integer organization id
+#' @param reshId Integer organization id. From login settings.
 #' @param userRole String dummy/placeholder role. "LC" has access only
 #' to local data (defined by reshId), "SC" has access to national data.
-
-#' @param ... Optional arguments to be passed to the function
+#' @param fromDate NULL default is 01-01-1900. Can be set to start date if
+#' calendar is chosen (downoad/pivot table) or any other start-date (report).
+#' @param fromDate NULL default is newest registration in Abalnor.
+#' Can be set to end date if calendar is chosen (downoad/pivot table) or any
+#'other end-date (report).
 #'
 #' @return data.frame med rad per forløp og kolonner for variabler
-#' @export
+#'
+#' @name getPrepDataAblanor
+#' @aliases getProsData
+#' getBaseregData
+#' getRand12Data
+#'
+NULL
 
+
+
+#' @rdname getPrepDataAblanor
+#' @export
+getProsData <- function(registryName,
+                          singleRow = FALSE,
+                          reshId = NULL,
+                          userRole,
+                          fromDate = NULL,
+                          toDate = NULL, ...) {
+
+  . <- ""
+
+  d <- ablanor::getPros(registryName = registryName,
+                          singleRow = singleRow,
+                          reshId = reshId,
+                          userRole = userRole,
+                          fromDate = fromDate,
+                          toDate = toDate)
+  d_pros <- d$d_pros
+
+  names(d_pros) <- tolower(names(d_pros))
+
+  d_pros %>%
+    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+    ablanor::utlede_tidsvariabler(.)
+}
+
+#' @rdname getPrepDataAblanor
+#' @export
 getRand12Data <- function(registryName,
                           singleRow = FALSE,
                           reshId = NULL,
@@ -46,27 +89,11 @@ getRand12Data <- function(registryName,
         test = is.na(.data$aar_rand12) | is.na(.data$maaned_nr_rand12),
         yes = NA,
         no = paste0(.data$aar_rand12, "-", .data$maaned_nr_rand12)))
-
-
-
 }
 
 
 
-#' Hent berabeidet datasett
-#'
-#' Inneholder kun basisskjema for forløp der prosedyre er utført (har dato).
-#' Legge til evt utledete variabler her.
-#' @param registryName "ablanor"
-#' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
-#' @param reshId Integer organization id
-#' @param userRole String dummy/placeholder role. "LC" has access only
-#' to local data (defined by reshId), "SC" has access to national data.
-#' @param fromDate first date (dato_pros)
-#' @param toDate laste date (dato_pros)
-#' @param ... Optional arguments to be passed to the function
-#'
-#' @return data.frame med rad per forløp og kolonner for variabler
+#' @rdname getPrepDataAblanor
 #' @export
 getBaseregData <- function(registryName,
                            singleRow = FALSE,
@@ -97,21 +124,7 @@ getBaseregData <- function(registryName,
 
 
 
-
-#' Hent merget datasett
-#' Hent datasett fra basisskje,a,og rand12. Merge
-#' sammen, filtrere på forløp der prosedyre er utført. Legge til evt utledete
-#' variabler og nye variabler.
-#' @param registryName Dersom verdien "test_ablanor_lokalt" leser vi inn
-#' lokal RData-fil. Ellers er det SQL spørring
-#' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
-#' @param reshId Integer organization id
-#' @param userRole String dummy/placeholder role. "LC" has access only
-#' to local data (defined by reshId), "SC" has access to national data.
-
-#' @param ... Optional arguments to be passed to the function
-#'
-#' @return data.frame med rad per forløp og kolonner for variabler
+#' @rdname getPrepDataAblanor
 #' @export
 getFollowupData <- function(registryName,
                             singleRow = FALSE,

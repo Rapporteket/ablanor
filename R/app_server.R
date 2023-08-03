@@ -15,9 +15,10 @@ app_server <- function(input, output, session) {
   # Parameters that will remain throughout the session
   dataSets <- list(
     `Bruk og valg av data` = "info",
+    `Basisskjema rådata` = "basereg",
+    `Prosedyre rådata` = "pros",
+    `RAND-12 rådata` = "rand12",
     `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-    `RAND-12` = "rand12",
-    `Basisskjema` = "basereg",
     `Oppfølging 1 år` = "followup"
   )
 
@@ -54,7 +55,8 @@ app_server <- function(input, output, session) {
 
 
   contentDump <- function(file, type, userRole, reshId) {
-    d <- ablanor::getDataDump(registryName, input$dumpDataSet,
+    d <- ablanor::getDataDump(registryName = registryName,
+                              tableName = input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,

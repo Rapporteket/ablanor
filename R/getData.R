@@ -1,9 +1,7 @@
-#' Load data for ablanor
+#' Get data for ablanor
 #'
-#' Functions for loading data needed by ablanor from a database or local files.
-#' When local files are used the environmental variable
-#' \emph{filbane_ablanor_test} must be set to the path of the file where data
-#' are found
+#' Functions for loading data needed by ablanor from a database, with SQL.
+#' Only when procedure had been done.
 #'
 #' \code{getNameReshId()} returns a mapping of organization name and id in the
 #' form of columns named \emph{name} and \emph{id}. Optionally this function
@@ -31,107 +29,11 @@
 #' @return Data frame or (when multiple data sets are returned) a list of data
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
-#' @name getData
+#' @name getDataAblanor
 #' @aliases getDataDump getNameReshId getHospitalName getRand12 getProsPatient
 NULL
 
-#' @rdname getData
-#' @export
-getDataDump <- function(registryName, tableName, fromDate, toDate,
-                        reshId = NULL, userRole, ...) {
-  . <- ""
-  stopifnot(tableName %in% c("basereg",
-                             "friendlycentre",
-                             "followup",
-                             "gkv",
-                             "mce",
-                             "patientlist",
-                             "pros",
-                             "rand12",
-                             "pros_patient_followup",
-                             "kodeboken"))
-
-  # if (!tableName %in% c("pros_patient_followup", "kodeboken")) {
-  #
-  #   query <- paste("SELECT * FROM", tableName)
-  #   condition <- ""
-  #
-  #
-  #   } else if (tableName == "mce") {
-  #     condition <- paste0(" WHERE TSCREATED >= '", fromDate,
-  #                         "' AND TSCREATED < '", toDate, "'")
-  #
-  #   } else if (tableName == "patientlist") {
-  #     condition <- paste0(" WHERE REGISTERED_DATE >= '", fromDate,
-  #                         "' AND REGISTERED_DATE < '", toDate, "'")
-  #
-  #   } else if (tableName == "pros") {
-  #     condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
-  #                         "' AND DATO_PROS < '", toDate, "'")
-  #
-  #   } else if (tableName == "followup") {
-  #
-  #
-  #   if (userRole != "SC" & !tableName %in% "friendlycentre") {
-  #     condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
-  #   }
-  #
-  #   query <- paste0(query, condition, ";")
-  #
-  #   if ("session" %in% names(list(...))) {
-  #     #nocov start
-  #     rapbase::repLogger(session = list(...)[["session"]],
-  #                        msg = paste("AblaNor data dump:\n", query))
-  #     #nocov end
-  #   }
-  #
-  #   rapbase::loadRegData(registryName, query)
-
-
-  if (!tableName %in% c("pros_patient_followup", "kodeboken")) {
-
-    if (tableName == "basereg") {
-      tab_list <- ablanor::getBasereg(registryName = registryName,
-                                      singleRow = FALSE,
-                                      reshId = reshId,
-                                      userRole = userRole,
-                                      fromDate = fromDate,
-                                      toDate = toDate)
-      dat <- tab_list$d_basereg
-    }
-
-
-    if (tableName == "rand12") {
-      tab_list <- ablanor::getRand12(registryName = registryName,
-                                     singleRow = FALSE,
-                                     reshId = reshId,
-                                     userRole = userRole,
-                                     fromDate = fromDate,
-                                     toDate = toDate)
-      dat <- tab_list$d_rand12
-    }
-
-
-  } else if (tableName == "pros_patient_followup") {
-    dat <- ablanor::getProsPatientData(registryName = registryName,
-                                       singleRow = FALSE,
-                                       reshId = reshId,
-                                       userRole = userRole,
-                                       fromDate = fromDate,
-                                       toDate = toDate)
-
-
-    dat %>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
-
-
-
-  } else if (tableName == "kodeboken") {
-    ablanor::getKodebokData()
-  }
-}
-
-
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 getNameReshId <- function(registryName, asNamedList = FALSE) {
 
@@ -157,7 +59,7 @@ GROUP BY
   res
 }
 
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 getHospitalName <- function(registryName, reshId, shortName = FALSE) {
 
@@ -188,13 +90,60 @@ WHERE
 
 
 
-
-get_mce <- function(registryName,
+#' @rdname getDataAblanor
+#' @export
+getPros <- function(registryName,
                     singleRow,
                     reshId = NULL,
                     userRole,
                     fromDate = NULL,
-                    toDate = NULL, ...){}
+                    toDate = NULL, ...){
+
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry(registryName)
+  }
+
+  # SQL only in defined interval, with non-missing dates.
+  condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
+                      "' AND DATO_PROS < '", toDate, "'",
+                      "AND DATO_PROS IS NOT NULL")
+
+  # national or local hospital
+  if (userRole != "SC") {
+    condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
+  }
+
+  # Kun fullførte prosedyrer (med prosedyredato!)
+  query <- paste0("SELECT * FROM pros ",
+                  condition)
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for pros"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for pros"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_pros <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_pros <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_pros = d_pros)
+}
 
 
 
@@ -218,7 +167,7 @@ get_friendlycentre <- function(registryName,
 
 
 
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 getRand12 <- function(registryName,
                       singleRow,
@@ -286,7 +235,7 @@ getRand12 <- function(registryName,
 }
 
 
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 getBasereg <- function(registryName,
                        singleRow,
@@ -350,7 +299,7 @@ getBasereg <- function(registryName,
 }
 
 
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 getFollowup <- function(registryName, singleRow,
                         reshId = NULL, userRole, ...) {
@@ -404,7 +353,7 @@ getFollowup <- function(registryName, singleRow,
 
 
 
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 getProsPatient <- function(registryName, singleRow,
                            reshId = NULL, userRole,
@@ -521,7 +470,7 @@ getProsPatient <- function(registryName, singleRow,
 
 
 
-#' @rdname getData
+#' @rdname getDataAblanor
 #' @export
 
 getLatestEntry <- function(registryName) {
