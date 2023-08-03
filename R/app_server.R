@@ -17,6 +17,7 @@ app_server <- function(input, output, session) {
     `Bruk og valg av data` = "info",
     `Basisskjema rådata` = "basereg",
     `Prosedyre rådata` = "pros",
+    `Mce rådata alle` = "mce",
     `RAND-12 rådata` = "rand12",
     `Prosedyre, basisskjema og oppfølging` = "pros_patient",
     `Oppfølging 1 år` = "followup"

@@ -5,6 +5,7 @@
 \alias{getProsData}
 \alias{getBaseregData}
 \alias{getRand12Data}
+\alias{getMceData}
 \alias{getFollowupData}
 \title{Data managment on tables}
 \usage{
@@ -29,6 +30,16 @@ getRand12Data(
 )
 
 getBaseregData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getMceData(
   registryName,
   singleRow = FALSE,
   reshId = NULL,

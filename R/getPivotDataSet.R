@@ -29,20 +29,18 @@ getPivotDataSet <- function(setId = "",
                             doDate = NULL) {
   . <- ""
 
-  validSetId <- c("pros_patient", "rand12", "basereg", "followup", "mce", "gkv")
+  validSetId <- c("basereg",
+                  "pros",
+                  "rand12",
+                  "mce",
+                  "pros_patient",
+                  "followup",
+                  "gkv")
 
   if (setId %in% validSetId) {
 
     if (userRole != "SC") {
       stopifnot(!is.null(reshId))
-    }
-
-    if (setId == "rand12") {
-      dat <- ablanor::getRand12Data(registryName = registryName,
-                                    singleRow = singleRow,
-                                    session = session,
-                                    reshId = reshId,
-                                    userRole = userRole)
     }
 
 
@@ -56,27 +54,59 @@ getPivotDataSet <- function(setId = "",
                                      toDate = doDate)
     }
 
-
-
-    if (setId == "pros_patient") {
-      dat <- ablanor::getProsPatientData(registryName = registryName,
-                                         singleRow = singleRow,
-                                         session = session,
-                                         reshId = reshId,
-                                         userRole = userRole,
-                                         fromDate = NULL,
-                                         toDate = NULL)
+    if (setId == "pros") {
+      dat <- ablanor::getProsData(registryName = registryName,
+                                  singleRow = singleRow,
+                                  session = session,
+                                  reshId = reshId,
+                                  userRole = userRole,
+                                  fromDate = fromDate,
+                                  toDate = doDate)
     }
 
 
-    if (setId == "followup") {
-      dat <- ablanor::getFollowupData(registryName = registryName,
-                                      singleRow = singleRow,
-                                      session = session,
-                                      reshId = reshId,
-                                      userRole = userRole)
+    if (setId == "rand12") {
+      dat <- ablanor::getRand12Data(registryName = registryName,
+                                    singleRow = singleRow,
+                                    session = session,
+                                    reshId = reshId,
+                                    userRole = userRole,
+                                    fromDate = fromDate,
+                                    toDate = doDate)
     }
 
+    # Tvinge alle mceid for MCE (mce dato er prosedydedato men også followup)
+    if (setId == "mce") {
+      dat <- ablanor::getMceData(registryName = registryName,
+                                    singleRow = singleRow,
+                                    session = session,
+                                    reshId = reshId,
+                                    userRole = userRole,
+                                    fromDate = NULL,
+                                    toDate = NULL)
+    }
+
+
+
+    # if (setId == "pros_patient") {
+    #   dat <- ablanor::getProsPatientData(registryName = registryName,
+    #                                      singleRow = singleRow,
+    #                                      session = session,
+    #                                      reshId = reshId,
+    #                                      userRole = userRole,
+    #                                      fromDate = fromDate,
+    #                                      toDate = toDate)
+    # }
+
+
+    # if (setId == "followup") {
+    #   dat <- ablanor::getFollowupData(registryName = registryName,
+    #                                   singleRow = singleRow,
+    #                                   session = session,
+    #                                   reshId = reshId,
+    #                                   userRole = userRole)
+    # }
+    #
 
 
 

@@ -122,6 +122,41 @@ getBaseregData <- function(registryName,
 }
 
 
+#' @rdname getPrepDataAblanor
+#' @export
+getMceData <- function(registryName,
+                           singleRow = FALSE,
+                           reshId = NULL,
+                           userRole,
+                           fromDate = NULL,
+                           toDate = NULL, ...) {
+
+  . <- ""
+
+  d <- ablanor::getMce(registryName = registryName,
+                           singleRow = singleRow,
+                           reshId = reshId,
+                           userRole = userRole,
+                           fromDate = fromDate,
+                           toDate = toDate)
+  d_mce <- d$d_mce
+
+  names(d_mce) <- tolower(names(d_mce))
+
+  d_mce %>%
+    dplyr::arrange(mceid) %>%
+    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+    dplyr::mutate(
+      aar_mce = as.ordered(lubridate::year(.data$tscreated)),
+      maaned_nr_mce = as.ordered(sprintf(fmt = "%02d",
+                                            lubridate::month(.data$tscreated))),
+      maaned_mce = ifelse(
+        test = is.na(.data$aar_mce) | is.na(.data$maaned_nr_mce),
+        yes = NA,
+        no = paste0(.data$aar_mce, "-", .data$maaned_nr_mce)))
+}
+
+
 
 
 #' @rdname getPrepDataAblanor

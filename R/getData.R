@@ -1,93 +1,42 @@
-#' Get data for ablanor
+#' Ablanor SQL
 #'
-#' Functions for loading data needed by ablanor from a database, with SQL.
-#' Only when procedure had been done.
+#' Get tables from database usig SQL. Notice, only tables when a
+#' procedure-date exists!
 #'
 #' \code{getNameReshId()} returns a mapping of organization name and id in the
 #' form of columns named \emph{name} and \emph{id}. Optionally this function
 #' can also return a list of named values (ids), \emph{e.g.} for use in shiny
 #' selection lists.
 #'
-#' @param registryName Character string defining the registry name.
-#' @param tableName Character string with name of database table
-#' @param fromDate Character string of format YYYY-MM-DD with start date. Value
-#' NULL if no filter on date.
-#' @param toDate Character string of format YYYY-MM-DD with end date. Value
-#' NULL if no filter on date.
+#' @param registryName "ablanor"
+#' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
+#' @param reshId Integer organization id. From login settings.
+#' @param userRole String dummy/placeholder role. "LC" has access only
+#' to local data (defined by reshId), "SC" has access to national data.
+#' @param fromDate NULL default is 01-01-1900. Can be set to start date if
+#' calendar is chosen (downoad/pivot table) or any other start-date (report).
+#' @param fromDate NULL default is newest registration in Abalnor.
+#' Can be set to end date if calendar is chosen (downoad/pivot table) or any
+#' other end-date (report).
 #' @param asNamedList Logical whether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
-#' @param singleRow Logical if only one row from the table is to be provided.
-#' Default value is FALSE.
-#' @param reshId Integer dummy/placeholder organization id
-#' @param userRole String dummy/placeholder role. "LC" has access only
-#' to local data (defined by \code{reshId}), "SC" has access to national data.
-#' @param shortName boolean. Default value FALSE and "friendlyname" is returned.
-#' If TRUE shortname is returned.
-#' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
 #' frames containing registry data. In case of \code{getNameReshId()} data may
 #' also be returned as a named list of values (see Details).
+#'
 #' @name getDataAblanor
-#' @aliases getDataDump getNameReshId getHospitalName getRand12 getProsPatient
+#' @aliases getPros
+#' getBasereg
+#' getRand12
+#' getMce
+#' getFriendlycentre
+#' getFollowup
+#' getLatestEntry
+#' getNameReshId
+#' getHospitalName
 NULL
-
-#' @rdname getDataAblanor
-#' @export
-getNameReshId <- function(registryName, asNamedList = FALSE) {
-
-  query <- "
-SELECT
-  CENTRESHORTNAME AS name,
-  ID AS id
-FROM
-  friendlycentre
-WHERE
-  CENTRESHORTNAME NOT LIKE 'Test%'
-GROUP BY
-  CENTRESHORTNAME,
-  ID;"
-
-  res <- rapbase::loadRegData(registryName, query)
-
-  if (asNamedList) {
-    res <- stats::setNames(res$id, res$name)
-    res <- as.list(res)
-  }
-
-  res
-}
-
-#' @rdname getDataAblanor
-#' @export
-getHospitalName <- function(registryName, reshId, shortName = FALSE) {
-
-  if (shortName) {
-    dbField <- "CENTRESHORTNAME"
-  } else {
-    dbField <- "FRIENDLYNAME"
-  }
-
-  query <- paste0("
-SELECT
-  ", dbField, "
-FROM
-  friendlycentre
-WHERE
-  ID = ", reshId, ";")
-
-  name <- rapbase::loadRegData(registryName, query)[1, ]
-
-  if (is.na(name)) {
-    warning(paste("Resh ID", reshId, "did not match any names!"))
-  }
-
-  name
-}
-
-
-
 
 
 #' @rdname getDataAblanor
@@ -149,16 +98,57 @@ getPros <- function(registryName,
 
 
 
-get_mce <- function(registryName,
+#' @rdname getDataAblanor
+#' @export
+getMce <- function(registryName,
                     singleRow,
                     reshId = NULL,
                     userRole,
                     fromDate = NULL,
-                    toDate = NULL, ...){}
+                    toDate = NULL, ...){
+
+  # SQL NOT possible for defined time-interval. Use ALL mce entries
+
+  # SQL only in defined interval, with non-missing dates.
+  condition <- ""
+
+  # national or local hospital
+  if (userRole != "SC") {
+    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  }
+
+  # Kun fullførte prosedyrer (med prosedyredato!)
+  query <- paste0("SELECT * FROM mce ",
+                  condition)
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for mce"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for mce"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_mce <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_mce <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_mce = d_mce)
+}
 
 
 
-get_friendlycentre <- function(registryName,
+#' @rdname getDataAblanor
+#' @export
+getFriendlycentre <- function(registryName,
                     singleRow,
                     reshId = NULL,
                     userRole,
@@ -472,10 +462,64 @@ getProsPatient <- function(registryName, singleRow,
 
 #' @rdname getDataAblanor
 #' @export
-
 getLatestEntry <- function(registryName) {
 
   # Get date of newest registration (National data)
   query <- "SELECT max(DATO_PROS) AS date FROM pros;"
   rapbase::loadRegData(registryName, query = query)$date
 }
+
+#' @rdname getDataAblanor
+#' @export
+getNameReshId <- function(registryName, asNamedList = FALSE) {
+
+  query <- "
+SELECT
+  CENTRESHORTNAME AS name,
+  ID AS id
+FROM
+  friendlycentre
+WHERE
+  CENTRESHORTNAME NOT LIKE 'Test%'
+GROUP BY
+  CENTRESHORTNAME,
+  ID;"
+
+  res <- rapbase::loadRegData(registryName, query)
+
+  if (asNamedList) {
+    res <- stats::setNames(res$id, res$name)
+    res <- as.list(res)
+  }
+
+  res
+}
+
+#' @rdname getDataAblanor
+#' @export
+getHospitalName <- function(registryName, reshId, shortName = FALSE) {
+
+  if (shortName) {
+    dbField <- "CENTRESHORTNAME"
+  } else {
+    dbField <- "FRIENDLYNAME"
+  }
+
+  query <- paste0("
+SELECT
+  ", dbField, "
+FROM
+  friendlycentre
+WHERE
+  ID = ", reshId, ";")
+
+  name <- rapbase::loadRegData(registryName, query)[1, ]
+
+  if (is.na(name)) {
+    warning(paste("Resh ID", reshId, "did not match any names!"))
+  }
+
+  name
+}
+
+
