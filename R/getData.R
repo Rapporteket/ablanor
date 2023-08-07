@@ -36,6 +36,7 @@
 #' getPatientlist
 #' getFriendlycentre
 #' getMcepatientdata
+#' getBaseregPros
 #' getLatestEntry
 #' getNameReshId
 #' getHospitalName

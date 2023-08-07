@@ -16,20 +16,21 @@ app_server <- function(input, output, session) {
   dataSets <- list(
     `Bruk og valg av data` = "info",
 
-    # RÅDATA:
-    `Basisskjema` = "basereg",
-    `Prosedyreskjema` = "pros",
-    `Forløpsoversikt` = "mce",
-    `RAND-12: basis, 1 og 5 år` = "rand12",
-    `eProm: basis, 1 og 5 år` = "followup",
-    `GKV (pasienterfaring) basis` = "gkv",
 
     # SAMLETABELLER MED UTLEDETE VARIABLER
     `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
     `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup_indik",
     `eProm basis` = "pros_pat_followup0",
     `eProm 1 år` = "pros_pat_followup1",
-    `eProm 5 år` = "pros_pat_followup5"
+    `eProm 5 år` = "pros_pat_followup5",
+
+    # RÅDATA:
+    `Basisskjema rådata` = "basereg",
+    `Prosedyreskjema rådata` = "pros",
+    `Forløpsoversikt rådata` = "mce",
+    `RAND-12: basis, 1 og 5 år. Rådata.` = "rand12",
+    `eProm: basis, 1 og 5 år. Rådata` = "followup",
+    `GKV (pasienterfaring) basis` = "gkv"
 
   )
 
