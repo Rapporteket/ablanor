@@ -2,12 +2,13 @@
 % Please edit documentation in R/getPrepData.R
 \name{getPrepDataAblanor}
 \alias{getPrepDataAblanor}
-\alias{getProsData}
 \alias{getBaseregData}
-\alias{getRand12Data}
+\alias{getProsData}
 \alias{getMceData}
-\alias{getGkvData}
+\alias{getRand12Data}
 \alias{getFollowupData}
+\alias{getGkvData}
+\alias{getBaseregProsData}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -51,6 +52,16 @@ getRand12Data(
 )
 
 getGkvData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsData(
   registryName,
   singleRow = FALSE,
   reshId = NULL,

@@ -35,8 +35,7 @@ getPivotDataSet <- function(setId = "",
                   "rand12",
                   "followup",
                   "gkv",
-                  "pros_patient",
-                  "indikatorer",
+                  "basereg_pros_indik",
                   "pros_patient_followup",
                   "pros_pat_followup0",
                   "pros_pat_followup1",
@@ -96,7 +95,7 @@ getPivotDataSet <- function(setId = "",
                                  reshId = reshId,
                                  userRole = userRole,
                                  fromDate = fromDate,
-                                 toDate = doDate)
+                                 toDate = toDate)
     }
 
 
@@ -110,15 +109,15 @@ getPivotDataSet <- function(setId = "",
 
 
 
-    # if (setId == "pros_patient") {
-    #   dat <- ablanor::getProsPatientData(registryName = registryName,
-    #                                      singleRow = singleRow,
-    #                                      session = session,
-    #                                      reshId = reshId,
-    #                                      userRole = userRole,
-    #                                      fromDate = fromDate,
-    #                                      toDate = toDate)
-    # }
+    if (setId == "basereg_pros_indik") {
+      dat <- ablanor::getBaseregProsData(registryName = registryName,
+                                         singleRow = singleRow,
+                                         session = session,
+                                         reshId = reshId,
+                                         userRole = userRole,
+                                         fromDate = fromDate,
+                                         toDate = toDate)
+    }
 
 
 

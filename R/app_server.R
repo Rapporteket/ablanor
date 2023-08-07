@@ -25,9 +25,8 @@ app_server <- function(input, output, session) {
     `GKV (pasienterfaring) basis` = "gkv",
 
     # SAMLETABELLER MED UTLEDETE VARIABLER
-    `Pasient og prosedyre` = "pros_pasient",
-    `Pasient, prosedyre og kvalitetsindikatorer` = "indikatorer",
-    `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup",
+    `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
+    `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup_indik",
     `eProm basis` = "pros_pat_followup0",
     `eProm 1 år` = "pros_pat_followup1",
     `eProm 5 år` = "pros_pat_followup5"
@@ -246,7 +245,7 @@ app_server <- function(input, output, session) {
 
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- reactive({
-    if (input$kbdTab %in% c("rand12", "pros_patient", "basereg", "followup")) {
+    if (input$kbdTab %in% c("rand12", "basereg_pros_indik", "basereg", "followup")) {
       metaDatKb() %>% names()
     }
     else {

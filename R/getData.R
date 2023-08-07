@@ -233,12 +233,7 @@ getRand12 <- function(registryName,
   }
 
 
-  query <- paste0("SELECT rand12.*
-                          pros.DATO_PROS
-  FROM pros
-  LEFT JOIN basereg  ON
-        pros.MCEID = basereg.MCEID AND
-        pros.CENTREID = basereg.CENTREID",
+  query <- paste0("SELECT * FROM rand12",
                   condition)
 
 
@@ -274,8 +269,8 @@ getFollowup <- function(registryName,
                         singleRow,
                         reshId = NULL,
                         userRole,
-                        fromDate,
-                        toDate, ...) {
+                        fromDate = NULL,
+                        toDate = NULL, ...) {
 
   # use all followup entries
   condition <- ""
@@ -476,121 +471,6 @@ getPatientlist <- function(registryName,
 
 
 
-#' @rdname getDataAblanor
-#' @export
-getProsPatient <- function(registryName, singleRow,
-                           reshId = NULL, userRole,
-                           fromDate,
-                           toDate, ...) {
-
-  if (registryName == "test_ablanor_lokalt") {
-    load(file = Sys.getenv("filbane_ablanor_test"), envir = parent.frame())
-
-  } else {
-
-    # SPØRRING ETTER PROSEDYRE-DATA. MED OG UTEN FILTER PÅ DATOER OG
-    # LOKALE DATA
-    # Med filter på dato, nasjonale tall
-    if ((!is.null(fromDate) & !is.null(toDate)) & userRole == "SC") {
-      condition_pros <- paste0(" WHERE DATO_PROS >= '", fromDate,
-                               "' AND DATO_PROS < '", toDate, "'")
-
-      # Med filter på dato, lokale tall
-    } else if ((!is.null(fromDate) & !is.null(toDate)) & userRole != "SC") {
-      condition_pros <- paste0(" WHERE DATO_PROS >= '", fromDate,
-                               "' AND DATO_PROS < '", toDate, "'",
-                               " AND CENTREID = '", reshId, "'")
-
-      #Ingen filter på dato, nasjonale data
-    } else if ((is.null(fromDate) | is.null(toDate)) & userRole == "SC") {
-      condition_pros <- ""
-
-      #Ingen filter på dato, lokale data
-    } else if ((is.null(fromDate) | is.null(toDate)) & userRole != "SC") {
-      condition_pros <- paste0(" WHERE CENTREID = '", reshId, "'")
-    }
-    query_procedure <- paste0("SELECT * FROM pros", condition_pros)
-
-
-    # SPØRRING ETTER ANDRE TABELLER (BASEREG, PASIENTDATA OG FOLLOWUP)
-    # FOR NASJONALE ELLER LOKALE TALL
-    # Ingen filter på dato, da vi filtrerer på prosedyre-data
-    condition <- ""
-    if (userRole != "SC") {
-      condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
-    }
-
-    query_basereg <- paste0("SELECT * FROM basereg", condition)
-    query_followup <- paste0("SELECT * FROM followup")
-    query_mce <- paste0(
-      "SELECT MCEID, MCETYPE, PATIENT_ID, PARENTMCEID, STATUS FROM mce",
-      condition)
-
-    # Patient-list does not have variable 'CENTREID'
-    query_patientlist <- paste0("SELECT * FROM patientlist ")
-
-
-
-
-    if (singleRow) {
-      msg_basereg <- "Query metadata for merged dataset, basereg"
-      msg_procedure <- "Query metadata for merged dataset, procedure"
-      msg_mce <- "Query metadata for merged dataset, mce"
-      msg_patientlist <- "Query metadata for merged dataset, patientlist"
-      msg_followup <- "Query metadata for merged dataset, followup"
-
-      query_basereg <- paste0(query_basereg, "\nLIMIT\n  1;")
-      query_procedure <- paste0(query_procedure, "\nLIMIT\n  1;")
-      query_mce <- paste0(query_mce, "\nLIMIT\n  1;")
-      query_patientlist <- paste0(query_patientlist, "\nLIMIT\n  1;")
-      query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
-    } else {
-      msg_basereg <- "Query data for merged dataset, basereg"
-      msg_procedure <- "Query data for merged dataset, procedure"
-      msg_mce <- "Query data for merged dataset, mce"
-      msg_patientlist <- "Query data for merged dataset, patientlist"
-      msg_followup <- "Query metadata for merged dataset, followup"
-
-      query_basereg <- paste0(query_basereg, ";")
-      query_procedure <- paste0(query_procedure, ";")
-      query_mce <- paste0(query_mce, ";")
-      query_patientlist <- paste0(query_patientlist, ";")
-      query_followup <- paste0(query_followup, ";")
-    }
-
-    # log db request if shiny app session object is provided
-    if ("session" %in% names(list(...))) {
-      # nocov start
-      rapbase::repLogger(session = list(...)[["session"]], msg = msg_basereg)
-      d_basereg <- rapbase::loadRegData(registryName, query_basereg)
-      rapbase::repLogger(session = list(...)[["session"]], msg = msg_procedure)
-      d_pros <- rapbase::loadRegData(registryName, query_procedure)
-      rapbase::repLogger(session = list(...)[["session"]], msg = msg_mce)
-      d_mce <- rapbase::loadRegData(registryName, query_mce)
-      rapbase::repLogger(session = list(...)[["session"]],
-                         msg = msg_patientlist)
-      d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
-      rapbase::repLogger(session = list(...)[["session"]], msg = msg_followup)
-      d_followup <- rapbase::loadRegData(registryName, query_followup)
-      # nocov end
-    } else {
-      d_basereg <- rapbase::loadRegData(registryName, query_basereg)
-      d_pros <- rapbase::loadRegData(registryName, query_procedure)
-      d_mce <- rapbase::loadRegData(registryName, query_mce)
-      d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
-      d_followup <- rapbase::loadRegData(registryName, query_followup)
-    }
-
-    list(
-      basereg = d_basereg,
-      pros = d_pros,
-      mce = d_mce,
-      patientlist = d_patientlist,
-      followup = d_followup
-    )
-  }
-}
-
 
 
 #' @rdname getDataAblanor
@@ -599,12 +479,12 @@ getBaseregPros <- function(registryName,
                            singleRow,
                            reshId = NULL,
                            userRole,
-                           fromDate,
-                           toDate, ...) {
+                           fromDate = NULL,
+                           toDate = NULL, ...) {
 
   d_pros <- ablanor::getPros(registryName = registryName,
                              singleRow = singleRow,
-                             reshId =reshId,
+                             reshId = reshId,
                              userRole = userRole,
                              fromDate = fromDate,
                              toDate = toDate)

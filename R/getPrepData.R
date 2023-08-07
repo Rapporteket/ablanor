@@ -20,10 +20,13 @@
 #' @return data.frame med rad per forløp og kolonner for variabler
 #'
 #' @name getPrepDataAblanor
-#' @aliases getProsData
-#' getBaseregData
-#' getRand12Data
+#' @aliases getBaseregData
+#' getProsData
 #' getMceData
+#' getRand12Data
+#' getFollowupData
+#' getGkvData
+#' getBaseregProsData
 NULL
 
 #' @rdname getPrepDataAblanor
@@ -171,7 +174,7 @@ getGkvData <- function(registryName,
                        reshId = reshId,
                        userRole = userRole,
                        fromDate = fromDate,
-                       toDate = toDate)
+                       toDate = toDate, ...)
   d_gkv <- d$d_gkv
 
   names(d_gkv) <- tolower(names(d_gkv))
@@ -194,7 +197,8 @@ getGkvData <- function(registryName,
 
 
 
-
+#' @rdname getPrepDataAblanor
+#' @export
 getBaseregProsData <- function(registryName,
                                singleRow = FALSE,
                                reshId = NULL,
@@ -219,15 +223,11 @@ getBaseregProsData <- function(registryName,
 
   # MERGE DATASETTENE :
   # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein
-  # prosedyre (eventuelt ein avbroten ein) analyserast. Oppføringar for andre
-  # forløp vert filtrerte vekk. Viss ein person for eksempel berre har eit
+  # ein prosedyre (eventuelt ein avbroten ein) analyserast.
+  # Oppføringar for andre forløp vert filtrerte vekk.
+  # Viss ein person for eksempel berre har eit
   # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
-  # filtrert vekk frå basisskjema-datsettet (og forløpsdatasettet,
-  # pasientdatasettet og andre datasett).
-  # Her brukar me left_join, for å sikre at berre forløpsid der prosedyre
-  # finst vert tekne med.
-
+  # filtrert vekk frå basisskjema-datsettet.
 
   d_pros %<>%
     dplyr::select(- TSUPDATED,
@@ -259,14 +259,59 @@ getBaseregProsData <- function(registryName,
                                               PATIENT_ID),
                       .,
                       by = "MCEID") %>%
+    # Legg til kommunmenummer til venstre
+    # Kommunenummer på forløpstidspunktet.
+    dplyr::right_join(d_mcepatientdata %>% dplyr::select(-PID),
+                      .,
+                      by = "MCEID") %>%
     # Legg til pasientinformasjon til venstre
+    # Lik for alle pasientens forløp
     dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
                       .,
-                      by = "PATIENT_ID") %>%
+                      by = "PATIENT_ID",
+                      multiple = "all") %>%
     dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
 
 
- names(d_ablanor) <- tolower(names(d_ablanor))
+  names(d_ablanor) <- tolower(names(d_ablanor))
+
+
+
+  # UTLEDETE VARIABLER
+
+  # ALDER :
+  d_ablanor %<>%
+    ablanor::utlede_alder(.) %>%
+    ablanor::utlede_alder_75(.) %>%
+    ablanor::utlede_aldersklasse(.)
+
+  # BMI klasse
+  # NB: BMI i datadumpen er litt feil! bruke denne (bmi_manual)
+  d_ablanor %<>%
+    ablanor::utlede_bmi(.) %>%
+    ablanor::utlede_bmi_klasse(.)
+
+
+
+  # AFLI : ICD
+  d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
+
+
+  # VT : KARDIOMYOPATI
+  d_ablanor %<>% ablanor::utlede_kardiomyopati(.)
+
+
+  # HJERTESVIKT OG REDUSERT EF
+  d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
+
+
+  # Indikator tamponade, indikator for avbrudd
+  d_ablanor %<>%
+    ablanor::indik_tamponade(.) %>%
+    ablanor::indik_ferdig_komplik(.) %>%
+    ablanor::indik_akuttsuksess(.) %>%
+    ablanor::indik_pacemaker(.) %>%
+    ablanor::indik_avbrudd(.)
 
   d_ablanor %>%
     dplyr::mutate(
@@ -277,8 +322,8 @@ getBaseregProsData <- function(registryName,
                                                lubridate::month(.data$dato_pros))),
       maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
                                 yes = NA,
-                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre)))
-
+                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
+    dplyr::arrange(.data$mceid)
 }
 
 
