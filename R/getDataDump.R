@@ -26,7 +26,9 @@ getDataDump <- function(registryName,
                              "pros",
                              "mce",
                              "rand12",
-                             "followup",
+                             "followupbasis",
+                             "followup1",
+                             "followup5",
                              "gkv",
                              "proms",
                              "kodeboken",
@@ -75,14 +77,35 @@ getDataDump <- function(registryName,
     dat <- tab_list$d_rand12
   }
 
-  if (tableName == "followup") {
-    tab_list <- ablanor::getFollowup(registryName = registryName,
-                                     singleRow = FALSE,
-                                     reshId = reshId,
-                                     userRole = userRole,
-                                     fromDate = fromDate,
-                                     toDate = toDate)
-    dat <- tab_list$d_followup
+  if (tableName == "followupbasis") {
+    tab_list <- ablanor::getFollowupBasis(registryName = registryName,
+                                          singleRow = FALSE,
+                                          reshId = reshId,
+                                          userRole = userRole,
+                                          fromDate = fromDate,
+                                          toDate = toDate)
+    dat <- tab_list$d_followupBasis
+  }
+
+  if (tableName == "followup1") {
+    tab_list <- ablanor::getFollowupOneYr(registryName = registryName,
+                                          singleRow = FALSE,
+                                          reshId = reshId,
+                                          userRole = userRole,
+                                          fromDate = fromDate,
+                                          toDate = toDate)
+    dat <- tab_list$d_followup1
+  }
+
+
+  if (tableName == "followup5") {
+    tab_list <- ablanor::getFollowupFiveYr(registryName = registryName,
+                                          singleRow = FALSE,
+                                          reshId = reshId,
+                                          userRole = userRole,
+                                          fromDate = fromDate,
+                                          toDate = toDate)
+    dat <- tab_list$d_followup5
   }
 
   if (tableName == "gkv") {

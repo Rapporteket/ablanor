@@ -31,7 +31,9 @@
 #' getPros
 #' getMce
 #' getRand12
-#' getFollowup
+#' getFollowupBasis
+#' getFollowupOneYr
+#' getFollowupFiveYr
 #' getGkv
 #' getPatientlist
 #' getFriendlycentre
@@ -212,7 +214,42 @@ getMce <- function(registryName,
 }
 
 
+#' @rdname getDataAblanor
+#' @export
+getProms <- function(registryName,
+                     singleRow,
+                     reshId = NULL,
+                     userRole,
+                     fromDate = NULL,
+                     toDate = NULL, ...) {
 
+
+  query <- paste0("SELECT * FROM proms")
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for proms"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for proms"
+    query <- paste0(query, ";")
+  }
+
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_proms <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_proms <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_proms = d_proms)
+
+}
 
 
 
@@ -266,12 +303,60 @@ getRand12 <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getFollowup <- function(registryName,
-                        singleRow,
-                        reshId = NULL,
-                        userRole,
-                        fromDate = NULL,
-                        toDate = NULL, ...) {
+getFollowupBasis <- function(registryName,
+                             singleRow,
+                             reshId = NULL,
+                             userRole,
+                             fromDate = NULL,
+                             toDate = NULL, ...) {
+
+  # use all followup entries
+  condition <- ""
+
+  # national or local hospital
+  if (userRole != "SC") {
+    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  }
+
+  # Kun fullførte prosedyrer (med prosedyredato!)
+  query <- paste0("SELECT * FROM basisfollowup ",
+                  condition)
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for basisfollowup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for basisfollowup"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_followupBasis <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_followupBasis <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_followupBasis = d_followupBasis)
+}
+
+
+
+
+
+
+
+getFollowupOneYr <- function(registryName,
+                             singleRow,
+                             reshId = NULL,
+                             userRole,
+                             fromDate = NULL,
+                             toDate = NULL, ...) {
 
   # use all followup entries
   condition <- ""
@@ -288,10 +373,10 @@ getFollowup <- function(registryName,
 
   # En eller alle rader:
   if (singleRow) {
-    msg <- "Query single row data for followup"
+    msg <- "Query single row data for 1yr followup"
     query <- paste0(query, "\nLIMIT\n  1;")
   } else {
-    msg <- "Query data for followup"
+    msg <- "Query data for 1yr followup"
     query <- paste0(query, ";")
   }
 
@@ -299,15 +384,218 @@ getFollowup <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_followup <- rapbase::loadRegData(registryName, query)
+    d_followup1 <- rapbase::loadRegData(registryName, query)
     # nocov end
   } else {
-    d_followup <- rapbase::loadRegData(registryName, query)
+    d_followup1 <- rapbase::loadRegData(registryName, query)
   }
 
-  list(d_followup = d_followup)
+  list(d_followup1 = d_followup1)
 }
 
+
+
+
+
+
+getFollowupFiveYr <- function(registryName,
+                              singleRow,
+                              reshId = NULL,
+                              userRole,
+                              fromDate = NULL,
+                              toDate = NULL, ...) {
+
+  # use all followup entries
+  condition <- ""
+
+  # national or local hospital
+  if (userRole != "SC") {
+    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  }
+
+  # Kun fullførte prosedyrer (med prosedyredato!)
+  query <- paste0("SELECT * FROM fiveyearfollowup ",
+                  condition)
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for 5yr followup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 5yr followup"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_followup5 <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_followup5 <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_followup5 = d_followup5)
+}
+
+#' @rdname getDataAblanor
+#' @export
+getBaseregProsFollowup1 <- function(registryName,
+                                    singleRow,
+                                    reshId = NULL,
+                                    userRole,
+                                    fromDate = NULL,
+                                    toDate = NULL, ...){
+
+  # PROS + BASEREG sammen
+  # proms,
+  # Mce (type = 9), patientid
+  # patientlist
+  # followup
+
+
+
+
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry(registryName)
+  }
+  condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
+                      "' AND pros.DATO_PROS < '", toDate, "'",
+                      " AND pros.DATO_PROS IS NOT NULL")
+
+
+  condition_followup <- ""
+  if (userRole != "SC") {
+    condition_followup <- paste0(" AND mce.CENTREID = '", reshId, "'")
+    condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
+  }
+
+
+
+  # BASEREG + PROSEDYRE + PASIENTID + PASIENTINFO
+  # (kun dersom prosedyredato finnes)
+  query_basePros <- paste0(
+    "SELECT pros.MCEID,
+            pros.CENTREID,
+            pros.FORLOPSTYPE,
+            pros.DATO_PROS,
+
+            basereg.HOYDE,
+            basereg.VEKT,
+            basereg.HYPERTONI,
+            basereg.DIABETES,
+            basereg.HJERTESVIKT,
+            basereg.TIA_SLAG,
+            basereg.KARSYKDOM,
+            basereg.HJERTEFEIL,
+            basereg.OSAS_KOLS,
+            basereg.KARDIOMYOPATI,
+            basereg.PACEMAKER,
+            basereg.EJEKFRAK,
+            basereg.DEBUT_ARYT_AAR,
+            basereg.EHRA_SYMPT,
+
+            mce.PATIENT_ID,
+            mce.MCETYPE,
+            mce.HAS_FOLLOWUP,
+
+            patientlist.ID,
+            patientlist.BIRTH_DATE,
+            patientlist.GENDER,
+            patientlist.DECEASED,
+            patientlist.DECEASED_DATE,
+            patientlist.SSN_TYPE,
+            patientlist.SSNSUBTYPE
+
+    FROM pros
+    LEFT JOIN basereg ON
+         pros.MCEID = basereg.MCEID AND
+         pros.CENTREID = basereg.CENTREID
+    LEFT JOIN mce ON
+         pros.MCEID = mce.MCEID AND
+         pros.CENTREID = mce.CENTREID
+    LEFT JOIN patientlist ON
+         mce.PATIENT_ID = patientlist.ID "
+    ,
+    condition)
+
+
+
+  query_followup <- paste0(
+    " SELECT mce.MCEID,
+             mce.CENTREID,
+             mce.MCETYPE,
+             mce.PATIENT_ID,
+             mce.PARENTMCEID,
+             mce.HAS_FOLLOWUP,
+
+             followup.DATO_FOLLOWUP,
+             followup.COMPLETE,
+             followup.INCOMPLETE_REASON,
+             followup.Q1,
+             followup.Q2,
+             followup.Q3,
+             followup.Q4,
+             followup.Q5,
+             followup.Q5_BURN_FREEZE,
+             followup.Q5_PACEMAKER,
+             followup.Q5_ELECTROCONVERSION,
+             followup.Q5_OTHER,
+             followup.Q5_OTHER_SPECIFY,
+             followup.Q6,
+             followup.Q6_REGULAR_EKG,
+             followup.Q6_24_HOUR_EKG,
+             followup.Q6_PACEMAKER,
+             followup.Q6_PULSE_WATCH,
+             followup.Q6_OTHER,
+             followup.Q6_OTHER_SPECIFY,
+             followup.Q7,
+             followup.Q7_STROKE,
+             followup.Q7_BLOCK,
+             followup.Q7_OPERATION,
+             followup.Q7_PACEMAKER,
+             followup.Q7_OTHER,
+             followup.Q7_OTHER_SPECIFY,
+             followup.STATUS
+    FROM mce
+    LEFT JOIN followup ON
+      mce.MCEID = followup.MCEID
+    WHERE mce.MCETYPE = 9 ",
+    condition_followup)
+
+
+  if (singleRow) {
+    msg <- "Query single row data for 1-year followup"
+    query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
+    query_basePros <- paste0(query_basePros, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 1-year followup"
+    query_followup <- paste0(query_followup, ";")
+    query_basePros <- paste0(query_basePros, ";")
+  }
+
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
+    d_followup <- rapbase::loadRegData(registryName , query_followup)
+        # nocov end
+  } else {
+    d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
+    d_followup <- rapbase::loadRegData(registryName , query_followup)
+  }
+
+
+  list(d_baseregPat = d_baseregPat,
+       d_followup = d_followup)
+
+}
 #' @rdname getDataAblanor
 #' @export
 getGkv <- function(registryName,

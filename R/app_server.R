@@ -28,8 +28,11 @@ app_server <- function(input, output, session) {
     `Basisskjema rådata` = "basereg",
     `Prosedyreskjema rådata` = "pros",
     `Forløpsoversikt rådata` = "mce",
+    `Proms. Rådata.` = "proms",
     `RAND-12: basis, 1 og 5 år. Rådata.` = "rand12",
-    `eProm: basis, 1 og 5 år. Rådata` = "followup",
+    `eProm basis. Rådata` = "followupbasis",
+    `eProm 1 år. Rådata` = "followup1",
+    `eProm 5 år. Rådata` = "followup5",
     `GKV (pasienterfaring) basis` = "gkv"
 
   )
