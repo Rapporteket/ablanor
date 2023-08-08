@@ -26,6 +26,7 @@
 #' getRand12Data
 #' getFollowupData
 #' getGkvData
+#' getPromsData
 #' getBaseregProsData
 NULL
 
@@ -54,7 +55,12 @@ getBaseregData <- function(registryName,
     dplyr::arrange(mceid) %>%
     dplyr::relocate(dato_pros, .after = "centreid") %>%
     ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
-    ablanor::utlede_tidsvariabler(.)
+    ablanor::utlede_tidsvariabler(.) %>%
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+                     function(x) {
+                       paste0("basereg_", x)
+                     })
+
 }
 
 #' @rdname getPrepDataAblanor
@@ -79,7 +85,12 @@ getProsData <- function(registryName,
 
   d_pros %>%
     ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
-    ablanor::utlede_tidsvariabler(.)
+    ablanor::utlede_tidsvariabler(.) %>%
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+                     function(x) {
+                       paste0("pros_", x)
+                     })
+
 }
 
 #' @rdname getPrepDataAblanor
@@ -113,7 +124,12 @@ getMceData <- function(registryName,
       maaned_mce = ifelse(
         test = is.na(.data$aar_mce) | is.na(.data$maaned_nr_mce),
         yes = NA,
-        no = paste0(.data$aar_mce, "-", .data$maaned_nr_mce)))
+        no = paste0(.data$aar_mce, "-", .data$maaned_nr_mce))) %>%
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+                     function(x) {
+                       paste0("mce_", x)
+                     })
+
 }
 
 
@@ -152,10 +168,44 @@ getRand12Data <- function(registryName,
       maaned_rand12 = ifelse(
         test = is.na(.data$aar_rand12) | is.na(.data$maaned_nr_rand12),
         yes = NA,
-        no = paste0(.data$aar_rand12, "-", .data$maaned_nr_rand12)))
+        no = paste0(.data$aar_rand12, "-", .data$maaned_nr_rand12))) %>%
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby,
+                                 complete,
+                                 incomplete_reason),
+                     function(x) {
+                       paste0("rand_", x)
+                     })
+
 }
 
 
+#' @rdname getPrepDataAblanor
+#' @export
+getPromsData <- function(registryName,
+                         singleRow = FALSE,
+                         reshId = NULL,
+                         userRole,
+                         fromDate = NULL,
+                         toDate = NULL, ...) {
+
+  . <- ""
+
+  d <- ablanor::getProms(registryName = registryName,
+                         singleRow = singleRow,
+                         reshId = reshId,
+                         userRole = userRole,
+                         fromDate = fromDate,
+                         toDate = toDate, ...)
+  d_proms <- d$d_proms
+
+
+
+  # dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+                   #                  function(x) {
+  #                    paste0("proms_", x)
+  #                  })
+
+}
 
 
 #' @rdname getPrepDataAblanor
@@ -191,7 +241,12 @@ getGkvData <- function(registryName,
       maaned_gkv = ifelse(
         test = is.na(.data$aar_gkv) | is.na(.data$maaned_nr_gkv),
         yes = NA,
-        no = paste0(.data$aar_gkv, "-", .data$maaned_nr_gkv)))
+        no = paste0(.data$aar_gkv, "-", .data$maaned_nr_gkv))) %>%
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+                     function(x) {
+                       paste0("gkv_", x)
+                     })
+
 }
 
 
@@ -221,13 +276,12 @@ getBaseregProsData <- function(registryName,
   d_mcepatientdata <- d$mcepatientdata
 
 
-  # MERGE DATASETTENE :
-  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein prosedyre (eventuelt ein avbroten ein) analyserast.
-  # Oppføringar for andre forløp vert filtrerte vekk.
-  # Viss ein person for eksempel berre har eit
-  # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
-  # filtrert vekk frå basisskjema-datsettet.
+
+
+  ## BEHANDLING AV DATABASEN I R:
+  # FELLES VARIABEL-NAVN I TRE TABELLER (status for skjema etc)
+  # Vi angir en prefix for å få med variablene fra alle tabellene
+  # Slik finner Kodeboken alle variablene
 
   d_pros %<>%
     dplyr::select(- TSUPDATED,
@@ -250,13 +304,34 @@ getBaseregProsData <- function(registryName,
     dplyr::rename("BASEREG_STATUS" = "STATUS",
                   "BASEREG_USERCOMMENT" = "USERCOMMENT")
 
+
+  d_mce%<>%
+    dplyr::select(- TSUPDATED,
+                  - UPDATEDBY,
+                  - FIRST_TIME_CLOSED,
+                  - FIRST_TIME_CLOSED_BY,
+                  - TSCREATED,
+                  - CREATEDBY,
+                  - DATO_PROS) %>%
+    dplyr::rename("MCE_STATUS" = "STATUS")
+
+    # MERGE DATASETTENE :
+  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
+  # ein prosedyre (eventuelt ein avbroten ein) analyserast.
+  # Oppføringar for andre forløp vert filtrerte vekk.
+  # Viss ein person for eksempel berre har eit
+  # basisskjema men ikkje (enno) eit prosedyreskjema, vil personen også vera
+  # filtrert vekk frå basisskjema-datsettet.
+
+
   # REKKEFØLGE FILER: BASISDATA + PASIENT-DATA FØRST, PROSEDYRE ETTERPÅ
   d_ablanor <-  dplyr::right_join(d_basereg,
                                   d_pros,
                                   by = c("MCEID", "CENTREID")) %>%
     # Legg til pasient_id til venstre
     dplyr::right_join(d_mce %>% dplyr::select(MCEID,
-                                              PATIENT_ID),
+                                              PATIENT_ID,
+                                              MCE_STATUS),
                       .,
                       by = "MCEID") %>%
     # Legg til kommunmenummer til venstre
