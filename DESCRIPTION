@@ -1,6 +1,6 @@
 Package: ablanor
 Title: AblaNor- Rapporteket
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(
   person(given = "Kristina",
            family = "Skaare",
@@ -43,6 +43,8 @@ Imports:
     stringr,
     tidyr,
     tidyselect
+Remotes:
+    Rapporteket/rapbase@*release
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
 Depends: 
