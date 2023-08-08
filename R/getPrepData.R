@@ -279,7 +279,7 @@ getBaseregProsData <- function(registryName,
 
 
 
-    # MERGE DATASETTENE :
+  # MERGE DATASETTENE :
   # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
   # ein prosedyre (eventuelt ein avbroten ein) analyserast.
   # Oppføringar for andre forløp vert filtrerte vekk.
@@ -363,6 +363,119 @@ getBaseregProsData <- function(registryName,
                                 no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
     dplyr::arrange(.data$mceid)
 }
+
+
+
+#' @rdname getPrepDataAblanor
+#' @export
+getBaseregProsFollowup1Data <- function(registryName,
+                                        singleRow = FALSE,
+                                        reshId = NULL,
+                                        userRole,
+                                        fromDate = NULL,
+                                        toDate = NULL, ...){
+
+  . <- ""
+
+  d <- ablanor::getBaseregProsFollowup1(registryName = registryName,
+                                        singleRow = singleRow,
+                                        reshId = reshId,
+                                        userRole = userRole,
+                                        fromDate = fromDate,
+                                        toDate = toDate)
+  d_baseregPat <- d$d_baseregPat
+  d_followup <- d$d_followup
+  d_proms <- d$d_proms
+
+
+
+  d_followup %<>%
+    dplyr::rename("FOLLOWUP_STATUS" = "STATUS")
+  d_proms %<>%
+    dplyr::rename("PROMS_STATUS" = "STATUS")
+
+
+  # MERGE DATASETTENE :
+  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
+  # ein prosedyre (eventuelt ein avbroten ein) analyserast.
+  # Filter er brukt på prosedyredato (getPros)
+
+  # REKKEFØLGE FILER: BASISDATA + PASIENT-DATA FØRST, PROSEDYRE ETTERPÅ
+  d_ablanor <-  dplyr::right_join(d_basereg,
+                                  d_pros,
+                                  by = c("MCEID", "CENTREID")) %>%
+    # Legg til pasient_id til venstre
+    dplyr::right_join(d_mce %>% dplyr::select(MCEID,
+                                              PATIENT_ID),
+                      .,
+                      by = "MCEID") %>%
+    # Legg til kommunmenummer til venstre
+    # Kommunenummer på forløpstidspunktet.
+    dplyr::right_join(d_mcepatientdata %>% dplyr::select(-PID),
+                      .,
+                      by = "MCEID") %>%
+    # Legg til pasientinformasjon til venstre
+    # Lik for alle pasientens forløp
+    dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
+                      .,
+                      by = "PATIENT_ID",
+                      multiple = "all") %>%
+    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
+
+
+  names(d_ablanor) <- tolower(names(d_ablanor))
+
+
+
+  # UTLEDETE VARIABLER
+
+  # ALDER :
+  d_ablanor %<>%
+    ablanor::utlede_alder(.) %>%
+    ablanor::utlede_alder_75(.) %>%
+    ablanor::utlede_aldersklasse(.)
+
+  # BMI klasse
+  # NB: BMI i datadumpen er litt feil! bruke denne (bmi_manual)
+  d_ablanor %<>%
+    ablanor::utlede_bmi(.) %>%
+    ablanor::utlede_bmi_klasse(.)
+
+
+
+  # AFLI : ICD
+  d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
+
+
+  # VT : KARDIOMYOPATI
+  d_ablanor %<>% ablanor::utlede_kardiomyopati(.)
+
+
+  # HJERTESVIKT OG REDUSERT EF
+  d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
+
+
+  # Indikator tamponade, indikator for avbrudd
+  d_ablanor %<>%
+    ablanor::indik_tamponade(.) %>%
+    ablanor::indik_ferdig_komplik(.) %>%
+    ablanor::indik_akuttsuksess(.) %>%
+    ablanor::indik_pacemaker(.) %>%
+    ablanor::indik_avbrudd(.)
+
+  d_ablanor %>%
+    dplyr::mutate(
+
+      # Tidsvariabler for prosedyre
+      aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
+      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
+                                               lubridate::month(.data$dato_pros))),
+      maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
+                                yes = NA,
+                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
+    dplyr::arrange(.data$mceid)
+}
+
 
 
 #' @rdname getPrepDataAblanor
