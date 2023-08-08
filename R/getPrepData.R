@@ -26,7 +26,6 @@
 #' getRand12Data
 #' getFollowupData
 #' getGkvData
-#' getPromsData
 #' getBaseregProsData
 NULL
 
@@ -125,7 +124,7 @@ getMceData <- function(registryName,
         test = is.na(.data$aar_mce) | is.na(.data$maaned_nr_mce),
         yes = NA,
         no = paste0(.data$aar_mce, "-", .data$maaned_nr_mce))) %>%
-    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+    dplyr::rename_at(dplyr::vars(.data$status:.data$updatedby),
                      function(x) {
                        paste0("mce_", x)
                      })
@@ -179,34 +178,6 @@ getRand12Data <- function(registryName,
 }
 
 
-#' @rdname getPrepDataAblanor
-#' @export
-getPromsData <- function(registryName,
-                         singleRow = FALSE,
-                         reshId = NULL,
-                         userRole,
-                         fromDate = NULL,
-                         toDate = NULL, ...) {
-
-  . <- ""
-
-  d <- ablanor::getProms(registryName = registryName,
-                         singleRow = singleRow,
-                         reshId = reshId,
-                         userRole = userRole,
-                         fromDate = fromDate,
-                         toDate = toDate, ...)
-  d_proms <- d$d_proms
-
-
-
-  # dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
-                   #                  function(x) {
-  #                    paste0("proms_", x)
-  #                  })
-
-}
-
 
 #' @rdname getPrepDataAblanor
 #' @export
@@ -242,7 +213,9 @@ getGkvData <- function(registryName,
         test = is.na(.data$aar_gkv) | is.na(.data$maaned_nr_gkv),
         yes = NA,
         no = paste0(.data$aar_gkv, "-", .data$maaned_nr_gkv))) %>%
-    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby),
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby,
+                                 complete,
+                                 incomplete_reason),
                      function(x) {
                        paste0("gkv_", x)
                      })
@@ -305,15 +278,6 @@ getBaseregProsData <- function(registryName,
                   "BASEREG_USERCOMMENT" = "USERCOMMENT")
 
 
-  d_mce%<>%
-    dplyr::select(- TSUPDATED,
-                  - UPDATEDBY,
-                  - FIRST_TIME_CLOSED,
-                  - FIRST_TIME_CLOSED_BY,
-                  - TSCREATED,
-                  - CREATEDBY,
-                  - DATO_PROS) %>%
-    dplyr::rename("MCE_STATUS" = "STATUS")
 
     # MERGE DATASETTENE :
   # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
@@ -330,8 +294,7 @@ getBaseregProsData <- function(registryName,
                                   by = c("MCEID", "CENTREID")) %>%
     # Legg til pasient_id til venstre
     dplyr::right_join(d_mce %>% dplyr::select(MCEID,
-                                              PATIENT_ID,
-                                              MCE_STATUS),
+                                              PATIENT_ID),
                       .,
                       by = "MCEID") %>%
     # Legg til kommunmenummer til venstre

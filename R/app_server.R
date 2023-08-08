@@ -28,7 +28,7 @@ app_server <- function(input, output, session) {
     `Basisskjema rådata` = "basereg",
     `Prosedyreskjema rådata` = "pros",
     `Forløpsoversikt rådata` = "mce",
-    `Proms. Rådata.` = "proms",
+
     `RAND-12: basis, 1 og 5 år. Rådata.` = "rand12",
     `eProm basis. Rådata` = "followupbasis",
     `eProm 1 år. Rådata` = "followup1",
@@ -285,7 +285,9 @@ app_server <- function(input, output, session) {
                     "pros",
                     "mce",
                     "rand12",
-                    "followup",
+                    "followupbasis",
+                    "followup1",
+                    "followup5",
                     "gkv",
                     "proms",
                     "kodeboken")

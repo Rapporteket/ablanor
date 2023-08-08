@@ -35,6 +35,7 @@ getPivotDataSet <- function(setId = "",
                   "rand12",
                   "followup",
                   "gkv",
+                  "proms",
                   "basereg_pros_indik",
                   "pros_patient_followup",
                   "pros_pat_followup0",
@@ -97,6 +98,8 @@ getPivotDataSet <- function(setId = "",
                                  fromDate = fromDate,
                                  toDate = toDate)
     }
+
+
 
 
     # if (setId == "followup") {

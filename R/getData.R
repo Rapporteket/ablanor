@@ -350,7 +350,8 @@ getFollowupBasis <- function(registryName,
 
 
 
-
+#' @rdname getDataAblanor
+#' @export
 getFollowupOneYr <- function(registryName,
                              singleRow,
                              reshId = NULL,
@@ -397,7 +398,8 @@ getFollowupOneYr <- function(registryName,
 
 
 
-
+#' @rdname getDataAblanor
+#' @export
 getFollowupFiveYr <- function(registryName,
                               singleRow,
                               reshId = NULL,

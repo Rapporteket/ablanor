@@ -100,11 +100,11 @@ getDataDump <- function(registryName,
 
   if (tableName == "followup5") {
     tab_list <- ablanor::getFollowupFiveYr(registryName = registryName,
-                                          singleRow = FALSE,
-                                          reshId = reshId,
-                                          userRole = userRole,
-                                          fromDate = fromDate,
-                                          toDate = toDate)
+                                           singleRow = FALSE,
+                                           reshId = reshId,
+                                           userRole = userRole,
+                                           fromDate = fromDate,
+                                           toDate = toDate)
     dat <- tab_list$d_followup5
   }
 
@@ -147,6 +147,17 @@ getDataDump <- function(registryName,
                                         toDate = toDate)
     dat <- tab_list$d_patientlist
   }
+
+  if (tableName == "proms") {
+    tab_list <- ablanor::getProms(registryName = registryName,
+                                  singleRow = FALSE,
+                                  reshId = reshId,
+                                  userRole = userRole,
+                                  fromDate = fromDate,
+                                  toDate = toDate)
+    dat <- tab_list$d_proms
+  }
+
 
   if (tableName == "kodeboken") {
     dat <- ablanor::getKodebokData()
