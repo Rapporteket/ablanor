@@ -43,6 +43,8 @@ Imports:
     stringr,
     tidyr,
     tidyselect
+Remotes:
+    Rapporteket/rapbase@*release
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
 Depends: 

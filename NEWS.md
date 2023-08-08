@@ -4,6 +4,9 @@ portal i prod.
 En ny reshid. 
 Bruker egendefinerte (finere) sykehusnavn i Rapporteket og i rapporter. 
 
+# ablanor 1.1.1
+
+* Installer Rapbase fra github i stedet for cran. Rapbase ble fjernet fra Cran i slutten av juni 2023 fordi en test feilet. Testen er fikset nå, men Rapbase er ikke publisert på nytt enda. Enn så lenge må pakken installeres direkte fra github.
 
 # ablanor 1.1.0
 ## Nytt
