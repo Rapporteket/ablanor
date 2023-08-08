@@ -65,6 +65,10 @@ to local data (defined by \code{reshId}), "SC" has access to national data.}
 Default is FALSE in which case a data frame containing name and id is
 returned.}
 
+\item{newNames}{boolean. TRUE uses "sykehusnavn" as defined in
+'legg_til_sykehusnavn()'. Default value is FALSE, uses "sykehusnavn" from
+table Friendlycentre.}
+
 \item{shortName}{boolean. Default value FALSE and "friendlyname" is returned.
 If TRUE shortname is returned.}
 

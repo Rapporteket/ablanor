@@ -26,6 +26,9 @@
 #' to local data (defined by \code{reshId}), "SC" has access to national data.
 #' @param shortName boolean. Default value FALSE and "friendlyname" is returned.
 #' If TRUE shortname is returned.
+#' @param newNames boolean. TRUE uses "sykehusnavn" as defined in
+#' 'legg_til_sykehusnavn()'. Default value is FALSE, uses "sykehusnavn" from
+#' table Friendlycentre.
 #' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
