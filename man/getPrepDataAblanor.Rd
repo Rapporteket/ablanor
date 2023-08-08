@@ -9,6 +9,7 @@
 \alias{getFollowupData}
 \alias{getGkvData}
 \alias{getBaseregProsData}
+\alias{getBaseregProsFollowup1Data}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -62,6 +63,16 @@ getGkvData(
 )
 
 getBaseregProsData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsFollowup1Data(
   registryName,
   singleRow = FALSE,
   reshId = NULL,

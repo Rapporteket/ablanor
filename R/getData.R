@@ -845,7 +845,7 @@ getBaseregProsFollowup1 <- function(registryName,
                          STATUS,
                          FORM_ORDER_STATUS_ERROR_CODE
                   FROM proms
-                  WHERE REGISTRATION_TYPE = Followup "
+                  WHERE REGISTRATION_TYPE = 'Followup' "
 
   if (singleRow) {
     msg <- "Query single row data for 1-year followup"

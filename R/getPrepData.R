@@ -390,90 +390,144 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
   d_followup %<>%
-    dplyr::rename("FOLLOWUP_STATUS" = "STATUS")
+    dplyr::rename("FOLLOWUP_STATUS" = "STATUS",
+                  "MCEID_FOLLOWUP" = "MCEID",
+                  "MCEID" = "PARENTMCEID")
   d_proms %<>%
-    dplyr::rename("PROMS_STATUS" = "STATUS")
+    dplyr::rename("PROMS_STATUS" = "STATUS",
+                  "MCEID_FOLLOWUP" = "MCEID")
 
 
-  # MERGE DATASETTENE :
-  # NB: I Ablanor skal berre skjema som høyrer til forløp som har resultert i
-  # ein prosedyre (eventuelt ein avbroten ein) analyserast.
-  # Filter er brukt på prosedyredato (getPros)
-
-  # REKKEFØLGE FILER: BASISDATA + PASIENT-DATA FØRST, PROSEDYRE ETTERPÅ
-  d_ablanor <-  dplyr::right_join(d_basereg,
-                                  d_pros,
-                                  by = c("MCEID", "CENTREID")) %>%
-    # Legg til pasient_id til venstre
-    dplyr::right_join(d_mce %>% dplyr::select(MCEID,
-                                              PATIENT_ID),
-                      .,
-                      by = "MCEID") %>%
-    # Legg til kommunmenummer til venstre
-    # Kommunenummer på forløpstidspunktet.
-    dplyr::right_join(d_mcepatientdata %>% dplyr::select(-PID),
-                      .,
-                      by = "MCEID") %>%
-    # Legg til pasientinformasjon til venstre
-    # Lik for alle pasientens forløp
-    dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
-                      .,
-                      by = "PATIENT_ID",
-                      multiple = "all") %>%
-    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
-
-
-  names(d_ablanor) <- tolower(names(d_ablanor))
+  names(d_followup) <- tolower(names(d_followup))
+  names(d_proms) <- tolower(names(d_proms))
+  names(d_baseregPat) <- tolower(names(d_baseregPat))
 
 
 
-  # UTLEDETE VARIABLER
+  # Sjekk at bare en oppfølging per forløp
+  # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
+  followup_data <- d_followup %>%
+    dplyr::filter(!is.na(followup_status)) %>%
+    dplyr::left_join(.,
+                     d_proms,
+                     by = "mceid_followup") %>%
+    dplyr::group_by(mceid) %>%
+    dplyr::mutate(max_mceid_followup = max(mceid_followup)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(mceid_followup == max_mceid_followup) %>%
+    dplyr::select(- max_mceid_followup,
+                  - mcetype) %>%
+    dplyr::mutate(eprom_opprettet = "ja")
 
-  # ALDER :
+
+
+  # Legg til follow-up i pasient - prosedyre - data
+  d_ablanor <- d_baseregPat %>%
+    dplyr::left_join(.,
+                     followup_data,
+                     by = c("mceid", "centreid", "patient_id"))
+
+  # Nyeste prosedyredato som har eprom:
+  nyeste_eprom_bestilling <- lubridate::date(max(
+    d_ablanor %>%
+      dplyr::filter(!is.na(followup_status)) %>%
+      dplyr::pull(dato_pros)))
+
+
+
   d_ablanor %<>%
-    ablanor::utlede_alder(.) %>%
-    ablanor::utlede_alder_75(.) %>%
-    ablanor::utlede_aldersklasse(.)
+    ablanor::utlede_tidsvariabler() %>%
+    dplyr::mutate(
+      eprom_opprettet = dplyr::case_when(
 
-  # BMI klasse
-  # NB: BMI i datadumpen er litt feil! bruke denne (bmi_manual)
+        dato_pros > nyeste_eprom_bestilling ~
+          "nei, registreringen er for ny",
+
+        dato_pros < as.Date("2020-01-02", format = "%Y-%m-%d") ~
+          "nei, før innføring av 1års oppf.",
+
+        is.na(eprom_opprettet) ~
+          "nei",
+
+        !is.na(eprom_opprettet) ~
+          "ja")
+    )
+
   d_ablanor %<>%
-    ablanor::utlede_bmi(.) %>%
-    ablanor::utlede_bmi_klasse(.)
-
-
-
-  # AFLI : ICD
-  d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
-
-
-  # VT : KARDIOMYOPATI
-  d_ablanor %<>% ablanor::utlede_kardiomyopati(.)
-
-
-  # HJERTESVIKT OG REDUSERT EF
-  d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
-
-
-  # Indikator tamponade, indikator for avbrudd
-  d_ablanor %<>%
-    ablanor::indik_tamponade(.) %>%
-    ablanor::indik_ferdig_komplik(.) %>%
-    ablanor::indik_akuttsuksess(.) %>%
-    ablanor::indik_pacemaker(.) %>%
-    ablanor::indik_avbrudd(.)
-
-  d_ablanor %>%
+    ablanor::utlede_alder() %>%
     dplyr::mutate(
 
-      # Tidsvariabler for prosedyre
-      aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
-      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
-                                               lubridate::month(.data$dato_pros))),
-      maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
-                                yes = NA,
-                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
-    dplyr::arrange(.data$mceid)
+      dato_followup_teoretisk = dato_pros + lubridate::days(365),
+
+      alder_1aar_etterProsedyren =
+        lubridate::as.period(
+          x = lubridate::interval(
+            start = birth_date,
+            end = dato_followup_teoretisk),
+          unit = "years")$year,
+
+      dg_prosedyre_til_dod = ifelse(
+        deceased == 1,
+        as.numeric(difftime(deceased_date, dato_pros, units = "days")),
+        NA_real_),
+
+      dod_foer_1aar = ifelse((!is.na(dg_prosedyre_til_dod) &
+                               dg_prosedyre_til_dod <365),
+      "dod innen 1 aar",
+      "levende 1 aar etter"))
+
+
+
+
+
+  #
+  #   # UTLEDETE VARIABLER
+  #
+  #   # ALDER :
+  #   d_ablanor %<>%
+  #     ablanor::utlede_alder(.) %>%
+  #     ablanor::utlede_alder_75(.) %>%
+  #     ablanor::utlede_aldersklasse(.)
+  #
+  #   # BMI klasse
+  #   # NB: BMI i datadumpen er litt feil! bruke denne (bmi_manual)
+  #   d_ablanor %<>%
+  #     ablanor::utlede_bmi(.) %>%
+  #     ablanor::utlede_bmi_klasse(.)
+  #
+  #
+  #
+  #   # AFLI : ICD
+  #   d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
+  #
+  #
+  #   # VT : KARDIOMYOPATI
+  #   d_ablanor %<>% ablanor::utlede_kardiomyopati(.)
+  #
+  #
+  #   # HJERTESVIKT OG REDUSERT EF
+  #   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
+  #
+  #
+  #   # Indikator tamponade, indikator for avbrudd
+  #   d_ablanor %<>%
+  #     ablanor::indik_tamponade(.) %>%
+  #     ablanor::indik_ferdig_komplik(.) %>%
+  #     ablanor::indik_akuttsuksess(.) %>%
+  #     ablanor::indik_pacemaker(.) %>%
+  #     ablanor::indik_avbrudd(.)
+  #
+  #   d_ablanor %>%
+  #     dplyr::mutate(
+  #
+  #       # Tidsvariabler for prosedyre
+  #       aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
+  #       maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
+  #                                                lubridate::month(.data$dato_pros))),
+  #       maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
+  #                                 yes = NA,
+  #                                 no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
+  #     dplyr::arrange(.data$mceid)
 }
 
 
