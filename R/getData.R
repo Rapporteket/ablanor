@@ -792,7 +792,8 @@ getBaseregProsFollowup1 <- function(registryName,
     LEFT JOIN patientlist ON
          mce.PATIENT_ID = patientlist.ID "
     ,
-    condition)
+    condition,
+    " AND pros.FORLOPSTYPE IS NOT NULL ")
 
 
 
@@ -802,7 +803,6 @@ getBaseregProsFollowup1 <- function(registryName,
              mce.MCETYPE,
              mce.PATIENT_ID,
              mce.PARENTMCEID,
-             mce.HAS_FOLLOWUP,
 
              followup.DATO_FOLLOWUP,
              followup.COMPLETE,

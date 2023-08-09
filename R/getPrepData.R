@@ -443,8 +443,17 @@ getBaseregProsFollowup1Data <- function(registryName,
         dato_pros > nyeste_eprom_bestilling ~
           "nei, registreringen er for ny",
 
-        dato_pros < as.Date("2020-01-02", format = "%Y-%m-%d") ~
+        dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
           "nei, før innføring av 1års oppf.",
+
+
+        dato_pros == as.Date("2021-09-01", format = "%Y-%m-%d") ~
+          "nei, teknisk problem",
+
+        (dato_pros >= as.Date("2020-01-01", format = "%Y-%m-%d") &
+           dato_pros <= as.Date("2020-01-24", format = "%Y-%m-%d")) ~
+          "nei, teknisk problem",
+
 
         is.na(eprom_opprettet) ~
           "nei",
@@ -454,28 +463,98 @@ getBaseregProsFollowup1Data <- function(registryName,
     )
 
   d_ablanor %<>%
+
     ablanor::utlede_alder() %>%
+
     dplyr::mutate(
 
+      # KRITERIER FOR OPPRETTELSE AV EPROM:
+      # Sjekker hver dag i intervallet 50-52 uker etter prosedyren om
+      # nye forløp oppfyller krav for utsendign av eprom
       dato_followup_teoretisk = dato_pros + lubridate::days(365),
 
       alder_1aar_etterProsedyren =
         lubridate::as.period(
-          x = lubridate::interval(
-            start = birth_date,
-            end = dato_followup_teoretisk),
+          x = lubridate::interval(start = birth_date,
+                                  end = dato_followup_teoretisk),
           unit = "years")$year,
+
+      krit_oppf_1aar_over16 = dplyr::case_when(
+        eprom_opprettet %in% "ja"  &
+          (!is.na(alder_1aar_etterProsedyren) &
+             alder_1aar_etterProsedyren >=16) ~"ja",
+
+        eprom_opprettet %in% "ja" &
+          (is.na(alder_1aar_etterProsedyren) |
+             alder_1aar_etterProsedyren <16) ~  "nei, fremdeles under 16",
+
+        !eprom_opprettet %in% "ja" ~ NA_character_),
 
       dg_prosedyre_til_dod = ifelse(
         deceased == 1,
         as.numeric(difftime(deceased_date, dato_pros, units = "days")),
         NA_real_),
 
-      dod_foer_1aar = ifelse((!is.na(dg_prosedyre_til_dod) &
-                               dg_prosedyre_til_dod <365),
-      "dod innen 1 aar",
-      "levende 1 aar etter"))
+      krit_oppf_1aar_levende = dplyr::case_when(
+        eprom_opprettet %in% "ja"  &
+          (is.na(dg_prosedyre_til_dod) | dg_prosedyre_til_dod >= 365) ~ "ja",
 
+        eprom_opprettet %in% "ja"  &
+          !is.na(dg_prosedyre_til_dod) &
+          dg_prosedyre_til_dod <365 ~   "nei, dod innen 1 aar",
+
+        !eprom_opprettet %in% "ja" ~ NA_character_),
+
+
+      krit_oppf_norsk = dplyr::case_when(
+        eprom_opprettet %in% "ja"  &
+          ssn_type %in% 1 &
+          ssnsubtype %in% c(1, 3) ~ "ja",
+
+        eprom_opprettet %in% "ja"  &
+          (!ssn_type %in% 1 |
+             !ssnsubtype %in% c(1, 3)) ~ "nei, ikke norsk frn type",
+        !eprom_opprettet %in% "ja" ~ NA_character_),
+    )
+
+  d_ablanor %<>%
+    dplyr::arrange(dato_pros) %>%
+    dplyr::group_by(patient_id, forlopstype) %>%
+    dplyr::mutate(
+      antall_pros = dplyr::n(),
+      dg_til_neste = as.numeric(difftime(dplyr::lead(dato_pros),
+                                         dato_pros,
+                                         units = "days"))) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(
+      krit_oppf_1aar_nyeste_pros_av_typen = dplyr::case_when(
+        eprom_opprettet %in% "ja"  &
+          (is.na(dg_til_neste) | dg_til_neste > 365) ~ "ja",
+
+
+        eprom_opprettet %in% "ja"  &
+          (!is.na(dg_til_neste) | dg_til_neste <= 365) ~
+          "nei, ny prosedyre av samme type innen 1 år",
+        !eprom_opprettet %in% "ja" ~ NA_character_),
+
+    ) %>%
+    dplyr::mutate(
+      krit_oppf_1aar_alle = dplyr::case_when(
+        eprom_opprettet %in% "ja"  &
+          krit_oppf_1aar_over16 %in% "ja" &
+          krit_oppf_1aar_levende %in% "ja" &
+          krit_oppf_norsk %in% "ja" &
+          krit_oppf_1aar_nyeste_pros_av_typen %in% "ja" ~"ja",
+
+        eprom_opprettet %in% "ja"  &
+          (!krit_oppf_1aar_over16 %in% "ja" |
+             !krit_oppf_1aar_levende %in% "ja" |
+             !krit_oppf_norsk %in% "ja" |
+             !krit_oppf_1aar_nyeste_pros_av_typen %in% "ja" ) ~ "nei",
+
+        eprom_opprettet %in% "nei"  ~ NA_character_
+      )
+    )
 
 
 
@@ -517,17 +596,26 @@ getBaseregProsFollowup1Data <- function(registryName,
   #     ablanor::indik_pacemaker(.) %>%
   #     ablanor::indik_avbrudd(.)
   #
-  #   d_ablanor %>%
-  #     dplyr::mutate(
-  #
-  #       # Tidsvariabler for prosedyre
-  #       aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
-  #       maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
-  #                                                lubridate::month(.data$dato_pros))),
-  #       maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
-  #                                 yes = NA,
-  #                                 no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
-  #     dplyr::arrange(.data$mceid)
+  d_ablanor %>%
+    dplyr::mutate(
+
+      # Tidsvariabler for prosedyre
+      aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
+      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
+                                               lubridate::month(.data$dato_pros))),
+      maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
+                                yes = NA,
+                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre)),
+
+      # Tidsvariabler for prosedyre
+      aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
+      maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
+                                               lubridate::month(.data$dato_followup))),
+      maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
+                                yes = NA,
+                                no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup))
+      ) %>%
+    dplyr::arrange(.data$mceid)
 }
 
 

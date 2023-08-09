@@ -99,6 +99,16 @@ getPivotDataSet <- function(setId = "",
                                  toDate = toDate)
     }
 
+    if (setId == "gkv") {
+      dat <- ablanor::getGkvData(registryName = registryName,
+                                 singleRow = singleRow,
+                                 session = session,
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = fromDate,
+                                 toDate = toDate)
+    }
+
 
 
 
@@ -112,14 +122,14 @@ getPivotDataSet <- function(setId = "",
 
 
 
-    if (setId == "basereg_pros_indik") {
-      dat <- ablanor::getBaseregProsData(registryName = registryName,
-                                         singleRow = singleRow,
-                                         session = session,
-                                         reshId = reshId,
-                                         userRole = userRole,
-                                         fromDate = fromDate,
-                                         toDate = toDate)
+    if (setId == "pros_pat_followup1") {
+      dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
+                                                  singleRow = singleRow,
+                                                  session = session,
+                                                  reshId = reshId,
+                                                  userRole = userRole,
+                                                  fromDate = fromDate,
+                                                  toDate = toDate)
     }
 
 
