@@ -1,0 +1,1109 @@
+---
+params:
+  title: tom tittel
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
+  tableFormat: html
+  reshId: 999999
+  registryName: rapbase
+  userFullName: Tore Tester
+  userRole: ukjent rolle
+  userOperator: ukjent operatør
+title: Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
+abstract: '`r paste0("Denne rapporten er generert ved hjelp av resultatløsningen _Rapporteket_ og sendes ut per e-post til personer i fagmiljøet som på forhånd har bestilt denne tjenesten. Rapporten er kun ment til internt bruk! Rapporten inneholder tabeller og figurer med resultater basert på forløp registrert ved ", params$hospitalName, " sammenlignet med nasjonale tall. Opptellinger og statistikker er gjort per forløp/prosedyre, og ikke per individ.")`'
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+registryName: '`r params$registryName`'
+reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
+regtext: '`r readLines(system.file("registryShortDescription.txt", package = "ablanor"))`'
+userFullName: '`r params$userFullName`'
+output:
+  fig_caption: yes
+---
+
+
+```{r knitrOptions, include=FALSE}
+library(ablanor)
+library(magrittr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+
+# make sure to use a temporary directory AND absolute paths, e.g. that figs
+# can be found also when deployed at a server. See below link for explanation
+# https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
+# Also make sure we use tempdir() as working directory so we do not clutter
+# the package of the hosting shiny app
+# workDir <- tempdir()
+# knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
+
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio-between-renders
+options(knitr.table.format = params$tableFormat)
+knitr::opts_chunk$set(warnings = FALSE, echo = FALSE)
+options(stringsAsFactors = FALSE)
+
+# For some reason Shiny Server does not get the server locale settings right.
+# To display dates correct, enforce locale here:
+Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
+``` 
+
+
+
+
+```{r SKDEcol, include=FALSE}
+colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+```
+  
+  
+```{r latest_entry, include=FALSE, eval=TRUE}
+
+# 1) DATAGRUNNLAG: PERIODE FOR SQL SPØRRING
+  
+# NYESTE DATO: 
+# Finne nyeste prosedyredato (=nyeste registrering). Vi ønsker ikke at 
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med.  
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+# I rapporten bruker vi kun hele (komplette = fullførte måneder)
+
+
+periode_data <- data.frame(
+  
+  # Nyeste registrering eller gårsdagen (ikke forhåndsregistreringer)
+  nyeste_reg = min(
+    (as.Date(Sys.time()) - 1), 
+    ablanor::getLatestEntry(registryName = params$registryName))) %>% 
+  
+  dplyr::mutate(
+    
+    # SISTE DATO AVGJØR SISTE MÅNED: 
+    siste_dato_innevarende_mnd = lubridate::ceiling_date(
+      x = nyeste_reg, 
+      unit =  "month") - lubridate::days(1),
+    
+    siste_dato = dplyr::case_when(
+      # siste dato er nyeste dato --> nyeste mnd er komlett
+      siste_dato_innevarende_mnd == nyeste_reg ~ 
+        nyeste_reg, 
+      
+      # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+      siste_dato_innevarende_mnd != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, "month") - 
+        lubridate::days(1), 
+      
+      TRUE ~ as.Date(NA_character_)),
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1, 
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d") 
+  )
+
+
+```
+  
+  
+```{r GetData}
+# NASJONALE DATA (SC-ROLLE)
+d_ablanor <- ablanor::getBaseregProsData(registryName = params$registryName, 
+                                           singleRow = FALSE,
+                                           reshId = NULL,
+                                           userRole = "SC",
+                                           fromDate = periode_data$forste_dato,
+                                           toDate = periode_data$siste_dato) %>% 
+  dplyr::mutate(aar = aar_prosedyre, 
+                maaned = maaned_prosedyre) %>% 
+  dplyr::filter(forlopstype %in% 1:4)
+```
+  
+```{r forste_siste_registrering_SHUS}
+  
+periode_data$forste_dato_shus <- d_ablanor %>% 
+  dplyr::filter(centreid == params$reshId) %>% 
+  dplyr::summarise(min(dato_pros)) %>% 
+  dplyr::pull()
+  
+periode_data$nyeste_dato_shus <- d_ablanor %>% 
+  dplyr::filter(centreid == params$reshId) %>% 
+  dplyr::summarise(max(dato_pros)) %>% 
+  dplyr::pull()
+```
+ 
+ 
+```{r monthTabPrepare, include=FALSE, eval=TRUE}
+# Hele forrige år og alle påbegynte måneder hittil i år
+forsteDatoSisteMonth <- lubridate::floor_date(periode_data$siste_dato, 
+                                              "month") 
+timeTableMonth <- data.frame(
+  monthDato = seq(as.Date(paste0(periode_data$sisteHeleYear, 
+                                 "-01-01")), 
+                  forsteDatoSisteMonth,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m")))
+```
+
+
+ 
+```{r Oppdatere_levels}
+  
+# OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
+d_ablanor %<>%
+  dplyr::mutate(forlopstype = factor(x = forlopstype,
+                                     levels = 1:4))
+
+
+lokaltSykehus <- ablanor::legg_til_sykehusnavn(
+  data.frame(centreid = params$reshId), 
+  short = TRUE)  %>% 
+  dplyr::pull(sykehusnavn)
+  
+```
+  
+  
+  
+# Datagrunnlag
+Rapporten er generert med utgangspunkt i AblaNor sin nasjonale database. 
+Datasettet som ligger til grunn har nasjonale data fra 
+`r d_ablanor %>% dplyr::select(centreid) %>% dplyr::distinct() %>% nrow()` 
+sykehus og nyeste registrering nasjonalt er datert 
+`r format(periode_data$nyeste_reg, '%d. %B %Y')`. Det presenteres månedlige
+resultater for hele fjorårets produksjon, samt alle
+fullførte måndeder hittil i år.  
+Den siste prosedyredatoen som er med i tabellene og 
+figurene er dermed `r format(periode_data$siste_dato, '%d. %B %Y')`. 
+
+
+I rapporten sammenlignes resultater fra fra `r params$hospitalName` med 
+nasjonale tall.  Første og siste registrering fra `r params$hospitalName` 
+i tidsperioden er henholdsvis
+`r format(periode_data$forste_dato_shus, "%d/%m-%Y") ` og
+`r format(periode_data$nyeste_dato_shus, "%d/%m-%Y") `. 
+  
+
+
+  
+  
+
+
+  
+  
+```{r pagebreak1, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+  
+  
+  
+  
+# Forløpstype
+Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
+(AFLI), Ventrikkeltakykardi (VT), Supraventrikulær takykardi (SVT) eller 
+Elektrofysiologisk undersøkelse (EFU). 
+Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
+registrert i AblaNor nasjonalt og kun fra `r params$hospitalName` 
+for hele fjoråret sammenlignet med hittil i år. 
+for hver forløpstype og sammenlagt. 
+Figur \@ref(fig:typeForlopFig) viser antall forløp per
+måned, samt fordeling etter forløpstype. 
+  
+```{r typeForlopAar}
+cap <- paste("Antall registrerte prosedyrer fra ",
+             periode_data$sisteHeleYear, 
+             "og hittil i år.", "For ",
+             params$hospitalName, " og nasjonalt, ",
+             "samt for hver av de 4 forløpstypene: ",
+             "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
+             "Supraventrikulær takykardi (SVT) eller ", 
+             "Elektrofysiologisk undersøkelse (EFU).")
+
+
+myHeader <- c("", lokaltSykehus = 2, "Nasjonalt" = 2)
+names(myHeader) <-  c("", lokaltSykehus, "Nasjonalt" )
+
+
+tab_forlop_lokalt <- d_ablanor %>%
+  dplyr::filter(centreid %in% params$reshId) %>% 
+  dplyr::count(forlopstype, aar) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., 
+                                         total  = FALSE, 
+                                         langtnavn = FALSE) %>% 
+  dplyr::mutate(name = paste0(aar,"_", lokaltSykehus)) %>% 
+  dplyr::select(-aar, -forlopstype) %>% 
+  tidyr::pivot_wider(names_from = name,
+                     values_from = n,
+                     values_fill = 0)
+  
+tab_forlop_nasj <- d_ablanor %>%
+  dplyr::count(forlopstype, aar) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., 
+                                         total  = FALSE, 
+                                         langtnavn = FALSE) %>% 
+  dplyr::mutate(name = paste0(aar,"_nasjonalt")) %>% 
+  dplyr::select(-aar, -forlopstype) %>% 
+  tidyr::pivot_wider(names_from = name,
+                     values_from = n,
+                     values_fill = 0)
+  
+
+tab_forlop <- dplyr::right_join(
+  tab_forlop_lokalt, 
+  tab_forlop_nasj,
+  by = "forlopstype_tekst") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
+
+tab_forlop %>% 
+  rapbase::mst(.,
+               type = params$tableFormat,
+               col_names = c("Forløpstype",
+                             periode_data$sisteHeleYear,
+                             periode_data$nyesteRegYear,
+                             periode_data$sisteHeleYear,
+                             periode_data$nyesteRegYear),
+               cap = cap,
+               digs = 1,
+               align = "lrrrr",
+               fs = 9, 
+               lsd = FALSE) %>% 
+  kableExtra::add_header_above(header = myHeader)
+
+```
+
+  
+# ```{r typeForlopFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8 }
+#   
+#   figtekst <- paste0("Antall registreringer i AblaNor fra ", 
+#                      params$hospitalName, " hver måned det siste året. ", 
+#                      "Tallene i søylene viser antall registrerte forløp per ", 
+#                      "forløpstype. ", 
+#                      "Atrieflimmer/atypisk flutter (AFLI), ", 
+#                      "Ventrikkeltakykardi (VT), ", 
+#                      "Supraventrikulær takykardi (SVT) eller ", 
+#                      "Elektrofysiologisk undersøkelse (EFU).")
+#   
+#   d_forlop_mnd <- d_ablanor %>%
+#     dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
+#     ablanor::legg_til_forlopstype_kortnavn() %>% 
+#     dplyr::mutate(
+#       n_uten0 = dplyr::case_when(
+#         n == 0 ~ "", n != 0 ~ as.character(n)
+#       )
+#     ) %>% 
+#     dplyr::mutate(forlopstype_tekst = factor(
+#       x = forlopstype_tekst, 
+#       levels = c("AFLI", "VT", "SVT", "EFU")))
+#   
+#   
+#   ggplot2::ggplot(
+#     data = d_forlop_mnd,  
+#     ggplot2::aes(
+#       x = n,
+#       y = maaned,
+#       fill = forlopstype_tekst
+#     )
+#   ) +
+#     ggplot2::geom_bar(stat = "identity", 
+#                       position = ggplot2::position_stack(reverse = TRUE)) +
+#     ggplot2::scale_fill_manual(values = colPrimary[3:6]) +
+#     ablanor::ablanor_plot_theme() + 
+#     ggplot2::labs(title = paste0("Antall registreringer i AblaNor de ",
+#                                  showN, " siste månedene" ),
+#                   subtitle = params$hospitalName) +
+#     ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
+#     ggplot2::geom_text(
+#       ggplot2::aes(label = n_uten0),
+#       family = "sans",
+#       position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE)
+#     ) 
+#   
+#   ```
+#   
+#   
+#   
+#   
+#   
+#   ```{r pagebreak2, results = "asis", eval = (params$tableFormat == "pdf")}
+#   cat("\n\n\\pagebreak\n")
+#   ```
+#   
+#   
+#   # Komplikasjoner
+#   I Ablanor registreres følgende: "Skjedde det komplikasjoner som følge av 
+#   operasjonen?". Dette kan enten være komplikasjoner som oppstod umiddelbart 
+#   etter operasjonen eller som var senkomplikasjoner som (sannsynligvis) skyldtes 
+#   operasjonen.
+#   
+#   Figur \@ref(fig:komplikasjonerFig) viser prosentandel forløp der komplikasjoner
+#   skjedde, per måned. Tallene i søylen viser antall forløp med komplikasjoner, 
+#   delt på på totalt antall forløp den måneden. Tabell
+#   \@ref(tab:komplikasjonerMaanedTabell) viser andel forløp med komplikasjoner
+#   totalt per måned og i underpopulasjoner per måned. 
+#   
+#   
+#   
+#   ```{r komplikasjonerFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8 }
+#   figtekst <- paste0("Andel forløp fra ", params$hospitalName, 
+#                      " med komplikasjoner det siste året. " ,
+#                      "Tallene i søylene viser antall forløp med ", 
+#                      "komplikasjoner delt på totalt antall forløp per måned.")
+#   
+#   d_kompl_fig <- d_ablanor %>%
+#     dplyr::select(maaned, komp_janei) %>%
+#     ablanor::ki_komplikasjonar() %>%
+#     dplyr::group_by(maaned) %>%
+#     ablanor::aggreger_ki_prop() %>%
+#     dplyr::select(-konfint_nedre, -konfint_ovre, -est) %>%
+#     dplyr::mutate(komp_pros = ki_teller / ki_nevner,
+#                   komp_text = paste0(ki_teller, "/", ki_nevner)) %>% 
+#     dplyr::select(maaned, komp_pros, komp_text)
+#   
+#   d_kompl_fig2 <- dplyr::left_join(
+#     d_kompl_fig %>%
+#       tidyr::expand(., maaned), 
+#     d_kompl_fig,
+#     by = "maaned"
+#   ) %>% 
+#     tidyr::replace_na(., list(komp_pros = 0, komp_text = " / "))
+#   
+#   
+#   
+#   ggplot2::ggplot(data = d_kompl_fig2, 
+#                   ggplot2::aes(x = komp_pros, y = maaned)) +
+#     ggplot2::geom_bar(stat = "identity", position = "identity",  fill = colPrimary[4]) +
+#     ggplot2::labs(title = paste0("Komplikasjoner de ",
+#                                  showN, " siste månedene"), 
+#                   subtitle = params$hospitalName) +
+#     ablanor::ablanor_plot_theme() +
+#     ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
+#     ggplot2::geom_text(ggplot2::aes(label = komp_text), 
+#                        family = "sans",
+#                        position = ggplot2::position_stack(vjust = 0.5)) +
+#     ggplot2::scale_x_continuous(labels = function(x) paste0(x * 100, "%"))
+#   
+#   
+#   
+#   ```
+#   
+#   
+#   
+#   ```{r komplikasjonerMaanedTabell}
+#   
+#   cap <- paste0(
+#     "Andel komplikasjoner per måned, totalt og for undergrupper. ", 
+#     "Totalt per måned og i undergruppene: ", 
+#     "Forløpstype, alder over/uder 75 år og BMI over/under 35. ",
+#     "Merk at dersom Forløpstype, alder eller BMI mangler for et forløp, teller ",
+#     "ikke dette forløpet i undergruppene.")
+#   
+#   d_komp_tot <- d_ablanor %>%
+#     dplyr::select(komp_janei, maaned) %>%
+#     dplyr::group_by(maaned) %>%
+#     ablanor::ki_komplikasjonar() %>%
+#     ablanor::aggreger_ki_prop() %>%
+#     dplyr::transmute(maaned = maaned,
+#                      Totalt = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() 
+#   
+#   
+#   d_komp_forlop <- d_ablanor %>%
+#     dplyr::select(forlopstype, komp_janei, maaned) %>%
+#     ablanor::ki_komplikasjonar() %>%
+#     dplyr::group_by(forlopstype, maaned) %>%
+#     ablanor::aggreger_ki_prop() %>%
+#     dplyr::transmute(maaned = maaned,
+#                      legend = forlopstype,
+#                      value = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() %>%  
+#     dplyr::select(-forlopstype) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("AFLI" = "1",
+#                   "VT" = "2", 
+#                   "SVT" = "3", 
+#                   "EFU" = "4")
+#   
+#   
+#   d_komp_bmi <- d_ablanor %>%
+#     dplyr::select(bmi_over35, komp_janei, maaned) %>%
+#     ablanor::ki_komplikasjonar() %>%
+#     dplyr::group_by(bmi_over35, maaned) %>%
+#     ablanor::aggreger_ki_prop() %>%
+#     dplyr::transmute(maaned = maaned,
+#                      legend = bmi_over35,
+#                      value = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() %>%  
+#     dplyr::select(- bmi_over35) %>% 
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("over 35" = "BMI >=35", 
+#                   "under 35" = "BMI <35")
+#   
+#   d_komp_alder <- d_ablanor %>%
+#     dplyr::select(alder_75, komp_janei, maaned) %>%
+#     ablanor::ki_komplikasjonar() %>%
+#     dplyr::group_by(alder_75, maaned) %>%
+#     ablanor::aggreger_ki_prop() %>%
+#     dplyr::transmute(maaned = maaned,
+#                      legend = alder_75,
+#                      value = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() %>%
+#     dplyr::select(- alder_75) %>% 
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("over 75" = ">=75", 
+#                   "under 75" = "<75")
+#   
+#   
+#   d_komp_TOTAL <- d_komp_forlop %>%
+#     dplyr::left_join(., d_komp_alder, by = "maaned") %>%
+#     dplyr::left_join(., d_komp_bmi, by = "maaned") %>%
+#     dplyr::left_join(., d_komp_tot, by = "maaned") %>% 
+#     tidyr::replace_na(list(Totalt = " -- ")) %>% 
+#     dplyr::arrange(desc(maaned))
+#   
+#   
+#   knitr::kable(x = d_komp_TOTAL,
+#                format = switch(params$tableFormat,
+#                                pdf = "latex",
+#                                html = "html"),
+#                align = c("l", rep("c", 9)),
+#                booktabs = TRUE, 
+#                caption = cap) %>%
+#     kableExtra::add_header_above(c(" " = 1,
+#                                    "Forløpstype" = 4,
+#                                    "Alder" = 2,
+#                                    "BMI" = 2,
+#                                    " " = 1)) %>%
+#     gsub("maaned", "Måned", .) %>%
+#     ablanor::mst_short(., type = params$tableFormat, 
+#                        lsd = FALSE, 
+#                        fs = 9, 
+#                        full_width = FALSE)
+#   ```
+#   <br>
+#     
+#     
+#     ```{r pagebreak3, results = "asis", eval = (params$tableFormat == "pdf")}
+#   cat("\n\n\\pagebreak\n")
+#   ```
+#   
+#   
+#   # Akutt suksess
+#   Akutt suksess er operatørens vurdering av om selve operasjonen er vellykket: 
+#     "Nei" dersom behandlet arytmi fortsatt er tilstede,  "Ja" dersom 
+#   PV isolert/AP borte/ikke utløsbar arytmi. "Usikker" dersom sett andre arytmier 
+#   fortsatt, men mindre arytmi og "Ikke aktuelt" dersom ikke utløst arytmi. 
+#   
+#   Elektrofysiologiske undersøkelse eller forløp der akutt suksess er lik
+#   "Ikke aktuelt" er fjernet fra datagrunnlaget. 
+#   
+#   Andel forløp med akutt suksess er regnet ut ved å dele antall forløp der akutt suksess er lik "Ja" på totalt 
+#   antall forløp der akutt suksess er en av "Ja", "Nei" eller "Usikker". 
+#   Figur \@ref(fig:akuttSuksessFig) viser prosentandel forløp med akutt suksess
+#   blant abladerte, per måned. Tabell \@ref(tab:akuttSuksessMaaned) viser andel
+#   forløp med akutt suksess blant abladerte totalt og i underpopulasjoner, per
+#   måned.
+#   
+#   
+#   
+#   
+#   
+#   ```{r akuttSuksessFig, fig.cap = cap , fig.pos = "H", fig.align = "center", out.width = "100%",  fig.asp = 0.8}
+#   
+#   cap <- paste0("Andel forløp med akutt suksess per måned de ", 
+#                 showN, " siste månedene. ", 
+#                 "I datagrunnlaget telles kun abladerte pasienter. ", 
+#                 "Målnivået er markert med rød stiplet linje.")
+#   
+#   
+#   d_akutt_suksess_fig <- d_ablanor %>%
+#     dplyr::select(maaned, abla_strat_ingen, akutt_suksess) %>%
+#     ablanor::ki_akutt_suksess() %>%
+#     dplyr::group_by(maaned) %>%
+#     ablanor::aggreger_ki_prop() %>%
+#     dplyr::transmute(maaned = maaned,
+#                      akuttSuksess_pros = ki_teller / ki_nevner)
+#   
+#   d_akutt_suksess_fig2 <- dplyr::left_join(
+#     d_akutt_suksess_fig %>%
+#       tidyr::expand(., maaned), 
+#     d_akutt_suksess_fig,
+#     by = "maaned") 
+#   
+#   
+#   ggplot2::ggplot(data = d_akutt_suksess_fig2, 
+#                   ggplot2::aes(x = akuttSuksess_pros, y = maaned)) +
+#     ggplot2::geom_bar(stat = "identity",
+#                       position = "identity",
+#                       fill = colPrimary[4]) +
+#     ablanor::ablanor_plot_theme() +
+#     ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
+#     ggplot2::geom_vline(xintercept = 0.95, 
+#                         size = 1,
+#                         colour = colKontrast, 
+#                         linetype = "dashed") +
+#     ggplot2::labs(title = paste0("Akutt suksess de ",
+#                                  showN, " siste månedene"), 
+#                   subtitle = params$hospitalName) +
+#     ggplot2::scale_x_continuous(labels = function(x) paste0(x * 100, "%")) 
+#   
+#   ```
+#   
+#   
+#   
+#   ```{r akuttSuksessMaaned}
+#   cap <- paste0("Andel forløp med akutt suksess. ", 
+#                 "I datagrunnlager telles kun abladerte pasienter (uten EFU og ",
+#                 "uten akutt suksess kodet 'ikke aktuelt'). ", 
+#                 "Vi ser andel akutt suksess blant alle ablanderte (Totalt), ", 
+#                 "per forløpstype, ", 
+#                 "samt for undergrupper av AFLI og VT. ", 
+#                 "Merk at grunnet manglende registrering av tilhørighet i ", 
+#                 "undergrupper av AFLI/VT for et fåtall av forløp kan vi ha ", 
+#                 "uoverensstemmelser i nevnerne. ")
+#   
+#   d_akuttSuksess_tot <- d_ablanor %>%
+#     dplyr::select(abla_strat_ingen, akutt_suksess, maaned) %>%
+#     dplyr::group_by(maaned, .drop = FALSE) %>%
+#     ablanor::ki_akutt_suksess() %>%
+#     ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
+#     dplyr::transmute(maaned = maaned,
+#                      Totalt = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::mutate(Totalt = dplyr::recode(Totalt, "0/0" = " -- ")) %>% 
+#     dplyr::ungroup()
+#   
+#   
+#   d_akuttSuksess_forlop <- d_ablanor %>%
+#     dplyr::select(forlopstype,
+#                   abla_strat_ingen, 
+#                   akutt_suksess, 
+#                   maaned) %>%
+#     ablanor::ki_akutt_suksess() %>%
+#     dplyr::group_by(forlopstype, maaned, .drop=FALSE) %>%
+#     ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
+#     dplyr::transmute(maaned = maaned,
+#                      legend = forlopstype,
+#                      value = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() %>%  
+#     dplyr::select(- forlopstype) %>%
+#     dplyr::mutate(value = dplyr::recode(value, 
+#                                         "0/0" = " -- ")) %>% 
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("AFLI" = "1",
+#                   "VT" = "2", 
+#                   "SVT" = "3", 
+#                   "EFU" = "4")
+#   
+#   d_akutt_suksess_AFLI_icd <- d_ablanor %>%
+#     dplyr::select(kategori_afli_aryt_i48,
+#                   abla_strat_ingen, 
+#                   akutt_suksess, 
+#                   maaned) %>%
+#     dplyr::filter(!is.na(kategori_afli_aryt_i48)) %>%
+#     ablanor::ki_akutt_suksess() %>%
+#     dplyr::group_by(kategori_afli_aryt_i48, maaned, .drop = FALSE) %>%
+#     ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
+#     dplyr::transmute(maaned = maaned,
+#                      legend = kategori_afli_aryt_i48,
+#                      value = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() %>% 
+#     dplyr::select(- kategori_afli_aryt_i48) %>%
+#     dplyr::mutate(value = dplyr::recode(value, 
+#                                         "0/0" = " -- ")) %>% 
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
+#   
+#   
+#   d_akutt_suksess_VT <- d_ablanor %>%
+#     dplyr::select(forlopstype, 
+#                   kategori_vt_kardiomyopati, 
+#                   abla_strat_ingen, 
+#                   akutt_suksess, maaned) %>%
+#     dplyr::filter(forlopstype == 2) %>%
+#     ablanor::ki_akutt_suksess() %>%
+#     dplyr::group_by(kategori_vt_kardiomyopati,
+#                     maaned,
+#                     .drop = FALSE) %>%
+#     ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
+#     dplyr::transmute(maaned = maaned,
+#                      legend = kategori_vt_kardiomyopati,
+#                      value = paste0(ki_teller, "/", ki_nevner)) %>%
+#     dplyr::ungroup() %>%  
+#     dplyr::select(- kategori_vt_kardiomyopati) %>% 
+#     dplyr::mutate(value = dplyr::recode(value,
+#                                         "0/0" = " -- ")) %>% 
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
+#   
+#   
+#   d_akuttSuksess_TOTAL <- dplyr::left_join(
+#     d_akuttSuksess_forlop %>% dplyr::select_if(!names(.) %in% "EFU"),
+#     d_akutt_suksess_AFLI_icd,
+#     by = "maaned") %>%
+#     dplyr::left_join(., d_akutt_suksess_VT,
+#                      by  = "maaned") %>%
+#     dplyr::left_join(., d_akuttSuksess_tot,
+#                      by  = "maaned") %>% 
+#     tidyr::replace_na(list(Totalt = " -- ")) %>% 
+#     dplyr::arrange(desc(maaned)) %>% 
+#     dplyr::rename("Paroks." = "AFLI-ICD 48.0 Paroksymal atrieflimmer", 
+#                   "Persist." = "AFLI-ICD 48.1 Persisterende atrieflimmer", 
+#                   "Langtidsp." = "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer", 
+#                   "Uten" = "Uten kardiomyopati", 
+#                   "ICM" = "Iskemisk KM (ICM)", 
+#                   "DCM" ="Dilatert KM (DCM)", 
+#                   "Annen" = "Annen KM", 
+#                   "Ukjent" = "Ukjent om kardiomyopati")
+#   
+#   
+#   knitr::kable(x = d_akuttSuksess_TOTAL,
+#                format = switch(params$tableFormat,
+#                                pdf = "latex",
+#                                html = "html"),
+#                align = c("l", rep("c",12)),
+#                booktabs = TRUE,
+#                cap = cap) %>%
+#     kableExtra::add_header_above(c(" " = 1,
+#                                    "Forløpstype" = 3,
+#                                    "AFLI, ICD" = 3,
+#                                    "VT, Kardiomyopati" = 5,
+#                                    " " = 1)) %>%
+#     ablanor::mst_short(., type = params$tableFormat, 
+#                        lsd = TRUE,
+#                        fs = 9,
+#                        full_width = FALSE)
+#   
+#   
+#   
+#   
+#   
+#   ```
+#   <br>
+#     
+#     ```{r pagebreak4, results = "asis", eval = (params$tableFormat == "pdf")}
+#   cat("\n\n\\pagebreak\n")
+#   ```
+#   
+#   
+#   
+#   
+#   
+#   # Prosedyrerelatert AV-blokk
+#   Forløp med manglende komplikasjons-registrering 
+#   (n = `r d_ablanor %>% dplyr::filter(is.na(komp_avblokk_pm)) %>% nrow()`) er
+#   fjernet fra datagrunnlaget. Tabell \@ref(tab:avBlokkTabell) viser prosentandel 
+#   forløp med registrering av komplikasjonen "AV-blokk med pacemakerimplantasjon 
+#   som følge av operasjonen", per måned.
+#   
+#   
+#   
+#   
+#   
+#   ```{r avBlokkTabell}
+#   
+#   cap <- paste0("Andel forløp med komplikasjon: AV-blokk med ", 
+#                 "pacemakerimplantasjon som følge av operasjonen. ")
+#   
+#   
+#   d_komplikasjonar_pacemaker <- d_ablanor %>%
+#     dplyr::select(maaned, komp_avblokk_pm) %>%
+#     ablanor::ki_komplikasjonar_pacemaker() %>%
+#     dplyr::group_by(maaned, .drop = FALSE) %>%
+#     ablanor::aggreger_ki_prop(., forenklet = TRUE) %>% 
+#     dplyr::select(maaned, ki_teller, ki_nevner)
+#   
+#   
+#   d_komplikasjonar_pacemaker_tot <- d_ablanor %>%
+#     dplyr::select(maaned, komp_avblokk_pm) %>%
+#     ablanor::ki_komplikasjonar_pacemaker() %>%
+#     ablanor::aggreger_ki_prop() %>% 
+#     dplyr::select(ki_teller, ki_nevner)
+#   
+#   
+#   d_komplikasjonar_pacemaker %>%
+#     dplyr::arrange(desc(maaned)) %>% 
+#     tibble::add_row(maaned = "Totalt", d_komplikasjonar_pacemaker_tot) %>%
+#     dplyr::transmute(Måned = maaned,
+#                      Andel = paste0(ki_teller, "/", ki_nevner),
+#                      Prosent = paste0(
+#                        round(ki_teller / ki_nevner * 100, 1), 
+#                        "%")) %>%
+#     dplyr::mutate(Andel = dplyr::recode(Andel, 
+#                                         "0/0" = " -- ")) %>% 
+#     dplyr::mutate(Prosent = dplyr::recode(Prosent, 
+#                                           "NaN%" = " -- ")) %>% 
+#     rapbase::mst(., type = params$tableFormat,
+#                  digs = 1,
+#                  align = "lcc",
+#                  fs = 9, lsd = FALSE, cap = cap)
+#   ```
+#   
+#   
+#   ```{r pagebreak5, results = "asis", eval = (params$tableFormat == "pdf")}
+#   cat("\n\n\\pagebreak\n")
+#   ```
+#   
+#   # Prosedyrevarighet
+#   Forløp med manglende prosedyrevarighet (n = 
+#                                             `r d_ablanor %>%  dplyr::filter(is.na(pros_varighet)) %>%  nrow()`) er fjernet
+#   fra datagrunnlaget. 
+#   
+#   Figur \@ref(fig:figProsedyreVarighetMin) viser et boxplot med fordeling av 
+#   prosedyrevarighet per måned. Den blå boksen markerer nedre og øvre
+#   kvartil, medianen er markert av den tykke linjen.
+#   Punktene utenfor greinene viser uteliggere, det vil si 
+#   forløp med usedvanlig kort eller lang prosedyrevarighet 
+#   (prosedyrevarighet lengre enn 1,5 ganger interkvartil bredde over øvre kvartil/
+#       under nedre kvartil).
+#   
+#   
+#   Tabell \@ref(tab:tabellProsedyrevarighet1) og
+#   \@ref(tab:tabellProsedyrevarighet2) viser gjennomsnittlig prosedyrevarighet
+#   per måned, totalt og for undergrupper. Merk at grunnet manglende
+#   registrering av tilhørighet i undergrupper av AFLI/VT samt BMI for et fåtall av
+#   forløp kan vi ha små uoverensstemmelser i nevnerne.
+#   
+#   
+#   ```{r figProsedyreVarighetMin, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "100%", fig.asp = 0.8}
+#   
+#   fig.cap <-  "Prosedyrevarighet i minutter per måned."
+#   
+#   d_ablanor %>% 
+#     dplyr::filter(!is.na(pros_varighet)) %>% 
+#     ggplot2::ggplot(ggplot2::aes(y = maaned, x = pros_varighet)) +
+#     ggplot2::geom_boxplot(fill = colPrimary[4]) +
+#     ablanor::ablanor_plot_theme() +
+#     ggplot2::scale_y_discrete(drop = FALSE) + 
+#     ggplot2::labs(title = paste0("Prosedyrevarighet (minutter) de ",
+#                                  showN, " siste månedene"), 
+#                   subtitle = params$hospitalName) 
+#   
+#   ```
+#   
+#   
+#   
+#   ```{r prosedyreVarighetTotal}
+#   # VARIGHET prosedyre per måned, TOTALT :
+#   d_varighet_pros_tot <- d_ablanor %>%
+#     dplyr::filter(!is.na(pros_varighet)) %>% 
+#     dplyr::select(pros_varighet, maaned) %>%
+#     dplyr::group_by(maaned, .drop = FALSE) %>%
+#     dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
+#                                                  mean(pros_varighet)), 
+#                                          " [", 
+#                                          sprintf("%0.0f", dplyr::n()),
+#                                          "]"),
+#                      .groups = 'drop') %>% 
+#     dplyr::transmute(maaned = maaned, value = pros_meanN) 
+#   
+#   # FORLØPSTYPE
+#   d_varighet_forlop <- d_ablanor %>%
+#     dplyr::filter(!is.na(pros_varighet)) %>% 
+#     dplyr::select(forlopstype, pros_varighet, maaned) %>%
+#     dplyr::group_by(forlopstype, maaned, .drop = FALSE) %>%
+#     dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
+#                                                  mean(pros_varighet)), 
+#                                          " [",
+#                                          sprintf("%0.0f", dplyr::n()), "]"),
+#                      .groups = 'drop') %>%
+#     dplyr::mutate(pros_meanN = dplyr::recode(pros_meanN, 
+#                                              "NaN [0]" = " -- ")) %>% 
+#     dplyr::ungroup()
+#   
+#   # varighet forløp per prosedyre
+#   d_varighet_forlop_pros <- d_varighet_forlop %>%
+#     dplyr::rename(legend = forlopstype, value = pros_meanN) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("AFLI"="1",
+#                   "VT"="2", 
+#                   "SVT"="3", 
+#                   "EFU"="4")
+#   
+#   
+#   #ALDER
+#   d_varighet_alder_pros<- d_ablanor %>%
+#     dplyr::filter(!is.na(pros_varighet)) %>% 
+#     dplyr::select(alder_75, 
+#                   pros_varighet, 
+#                   maaned) %>%
+#     dplyr::group_by(alder_75, maaned, .drop = FALSE) %>%
+#     dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
+#                                                  mean(pros_varighet)),
+#                                          " [",
+#                                          sprintf("%0.0f", dplyr::n()), "]"),
+#                      .groups = 'drop') %>%
+#     dplyr::mutate(pros_meanN = dplyr::recode(pros_meanN, 
+#                                              "NaN [0]" = " -- ")) %>% 
+#     dplyr::ungroup() %>% 
+#     dplyr::rename(legend = alder_75, value = pros_meanN) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("over 75" = ">=75", 
+#                   "under 75" = "<75")
+#   
+#   
+#   
+#   #BMI
+#   d_varighet_bmi_pros <- d_ablanor %>%
+#     dplyr::filter(!is.na(pros_varighet)) %>% 
+#     dplyr::select(bmi_over35,
+#                   rtg_tid, 
+#                   pros_varighet,
+#                   maaned) %>%
+#     dplyr::group_by(bmi_over35, maaned, .drop = FALSE) %>%
+#     dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
+#                                                  mean(pros_varighet)), 
+#                                          " [",
+#                                          sprintf("%0.0f", dplyr::n()), "]"),
+#                      .groups ='drop') %>%
+#     dplyr::mutate(pros_meanN = dplyr::recode(pros_meanN, 
+#                                              "NaN [0]" = " -- ")) %>% 
+#     dplyr::ungroup() %>%
+#     dplyr::rename(legend = bmi_over35, value = pros_meanN) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("over 35" = "BMI >=35", 
+#                   "under 35" = "BMI <35")
+#   
+#   # AFLI - ICD
+#   d_varighet_afli_icd_pros <- d_ablanor %>%
+#     dplyr::filter(!is.na(pros_varighet), 
+#                   !is.na(kategori_afli_aryt_i48)) %>%
+#     dplyr::select(kategori_afli_aryt_i48, 
+#                   pros_varighet,
+#                   maaned) %>%
+#     dplyr::group_by(kategori_afli_aryt_i48, maaned, .drop = FALSE) %>%
+#     dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
+#                                                  mean(pros_varighet)),
+#                                          " [",
+#                                          sprintf("%0.0f" , dplyr::n()), "]"),
+#                      .groups ='drop') %>%
+#     dplyr::mutate(pros_meanN = dplyr::recode(pros_meanN, 
+#                                              "NaN [0]" = " -- ")) %>% 
+#     dplyr::ungroup() %>%
+#     dplyr::rename(legend = kategori_afli_aryt_i48, 
+#                   value = pros_meanN) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
+#   
+#   
+#   
+#   # VT- KARDIOMYOPATI
+#   d_varighet_vt_kardiomyopati_pros <- d_ablanor %>%
+#     dplyr::filter(!is.na(pros_varighet), 
+#                   !is.na(kategori_vt_kardiomyopati)) %>%
+#     dplyr::select(kategori_vt_kardiomyopati,
+#                   pros_varighet,
+#                   maaned) %>%
+#     dplyr::group_by(kategori_vt_kardiomyopati, 
+#                     maaned,
+#                     .drop = FALSE) %>%
+#     dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
+#                                                  mean(pros_varighet)), 
+#                                          " [",
+#                                          sprintf("%0.0f", dplyr::n()), "]"),
+#                      .groups='drop') %>%
+#     dplyr::mutate(pros_meanN = dplyr::recode(pros_meanN, 
+#                                              "NaN [0]" = " -- ")) %>% 
+#     dplyr::ungroup() %>% 
+#     dplyr::rename(legend = kategori_vt_kardiomyopati,
+#                   value = pros_meanN) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
+#   
+#   # KOMPLETT TABELL: 
+#   d_varighet_pros_TOTAL <- 
+#     dplyr::full_join(
+#       d_varighet_pros_tot %>%
+#         dplyr::rename("Totalt" = "value"),
+#       d_varighet_forlop_pros,
+#       by = "maaned"
+#     ) %>%
+#     dplyr::left_join(., d_varighet_alder_pros, by = "maaned") %>%
+#     dplyr::left_join(., d_varighet_bmi_pros, by = "maaned") %>%
+#     dplyr::left_join(., d_varighet_afli_icd_pros, by = "maaned") %>%
+#     dplyr::left_join(., d_varighet_vt_kardiomyopati_pros, by = "maaned") %>% 
+#     dplyr::arrange(desc(maaned)) %>% 
+#     dplyr::rename("Paroks." = "AFLI-ICD 48.0 Paroksymal atrieflimmer", 
+#                   "Persist." = "AFLI-ICD 48.1 Persisterende atrieflimmer", 
+#                   "Langtidsp." = "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer", 
+#                   "Uten" = "Uten kardiomyopati", 
+#                   "ICM" = "Iskemisk KM (ICM)", 
+#                   "DCM" ="Dilatert KM (DCM)", 
+#                   "Annen" = "Annen KM", 
+#                   "Ukjent" = "Ukjent om kardiomyopati")
+#   
+# ```
+#   
+#   
+# ```{r pagebreak8, results = "asis", eval = (params$tableFormat == "pdf")}
+#   cat("\n\n\\pagebreak\n")
+#   ```
+#   
+#   
+#   ```{r tabellProsedyrevarighet1}
+#   
+#   cap <- paste0("Del 1. Gjennomsnittlig prosedyrevarighet i minutter de ", 
+#                 showN, " siste månedene. ", 
+#                 "Totalt, for hver av forløpstypene, for alder over/under 75 år ", 
+#                 "og for BMI over/under 35. ",
+#                 "Gjennomsnitt [antall]")
+#   knitr::kable(
+#     x = d_varighet_pros_TOTAL[, 1:10],
+#     format = switch(params$tableFormat,
+#                     pdf = "latex",
+#                     html = "html"),
+#     align = c("l", rep("c", 9)),
+#     caption = cap,
+#     booktabs = TRUE) %>%
+#     kableExtra::add_header_above(c(" " = 2,
+#                                    "Forløpstype" = 4,
+#                                    "Alder" = 2,
+#                                    "BMI" = 2)) %>%
+#     gsub("maaned", "Måned", .) %>%
+#     ablanor::mst_short(., type = params$tableFormat,
+#                        lsd = TRUE, 
+#                        fs = 8, 
+#                        full_width = FALSE)
+#   ```
+#   
+#   
+#   ```{r tabellProsedyrevarighet2}
+#   cap <- paste0("Del 2. Gjennomsnittlig prosedyrevarighet i minutter de ", 
+#                 showN, " siste månedene. ", 
+#                 "Totalt, for kategorier av AFLI og VT. ",
+#                 "Gjennomsnitt [antall]")
+#   knitr::kable(
+#     x = d_varighet_pros_TOTAL[, c(1, 11:18)],
+#     format = switch(params$tableFormat,
+#                     pdf = "latex",
+#                     html = "html"),
+#     align = c("l", rep("c", 8)),
+#     caption = cap,
+#     booktabs = TRUE) %>%
+#     kableExtra::add_header_above(c(" " = 1,
+#                                    "AFLI - ICD" = 3,
+#                                    "VT - Kardiomyopati" = 5)) %>%
+#     gsub("maaned", "Måned", .) %>%
+#     ablanor::mst_short(., type = params$tableFormat, 
+#                        lsd = FALSE, 
+#                        fs = 8,
+#                        full_width = FALSE)
+#   ```
+#   
+#   ```{r pagebreak9, results = "asis", eval = (params$tableFormat == "pdf")}
+#   cat("\n\n\\pagebreak\n")
+#   ```
+#   
+#   # Røntgentid
+#   
+#   Forløp med manglende røntgenvarighet (n = 
+#                                           `r d_ablanor %>%  dplyr::filter(is.na(rtg_tid)) %>%  nrow()`) er fjernet
+#   fra datagrunnlaget. 
+#   
+#   
+#   Figur \@ref(fig:figRontgenVarighetMin) viser et boxplot med fordeling av 
+#   røntgenvarighet per måned. Den blå boksen markerer nedre og øvre
+#   kvartil, medianen er markert av den tykke linjen.
+#   Punktene utenfor greinene viser uteliggere, det vil si 
+#   forløp med usedvanlig kort eller lang prosedyrevarighet 
+#   (prosedyrevarighet lengre enn 1,5 ganger interkvartil bredde over øvre kvartil/
+#       under nedre kvartil).
+#   
+#   
+#   Tabell \@ref(tab:tabellRontgenvarighet1) viser gjennomsnittlig røntgenvarighet
+#   per måned, totalt og for hver av de fire forløpstypene.
+#   
+#   
+#   
+#   ```{r figRontgenVarighetMin, fig.cap = cap, fig.pos = "H", fig.align = 'center',  out.width = "100%", fig.asp = 0.8}
+#   cap <- "Røntgentid i minutter per måned."
+#   
+#   d_varighet_tot_maaned <- d_ablanor %>%
+#     dplyr::filter(!is.na(rtg_tid)) %>% 
+#     dplyr::select(maaned, rtg_tid) %>%
+#     dplyr::mutate(rtg_tid = as.numeric(rtg_tid)) %>%
+#     dplyr::mutate(rtg_tid_min = rtg_tid / 60)
+#   
+#   d_varighet_tot_maaned %>% 
+#     ggplot2::ggplot(ggplot2::aes(y = maaned, x = rtg_tid_min)) +
+#     ggplot2::geom_boxplot(fill = colPrimary[4]) +
+#     ablanor::ablanor_plot_theme() +
+#     ggplot2::scale_y_discrete(drop = FALSE) + 
+#     ggplot2::labs(title = paste0("Røntgenvarighet (minutter) de ",
+#                                  showN, " siste månedene"), 
+#                   subtitle = params$hospitalName) 
+#   
+#   ```
+#   
+#   
+#   ```{r tabellRontgenvarighetForberede}
+#   # VARIGHET røntgen per måned TOTALT:
+#   d_varighetRtg_mnd <- d_ablanor %>%
+#     dplyr::filter(!is.na(rtg_tid)) %>% 
+#     dplyr::select(rtg_tid, maaned) %>%
+#     dplyr::mutate(rtg_tid = as.numeric(rtg_tid)) %>%
+#     dplyr::mutate(rtg_tid_min = rtg_tid / 60) %>%
+#     dplyr::group_by(maaned, .drop = FALSE) %>%
+#     dplyr::summarise(rtg_meanN = paste0(sprintf("%0.0f",
+#                                                 mean(rtg_tid_min)), 
+#                                         " [", sprintf("%0.0f", dplyr::n()), "]"),
+#                      .groups = 'drop') %>%
+#     dplyr::transmute(maaned = maaned, Totalt = rtg_meanN) 
+#   
+#   
+#   # FORLØPSTYPE
+#   d_varighetRtg_forlop <- d_ablanor %>%
+#     dplyr::filter(!is.na(rtg_tid)) %>% 
+#     dplyr::select(forlopstype, rtg_tid, maaned) %>%
+#     dplyr::group_by(forlopstype, maaned, .drop = FALSE) %>%
+#     dplyr::mutate(rtg_tid = as.numeric(rtg_tid)) %>%
+#     dplyr::mutate(rtg_tid_min = rtg_tid / 60) %>%
+#     dplyr::summarise(rtg_meanN = paste0(sprintf("%0.0f",
+#                                                 mean(rtg_tid_min)),
+#                                         " [",
+#                                         sprintf("%0.0f", dplyr::n()), "]"),
+#                      .groups = 'drop') %>%
+#     dplyr::mutate(rtg_meanN = dplyr::recode(rtg_meanN, 
+#                                             "NaN [0]" = " -- ")) %>% 
+#     dplyr::ungroup() %>% 
+#     dplyr::rename(legend = forlopstype, value = rtg_meanN) %>%
+#     ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
+#     dplyr::rename("AFLI"="1",
+#                   "VT"="2", 
+#                   "SVT"="3", 
+#                   "EFU"="4")
+#   
+#   
+#   d_varighetRtg_TOTAL<- dplyr::full_join(d_varighetRtg_mnd,
+#                                          d_varighetRtg_forlop,
+#                                          by = "maaned") %>% 
+#     dplyr::arrange(desc(maaned))
+#   ```
+#   
+#   
+#   ```{r tabellRontgenvarighet1}
+#   cap <- paste0("Gjennomsnittlig røntgenvarighet i minutter de ", 
+#                 showN, " siste månedene. ",
+#                 "Totalt og for hver forløpstype. ", 
+#                 "Gjennomsnitt [antall].")
+#   
+#   knitr::kable(
+#     x = d_varighetRtg_TOTAL,
+#     format = switch(params$tableFormat,
+#                     pdf = "latex",
+#                     html = "html"),
+#     align = c("l", rep("c", 5)),
+#     caption = cap,
+#     booktabs = TRUE) %>%
+#     kableExtra::add_header_above(c(" " = 1,
+#                                    " " = 1,
+#                                    "Forløpstype" = 4)) %>%
+#     gsub("maaned", "Måned", .) %>%
+#     ablanor::mst_short(., type = params$tableFormat,
+#                        lsd = FALSE, 
+#                        fs = 8, 
+#                        full_width = FALSE)
+#   ```
+#   
+#   
+#   
