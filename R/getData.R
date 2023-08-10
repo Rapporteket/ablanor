@@ -35,6 +35,7 @@
 #' getFollowupOneYr
 #' getFollowupFiveYr
 #' getGkv
+#' getHendelse
 #' getPatientlist
 #' getFriendlycentre
 #' getMcepatientdata
@@ -493,6 +494,54 @@ getGkv <- function(registryName,
 
 }
 
+
+
+#' @rdname getDataAblanor
+#' @export
+getHendelse <- function(registryName,
+                        singleRow,
+                        reshId = NULL,
+                        userRole,
+                        fromDate = NULL,
+                        toDate = NULL, ...) {
+
+
+  condition <- ""
+  if (userRole != "SC") {
+    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  }
+
+
+  query <- paste0("SELECT * FROM adhoc ",
+                  condition)
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for hendelse"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for hendelse"
+    query <- paste0(query, ";")
+  }
+
+
+
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_gkv <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_hendelse <- rapbase::loadRegData(registryName, query)
+  }
+
+
+  list(d_hendelse = d_hendelse)
+
+}
 
 
 #' @rdname getDataAblanor

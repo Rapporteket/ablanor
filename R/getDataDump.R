@@ -30,6 +30,7 @@ getDataDump <- function(registryName,
                              "followup1",
                              "followup5",
                              "gkv",
+                             "hendelse",
                              "proms",
                              "kodeboken",
                              "friendlycentre",
@@ -116,6 +117,16 @@ getDataDump <- function(registryName,
                                 fromDate = fromDate,
                                 toDate = toDate)
     dat <- tab_list$d_gkv
+  }
+
+  if (tableName == "hendelse") {
+    tab_list <- ablanor::getHendelse(registryName = registryName,
+                                     singleRow = FALSE,
+                                     reshId = reshId,
+                                     userRole = userRole,
+                                     fromDate = fromDate,
+                                     toDate = toDate)
+    dat <- tab_list$d_hendelse
   }
 
   if (tableName == "friendlycentre") {

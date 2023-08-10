@@ -289,6 +289,7 @@ app_server <- function(input, output, session) {
                     "followup1",
                     "followup5",
                     "gkv",
+                    "hendelse",
                     "proms",
                     "kodeboken")
   if (userRole == "SC") {

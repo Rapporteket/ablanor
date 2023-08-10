@@ -10,6 +10,7 @@
 \alias{getFollowupOneYr}
 \alias{getFollowupFiveYr}
 \alias{getGkv}
+\alias{getHendelse}
 \alias{getPatientlist}
 \alias{getFriendlycentre}
 \alias{getMcepatientdata}
@@ -102,6 +103,16 @@ getFollowupFiveYr(
 )
 
 getGkv(
+  registryName,
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getHendelse(
   registryName,
   singleRow,
   reshId = NULL,
