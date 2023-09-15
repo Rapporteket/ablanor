@@ -22,7 +22,10 @@ app_server <- function(input, output, session) {
   registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId(registryName)
   reshId <- rapbase::getUserReshId(session)
-  hospitalName <- ablanor::getHospitalName(registryName, reshId, shortName = FALSE, newNames = TRUE)
+  hospitalName <- ablanor::getHospitalName(registryName = registryName,
+                                           reshId = reshId,
+                                           shortName = FALSE,
+                                           newNames = TRUE)
   userFullName <- rapbase::getUserFullName(session)
   userRole <- rapbase::getUserRole(session)
   userOperator <- "Test Operatoresen"

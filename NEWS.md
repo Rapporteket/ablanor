@@ -1,7 +1,7 @@
 # ablanor 1.2.0
 Små justeringer på Rapporteket etter overgang til FALK som innloggings-
 portal i prod. 
-En ny reshid. 
+To nye reshid. 
 Bruker egendefinerte (finere) sykehusnavn i Rapporteket og i rapporter. 
 
 # ablanor 1.1.1
