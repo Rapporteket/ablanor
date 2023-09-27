@@ -51,6 +51,8 @@ app_server <- function(input, output, session) {
   # Hide tabs when role 'SC'
   if (userRole == "SC") {
     shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::hideTab(inputId = "tabs", target = "Abonnement")
+
   }
 
 
@@ -326,9 +328,20 @@ app_server <- function(input, output, session) {
     "Månedlige resultater" = list(
       synopsis = "Månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", reshId,
-                      hospitalName)
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "orgId",
+                     "orgName",
+                     "userFullName",
+                     "userRole"),
+      paramValues = c("local_monthly",
+                      "pdf",
+                      "Månedsresultater",
+                      reshId,
+                      hospitalName,
+                      userFullName,
+                      userRole)
     )
   )
 
@@ -342,8 +355,16 @@ app_server <- function(input, output, session) {
     "Månedlige resultater" = list(
       synopsis = "AblaNor månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999)
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "orgId",
+                     "userFullName"),
+      paramValues = c("local_monthly",
+                      "pdf",
+                      "Månedsresultater",
+                      999999,
+                      userFullName)
     )
   )
 
