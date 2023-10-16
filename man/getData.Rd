@@ -20,9 +20,14 @@ getDataDump(
   ...
 )
 
-getNameReshId(registryName, asNamedList = FALSE)
+getNameReshId(
+  registryName,
+  asNamedList = FALSE,
+  shortNames = FALSE,
+  newNames = FALSE
+)
 
-getHospitalName(registryName, reshId, shortName = FALSE)
+getHospitalName(registryName, reshId, shortName = FALSE, newNames = FALSE)
 
 getRand12(registryName, singleRow, reshId = NULL, userRole, ...)
 
@@ -59,6 +64,10 @@ to local data (defined by \code{reshId}), "SC" has access to national data.}
 \item{asNamedList}{Logical whether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
+
+\item{newNames}{boolean. TRUE uses "sykehusnavn" as defined in
+'legg_til_sykehusnavn()'. Default value is FALSE, uses "sykehusnavn" from
+table Friendlycentre.}
 
 \item{shortName}{boolean. Default value FALSE and "friendlyname" is returned.
 If TRUE shortname is returned.}
