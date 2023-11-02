@@ -194,8 +194,10 @@ lokaltSykehus <- ablanor::legg_til_sykehusnavn(
   dplyr::pull(sykehusnavn)
 
 ```
-\bigskip \bigskip \bigskip
 
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 # Datagrunnlag
 Rapporten er generert med utgangspunkt i AblaNor sin nasjonale database. 
@@ -225,81 +227,6 @@ i tidsperioden er henholdsvis
   
 ```{r pagebreak1, results = "asis", eval = (params$tableFormat == "pdf")}
 cat("\n\n\\pagebreak\n")
-```
-
-
-\bigskip \bigskip \bigskip
-
-
-# Forløpstype
-Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
-(AFLI), Ventrikkeltakykardi (VT), Supraventrikulær takykardi (SVT) eller 
-Elektrofysiologisk undersøkelse (EFU). 
-Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
-registrert i AblaNor nasjonalt og kun fra `r params$hospitalName` 
-for hele fjoråret sammenlignet med hittil i år. 
-for hver forløpstype og sammenlagt. 
-
-  
-  
-```{r typeForlopAar}
-cap <- paste("Antall registrerte prosedyrer fra ",
-             periode_data$sisteHeleYear, 
-             "og hittil i år (t.o.m ",
-             siste_dato_txt, "). For ",
-             params$hospitalName, " og nasjonalt, ",
-             "samt for hver av de 4 forløpstypene: ",
-             "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
-             "Supraventrikulær takykardi (SVT) eller ", 
-             "Elektrofysiologisk undersøkelse (EFU).")
-
-
-myHeader <- c("", lokaltSykehus = 2, "Nasjonalt" = 2)
-names(myHeader) <-  c("", lokaltSykehus, "Nasjonalt" )
-
-tab_forlop_lokalt <- d_ablanor %>%
-  dplyr::filter(centreid %in% params$reshId) %>% 
-  dplyr::count(forlopstype, aar) %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., 
-                                         total  = FALSE, 
-                                         langtnavn = FALSE) %>% 
-  dplyr::mutate(name = paste0(aar,"_", lokaltSykehus)) %>% 
-  dplyr::select(-aar, -forlopstype) %>% 
-  tidyr::pivot_wider(names_from = name,
-                     values_from = n,
-                     values_fill = 0)
-
-tab_forlop_nasj <- d_ablanor %>%
-  dplyr::count(forlopstype, aar) %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., 
-                                         total  = FALSE, 
-                                         langtnavn = FALSE) %>% 
-  dplyr::mutate(name = paste0(aar,"_nasjonalt")) %>% 
-  dplyr::select(-aar, -forlopstype) %>% 
-  tidyr::pivot_wider(names_from = name,
-                     values_from = n,
-                     values_fill = 0)
-
-tab_forlop <- dplyr::right_join(
-  tab_forlop_lokalt, 
-  tab_forlop_nasj,
-  by = "forlopstype_tekst") %>% 
-  janitor::adorn_totals("row", name = "Totalt") 
-
-tab_forlop %>% 
-  rapbase::mst(.,
-               type = params$tableFormat,
-               col_names = c("Forløpstype",
-                             periode_data$sisteHeleYear,
-                             periode_data$nyesteRegYear,
-                             periode_data$sisteHeleYear,
-                             periode_data$nyesteRegYear),
-               cap = cap,
-               digs = 1,
-               align = "lrrrr",
-               fs = 9, 
-               lsd = FALSE) %>% 
-  kableExtra::add_header_above(header = myHeader)
 ```
 
 
@@ -399,30 +326,90 @@ ggplot2::ggplot(df_cumplot) +
 ```
 
 
-```{r pagebreak2, results = "asis", eval = (params$tableFormat == "pdf")}
-cat("\n\n\\pagebreak\n")
+
+
+## Forløpstype
+Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
+(AFLI), Ventrikkeltakykardi (VT), Supraventrikulær takykardi (SVT) eller 
+Elektrofysiologisk undersøkelse (EFU). 
+Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
+registrert i AblaNor nasjonalt og kun fra `r params$hospitalName` 
+for hele fjoråret sammenlignet med hittil i år. 
+for hver forløpstype og sammenlagt. 
+
+  
+```{r typeForlopAar, results='asis', eval=TRUE}
+cap <- paste("Antall registrerte prosedyrer fra ",
+             periode_data$sisteHeleYear, 
+             "og hittil i år (t.o.m ",
+             siste_dato_txt, "). For ",
+             params$hospitalName, " og nasjonalt, ",
+             "samt for hver av de 4 forløpstypene: ",
+             "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
+             "Supraventrikulær takykardi (SVT) eller ", 
+             "Elektrofysiologisk undersøkelse (EFU).")
+
+
+myHeader <- c("", lokaltSykehus = 2, "Nasjonalt" = 2)
+names(myHeader) <-  c("", lokaltSykehus, "Nasjonalt" )
+
+tab_forlop_lokalt <- d_ablanor %>%
+  dplyr::filter(centreid %in% params$reshId) %>% 
+  dplyr::count(forlopstype, aar) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., 
+                                         total  = FALSE, 
+                                         langtnavn = FALSE) %>% 
+  dplyr::mutate(name = paste0(aar,"_", lokaltSykehus)) %>% 
+  dplyr::select(-aar, -forlopstype) %>% 
+  tidyr::pivot_wider(names_from = name,
+                     values_from = n,
+                     values_fill = 0)
+
+tab_forlop_nasj <- d_ablanor %>%
+  dplyr::count(forlopstype, aar) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., 
+                                         total  = FALSE, 
+                                         langtnavn = FALSE) %>% 
+  dplyr::mutate(name = paste0(aar,"_nasjonalt")) %>% 
+  dplyr::select(-aar, -forlopstype) %>% 
+  tidyr::pivot_wider(names_from = name,
+                     values_from = n,
+                     values_fill = 0)
+
+tab_forlop <- dplyr::right_join(
+  tab_forlop_lokalt, 
+  tab_forlop_nasj,
+  by = "forlopstype_tekst") %>% 
+  janitor::adorn_totals("row", name = "Totalt") 
+
+
+knitr::kable(x = tab_forlop, 
+             format = "latex") 
+             # col_names = c("Forlopstype",
+             #               periode_data$sisteHeleYear,
+             #               periode_data$nyesteRegYear,
+             #               periode_data$sisteHeleYear,
+             #               periode_data$nyesteRegYear))
+
+# knitr::kable(tab_forlop,
+#                format = "latex",
+#                col_names = c("Forlopstype",
+#                              periode_data$sisteHeleYear,
+#                              periode_data$nyesteRegYear,
+#                              periode_data$sisteHeleYear,
+#                              periode_data$nyesteRegYear),
+#                cap = cap,
+#                digs = 1,
+#                align = "lrrrr",
+#                fs = 9, 
+#                lsd = FALSE) %>% 
+#   kableExtra::add_header_above(header = myHeader)
 ```
 
 
-# Komplikasjoner
-I Ablanor registreres følgende: "Skjedde det komplikasjoner som følge av
-operasjonen?". Dette kan enten være komplikasjoner som oppstod umiddelbart
-etter operasjonen eller som var senkomplikasjoner som (sannsynligvis) skyldtes
-operasjonen.
-
-Figur \@ref(fig:komplikasjonerFig) viser prosentandel forløp der komplikasjoner
-skjedde, per måned. Tallene i søylen viser antall forløp med komplikasjoner,
-delt på på totalt antall forløp den måneden. Tabell
-\@ref(tab:komplikasjonerMaanedTabell) viser andel forløp med komplikasjoner
-totalt per måned og i underpopulasjoner per måned.
-
-
-
-
-
-```{r pagebreak3, results = "asis", eval = (params$tableFormat == "pdf")}
-cat("\n\n\\pagebreak\n")
-```
+`r if(params$tableFormat !="latex") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="latex") {"-->"}`
 
 
 # Akutt suksess
@@ -442,51 +429,45 @@ forløp med akutt suksess blant abladerte totalt og i underpopulasjoner, per
 måned.
 MERK: SJEKK OM FÅ VT
 
-```{r akuttSuksess, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 1.2}
-
-figtekst <- paste0("Måloppnåelse for akutt suksess for", 
-                   params$hospitalName, 
-                   "og nasjonalt hver måned det siste året. ", 
-                   "For forløpstypene Atrieflimmer (AFLI), ", 
-                   "Ventrikkeltakykardi (VT), ", 
-                   "AV nodal reentry (SVT‑AVNRT) og ", 
-                   "Aksessoriske baner (SVT‑AVRT). ", 
-                   "Målnivåene vises i farger. ")
-
-
-
+```{r akuttSuksessPrep}
 
 akutt_suksess_lokalt_afli <- d_ablanor %>% 
  dplyr::select(centreid, 
+               aar,
                maaned, 
                indik_akuttsuksess_data, 
                indik_akuttsuksess) %>% 
  dplyr::filter(centreid == params$reshId, 
                !indik_akuttsuksess_data %in% "nei", 
                indik_akuttsuksess %in% c("ja", "nei")) %>% 
- dplyr::count(indik_akuttsuksess_data, 
+ dplyr::count(aar, 
+              indik_akuttsuksess_data, 
               indik_akuttsuksess, 
               maaned) %>% 
  tidyr::pivot_wider(names_from = indik_akuttsuksess, 
                     values_from = n, 
                     values_fill = 0) %>% 
  mutate(prosent = ja/(ja+nei), 
-        sykehusnavn = params$hospitalName)
+                totalt = (ja + nei),
+        sykehusnavn = "lokalt")
            
 
 akutt_suksess_nasjonalt_afli <- d_ablanor %>% 
- dplyr::select(maaned, 
+ dplyr::select(aar, 
+               maaned, 
                indik_akuttsuksess_data, 
                indik_akuttsuksess) %>% 
 dplyr::filter(!indik_akuttsuksess_data %in% "nei", 
               indik_akuttsuksess %in% c("ja", "nei")) %>% 
- dplyr::count(indik_akuttsuksess_data, 
+ dplyr::count(aar, 
+              indik_akuttsuksess_data, 
               indik_akuttsuksess, 
               maaned) %>% 
  tidyr::pivot_wider(names_from = indik_akuttsuksess, 
                     values_from = n, 
                     values_fill = 0) %>% 
- mutate(prosent = ja/(ja+nei), 
+ mutate(prosent = ja/(ja+nei),
+        totalt = (ja + nei),
         sykehusnavn = "Nasjonalt")
 
 
@@ -494,32 +475,157 @@ d_akuttS <- dplyr::bind_rows(
                   akutt_suksess_lokalt_afli,
                   akutt_suksess_nasjonalt_afli)
 
-farger_trafikklys <- c("#FF0000", "#009900") 
 
-    
+n_afli <- d_akuttS %>% 
+  dplyr::filter(sykehusnavn %in% "lokalt", 
+                indik_akuttsuksess_data %in% "AFLI") %>% 
+  pull(totalt) %>% 
+  sum(., na.rm = TRUE)
+n_vt <- d_akuttS %>% 
+  dplyr::filter(sykehusnavn %in% "lokalt", 
+                indik_akuttsuksess_data %in% "VT") %>% 
+  pull(totalt) %>% 
+  sum(., na.rm = TRUE)
+
+n_avnrt <- d_akuttS %>% 
+  dplyr::filter(sykehusnavn %in% "lokalt", 
+                indik_akuttsuksess_data %in% "AVNRT") %>% 
+  pull(totalt) %>% 
+  sum(., na.rm = TRUE)
+
+n_avrt <- d_akuttS %>% 
+  dplyr::filter(sykehusnavn %in% "lokalt", 
+                indik_akuttsuksess_data %in% "AVRT") %>% 
+  pull(totalt) %>% 
+  sum(., na.rm = TRUE)
+
+```
+
+
+## AFLI
+
+
+```{r akuttSuksessAfliTab}
+
+cap <- paste0("Antall og andel AFLI prosedyrer med akutt suksess, ", 
+              "fra hele fjoråret og hittil i år..")
+
+
+tab_afli_fjor <- merge(
+  x = timeTableMonth_fjor, 
+  y = d_akuttS %>% 
+    dplyr::filter(indik_akuttsuksess_data %in% "AFLI", 
+                  aar %in% periode_data$sisteHeleYear) %>% 
+    dplyr::select(maaned, sykehusnavn, ja, nei) %>%  
+    tidyr::pivot_wider(names_from = sykehusnavn, values_from = c(ja, nei)),
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+   janitor::adorn_totals(
+      "row", 
+      name = paste0("Totalt i ", periode_data$sisteHeleYear)) %>% 
+    dplyr::mutate(lokalt = paste0(ja_lokalt, " av ", 
+                                  (ja_lokalt + nei_lokalt),
+                                  " (",
+                                  round(ja_lokalt/(ja_lokalt + nei_lokalt)*100, 0),
+                                  "%)"), 
+                  nasjonalt = paste0(
+                    round(ja_Nasjonalt/(ja_Nasjonalt + nei_Nasjonalt)*100, 0),
+                                  "%") ) %>% 
+    dplyr::select(maaned, lokalt, nasjonalt)
+
+
+
+
+tab_afli_aar <- merge(
+  x = timeTableMonth_aar, 
+  y = d_akuttS %>% 
+    dplyr::filter(indik_akuttsuksess_data %in% "AFLI", 
+                  aar %in% periode_data$nyesteRegYear) %>% 
+    dplyr::select(maaned, sykehusnavn, ja, nei) %>%  
+    tidyr::pivot_wider(names_from = sykehusnavn, values_from = c(ja, nei)),
+  by.x  = "maaned", 
+  by.y = "maaned") %>% 
+   janitor::adorn_totals(
+      "row", 
+      name = paste0("Totalt hittil i ", periode_data$nyesteRegYear)) %>% 
+    dplyr::mutate(lokalt = paste0(ja_lokalt, " av ", 
+                                  (ja_lokalt + nei_lokalt),
+                                  " (",
+                                  round(ja_lokalt/(ja_lokalt + nei_lokalt)*100, 0),
+                                  "%)"), 
+                  nasjonalt = paste0(
+                    round(ja_Nasjonalt/(ja_Nasjonalt + nei_Nasjonalt)*100, 0),
+                                  "%") ) %>% 
+    dplyr::select(maaned, lokalt, nasjonalt)
+
+
+tab_afli <- rbind(
+  tab_afli_fjor, 
+  tab_afli_aar
+)
+tab_afli[tab_afli == 0] <- " - "
+tab_afli[is.na(tab_afli)] <- "" 
+
+
+tab_afli %>% 
+    knitr::kable(format = params$tableFormat,
+               caption = cap,
+               booktabs = TRUE,
+               align = "r") %>%
+    kableExtra::kable_styling(latex_options = "HOLD_position", 
+                             font_size = 8) %>% 
+    kableExtra::row_spec(row=12, hline_after =  TRUE) %>%
+    kableExtra::row_spec(row=13, hline_after =  TRUE)%>%
+    kableExtra::row_spec(row=dim(tab_afli)[1], hline_after =  TRUE) %>%
+    kableExtra::pack_rows(group_label = as.character(periode_data$sisteHeleYear),
+                          start_row = 1,
+                          end_row = 13) %>% 
+    kableExtra::pack_rows(group_label = as.character(periode_data$nyesteRegYear),
+                          start_row = 14, 
+                          end_row = dim(tab_afli)[1])
+
+```
+
+
+
+```{r akuttSuksessAfliFig, fig.cap = figtekst, fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+figtekst <- paste0("Måloppnåelse for akutt suksess for",
+                   lokaltSykehus,
+                   "og nasjonalt hver måned det siste året. ",
+                   "For forløpstypene Atrieflimmer (AFLI). ",
+                   "Målnivået vises i farger. ")
+
+
+farger_trafikklys <- c("#FF0000", "#009900")
+
+
 p1 <- ggplot2::ggplot()
 
 p1 <- p1 +
- 
-    ggplot2::geom_line(data = d_akuttS,
-                        aes(x = maaned,
+
+    ggplot2::geom_line(data = d_akuttS %>% 
+                         dplyr::filter(indik_akuttsuksess_data %in% "AFLI"),
+                        ggplot2::aes(x = maaned,
                             y = prosent,
-                            group = sykehusnavn, 
-                            linetype = sykehusnavn)) +
-  
-    ggplot2::facet_wrap(vars(indik_akuttsuksess_data), ncol = 1)+
-    ggplot2::coord_cartesian(ylim = c(0, 1)) +
-    ggplot2::guides(col = guide_legend(ncol=1))+
+                            group = sykehusnavn,
+                            colour = sykehusnavn)) +
+   ggplot2::scale_color_manual(
+        name = "",
+        values = c(colPrimary[3],  colKontrast), 
+        labels = c("lokalt", "Nasjonalt"), 
+        breaks = c("lokalt", "Nasjonalt"))+
+
+    ggplot2::coord_cartesian(ylim = c(0.5, 1)) +
     ggplot2::scale_y_continuous(
       name = "",
-      breaks = seq(from = 0,
+      breaks = seq(from = 0.50,
                    to = 1,
                    length.out = 6),
-      labels = paste0(seq(from = 0,
+      labels = paste0(seq(from = 0.5,
                           to = 1,
                           length.out = 6) * 100, "%")) +
 
-     ggplot2::scale_x_discrete(name = "") 
+     ggplot2::scale_x_discrete(name = "")
 
 p1 <- p1 +
       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"),
@@ -529,28 +635,9 @@ p1 <- p1 +
       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"),
                         xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.9,
                         alpha =0.2,
-                        fill = farger_trafikklys[1]) + 
- 
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"),
-                         xmin=-Inf, xmax=Inf, ymin=0.7, ymax=Inf,
-                        alpha =0.2,
-                        fill = farger_trafikklys[2]) +
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"),
-                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.7,
-                        alpha =0.2,
-                        fill = farger_trafikklys[1]) +
-  
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")),
-                         xmin=-Inf, xmax=Inf, ymin=0.95, ymax=Inf,
-                        alpha =0.2,
-                        fill = farger_trafikklys[2]) +
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")),
-                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.95,
-                        alpha =0.2,
-                        fill = farger_trafikklys[1]) 
-    
-  
-p1 <- p1 + 
+                        fill = farger_trafikklys[1])
+
+p1 <- p1 +
    ggplot2::theme(
     legend.position = "bottom",
     legend.text.align = 0,
@@ -564,18 +651,18 @@ p1 <- p1 +
     axis.title.x = ggplot2::element_blank(),
     axis.title.y = ggplot2::element_text(family = "sans",
                                          size = 12,
-                                         color = "#222222"), 
+                                         color = "#222222"),
     axis.text.y = ggplot2::element_text(family = "sans",
                                         size = 12,
                                         color = "#222222"),
     axis.text.x = ggplot2::element_text(family = "sans",
-                                        angle=45, 
-                                        vjust =1, 
-                                        hjust=1, 
+                                        angle=45,
+                                        vjust =1,
+                                        hjust=1,
                                         size = 12,
                                         color = "#222222")
   )
- 
+
 
 
 p1
@@ -583,7 +670,112 @@ p1
 
 ```
 
-  
+
+
+
+
+
+```{r akuttSuksess, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 1.2}
+figtekst <- paste0("Måloppnåelse for akutt suksess for",
+                   lokaltSykehus,
+                   "og nasjonalt hver måned det siste året. ",
+                   "For forløpstypene Atrieflimmer (AFLI), ",
+                   "Ventrikkeltakykardi (VT), ",
+                   "AV nodal reentry (SVT‑AVNRT) og ",
+                   "Aksessoriske baner (SVT‑AVRT). ",
+                   "Målnivåene vises i farger. ")
+
+
+farger_trafikklys <- c("#FF0000", "#009900")
+
+
+p1 <- ggplot2::ggplot()
+
+p1 <- p1 +
+
+    ggplot2::geom_line(data = d_akuttS,
+                        ggplot2::aes(x = maaned,
+                            y = prosent,
+                            group = sykehusnavn,
+                            linetype = sykehusnavn)) +
+
+    ggplot2::facet_wrap(vars(indik_akuttsuksess_data), ncol = 1)+
+    ggplot2::coord_cartesian(ylim = c(0, 1)) +
+    ggplot2::guides(col = ggplot2::guide_legend(ncol=1))+
+    ggplot2::scale_y_continuous(
+      name = "",
+      breaks = seq(from = 0,
+                   to = 1,
+                   length.out = 6),
+      labels = paste0(seq(from = 0,
+                          to = 1,
+                          length.out = 6) * 100, "%")) +
+
+     ggplot2::scale_x_discrete(name = "")
+
+p1 <- p1 +
+      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"),
+                         xmin=-Inf, xmax=Inf, ymin=0.9, ymax=Inf,
+                        alpha =0.2,
+                        fill = farger_trafikklys[2]) +
+      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"),
+                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.9,
+                        alpha =0.2,
+                        fill = farger_trafikklys[1]) +
+
+      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"),
+                         xmin=-Inf, xmax=Inf, ymin=0.7, ymax=Inf,
+                        alpha =0.2,
+                        fill = farger_trafikklys[2]) +
+      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"),
+                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.7,
+                        alpha =0.2,
+                        fill = farger_trafikklys[1]) +
+
+      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")),
+                         xmin=-Inf, xmax=Inf, ymin=0.95, ymax=Inf,
+                        alpha =0.2,
+                        fill = farger_trafikklys[2]) +
+      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")),
+                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.95,
+                        alpha =0.2,
+                        fill = farger_trafikklys[1])
+
+
+p1 <- p1 +
+   ggplot2::theme(
+    legend.position = "bottom",
+    legend.text.align = 0,
+    legend.background = ggplot2::element_blank(),
+    legend.title = ggplot2::element_blank(),
+    legend.key = ggplot2::element_blank(),
+    legend.text = ggplot2::element_text(family = "sans",
+                                        size = 12,
+                                        color = "#222222"),
+    # Axis format
+    axis.title.x = ggplot2::element_blank(),
+    axis.title.y = ggplot2::element_text(family = "sans",
+                                         size = 12,
+                                         color = "#222222"),
+    axis.text.y = ggplot2::element_text(family = "sans",
+                                        size = 12,
+                                        color = "#222222"),
+    axis.text.x = ggplot2::element_text(family = "sans",
+                                        angle=45,
+                                        vjust =1,
+                                        hjust=1,
+                                        size = 12,
+                                        color = "#222222")
+  )
+
+
+
+p1
+
+
+```
+
+
 ```{r pagebreak4, results = "asis", eval = (params$tableFormat == "pdf")}
 cat("\n\n\\pagebreak\n")
 ```
