@@ -413,21 +413,7 @@ knitr::kable(x = tab_forlop,
 
 
 # Akutt suksess
-Akutt suksess er operatørens vurdering av om selve operasjonen er vellykket: 
-"Nei" dersom behandlet arytmi fortsatt er tilstede,  "Ja" dersom 
-PV isolert/AP borte/ikke utløsbar arytmi. "Usikker" dersom sett andre arytmier 
-fortsatt, men mindre arytmi og "Ikke aktuelt" dersom ikke utløst arytmi. 
 
-Elektrofysiologiske undersøkelse eller forløp der akutt suksess er lik
-"Ikke aktuelt" er fjernet fra datagrunnlaget. 
-
-Andel forløp med akutt suksess er regnet ut ved å dele antall forløp der akutt suksess er lik "Ja" på totalt 
-antall forløp der akutt suksess er en av "Ja", "Nei" eller "Usikker". 
-Figur \@ref(fig:akuttSuksessFig) viser prosentandel forløp med akutt suksess
-blant abladerte, per måned. Tabell \@ref(tab:akuttSuksessMaaned) viser andel
-forløp med akutt suksess blant abladerte totalt og i underpopulasjoner, per
-måned.
-MERK: SJEKK OM FÅ VT
 
 ```{r akuttSuksessPrep}
 
@@ -504,11 +490,14 @@ n_avrt <- d_akuttS %>%
 
 ## AFLI
 
-
 ```{r akuttSuksessAfliTab}
 
-cap <- paste0("Antall og andel AFLI prosedyrer med akutt suksess, ", 
-              "fra hele fjoråret og hittil i år..")
+cap <- paste0("AFLI prosedyrer uten AV-knuter/HIS ablasjon. ", 
+              "Forløp der akutt suksess er lik 'Ikke aktuelt' er fjernet fra ", 
+              "datagrunnlaget. ",
+              "Tabellen viser antall (andel) forløp med akutt suksess ", 
+              "fra hele fjoråret og hittil i år (t.o.m. ", 
+              siste_dato_txt, ").")
 
 
 tab_afli_fjor <- merge(
@@ -588,12 +577,18 @@ tab_afli %>%
 
 
 
-```{r akuttSuksessAfliFig, fig.cap = figtekst, fig.width = 8, fig.height = 5, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
-figtekst <- paste0("Måloppnåelse for akutt suksess for",
-                   lokaltSykehus,
-                   "og nasjonalt hver måned det siste året. ",
-                   "For forløpstypene Atrieflimmer (AFLI). ",
-                   "Målnivået vises i farger. ")
+```{r akuttSuksessAfliFig, fig.cap = figtekst, fig.width = 8, fig.height = 4, fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
+
+
+
+figtekst <- paste0("AFLI prosedyrer uten AV-knuter/HIS ablasjon. ", 
+              "Forløp der akutt suksess er lik 'Ikke aktuelt' er fjernet fra ", 
+              "datagrunnlaget. ",
+              "Figuren viser andel forløp med akutt suksess ", 
+              "fra hele fjoråret og hittil i år (t.o.m. ", 
+              siste_dato_txt, ") for ", 
+              lokaltSykehus, " og nasjonalt. ", 
+              "Målnivået viser i farge.")
 
 
 farger_trafikklys <- c("#FF0000", "#009900")
@@ -603,15 +598,15 @@ p1 <- ggplot2::ggplot()
 
 p1 <- p1 +
 
-    ggplot2::geom_line(data = d_akuttS %>% 
-                         dplyr::filter(indik_akuttsuksess_data %in% "AFLI"),
-                        ggplot2::aes(x = maaned,
-                            y = prosent,
-                            group = sykehusnavn,
-                            colour = sykehusnavn)) +
+    ggplot2::geom_line(
+      data = d_akuttS %>% dplyr::filter(indik_akuttsuksess_data %in% "AFLI"),
+      ggplot2::aes(x = maaned,
+                   y = prosent,
+                   group = sykehusnavn,
+                   colour = sykehusnavn)) +
    ggplot2::scale_color_manual(
         name = "",
-        values = c(colPrimary[3],  colKontrast), 
+        values = c(colKontrast, colPrimary[3]), 
         labels = c("lokalt", "Nasjonalt"), 
         breaks = c("lokalt", "Nasjonalt"))+
 
@@ -675,105 +670,105 @@ p1
 
 
 
-```{r akuttSuksess, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 1.2}
-figtekst <- paste0("Måloppnåelse for akutt suksess for",
-                   lokaltSykehus,
-                   "og nasjonalt hver måned det siste året. ",
-                   "For forløpstypene Atrieflimmer (AFLI), ",
-                   "Ventrikkeltakykardi (VT), ",
-                   "AV nodal reentry (SVT‑AVNRT) og ",
-                   "Aksessoriske baner (SVT‑AVRT). ",
-                   "Målnivåene vises i farger. ")
+<!-- ```{r akuttSuksess, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 1.2} -->
+<!-- figtekst <- paste0("Måloppnåelse for akutt suksess for", -->
+<!--                    lokaltSykehus, -->
+<!--                    "og nasjonalt hver måned det siste året. ", -->
+<!--                    "For forløpstypene Atrieflimmer (AFLI), ", -->
+<!--                    "Ventrikkeltakykardi (VT), ", -->
+<!--                    "AV nodal reentry (SVT‑AVNRT) og ", -->
+<!--                    "Aksessoriske baner (SVT‑AVRT). ", -->
+<!--                    "Målnivåene vises i farger. ") -->
 
 
-farger_trafikklys <- c("#FF0000", "#009900")
+<!-- farger_trafikklys <- c("#FF0000", "#009900") -->
 
 
-p1 <- ggplot2::ggplot()
+<!-- p1 <- ggplot2::ggplot() -->
 
-p1 <- p1 +
+<!-- p1 <- p1 + -->
 
-    ggplot2::geom_line(data = d_akuttS,
-                        ggplot2::aes(x = maaned,
-                            y = prosent,
-                            group = sykehusnavn,
-                            linetype = sykehusnavn)) +
+<!--     ggplot2::geom_line(data = d_akuttS, -->
+<!--                         ggplot2::aes(x = maaned, -->
+<!--                             y = prosent, -->
+<!--                             group = sykehusnavn, -->
+<!--                             linetype = sykehusnavn)) + -->
 
-    ggplot2::facet_wrap(vars(indik_akuttsuksess_data), ncol = 1)+
-    ggplot2::coord_cartesian(ylim = c(0, 1)) +
-    ggplot2::guides(col = ggplot2::guide_legend(ncol=1))+
-    ggplot2::scale_y_continuous(
-      name = "",
-      breaks = seq(from = 0,
-                   to = 1,
-                   length.out = 6),
-      labels = paste0(seq(from = 0,
-                          to = 1,
-                          length.out = 6) * 100, "%")) +
+<!--     ggplot2::facet_wrap(vars(indik_akuttsuksess_data), ncol = 1)+ -->
+<!--     ggplot2::coord_cartesian(ylim = c(0, 1)) + -->
+<!--     ggplot2::guides(col = ggplot2::guide_legend(ncol=1))+ -->
+<!--     ggplot2::scale_y_continuous( -->
+<!--       name = "", -->
+<!--       breaks = seq(from = 0, -->
+<!--                    to = 1, -->
+<!--                    length.out = 6), -->
+<!--       labels = paste0(seq(from = 0, -->
+<!--                           to = 1, -->
+<!--                           length.out = 6) * 100, "%")) + -->
 
-     ggplot2::scale_x_discrete(name = "")
+<!--      ggplot2::scale_x_discrete(name = "") -->
 
-p1 <- p1 +
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"),
-                         xmin=-Inf, xmax=Inf, ymin=0.9, ymax=Inf,
-                        alpha =0.2,
-                        fill = farger_trafikklys[2]) +
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"),
-                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.9,
-                        alpha =0.2,
-                        fill = farger_trafikklys[1]) +
+<!-- p1 <- p1 + -->
+<!--       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"), -->
+<!--                          xmin=-Inf, xmax=Inf, ymin=0.9, ymax=Inf, -->
+<!--                         alpha =0.2, -->
+<!--                         fill = farger_trafikklys[2]) + -->
+<!--       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "AFLI"), -->
+<!--                         xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.9, -->
+<!--                         alpha =0.2, -->
+<!--                         fill = farger_trafikklys[1]) + -->
 
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"),
-                         xmin=-Inf, xmax=Inf, ymin=0.7, ymax=Inf,
-                        alpha =0.2,
-                        fill = farger_trafikklys[2]) +
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"),
-                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.7,
-                        alpha =0.2,
-                        fill = farger_trafikklys[1]) +
+<!--       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"), -->
+<!--                          xmin=-Inf, xmax=Inf, ymin=0.7, ymax=Inf, -->
+<!--                         alpha =0.2, -->
+<!--                         fill = farger_trafikklys[2]) + -->
+<!--       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = "VT"), -->
+<!--                         xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.7, -->
+<!--                         alpha =0.2, -->
+<!--                         fill = farger_trafikklys[1]) + -->
 
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")),
-                         xmin=-Inf, xmax=Inf, ymin=0.95, ymax=Inf,
-                        alpha =0.2,
-                        fill = farger_trafikklys[2]) +
-      ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")),
-                        xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.95,
-                        alpha =0.2,
-                        fill = farger_trafikklys[1])
-
-
-p1 <- p1 +
-   ggplot2::theme(
-    legend.position = "bottom",
-    legend.text.align = 0,
-    legend.background = ggplot2::element_blank(),
-    legend.title = ggplot2::element_blank(),
-    legend.key = ggplot2::element_blank(),
-    legend.text = ggplot2::element_text(family = "sans",
-                                        size = 12,
-                                        color = "#222222"),
-    # Axis format
-    axis.title.x = ggplot2::element_blank(),
-    axis.title.y = ggplot2::element_text(family = "sans",
-                                         size = 12,
-                                         color = "#222222"),
-    axis.text.y = ggplot2::element_text(family = "sans",
-                                        size = 12,
-                                        color = "#222222"),
-    axis.text.x = ggplot2::element_text(family = "sans",
-                                        angle=45,
-                                        vjust =1,
-                                        hjust=1,
-                                        size = 12,
-                                        color = "#222222")
-  )
+<!--       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")), -->
+<!--                          xmin=-Inf, xmax=Inf, ymin=0.95, ymax=Inf, -->
+<!--                         alpha =0.2, -->
+<!--                         fill = farger_trafikklys[2]) + -->
+<!--       ggplot2::geom_rect(data = data.frame(indik_akuttsuksess_data = c("AVNRT", "AVRT")), -->
+<!--                         xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=0.95, -->
+<!--                         alpha =0.2, -->
+<!--                         fill = farger_trafikklys[1]) -->
 
 
+<!-- p1 <- p1 + -->
+<!--    ggplot2::theme( -->
+<!--     legend.position = "bottom", -->
+<!--     legend.text.align = 0, -->
+<!--     legend.background = ggplot2::element_blank(), -->
+<!--     legend.title = ggplot2::element_blank(), -->
+<!--     legend.key = ggplot2::element_blank(), -->
+<!--     legend.text = ggplot2::element_text(family = "sans", -->
+<!--                                         size = 12, -->
+<!--                                         color = "#222222"), -->
+<!--     # Axis format -->
+<!--     axis.title.x = ggplot2::element_blank(), -->
+<!--     axis.title.y = ggplot2::element_text(family = "sans", -->
+<!--                                          size = 12, -->
+<!--                                          color = "#222222"), -->
+<!--     axis.text.y = ggplot2::element_text(family = "sans", -->
+<!--                                         size = 12, -->
+<!--                                         color = "#222222"), -->
+<!--     axis.text.x = ggplot2::element_text(family = "sans", -->
+<!--                                         angle=45, -->
+<!--                                         vjust =1, -->
+<!--                                         hjust=1, -->
+<!--                                         size = 12, -->
+<!--                                         color = "#222222") -->
+<!--   ) -->
 
-p1
 
 
-```
+<!-- p1 -->
+
+
+<!-- ``` -->
 
 
 ```{r pagebreak4, results = "asis", eval = (params$tableFormat == "pdf")}
