@@ -121,7 +121,8 @@ d_ablanor <- ablanor::getBaseregProsData(registryName = params$registryName,
                                          fromDate = periode_data$forste_dato,
                                          toDate = periode_data$siste_dato) %>% 
   dplyr::mutate(aar = aar_prosedyre, 
-                maaned = maaned_prosedyre) %>% 
+                maaned = maaned_prosedyre, 
+                maaned_nr = maaned_nr_prosedyre) %>% 
   dplyr::filter(forlopstype %in% 1:4)
 ```
 
@@ -140,16 +141,41 @@ periode_data$nyeste_dato_shus <- d_ablanor %>%
 
 
 ```{r monthTabPrepare, include=FALSE, eval=TRUE}
-# Hele forrige år og alle påbegynte måneder hittil i år
-forsteDatoSisteMonth <- lubridate::floor_date(periode_data$siste_dato, 
-                                              "month") 
+
 timeTableMonth <- data.frame(
-  monthDato = seq(as.Date(paste0(periode_data$sisteHeleYear, 
-                                 "-01-01")), 
-                  forsteDatoSisteMonth,
+  monthDato = seq(periode_data$forste_dato, 
+                  periode_data$siste_dato,
                   by = "month")) %>% 
   dplyr::transmute(maaned = as.factor(format(x = monthDato, 
-                                             format = "%Y-%m")))
+                                             format = "%Y-%m"))) %>% 
+  dplyr::mutate(maaned = as.ordered(maaned))
+
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("31-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+    dplyr::transmute(
+      maaned = as.ordered(maaned))
+rangeProsDato <- paste(format(periode_data$forste_dato, 
+                              "%d/%m-%Y"), 
+                       "til", 
+                       format(periode_data$siste_dato, 
+                              "%d/%m-%Y"))
+siste_dato_txt <- format(x = periode_data$siste_dato,
+                        format = "%d/%m-%Y")
 ```
   
   
@@ -213,15 +239,14 @@ Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
 registrert i AblaNor nasjonalt og kun fra `r params$hospitalName` 
 for hele fjoråret sammenlignet med hittil i år. 
 for hver forløpstype og sammenlagt. 
-Figur \@ref(fig:typeForlopFig) viser antall forløp per
-måned, samt fordeling etter forløpstype. 
 
   
   
 ```{r typeForlopAar}
 cap <- paste("Antall registrerte prosedyrer fra ",
              periode_data$sisteHeleYear, 
-             "og hittil i år.", "For ",
+             "og hittil i år (t.o.m ",
+             siste_dato_txt, "). For ",
              params$hospitalName, " og nasjonalt, ",
              "samt for hver av de 4 forløpstypene: ",
              "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
@@ -277,86 +302,99 @@ tab_forlop %>%
   kableExtra::add_header_above(header = myHeader)
 ```
 
-\bigskip  
-  
-```{r typeForlopFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8}
 
-figtekst <- paste0("Antall registreringer i AblaNor fra ", 
-                   params$hospitalName, " hver måned det siste året. ", 
-                   "Tallene i søylene viser antall registrerte forløp per ", 
-                   "forløpstype. ", 
-                   "Atrieflimmer/atypisk flutter (AFLI), ", 
-                   "Ventrikkeltakykardi (VT), ", 
-                   "Supraventrikulær takykardi (SVT) eller ", 
-                   "Elektrofysiologisk undersøkelse (EFU).")
+## Kumulert antall prosedyrer per år
+```{r FigKumulertProde, fig.cap =  paste0("Kumulert antall prosedyrer i AblaNor, nasjonalt og ved ", params$hospitalName, " for hele fjoråret og hittil i år (t.o.m ", siste_dato_txt , ")."), fig.width = 8, fig.height = 5,  fig.pos = "H", fig.align = "center", out.width = "\\textwidth"}
 
-d_forlop_mnd <- d_ablanor %>%
-  dplyr::filter(centreid %in% params$reshId) %>% 
-  dplyr::count(maaned, forlopstype, .drop = FALSE) %>%
-  ablanor::legg_til_forlopstype_kortnavn(langtnavn = FALSE) %>% 
+df_cumplot_nasj <- d_ablanor %>%
+  dplyr::select(maaned_nr, aar) %>% 
+  dplyr::count(maaned_nr, aar) %>% 
+  dplyr::arrange(maaned_nr) %>% 
+  dplyr::group_by(aar) %>% 
   dplyr::mutate(
-    n_uten0 = dplyr::case_when(
-      n == 0 ~ "",
-      n != 0 ~ as.character(n))) %>% 
-  dplyr::mutate(forlopstype_tekst = factor(
-    x = forlopstype_tekst, 
-    levels = c("AFLI", "VT", "SVT", "EFU")))
-
-
-ggplot2::ggplot(data = d_forlop_mnd,  ggplot2::aes(y = n,
-                                                   x = maaned,
-                                                   fill = forlopstype_tekst)) +
-  ggplot2::geom_bar(stat = "identity", 
-                    position = ggplot2::position_stack(reverse = TRUE)) +
-  ggplot2::scale_fill_manual(values = colPrimary[3:6]) +
-  ggplot2::geom_text(
-    ggplot2::aes(label = n_uten0),
-    family = "sans", 
-    position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE)) + 
-  ggplot2::ylab("Antall registreringer") +
+    Total = cumsum(n), 
+    Maaned = factor(maaned_nr, 
+                    levels = c("01", "02", "03", "04", "05", "06", "07", 
+                               "08", "09", "10", "11", "12"),
+                    labels = c("Jan", "Feb", "Mars", "April", "Mai", 
+                               "Juni", "Juli", "Aug", "Sept", "Okt", 
+                               "Nov", "Des")),
+    max_tota = max(Total, na.rm = TRUE),
+    
+    Label = ifelse(Total == max_tota, 
+                   max_tota, 
+                   NA_character_), 
+    sykehus = "Nasjonalt")
+ 
+df_cumplot_lokalt <- d_ablanor %>%
+  dplyr::filter(centreid %in% params$reshId) %>% 
+  dplyr::select(maaned_nr, aar) %>% 
+  dplyr::count(maaned_nr, aar) %>% 
+  dplyr::arrange(maaned_nr) %>% 
+  dplyr::group_by(aar) %>% 
+  dplyr::mutate(
+    Total = cumsum(n), 
+    Maaned = factor(maaned_nr, 
+                    levels = c("01", "02", "03", "04", "05", "06", "07", 
+                               "08", "09", "10", "11", "12"),
+                    labels = c("Jan", "Feb", "Mars", "April", "Mai", 
+                               "Juni", "Juli", "Aug", "Sept", "Okt", 
+                               "Nov", "Des")),
+    max_tota = max(Total, na.rm = TRUE),
+    
+    Label = ifelse(Total == max_tota, 
+                   max_tota, 
+                   NA_character_), 
+    sykehus = lokaltSykehus)
   
-  #Legend format
-  #This sets the position and alignment of the legend, removes a title and
-  # backround for it and sets the requirements for any text within the legend.
-  # The legend may often need some more manual tweaking when it comes to its
-  # exact position based on the plot coordinates.
-  ggplot2::theme(
-    legend.position = "bottom",
-    legend.text.align = 0,
-    legend.background = ggplot2::element_blank(),
-    legend.title = ggplot2::element_blank(),
-    legend.key = ggplot2::element_blank(),
-    legend.text = ggplot2::element_text(family = "sans",
-                                        size = 12,
-                                        color = "#222222"),
-    # Axis format
-    axis.title.x = ggplot2::element_blank(),
-    axis.title.y = ggplot2::element_text(family = "sans",
-                                         size = 12,
-                                         color = "#222222"), 
-    axis.text.y = ggplot2::element_text(family = "sans",
-                                        size = 12,
-                                        color = "#222222"),
-    axis.text.x = ggplot2::element_text(family = "sans",
-                                        angle=45, 
-                                        vjust =1, 
-                                        hjust=1, 
-                                        size = 12,
-                                        color = "#222222"),
-    axis.ticks = ggplot2::element_blank(),
-    axis.line = ggplot2::element_blank(),
-    
-    #Grid lines
-    #This removes all minor gridlines and adds major y gridlines.
-    panel.grid.minor = ggplot2::element_blank(),
-    panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
-    panel.grid.major.x = ggplot2::element_blank(),
-    
-    #Blank background
-    #This sets the panel background as blank, removing the standard grey ggplot
-    # background colour from the plot
-    panel.background = ggplot2::element_blank()
-  )
+  
+tot_fjor_n <- df_cumplot %>% 
+  dplyr::filter(aar == periode_data$sisteHeleYear, 
+                sykehus == "Nasjonalt") %>% 
+  dplyr::pull(Total) %>%
+  max(., na.rm = TRUE)
+
+tot_fjor_l <- df_cumplot %>% 
+  dplyr::filter(aar == periode_data$sisteHeleYear ,
+                sykehus == lokaltSykehus) %>% 
+  dplyr::pull(Total) %>% 
+  max(., na.rm = TRUE)
+
+
+df_cumplot <- bind_rows(
+  df_cumplot_nasj, 
+  df_cumplot_lokalt) %>% 
+  dplyr::mutate(group = paste(sykehus, aar))
+
+ggplot2::ggplot(df_cumplot) +
+    ggplot2::geom_line(
+        mapping = ggplot2::aes(x = Maaned, 
+                               y = Total, 
+                               group = group, 
+                               colour = aar), 
+        linewidth = 1.5, 
+        alpha = 0.6) + 
+    ggplot2::scale_color_manual(
+        name = "",
+        values = c(colPrimary[3],  colKontrast), 
+        labels = 2022:2023, 
+        breaks = 2022:2023)+
+    ggplot2::geom_label(mapping = ggplot2::aes(x= 10,
+                                               y = tot_fjor_l*1.1 ,
+                                               label = lokaltSykehus) ,
+                        colour = colPrimary[3]) +
+    ggplot2::geom_label(mapping = ggplot2::aes(x= 10,
+                                               y = tot_fjor_n*0.95,
+                                               label = "Nasjonalt"),
+                        colour = colPrimary[3])+
+    ggplot2::xlab("") + 
+    ggplot2::ylab("Kumulert antall prosedyrer") + 
+    ggplot2::theme_minimal() + 
+    ggplot2::theme(legend.title = ggplot2::element_blank(),
+                   axis.text = ggplot2::element_text(size = 12),
+                   axis.title = ggplot2::element_text(size = 12), 
+                   legend.text = ggplot2::element_text(size = 12), 
+                   legend.position = "top")
 
 ```
 
