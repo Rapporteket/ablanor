@@ -67,7 +67,7 @@ getBasereg <- function(registryName,
 
   # SQL only in defined interval, with non-missing dates.
   condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
-                      "' AND pros.DATO_PROS < '", toDate, "'",
+                      "' AND pros.DATO_PROS <= '", toDate, "'",
                       "AND pros.DATO_PROS IS NOT NULL")
 
   # national or local hospital
@@ -134,7 +134,7 @@ getPros <- function(registryName,
 
   # SQL only in defined interval, with non-missing dates.
   condition <- paste0(" WHERE DATO_PROS >= '", fromDate,
-                      "' AND DATO_PROS < '", toDate, "'",
+                      "' AND DATO_PROS <= '", toDate, "'",
                       "AND DATO_PROS IS NOT NULL")
 
   # national or local hospital
@@ -784,7 +784,7 @@ getBaseregProsFollowup1 <- function(registryName,
     toDate <- ablanor::getLatestEntry(registryName)
   }
   condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
-                      "' AND pros.DATO_PROS < '", toDate, "'",
+                      "' AND pros.DATO_PROS <= '", toDate, "'",
                       " AND pros.DATO_PROS IS NOT NULL")
 
 
