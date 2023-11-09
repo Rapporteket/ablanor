@@ -49,6 +49,7 @@ getPivotDataSet <- function(setId = "",
     }
 
 
+    # BASISSKJEMA RÅDATA
     if (setId == "basereg") {
       dat <- ablanor::getBaseregData(registryName = registryName,
                                      singleRow = singleRow,
@@ -59,6 +60,7 @@ getPivotDataSet <- function(setId = "",
                                      toDate = doDate)
     }
 
+    # PROSEDYRESKJEMA RÅDATA
     if (setId == "pros") {
       dat <- ablanor::getProsData(registryName = registryName,
                                   singleRow = singleRow,
@@ -69,6 +71,7 @@ getPivotDataSet <- function(setId = "",
                                   toDate = doDate)
     }
 
+    # FORLØPSOVERSIKT RÅDATA
     if (setId == "mce") {
       dat <- ablanor::getMceData(registryName = registryName,
                                  singleRow = singleRow,
@@ -78,7 +81,7 @@ getPivotDataSet <- function(setId = "",
                                  fromDate = NULL,
                                  toDate = NULL)
     }
-
+    # RAND 12: BASIS, 1 OG 5 ÅR. RÅDATA
     if (setId == "rand12") {
       dat <- ablanor::getRand12Data(registryName = registryName,
                                     singleRow = singleRow,
@@ -89,6 +92,7 @@ getPivotDataSet <- function(setId = "",
                                     toDate = doDate)
     }
 
+    # GKV: BASIS
     if (setId == "gkv") {
       dat <- ablanor::getGkvData(registryName = registryName,
                                  singleRow = singleRow,
@@ -98,17 +102,6 @@ getPivotDataSet <- function(setId = "",
                                  fromDate = fromDate,
                                  toDate = toDate)
     }
-
-    if (setId == "gkv") {
-      dat <- ablanor::getGkvData(registryName = registryName,
-                                 singleRow = singleRow,
-                                 session = session,
-                                 reshId = reshId,
-                                 userRole = userRole,
-                                 fromDate = fromDate,
-                                 toDate = toDate)
-    }
-
 
 
 

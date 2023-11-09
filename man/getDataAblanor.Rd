@@ -174,9 +174,14 @@ getBaseregProsFollowup1(
 
 getLatestEntry(registryName)
 
-getNameReshId(registryName, asNamedList = FALSE)
+getNameReshId(
+  registryName,
+  asNamedList = FALSE,
+  shortNames = FALSE,
+  newNames = FALSE
+)
 
-getHospitalName(registryName, reshId, shortName = FALSE)
+getHospitalName(registryName, reshId, shortName = FALSE, newNames = FALSE)
 }
 \arguments{
 \item{registryName}{"ablanor"}
@@ -195,9 +200,18 @@ start date of calendar is used.}
 \item{toDate}{NULL default is newest registration in Abalnor. If datadump or
 pivot table, end date of calendar is used.}
 
+\item{...}{Optional arguments to be passed to the function.}
+
 \item{asNamedList}{Logical whether to return a list of named values or not.
 Default is FALSE in which case a data frame containing name and id is
 returned.}
+
+\item{newNames}{boolean. TRUE uses "sykehusnavn" as defined in
+'legg_til_sykehusnavn()'. Default value is FALSE, uses "sykehusnavn" from
+table Friendlycentre.}
+
+\item{shortName}{boolean. Default value FALSE and "friendlyname" is returned.
+If TRUE shortname is returned.}
 }
 \value{
 Data frame or (when multiple data sets are returned) a list of data
