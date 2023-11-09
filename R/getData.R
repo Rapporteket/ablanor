@@ -21,6 +21,12 @@
 #' @param asNamedList Logical whether to return a list of named values or not.
 #' Default is FALSE in which case a data frame containing name and id is
 #' returned.
+#' @param shortName boolean. Default value FALSE and "friendlyname" is returned.
+#' If TRUE shortname is returned.
+#' @param newNames boolean. TRUE uses "sykehusnavn" as defined in
+#' 'legg_til_sykehusnavn()'. Default value is FALSE, uses "sykehusnavn" from
+#' table Friendlycentre.
+#' @param ... Optional arguments to be passed to the function.
 #'
 #' @return Data frame or (when multiple data sets are returned) a list of data
 #' frames containing registry data. In case of \code{getNameReshId()} data may
@@ -941,7 +947,7 @@ getLatestEntry <- function(registryName) {
 
 #' @rdname getDataAblanor
 #' @export
-getNameReshId <- function(registryName, asNamedList = FALSE) {
+getNameReshId <- function(registryName, asNamedList = FALSE, shortNames = FALSE, newNames = FALSE) {
 
   query <- "
 SELECT
@@ -957,6 +963,15 @@ GROUP BY
 
   res <- rapbase::loadRegData(registryName, query)
 
+  if(newNames){
+    res %<>%
+      dplyr::mutate(centreid = id) %>%
+      ablanor::legg_til_sykehusnavn(., short = shortNames) %>%
+      dplyr::select(id, sykehusnavn) %>%
+      dplyr::rename("name" = "sykehusnavn") %>%
+      dplyr::filter(!is.na(name))
+  }
+
   if (asNamedList) {
     res <- stats::setNames(res$id, res$name)
     res <- as.list(res)
@@ -967,7 +982,7 @@ GROUP BY
 
 #' @rdname getDataAblanor
 #' @export
-getHospitalName <- function(registryName, reshId, shortName = FALSE) {
+getHospitalName <- function(registryName, reshId, shortName = FALSE, newNames = FALSE) {
 
   if (shortName) {
     dbField <- "CENTRESHORTNAME"
@@ -983,7 +998,15 @@ FROM
 WHERE
   ID = ", reshId, ";")
 
-  name <- rapbase::loadRegData(registryName, query)[1, ]
+  if(newNames) {
+    name <- ablanor::legg_til_sykehusnavn(
+        df = data.frame(centreid = reshId),
+        short = shortName) %>%
+      dplyr::pull(sykehusnavn)
+    } else {
+      name <- rapbase::loadRegData(registryName, query)[1, ]
+    }
+
 
   if (is.na(name)) {
     warning(paste("Resh ID", reshId, "did not match any names!"))

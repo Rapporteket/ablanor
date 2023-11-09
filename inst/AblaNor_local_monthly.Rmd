@@ -55,6 +55,12 @@ colKontrast <- "#FF7260"
 
 ```{r parametre}
 showN <- 12
+
+#Egendefinerte kortnavn:
+hospitalNameShort <- ablanor::getHospitalName(registryName = "ablanor",
+                                              reshId = params$reshId, 
+                                              shortName = TRUE,
+                                              newNames = TRUE)
 ```
 
 
@@ -130,7 +136,7 @@ siste `r showN`  månedene: det vil si i intervallet fra  `r format(periode_data
 `r format(periode_data$siste_dato, "%d/%m-%Y")`. 
 
 
-Første og siste registrering fra `r params$hospitalName` i tidsperioden er
+Første og siste registrering fra `r hospitalNameShort` i tidsperioden er
 henholdsvis `r format(periode_data$forste_dato_shus, "%d/%m-%Y") ` og
 `r format(periode_data$nyeste_dato_shus, "%d/%m-%Y") `. 
 
@@ -147,14 +153,14 @@ Elektrofysiologisk undersøkelse (EFU). Dersom forløpstype ikke er registrert
 blir verdien NA (not available), dette gjelder forløp der prosedyreskjema ikke
 er ferdigstilte. 
 Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
-registrert i AblaNor fra `r params$hospitalName` de `r showN` siste månedene, 
+registrert i AblaNor fra `r hospitalNameShort` de `r showN` siste månedene, 
 for hver forløpstype og sammenlagt. 
 Figur \@ref(fig:typeForlopFig) viser antall forløp per
 måned, samt fordeling etter forløpstype. 
 
 ```{r typeForlopAar}
 cap <- paste("Totalt antall forløp fra ", 
-             params$hospitalName, " de ", showN, " siste månedene.",
+             hospitalNameShort, " de ", showN, " siste månedene.",
              "For hver av de 4 forløpstypene: ",
              "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
              "Supraventrikulær takykardi (SVT) eller ", 
@@ -180,7 +186,7 @@ d_ablanor %>%
 ```{r typeForlopFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8 }
 
 figtekst <- paste0("Antall registreringer i AblaNor fra ", 
-                   params$hospitalName, " hver måned det siste året. ", 
+                   hospitalNameShort, " hver måned det siste året. ", 
                    "Tallene i søylene viser antall registrerte forløp per ", 
                    "forløpstype. ", 
                    "Atrieflimmer/atypisk flutter (AFLI), ", 
@@ -215,7 +221,7 @@ ggplot2::ggplot(
   ablanor::ablanor_plot_theme() + 
   ggplot2::labs(title = paste0("Antall registreringer i AblaNor de ",
                                showN, " siste månedene" ),
-                subtitle = params$hospitalName) +
+                subtitle = hospitalNameShort) +
   ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
   ggplot2::geom_text(
     ggplot2::aes(label = .data$n_uten0),
@@ -249,7 +255,7 @@ totalt per måned og i underpopulasjoner per måned.
 
 
 ```{r komplikasjonerFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8 }
-figtekst <- paste0("Andel forløp fra ", params$hospitalName, 
+figtekst <- paste0("Andel forløp fra ", hospitalNameShort, 
                    " med komplikasjoner det siste året. " ,
                    "Tallene i søylene viser antall forløp med ", 
                    "komplikasjoner delt på totalt antall forløp per måned.")
@@ -279,7 +285,7 @@ ggplot2::ggplot(data = d_kompl_fig2,
   ggplot2::geom_bar(stat = "identity", position = "identity",  fill = colPrimary[4]) +
   ggplot2::labs(title = paste0("Komplikasjoner de ",
                                showN, " siste månedene"), 
-                subtitle = params$hospitalName) +
+                subtitle = hospitalNameShort) +
   ablanor::ablanor_plot_theme() +
   ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
   ggplot2::geom_text(ggplot2::aes(label = komp_text), 
@@ -448,7 +454,7 @@ ggplot2::ggplot(data = d_akutt_suksess_fig2,
                       linetype = "dashed") +
   ggplot2::labs(title = paste0("Akutt suksess de ",
                                showN, " siste månedene"), 
-                subtitle = params$hospitalName) +
+                subtitle = hospitalNameShort) +
   ggplot2::scale_x_continuous(labels = function(x) paste0(x * 100, "%")) 
 
 ```
@@ -678,7 +684,7 @@ d_ablanor %>%
   ggplot2::scale_y_discrete(drop = FALSE) + 
   ggplot2::labs(title = paste0("Prosedyrevarighet (minutter) de ",
                                showN, " siste månedene"), 
-                subtitle = params$hospitalName) 
+                subtitle = hospitalNameShort) 
 
 ```
 
@@ -930,7 +936,7 @@ d_varighet_tot_maaned %>%
   ggplot2::scale_y_discrete(drop = FALSE) + 
   ggplot2::labs(title = paste0("Røntgenvarighet (minutter) de ",
                                showN, " siste månedene"), 
-                subtitle = params$hospitalName) 
+                subtitle = hospitalNameShort) 
 
 ```
 
