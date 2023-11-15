@@ -33,7 +33,9 @@ getPivotDataSet <- function(setId = "",
                   "pros",
                   "mce",
                   "rand12",
-                  "followup",
+                  "followupbasis",
+                  "followup1",
+                  "followup5",
                   "gkv",
                   "proms",
                   "basereg_pros_indik",
@@ -105,25 +107,25 @@ getPivotDataSet <- function(setId = "",
 
 
 
-    # if (setId == "followup") {
-    #   dat <- ablanor::getFollowupData(registryName = registryName,
-    #                                   singleRow = singleRow,
-    #                                   session = session,
-    #                                   reshId = reshId,
-    #                                   userRole = userRole)
-    # }
-
-
-
-    if (setId == "pros_pat_followup1") {
-      dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
-                                                  singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+    if (setId == "followup1") {
+      dat <- ablanor::getFollowupOneYrData(registryName = registryName,
+                                           singleRow = singleRow,
+                                           session = session,
+                                           reshId = reshId,
+                                           userRole = userRole)
     }
+
+
+
+    # if (setId == "pros_pat_followup1") {
+    #   dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
+    #                                               singleRow = singleRow,
+    #                                               session = session,
+    #                                               reshId = reshId,
+    #                                               userRole = userRole,
+    #                                               fromDate = fromDate,
+    #                                               toDate = toDate)
+    # }
 
 
 

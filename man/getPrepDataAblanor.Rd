@@ -6,8 +6,9 @@
 \alias{getProsData}
 \alias{getMceData}
 \alias{getRand12Data}
-\alias{getFollowupData}
 \alias{getGkvData}
+\alias{getFollowupBasisData}
+\alias{getFollowupOneYrData}
 \alias{getBaseregProsData}
 \alias{getBaseregProsFollowup1Data}
 \title{Data managment on tables}
@@ -62,6 +63,22 @@ getGkvData(
   ...
 )
 
+getFollowupBasisData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  ...
+)
+
+getFollowupOneYrData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  ...
+)
+
 getBaseregProsData(
   registryName,
   singleRow = FALSE,
@@ -82,7 +99,15 @@ getBaseregProsFollowup1Data(
   ...
 )
 
-getFollowupData(registryName, singleRow = FALSE, reshId = NULL, userRole, ...)
+getBaseregProsFollowup1Data(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
 }
 \arguments{
 \item{registryName}{"ablanor"}
