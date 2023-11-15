@@ -6,9 +6,10 @@
 \alias{getProsData}
 \alias{getMceData}
 \alias{getRand12Data}
-\alias{getGkvData}
 \alias{getFollowupBasisData}
 \alias{getFollowupOneYrData}
+\alias{getGkvData}
+\alias{getPromsData}
 \alias{getBaseregProsData}
 \alias{getBaseregProsFollowup1Data}
 \title{Data managment on tables}
@@ -53,16 +54,6 @@ getRand12Data(
   ...
 )
 
-getGkvData(
-  registryName,
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
 getFollowupBasisData(
   registryName,
   singleRow = FALSE,
@@ -76,6 +67,26 @@ getFollowupOneYrData(
   singleRow = FALSE,
   reshId = NULL,
   userRole,
+  ...
+)
+
+getGkvData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getPromsData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
   ...
 )
 

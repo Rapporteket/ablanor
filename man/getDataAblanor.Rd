@@ -10,6 +10,7 @@
 \alias{getFollowupOneYr}
 \alias{getFollowupFiveYr}
 \alias{getGkv}
+\alias{getProms}
 \alias{getHendelse}
 \alias{getPatientlist}
 \alias{getFriendlycentre}
@@ -19,7 +20,6 @@
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
-\alias{getProms}
 \title{Ablanor SQL}
 \usage{
 getBasereg(
@@ -43,16 +43,6 @@ getPros(
 )
 
 getMce(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
-getProms(
   registryName,
   singleRow,
   reshId = NULL,
@@ -103,6 +93,16 @@ getFollowupFiveYr(
 )
 
 getGkv(
+  registryName,
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getProms(
   registryName,
   singleRow,
   reshId = NULL,

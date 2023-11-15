@@ -24,9 +24,10 @@
 #' getProsData
 #' getMceData
 #' getRand12Data
-#' getGkvData
 #' getFollowupBasisData
 #' getFollowupOneYrData
+#' getGkvData
+#' getPromsData
 #' getBaseregProsData
 NULL
 
@@ -180,48 +181,6 @@ getRand12Data <- function(registryName,
 
 
 
-#' @rdname getPrepDataAblanor
-#' @export
-getGkvData <- function(registryName,
-                       singleRow = FALSE,
-                       reshId = NULL,
-                       userRole,
-                       fromDate = NULL,
-                       toDate = NULL, ...) {
-
-  . <- ""
-
-  d <- ablanor::getGkv(registryName = registryName,
-                       singleRow = singleRow,
-                       reshId = reshId,
-                       userRole = userRole,
-                       fromDate = fromDate,
-                       toDate = toDate, ...)
-  d_gkv <- d$d_gkv
-
-  names(d_gkv) <- tolower(names(d_gkv))
-
-  # TO DO:
-  # Legg til mcetype og prosedyredato til parentmceid for GKV???
-  d_gkv %>%
-    dplyr::arrange(mceid) %>%
-    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
-    dplyr::mutate(
-      aar_gkv = as.ordered(lubridate::year(.data$dato_gkv)),
-      maaned_nr_gkv = as.ordered(sprintf(fmt = "%02d",
-                                         lubridate::month(.data$dato_gkv))),
-      maaned_gkv = ifelse(
-        test = is.na(.data$aar_gkv) | is.na(.data$maaned_nr_gkv),
-        yes = NA,
-        no = paste0(.data$aar_gkv, "-", .data$maaned_nr_gkv))) %>%
-    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby,
-                                 complete,
-                                 incomplete_reason),
-                     function(x) {
-                       paste0("gkv_", x)
-                     })
-
-}
 
 
 #' @rdname getPrepDataAblanor
@@ -290,6 +249,89 @@ getFollowupOneYrData <- function(registryName,
 }
 
 
+#' @rdname getPrepDataAblanor
+#' @export
+getGkvData <- function(registryName,
+                       singleRow = FALSE,
+                       reshId = NULL,
+                       userRole,
+                       fromDate = NULL,
+                       toDate = NULL, ...) {
+
+  . <- ""
+
+  d <- ablanor::getGkv(registryName = registryName,
+                       singleRow = singleRow,
+                       reshId = reshId,
+                       userRole = userRole,
+                       fromDate = fromDate,
+                       toDate = toDate, ...)
+  d_gkv <- d$d_gkv
+
+  names(d_gkv) <- tolower(names(d_gkv))
+
+  # TO DO:
+  # Legg til mcetype og prosedyredato til parentmceid for GKV???
+  d_gkv %>%
+    dplyr::arrange(mceid) %>%
+    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+    dplyr::mutate(
+      aar_gkv = as.ordered(lubridate::year(.data$dato_gkv)),
+      maaned_nr_gkv = as.ordered(sprintf(fmt = "%02d",
+                                         lubridate::month(.data$dato_gkv))),
+      maaned_gkv = ifelse(
+        test = is.na(.data$aar_gkv) | is.na(.data$maaned_nr_gkv),
+        yes = NA,
+        no = paste0(.data$aar_gkv, "-", .data$maaned_nr_gkv))) %>%
+    dplyr::rename_at(dplyr::vars(.data$usercomment:.data$createdby,
+                                 complete,
+                                 incomplete_reason),
+                     function(x) {
+                       paste0("gkv_", x)
+                     })
+
+}
+
+#' @rdname getPrepDataAblanor
+#' @export
+getPromsData <- function(registryName,
+                         singleRow = FALSE,
+                         reshId = NULL,
+                         userRole,
+                         fromDate = NULL,
+                         toDate = NULL, ...) {
+
+  . <- ""
+
+  d <- ablanor::getProms(registryName = registryName,
+                         singleRow = singleRow,
+                         reshId = reshId,
+                         userRole = userRole,
+                         fromDate = fromDate,
+                         toDate = toDate, ...)
+  d_proms <- d$d_proms
+
+  names(d_proms) <- tolower(names(d_proms))
+
+  # TO DO:
+  # Legg til mcetype og prosedyredato til parentmceid for GKV???
+  d_proms %>%
+    dplyr::arrange(mceid) %>%
+    ablanor::legg_til_sykehusnavn(., short = FALSE) %>%
+    dplyr::mutate(
+      aar_tssendt = as.ordered(lubridate::year(tssendt)),
+      maaned_nr_tssendt = as.ordered(sprintf(fmt = "%02d",
+                                         lubridate::month(tssendt))),
+      maaned_tssendt = ifelse(
+        test = is.na(aar_tssendt) | is.na(maaned_nr_tssendt),
+        yes = NA,
+        no = paste0(aar_tssendt, "-", maaned_nr_tssendt))) %>%
+    dplyr::rename_at(dplyr::vars(status:tsupdated),
+                     function(x) {
+                       paste0("proms_", x)
+                     })
+
+}
 
 
 #' @rdname getPrepDataAblanor

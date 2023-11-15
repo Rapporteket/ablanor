@@ -41,6 +41,7 @@
 #' getFollowupOneYr
 #' getFollowupFiveYr
 #' getGkv
+#' getProms
 #' getHendelse
 #' getPatientlist
 #' getFriendlycentre
@@ -221,43 +222,6 @@ getMce <- function(registryName,
   list(d_mce = d_mce)
 }
 
-
-#' @rdname getDataAblanor
-#' @export
-getProms <- function(registryName,
-                     singleRow,
-                     reshId = NULL,
-                     userRole,
-                     fromDate = NULL,
-                     toDate = NULL, ...) {
-
-
-  query <- paste0("SELECT * FROM proms")
-
-
-  # En eller alle rader:
-  if (singleRow) {
-    msg <- "Query single row data for proms"
-    query <- paste0(query, "\nLIMIT\n  1;")
-  } else {
-    msg <- "Query data for proms"
-    query <- paste0(query, ";")
-  }
-
-
-  # ENDELIG SQL SPØRRING
-  if ("session" %in% names(list(...))) {
-    # nocov start
-    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_proms <- rapbase::loadRegData(registryName, query)
-    # nocov end
-  } else {
-    d_proms <- rapbase::loadRegData(registryName, query)
-  }
-
-  list(d_proms = d_proms)
-
-}
 
 
 
@@ -499,6 +463,46 @@ getGkv <- function(registryName,
   list(d_gkv = d_gkv)
 
 }
+
+
+#' @rdname getDataAblanor
+#' @export
+getProms <- function(registryName,
+                     singleRow,
+                     reshId = NULL,
+                     userRole,
+                     fromDate = NULL,
+                     toDate = NULL, ...) {
+
+
+  query <- paste0("SELECT * FROM proms")
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for proms"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for proms"
+    query <- paste0(query, ";")
+  }
+
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_proms <- rapbase::loadRegData(registryName, query)
+    # nocov end
+  } else {
+    d_proms <- rapbase::loadRegData(registryName, query)
+  }
+
+  list(d_proms = d_proms)
+
+}
+
+
 
 
 

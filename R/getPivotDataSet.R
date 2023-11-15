@@ -38,11 +38,12 @@ getPivotDataSet <- function(setId = "",
                   "followup5",
                   "gkv",
                   "proms",
-                  "basereg_pros_indik",
-                  "pros_patient_followup",
-                  "pros_pat_followup0",
-                  "pros_pat_followup1",
-                  "pros_pat_followup5")
+                  "basereg_pros_indik")
+                  #
+                  # "pros_patient_followup",
+                  # "pros_pat_followup0",
+                  # "pros_pat_followup1",
+                  # "pros_pat_followup5")
 
   if (setId %in% validSetId) {
 
@@ -94,7 +95,28 @@ getPivotDataSet <- function(setId = "",
                                     toDate = doDate)
     }
 
-    # GKV: BASIS
+
+    # FOLLOWUP BASIS RÅDATA
+    if (setId == "followupbasis") {
+      dat <- ablanor::getFollowupBasisData(registryName = registryName,
+                                           singleRow = singleRow,
+                                           session = session,
+                                           reshId = reshId,
+                                           userRole = userRole)
+    }
+
+
+    # FOLLOWUP 1 ÅR RÅDATA
+     if (setId == "followup1") {
+      dat <- ablanor::getFollowupOneYrData(registryName = registryName,
+                                           singleRow = singleRow,
+                                           session = session,
+                                           reshId = reshId,
+                                           userRole = userRole)
+    }
+
+
+    # GKV RÅDATA (prom basis)
     if (setId == "gkv") {
       dat <- ablanor::getGkvData(registryName = registryName,
                                  singleRow = singleRow,
@@ -105,16 +127,16 @@ getPivotDataSet <- function(setId = "",
                                  toDate = toDate)
     }
 
-
-
-    if (setId == "followup1") {
-      dat <- ablanor::getFollowupOneYrData(registryName = registryName,
-                                           singleRow = singleRow,
-                                           session = session,
-                                           reshId = reshId,
-                                           userRole = userRole)
+    # PROMS STATUS - RÅDATA
+    if (setId == "proms") {
+      dat <- ablanor::getPromsData(registryName = registryName,
+                                   singleRow = singleRow,
+                                   session = session,
+                                   reshId = reshId,
+                                   userRole = userRole,
+                                   fromDate = fromDate,
+                                   toDate = toDate)
     }
-
 
 
     # if (setId == "pros_pat_followup1") {

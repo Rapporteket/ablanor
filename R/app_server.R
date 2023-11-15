@@ -18,7 +18,7 @@ app_server <- function(input, output, session) {
 
 
     # SAMLETABELLER MED UTLEDETE VARIABLER
-    # `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
+    `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
     # `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup_indik",
     # `eProm basis` = "pros_pat_followup0",
     # `eProm 1 år` = "pros_pat_followup1",
@@ -33,7 +33,9 @@ app_server <- function(input, output, session) {
     `eProm basis. Rådata` = "followupbasis",
     `eProm 1 år. Rådata` = "followup1",
     # `eProm 5 år. Rådata` = "followup5",
-    `GKV (pasienterfaring) basis` = "gkv"
+    `GKV (pasienterfaring) basis. Rådata` = "gkv",
+    `Proms-status. Rådata` = "proms"
+
 
   )
 
@@ -260,7 +262,9 @@ app_server <- function(input, output, session) {
                             "rand12",
                             "followupbasis",
                             "followup1",
-                            "gkv")) {
+                            "gkv",
+                            "proms",
+                            "basereg_pros_indik")) {
       metaDatKb() %>% names()
     }
     else {
