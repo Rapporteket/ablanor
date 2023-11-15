@@ -715,6 +715,7 @@ getBaseregPros <- function(registryName,
   if (userRole != "SC") {
     condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
   }
+
   query_mce <- paste0(
     "SELECT
       MCEID, PATIENT_ID
@@ -728,8 +729,7 @@ getBaseregPros <- function(registryName,
     "SELECT
       ID, CENTREID, BIRTH_DATE, GENDER,
       DECEASED, DECEASED_DATE, SSN_TYPE, SSNSUBTYPE
-      FROM patientlist",
-    condition)
+      FROM patientlist")
 
 
   query_mcepatientdata <- paste0(

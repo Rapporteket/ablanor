@@ -412,8 +412,12 @@ getBaseregProsData <- function(registryName,
                       .,
                       by = "MCEID") %>%
     # Legg til pasientinformasjon til venstre
-    # Lik for alle pasientens forløp
-    dplyr::right_join(d_patientlist %>% dplyr::rename("PATIENT_ID" = "ID"),
+    # Lik for alle pasientens forløp,
+    # Men repetert for hvert sykehus!
+    dplyr::right_join(d_patientlist %>%
+                        dplyr::rename("PATIENT_ID" = "ID") %>%
+                        dplyr::select(-CENTREID) %>%
+                        dplyr::distinct(),
                       .,
                       by = "PATIENT_ID",
                       multiple = "all") %>%
@@ -472,6 +476,7 @@ getBaseregProsData <- function(registryName,
                                 no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
     dplyr::arrange(.data$mceid)
 }
+
 
 
 
