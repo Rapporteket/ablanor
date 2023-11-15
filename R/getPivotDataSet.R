@@ -149,7 +149,17 @@ getPivotDataSet <- function(setId = "",
     #                                               toDate = toDate)
     # }
 
+    if (setId == "basereg_pros_indik") {
+      dat <- ablanor::getBaseregProsData(registryName = registryName,
+                                         singleRow = singleRow,
+                                         session = session,
+                                         reshId = reshId,
+                                         userRole = userRole,
+                                         fromDate = fromDate,
+                                         toDate = toDate)
 
+
+}
 
 
 
