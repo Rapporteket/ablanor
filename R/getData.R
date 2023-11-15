@@ -645,11 +645,20 @@ getPatientlist <- function(registryName,
                            fromDate = NULL,
                            toDate = NULL, ...){
 
-  # Use ALL patientlist entries.
-  # Patient registered only once, even though multiple prodecures/hospitals
-  # are possible
 
-  query <- "SELECT * FROM patientlist"
+  # NOTE TO MYSELF: CENTREID is added in new version!! Attention
+  # when merged with other files
+  # NOTE: DO NOT USE DATE
+  # condition <- ""
+  # # national or local hospital
+  # if (userRole != "SC") {
+  #   condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  # }
+  # query <- paste0("SELECT * FROM patientlist",
+  #                 condition)
+
+
+   query <- "SELECT * FROM patientlist"
 
   # En eller alle rader:
   if (singleRow) {
@@ -717,8 +726,10 @@ getBaseregPros <- function(registryName,
 
   query_patientlist <- paste0(
     "SELECT
-      ID, BIRTH_DATE, GENDER, DECEASED, DECEASED_DATE, SSN_TYPE, SSNSUBTYPE
-      FROM patientlist")
+      ID, CENTREID, BIRTH_DATE, GENDER,
+      DECEASED, DECEASED_DATE, SSN_TYPE, SSNSUBTYPE
+      FROM patientlist",
+    condition)
 
 
   query_mcepatientdata <- paste0(
