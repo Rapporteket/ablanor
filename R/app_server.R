@@ -13,9 +13,23 @@ app_server <- function(input, output, session) {
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
+  registryName <- "ablanor"
+  mapOrgId <- ablanor::getNameReshId(registryName)
+  reshId <- rapbase::getUserReshId(session)
+  hospitalName <- ablanor::getHospitalName(registryName = registryName,
+                                           reshId = reshId,
+                                           shortName = FALSE,
+                                           newNames = TRUE)
+  userFullName <- rapbase::getUserFullName(session)
+  userRole <- rapbase::getUserRole(session)
+  userOperator <- "Test Operatoresen"
+  author <- userFullName
+  # userOperator <- ? #@fixme
+
+
+
   dataSets <- list(
     `Bruk og valg av data` = "info",
-
 
     # SAMLETABELLER MED UTLEDETE VARIABLER
     `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
@@ -33,24 +47,14 @@ app_server <- function(input, output, session) {
     `eProm basis. Rådata` = "followupbasis",
     `eProm 1 år. Rådata` = "followup1",
     # `eProm 5 år. Rådata` = "followup5",
-    `GKV (pasienterfaring) basis. Rådata` = "gkv",
-    `Proms-status. Rådata` = "proms"
+    `GKV (pasienterfaring) basis. Rådata` = "gkv")
 
+  if (userRole == "SC") {
+    dataSets <- c(dataSets,
+                  list(`Proms-status. Rådata` = "proms",
+                       `Patientlist. Rådata`= "patientlist"))
+  }
 
-  )
-
-  registryName <- "ablanor"
-  mapOrgId <- ablanor::getNameReshId(registryName)
-  reshId <- rapbase::getUserReshId(session)
-  hospitalName <- ablanor::getHospitalName(registryName = registryName,
-                                           reshId = reshId,
-                                           shortName = FALSE,
-                                           newNames = TRUE)
-  userFullName <- rapbase::getUserFullName(session)
-  userRole <- rapbase::getUserRole(session)
-  userOperator <- "Test Operatoresen"
-  author <- userFullName
-  # userOperator <- ? #@fixme
 
   # Hide all tabs if LU -role
   if (userRole == "LU") {
@@ -305,10 +309,10 @@ app_server <- function(input, output, session) {
                     "followup5",
                     "gkv",
                     "hendelse",
-                    "proms",
                     "kodeboken")
   if (userRole == "SC") {
     dataSetsDump <- c(dataSetsDump,
+                      "proms",
                       "patientlist",
                       "friendlycentre",
                       "mce_patient_data")

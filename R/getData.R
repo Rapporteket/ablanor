@@ -475,8 +475,18 @@ getProms <- function(registryName,
                      toDate = NULL, ...) {
 
 
-  query <- paste0("SELECT * FROM proms")
 
+   # NOTE TO MYSELF: CENTREID is EMPTY FOR OLD > 2023-11 REGISTRATIONS
+  # NOTE: DO NOT USE DATE
+  # condition <- ""
+  # # national or local hospital
+  # if (userRole != "SC") {
+  #   condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+  # }
+  # query <- paste0("SELECT * FROM proms",
+  #                 condition)
+
+  query <- "SELECT * FROM proms"
 
   # En eller alle rader:
   if (singleRow) {
