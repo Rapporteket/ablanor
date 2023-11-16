@@ -349,8 +349,8 @@ getBaseregProsData <- function(registryName,
                                singleRow = singleRow,
                                reshId = reshId,
                                userRole = userRole,
-                               fromDate = NULL,
-                               toDate = NULL)
+                               fromDate = fromDate,
+                               toDate = toDate)
   d_pros <- d$pros
   d_basereg <- d$basereg
   d_mce <- d$mce

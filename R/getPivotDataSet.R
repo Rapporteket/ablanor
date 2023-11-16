@@ -26,7 +26,7 @@ getPivotDataSet <- function(setId = "",
                             reshId = NULL,
                             userRole,
                             fromDate = NULL,
-                            doDate = NULL) {
+                            toDate = NULL) {
   . <- ""
 
   validSetId <- c("basereg",
@@ -60,7 +60,7 @@ getPivotDataSet <- function(setId = "",
                                      reshId = reshId,
                                      userRole = userRole,
                                      fromDate = fromDate,
-                                     toDate = doDate)
+                                     toDate = toDate)
     }
 
     # PROSEDYRESKJEMA RÅDATA
@@ -71,7 +71,7 @@ getPivotDataSet <- function(setId = "",
                                   reshId = reshId,
                                   userRole = userRole,
                                   fromDate = fromDate,
-                                  toDate = doDate)
+                                  toDate = toDate)
     }
 
     # FORLØPSOVERSIKT RÅDATA
@@ -92,7 +92,7 @@ getPivotDataSet <- function(setId = "",
                                     reshId = reshId,
                                     userRole = userRole,
                                     fromDate = fromDate,
-                                    toDate = doDate)
+                                    toDate = toDate)
     }
 
 
