@@ -12,7 +12,7 @@ getPivotDataSet(
   reshId = NULL,
   userRole,
   fromDate = NULL,
-  doDate = NULL
+  toDate = NULL
 )
 }
 \arguments{
@@ -30,6 +30,10 @@ containing data from rand12 questionnaire.}
 
 \item{userRole}{String dummy/placeholder role. "LC" has access only
 to local data (defined by reshId), "SC" has access to national data.}
+
+\item{fromDate}{First date to use, if calendar in "utforsker".}
+
+\item{toDate}{Last date to use, if calendar in "utforsker".}
 }
 \value{
 data frame
