@@ -13,12 +13,6 @@ app_server <- function(input, output, session) {
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   # Parameters that will remain throughout the session
-  dataSets <- list(
-    `Bruk og valg av data` = "info",
-    `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-    `RAND-12` = "rand12"
-  )
-
   registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId(registryName)
   reshId <- rapbase::getUserReshId(session)
@@ -31,6 +25,36 @@ app_server <- function(input, output, session) {
   userOperator <- "Test Operatoresen"
   author <- userFullName
   # userOperator <- ? #@fixme
+
+
+
+  dataSets <- list(
+    `Bruk og valg av data` = "info",
+
+    # SAMLETABELLER MED UTLEDETE VARIABLER
+    `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
+    # `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup_indik",
+    # `eProm basis` = "pros_pat_followup0",
+    # `eProm 1 år` = "pros_pat_followup1",
+    # `eProm 5 år` = "pros_pat_followup5",
+
+    # RÅDATA:
+    `Basisskjema rådata` = "basereg",
+    `Prosedyreskjema rådata` = "pros",
+    `Forløpsoversikt rådata` = "mce",
+
+    `RAND-12: basis, 1 og 5 år. Rådata.` = "rand12",
+    `eProm basis. Rådata` = "followupbasis",
+    `eProm 1 år. Rådata` = "followup1",
+    # `eProm 5 år. Rådata` = "followup5",
+    `GKV (pasienterfaring) basis. Rådata` = "gkv")
+
+  if (userRole == "SC") {
+    dataSets <- c(dataSets,
+                  list(`Proms-status. Rådata` = "proms",
+                       `Patientlist. Rådata`= "patientlist"))
+  }
+
 
   # Hide all tabs if LU -role
   if (userRole == "LU") {
@@ -57,7 +81,8 @@ app_server <- function(input, output, session) {
 
 
   contentDump <- function(file, type, userRole, reshId) {
-    d <- ablanor::getDataDump(registryName, input$dumpDataSet,
+    d <- ablanor::getDataDump(registryName = registryName,
+                              tableName = input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,
@@ -177,7 +202,7 @@ app_server <- function(input, output, session) {
                         names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
         if (input$isSelectAllVars) {
-          vars <- names(dat())
+          vars <- names(metaDat())
         } else {
           vars <- rvals$selectedVars
         }
@@ -235,7 +260,15 @@ app_server <- function(input, output, session) {
 
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- reactive({
-    if (input$kbdTab %in% c("rand12", "pros_patient")) {
+    if (input$kbdTab %in% c("basereg",
+                            "pros",
+                            "mce",
+                            "rand12",
+                            "followupbasis",
+                            "followup1",
+                            "gkv",
+                            "proms",
+                            "basereg_pros_indik")) {
       metaDatKb() %>% names()
     }
     else {
@@ -265,6 +298,35 @@ app_server <- function(input, output, session) {
 
 
   # Datadump
+
+  # Datasets avaliable for download
+  dataSetsDump <- c("basereg",
+                    "pros",
+                    "mce",
+                    "rand12",
+                    "followupbasis",
+                    "followup1",
+                    "followup5",
+                    "gkv",
+                    "hendelse",
+                    "kodeboken")
+  if (userRole == "SC") {
+    dataSetsDump <- c(dataSetsDump,
+                      "proms",
+                      "patientlist",
+                      "friendlycentre",
+                      "mce_patient_data")
+  }
+
+  output$selectDumpSet <- shiny::renderUI({
+    htmltools::tagList(
+      shiny::selectInput(inputId = "dumpDataSet",
+                         label = "Velg datasett:",
+                         choices = dataSetsDump))
+  })
+
+
+
   output$dataDumpInfo <- shiny::renderUI({
     shiny::p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })

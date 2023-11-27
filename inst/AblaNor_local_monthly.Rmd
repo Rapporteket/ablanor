@@ -90,7 +90,7 @@ periode_data <- data.frame(
 
 
 ```{r GetData}
-d_ablanor <- ablanor::getProsPatientData(registryName = params$registryName, 
+d_ablanor <- ablanor::getBaseregProsData(registryName = params$registryName, 
                                          singleRow = FALSE, 
                                          reshId = params$reshId,
                                          userRole = params$userRole, 

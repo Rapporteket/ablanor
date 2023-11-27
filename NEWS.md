@@ -1,3 +1,18 @@
+# ablanor 1.3.0
+Ny release av innregistrering med nye funksjonaliteter. Eproms ved basis, 
+1 år og 5 år, samt hendelser i egen tabell. Tilpasse Rapporteket til dette. 
+
+## Nytt
+* Rådata i utforsker for alle tabeller
+* Nedlasting av proms-status, hendelse og basis
+* samle alle getData
+* samle alle getPrepData
+* getDataDump bruker getData
+
+
+## Bugfix
+* Nedlasting av followup uten datofilter (status -1 forsvant før)
+
 # ablanor 1.2.0
 Små justeringer på Rapporteket etter overgang til FALK som innloggings-
 portal i prod. 
