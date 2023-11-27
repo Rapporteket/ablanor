@@ -19,7 +19,7 @@ variables) before the data frame is returned."><!-- mathjax --><script src="http
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
@@ -63,7 +63,9 @@ variables) before the data frame is returned.</p>
 <span>  <span class="va">session</span>,</span>
 <span>  singleRow <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  reshId <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">userRole</span></span>
+<span>  <span class="va">userRole</span>,</span>
+<span>  fromDate <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  toDate <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -94,6 +96,14 @@ containing data from rand12 questionnaire.</p></dd>
 <dt>userRole</dt>
 <dd><p>String dummy/placeholder role. "LC" has access only
 to local data (defined by reshId), "SC" has access to national data.</p></dd>
+
+
+<dt>fromDate</dt>
+<dd><p>First date to use, if calendar in "utforsker".</p></dd>
+
+
+<dt>toDate</dt>
+<dd><p>Last date to use, if calendar in "utforsker".</p></dd>
 
 </dl></div>
     <div id="value">

@@ -43,7 +43,10 @@
     <loc>/reference/force_names.html</loc>
   </url>
   <url>
-    <loc>/reference/getData.html</loc>
+    <loc>/reference/getDataAblanor.html</loc>
+  </url>
+  <url>
+    <loc>/reference/getDataDump.html</loc>
   </url>
   <url>
     <loc>/reference/getKodebokData.html</loc>
@@ -55,10 +58,10 @@
     <loc>/reference/getPivotDataSet.html</loc>
   </url>
   <url>
-    <loc>/reference/getProsPatientData.html</loc>
+    <loc>/reference/getPrepDataAblanor.html</loc>
   </url>
   <url>
-    <loc>/reference/getRand12Data.html</loc>
+    <loc>/reference/getProsPatientData.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
