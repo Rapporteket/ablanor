@@ -33,6 +33,7 @@ app_server <- function(input, output, session) {
 
     # SAMLETABELLER MED UTLEDETE VARIABLER
     `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
+    `Pasient, prosedyre og hendelse` = "basereg_pros_hendelse",
     # `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup_indik",
     # `eProm basis` = "pros_pat_followup0",
     # `eProm 1 år` = "pros_pat_followup1",
