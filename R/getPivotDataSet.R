@@ -38,12 +38,13 @@ getPivotDataSet <- function(setId = "",
                   "followup5",
                   "gkv",
                   "proms",
-                  "basereg_pros_indik")
-                  #
-                  # "pros_patient_followup",
-                  # "pros_pat_followup0",
-                  # "pros_pat_followup1",
-                  # "pros_pat_followup5")
+                  "basereg_pros_indik",
+                  "basereg_pros_hendelse")
+  #
+  # "pros_patient_followup",
+  # "pros_pat_followup0",
+  # "pros_pat_followup1",
+  # "pros_pat_followup5")
 
   if (setId %in% validSetId) {
 
@@ -107,7 +108,7 @@ getPivotDataSet <- function(setId = "",
 
 
     # FOLLOWUP 1 ÅR RÅDATA
-     if (setId == "followup1") {
+    if (setId == "followup1") {
       dat <- ablanor::getFollowupOneYrData(registryName = registryName,
                                            singleRow = singleRow,
                                            session = session,
@@ -157,40 +158,49 @@ getPivotDataSet <- function(setId = "",
                                          userRole = userRole,
                                          fromDate = fromDate,
                                          toDate = toDate)
+      }
 
 
-}
+      if (setId == "basereg_pros_hendelse") {
+        dat <- ablanor::getBaseregProsHendelseData(registryName = registryName,
+                                                   singleRow = singleRow,
+                                                   session = session,
+                                                   reshId = reshId,
+                                                   userRole = userRole,
+                                                   fromDate = fromDate,
+                                                   toDate = toDate)
+        }
 
 
 
 
-    if(singleRow == FALSE){
-      # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
-      kb <- ablanor::getKodebokData() %>%
-        dplyr::select(.data$fysisk_feltnavn,
-                      .data$listeverdier,
-                      .data$listetekst,
-                      .data$type)
+      if(singleRow == FALSE){
+        # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
+        kb <- ablanor::getKodebokData() %>%
+          dplyr::select(.data$fysisk_feltnavn,
+                        .data$listeverdier,
+                        .data$listetekst,
+                        .data$type)
 
-      dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
-                                                   kb = kb,
-                                                   suffiks = "_tekst") %>%
-        ablanor::kodebok_fyll_avkrysningsboks(df = .,
-                                              kb = kb,
-                                              suffiks = "_tekst") %>%
-        ablanor::kodebok_beholde_bare_listetekstvar(
-          df = .,
-          kb = kb,
-          suffiks = "_tekst",
-          fjerne_suffiks_fra_navn = TRUE)
+        dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
+                                                     kb = kb,
+                                                     suffiks = "_tekst") %>%
+          ablanor::kodebok_fyll_avkrysningsboks(df = .,
+                                                kb = kb,
+                                                suffiks = "_tekst") %>%
+          ablanor::kodebok_beholde_bare_listetekstvar(
+            df = .,
+            kb = kb,
+            suffiks = "_tekst",
+            fjerne_suffiks_fra_navn = TRUE)
+      }
+
+      dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
+
+    } else {
+      dat <- NULL
     }
 
-    dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
 
-  } else {
-    dat <- NULL
+    dat
   }
-
-
-  dat
-}

@@ -29,6 +29,7 @@
 #' getGkvData
 #' getPromsData
 #' getBaseregProsData
+#' getBaseregProsHendelseData
 NULL
 
 #' @rdname getPrepDataAblanor
@@ -480,6 +481,100 @@ getBaseregProsData <- function(registryName,
 
 
 
+
+#' @rdname getPrepDataAblanor
+#' @export
+getBaseregProsHendelseData <- function(registryName,
+                               singleRow = FALSE,
+                               reshId = NULL,
+                               userRole,
+                               fromDate = NULL,
+                               toDate = NULL, ...){
+
+  d_hendelse <- getHendelse(registryName = registryName,
+                            singleRow = singleRow,
+                            reshId = reshId,
+                            userRole = userRole,
+                            fromDate = fromDate,
+                            toDate = toDate)$d_hendelse
+
+  d_mce <- getMce(registryName = registryName,
+                            singleRow = singleRow,
+                            reshId = reshId,
+                            userRole = userRole,
+                            fromDate = fromDate,
+                            toDate = toDate)$d_mce
+
+  d_pros <- getPros(registryName = registryName,
+                            singleRow = singleRow,
+                            reshId = reshId,
+                            userRole = userRole,
+                            fromDate = fromDate,
+                            toDate = toDate)$d_pros
+
+
+  d_basereg <- getBasereg(registryName = registryName,
+                    singleRow = singleRow,
+                    reshId = reshId,
+                    userRole = userRole,
+                    fromDate = fromDate,
+                    toDate = toDate)$d_basereg
+
+
+
+
+  d_hendelse %<>%
+    dplyr::rename_at(dplyr::vars(KOMP_JANEI:STATUS),
+                     function(x) {
+                       paste0("adhoc_", x)
+                     }) %>%
+    dplyr::rename("MCEID_adhoc" = "MCEID") %>%
+    dplyr::select(MCEID_adhoc,
+                  CENTREID,
+                  DATO_ADHOC,
+                  adhoc_KOMP_JANEI:adhoc_STATUS)
+
+  d_pros %<>%
+    dplyr::select(MCEID, CENTREID, FORLOPSTYPE, DATO_PROS)
+
+  d_basereg %<>%
+    dplyr::select(MCEID, CENTREID, HOYDE, VEKT)
+
+
+  d_mce %<>%
+    dplyr::select(MCEID, CENTREID, MCETYPE, PARENTMCEID)
+
+  names(d_hendelse) <- tolower(names(d_hendelse))
+  names(d_mce) <- tolower(names(d_mce))
+  names(d_pros) <- tolower(names(d_pros))
+  names(d_basereg) <- tolower(names(d_basereg))
+
+
+
+
+  d_hendelse %<>% dplyr::left_join(.,
+                                   d_mce %>% dplyr::filter(mcetype == 8) %>%
+                                     dplyr::select(mceid, parentmceid) %>%
+                                     dplyr::rename(mceid_adhoc = mceid,
+                                                   mceid = parentmceid),
+                                   by = "mceid_adhoc")
+
+
+  d_ut <- right_join(x = dplyr::left_join(d_basereg,
+                                          d_pros,
+                                          by = c("mceid", "centreid")),
+                     y = d_hendelse,
+                     by = c("mceid", "centreid")) %>%
+
+    # Antall dager fra prosedyre til hendelse
+    dplyr::mutate(dager_pros_hendelse = as.numeric(difftime(
+      dato_adhoc,
+      dato_pros,
+      units = "days"
+    )))
+
+  d_ut
+}
 #' @rdname getPrepDataAblanor
 #' @export
 getBaseregProsFollowup1Data <- function(registryName,

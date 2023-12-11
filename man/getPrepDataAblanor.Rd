@@ -11,6 +11,7 @@
 \alias{getGkvData}
 \alias{getPromsData}
 \alias{getBaseregProsData}
+\alias{getBaseregProsHendelseData}
 \alias{getBaseregProsFollowup1Data}
 \title{Data managment on tables}
 \usage{
@@ -91,6 +92,16 @@ getPromsData(
 )
 
 getBaseregProsData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsHendelseData(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
