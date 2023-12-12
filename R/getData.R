@@ -790,6 +790,8 @@ getBaseregPros <- function(registryName,
 }
 
 
+
+
 #' @rdname getDataAblanor
 #' @export
 getBaseregProsFollowup1 <- function(registryName,
@@ -870,7 +872,8 @@ getBaseregProsFollowup1 <- function(registryName,
          pros.MCEID = mce.MCEID AND
          pros.CENTREID = mce.CENTREID
     LEFT JOIN patientlist ON
-         mce.PATIENT_ID = patientlist.ID "
+         mce.PATIENT_ID = patientlist.ID AND
+         mce.CENTREID = patientlist.CENTREID"
     ,
     condition,
     " AND pros.FORLOPSTYPE IS NOT NULL ")
@@ -883,6 +886,7 @@ getBaseregProsFollowup1 <- function(registryName,
              mce.MCETYPE,
              mce.PATIENT_ID,
              mce.PARENTMCEID,
+             mce.TSCREATED,
 
              followup.DATO_FOLLOWUP,
              followup.COMPLETE,
@@ -920,6 +924,7 @@ getBaseregProsFollowup1 <- function(registryName,
 
   query_proms <- "SELECT MCEID,
                          REGISTRATION_TYPE,
+                         TSSENDT,
                          EXPIRY_DATE,
                          REMINDER_DATE,
                          STATUS,

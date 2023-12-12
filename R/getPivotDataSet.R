@@ -39,11 +39,11 @@ getPivotDataSet <- function(setId = "",
                   "gkv",
                   "proms",
                   "basereg_pros_indik",
-                  "basereg_pros_hendelse")
+                  "basereg_pros_hendelse",
+                  "pros_pat_followup1")
   #
   # "pros_patient_followup",
   # "pros_pat_followup0",
-  # "pros_pat_followup1",
   # "pros_pat_followup5")
 
   if (setId %in% validSetId) {
@@ -140,16 +140,8 @@ getPivotDataSet <- function(setId = "",
     }
 
 
-    # if (setId == "pros_pat_followup1") {
-    #   dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
-    #                                               singleRow = singleRow,
-    #                                               session = session,
-    #                                               reshId = reshId,
-    #                                               userRole = userRole,
-    #                                               fromDate = fromDate,
-    #                                               toDate = toDate)
-    # }
 
+    # BASIS-PROSEDYRE- KVALITETSINDIKATORER
     if (setId == "basereg_pros_indik") {
       dat <- ablanor::getBaseregProsData(registryName = registryName,
                                          singleRow = singleRow,
@@ -158,49 +150,58 @@ getPivotDataSet <- function(setId = "",
                                          userRole = userRole,
                                          fromDate = fromDate,
                                          toDate = toDate)
-      }
+    }
 
-
-      if (setId == "basereg_pros_hendelse") {
-        dat <- ablanor::getBaseregProsHendelseData(registryName = registryName,
-                                                   singleRow = singleRow,
-                                                   session = session,
-                                                   reshId = reshId,
-                                                   userRole = userRole,
-                                                   fromDate = fromDate,
-                                                   toDate = toDate)
-        }
-
-
-
-
-      if(singleRow == FALSE){
-        # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
-        kb <- ablanor::getKodebokData() %>%
-          dplyr::select(.data$fysisk_feltnavn,
-                        .data$listeverdier,
-                        .data$listetekst,
-                        .data$type)
-
-        dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
-                                                     kb = kb,
-                                                     suffiks = "_tekst") %>%
-          ablanor::kodebok_fyll_avkrysningsboks(df = .,
-                                                kb = kb,
-                                                suffiks = "_tekst") %>%
-          ablanor::kodebok_beholde_bare_listetekstvar(
-            df = .,
-            kb = kb,
-            suffiks = "_tekst",
-            fjerne_suffiks_fra_navn = TRUE)
-      }
-
-      dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
-
-    } else {
-      dat <- NULL
+    # BASIS-PROSEDYRE-HENDELSE
+    if (setId == "basereg_pros_hendelse") {
+      dat <- ablanor::getBaseregProsHendelseData(registryName = registryName,
+                                                 singleRow = singleRow,
+                                                 session = session,
+                                                 reshId = reshId,
+                                                 userRole = userRole,
+                                                 fromDate = fromDate,
+                                                 toDate = toDate)
     }
 
 
-    dat
+    if (setId == "pros_pat_followup1") {
+      dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
+                                                  singleRow = singleRow,
+                                                  session = session,
+                                                  reshId = reshId,
+                                                  userRole = userRole,
+                                                  fromDate = fromDate,
+                                                  toDate = toDate)
+    }
+
+
+    if(singleRow == FALSE){
+      # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
+      kb <- ablanor::getKodebokData() %>%
+        dplyr::select(.data$fysisk_feltnavn,
+                      .data$listeverdier,
+                      .data$listetekst,
+                      .data$type)
+
+      dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
+                                                   kb = kb,
+                                                   suffiks = "_tekst") %>%
+        ablanor::kodebok_fyll_avkrysningsboks(df = .,
+                                              kb = kb,
+                                              suffiks = "_tekst") %>%
+        ablanor::kodebok_beholde_bare_listetekstvar(
+          df = .,
+          kb = kb,
+          suffiks = "_tekst",
+          fjerne_suffiks_fra_navn = TRUE)
+    }
+
+    dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
+
+  } else {
+    dat <- NULL
   }
+
+
+  dat
+}

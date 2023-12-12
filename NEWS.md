@@ -1,3 +1,7 @@
+# ablanor 1.3.1
+Sammenstille prosedyreskjema med Eproms ved basis, 
+1 år og 5 år, samt hendelser. svarprosent.  
+
 # ablanor 1.3.0
 Ny release av innregistrering med nye funksjonaliteter. Eproms ved basis, 
 1 år og 5 år, samt hendelser i egen tabell. Tilpasse Rapporteket til dette. 

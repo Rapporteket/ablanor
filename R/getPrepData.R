@@ -600,11 +600,14 @@ getBaseregProsFollowup1Data <- function(registryName,
 
   d_followup %<>%
     dplyr::rename("FOLLOWUP_STATUS" = "STATUS",
+                  "FOLLOWUP_TSCREATED" = "TSCREATED",
                   "MCEID_FOLLOWUP" = "MCEID",
                   "MCEID" = "PARENTMCEID")
   d_proms %<>%
     dplyr::rename("PROMS_STATUS" = "STATUS",
-                  "MCEID_FOLLOWUP" = "MCEID")
+                  "MCEID_FOLLOWUP" = "MCEID",
+                  "PROMS_TSSENDT" = "TSSENDT",
+                  "PROMS_EXPIRY_DATE" = "EXPIRY_DATE")
 
 
   names(d_followup) <- tolower(names(d_followup))
@@ -617,8 +620,9 @@ getBaseregProsFollowup1Data <- function(registryName,
   # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
   followup_data <- d_followup %>%
     dplyr::filter(!is.na(followup_status)) %>%
+    dplyr::mutate(in_followup_table  = TRUE) %>%
     dplyr::left_join(.,
-                     d_proms,
+                     d_proms %>%  mutate(in_proms_table = TRUE),
                      by = "mceid_followup") %>%
     dplyr::group_by(mceid) %>%
     dplyr::mutate(max_mceid_followup = max(mceid_followup)) %>%
@@ -783,7 +787,14 @@ getBaseregProsFollowup1Data <- function(registryName,
                                                lubridate::month(.data$dato_followup))),
       maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
                                 yes = NA,
-                                no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup))
+                                no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)),
+
+
+      dg_pros_sendt = as.numeric(difftime(
+        proms_tssendt,
+        dato_pros,
+        units = "days"
+      ))
       ) %>%
     dplyr::arrange(.data$mceid)
 }
@@ -817,10 +828,12 @@ getBaseregProsFollowup1Data <- function(registryName,
   d_followup %<>%
     dplyr::rename("FOLLOWUP_STATUS" = "STATUS",
                   "MCEID_FOLLOWUP" = "MCEID",
-                  "MCEID" = "PARENTMCEID")
+                  "MCEID" = "PARENTMCEID",
+                  "FOLLOWUP_TSCREATED" = "TSCREATED")
   d_proms %<>%
     dplyr::rename("PROMS_STATUS" = "STATUS",
-                  "MCEID_FOLLOWUP" = "MCEID")
+                  "MCEID_FOLLOWUP" = "MCEID",
+                  "PROMS_TSSENDT" = "TSSENDT")
 
 
   names(d_followup) <- tolower(names(d_followup))
@@ -833,15 +846,17 @@ getBaseregProsFollowup1Data <- function(registryName,
   # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
   followup_data <- d_followup %>%
     dplyr::filter(!is.na(followup_status)) %>%
+    dplyr::mutate(followup_opprettet = TRUE) %>%
     dplyr::left_join(.,
-                     d_proms,
+                     d_proms %>% dplyr::mutate(eproms_sendt = TRUE),
                      by = "mceid_followup") %>%
-    dplyr::group_by(mceid) %>%
-    dplyr::mutate(max_mceid_followup = max(mceid_followup)) %>%
-    dplyr::ungroup() %>%
-    dplyr::filter(mceid_followup == max_mceid_followup) %>%
-    dplyr::select(- max_mceid_followup,
-                  - mcetype) %>%
+    # dplyr::group_by(mceid) %>%
+    # dplyr::mutate(max_mceid_followup = max(mceid_followup)) %>%
+    # dplyr::ungroup() %>%
+    # dplyr::filter(mceid_followup == max_mceid_followup) %>%
+    # dplyr::select(- max_mceid_followup,
+    #               - mcetype) %>%
+    dplyr::select(-mcetype) %>%
     dplyr::mutate(eprom_opprettet = "ja")
 
 
@@ -939,8 +954,7 @@ getBaseregProsFollowup1Data <- function(registryName,
         eprom_opprettet %in% "ja"  &
           (!ssn_type %in% 1 |
              !ssnsubtype %in% c(1, 3)) ~ "nei, ikke norsk frn type",
-        !eprom_opprettet %in% "ja" ~ NA_character_),
-    )
+        !eprom_opprettet %in% "ja" ~ NA_character_))
 
   d_ablanor %<>%
     dplyr::arrange(dato_pros) %>%
@@ -977,8 +991,7 @@ getBaseregProsFollowup1Data <- function(registryName,
              !krit_oppf_norsk %in% "ja" |
              !krit_oppf_1aar_nyeste_pros_av_typen %in% "ja" ) ~ "nei",
 
-        eprom_opprettet %in% "nei"  ~ NA_character_
-      )
+        eprom_opprettet %in% "nei"  ~ NA_character_)
     )
 
 
@@ -993,14 +1006,41 @@ getBaseregProsFollowup1Data <- function(registryName,
                                 yes = NA,
                                 no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre)),
 
-      # Tidsvariabler for prosedyre
+
+
+      # Tidsvariabler for besvart followup
       aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
       maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
                                                lubridate::month(.data$dato_followup))),
       maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
                                 yes = NA,
-                                no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup))
-      ) %>%
+                                no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)),
+
+
+      # TIDSVARIABLER FOR OPPRETTET FOLLOWUP
+      aar_followup_tscreated = as.ordered(lubridate::year(followup_tscreated)),
+      maaned_nr_followup_tscreated = as.ordered(sprintf(fmt = "%02d",
+                                              lubridate::month(followup_tscreated))),
+      maaned_followup_tscreated = ifelse(test = is.na(aar_followup) | is.na(maaned_nr_followup),
+                               yes = NA,
+                               no = paste0(aar_followup, "-", maaned_nr_followup)),
+
+      # TIDSVARIABLER FOR SENDT FOLLOWUP
+      aar_proms_tsendt = as.ordered(lubridate::year(proms_tssendt)),
+      maaned_nr_proms_tssendt = as.ordered(sprintf(fmt = "%02d",
+                                                        lubridate::month(proms_tssendt))),
+      maaned_proms_tssendt = ifelse(test = is.na(aar_proms_tsendt) | is.na(maaned_nr_proms_tssendt),
+                                         yes = NA,
+                                         no = paste0(aar_proms_tsendt, "-", maaned_nr_proms_tssendt)),
+
+
+
+
+
+      dg_prosedyre_til_sendt = as.integer(difftime(
+        as.Date(proms_tssendt, format = "%Y-%m-%d"),
+                dato_pros,
+                units = "days"))) %>%
     dplyr::arrange(.data$mceid)
 }
 

@@ -36,7 +36,7 @@ app_server <- function(input, output, session) {
     `Pasient, prosedyre og hendelse` = "basereg_pros_hendelse",
     # `Pasient, prosedyre og oppfølgingsstatus` = "pros_patient_followup_indik",
     # `eProm basis` = "pros_pat_followup0",
-    # `eProm 1 år` = "pros_pat_followup1",
+    `Pasient, prosedyre og eProm 1 år` = "pros_pat_followup1",
     # `eProm 5 år` = "pros_pat_followup5",
 
     # RÅDATA:
@@ -270,7 +270,8 @@ app_server <- function(input, output, session) {
                             "gkv",
                             "proms",
                             "basereg_pros_indik",
-                            "basereg_pros_hendelse")) {
+                            "basereg_pros_hendelse",
+                            "pros_pat_followup1")) {
       metaDatKb() %>% names()
     }
     else {
