@@ -878,7 +878,7 @@ getBaseregProsFollowup1Data <- function(registryName,
   d_ablanor %<>%
     ablanor::utlede_tidsvariabler() %>%
     dplyr::mutate(
-      eprom_opprettet = dplyr::case_when(
+      followup_opprettet = dplyr::case_when(
 
         dato_pros > nyeste_eprom_bestilling ~
           "nei, registreringen er for ny",
@@ -895,10 +895,10 @@ getBaseregProsFollowup1Data <- function(registryName,
           "nei, teknisk problem",
 
 
-        is.na(eprom_opprettet) ~
+        is.na(followup_opprettet) ~
           "nei",
 
-        !is.na(eprom_opprettet) ~
+        !is.na(followup_opprettet) ~
           "ja")
     )
 
@@ -920,15 +920,16 @@ getBaseregProsFollowup1Data <- function(registryName,
           unit = "years")$year,
 
       krit_oppf_1aar_over16 = dplyr::case_when(
-        eprom_opprettet %in% "ja"  &
+        # followup_opprettet %in% "ja"  &
           (!is.na(alder_1aar_etterProsedyren) &
              alder_1aar_etterProsedyren >=16) ~"ja",
 
-        eprom_opprettet %in% "ja" &
+        # followup_opprettet %in% "ja" &
           (is.na(alder_1aar_etterProsedyren) |
              alder_1aar_etterProsedyren <16) ~  "nei, fremdeles under 16",
+        TRUE ~ NA_character_),
 
-        !eprom_opprettet %in% "ja" ~ NA_character_),
+        # !followup_opprettet %in% "ja" ~ NA_character_),
 
       dg_prosedyre_til_dod = ifelse(
         deceased == 1,
@@ -936,25 +937,26 @@ getBaseregProsFollowup1Data <- function(registryName,
         NA_real_),
 
       krit_oppf_1aar_levende = dplyr::case_when(
-        eprom_opprettet %in% "ja"  &
+        # followup_opprettet %in% "ja"  &
           (is.na(dg_prosedyre_til_dod) | dg_prosedyre_til_dod >= 365) ~ "ja",
 
-        eprom_opprettet %in% "ja"  &
+        # followup_opprettet %in% "ja"  &
           !is.na(dg_prosedyre_til_dod) &
           dg_prosedyre_til_dod <365 ~   "nei, dod innen 1 aar",
 
-        !eprom_opprettet %in% "ja" ~ NA_character_),
-
+        # !followup_opprettet %in% "ja" ~ NA_character_),
+        TRUE ~ NA_character_),
 
       krit_oppf_norsk = dplyr::case_when(
-        eprom_opprettet %in% "ja"  &
+        # followup_opprettet %in% "ja"  &
           ssn_type %in% 1 &
           ssnsubtype %in% c(1, 3) ~ "ja",
 
-        eprom_opprettet %in% "ja"  &
+        # followup_opprettet %in% "ja"  &
           (!ssn_type %in% 1 |
              !ssnsubtype %in% c(1, 3)) ~ "nei, ikke norsk frn type",
-        !eprom_opprettet %in% "ja" ~ NA_character_))
+        # !followup_opprettet %in% "ja" ~ NA_character_))
+        TRUE ~ NA_character_))
 
   d_ablanor %<>%
     dplyr::arrange(dato_pros) %>%
@@ -967,31 +969,30 @@ getBaseregProsFollowup1Data <- function(registryName,
     dplyr::ungroup() %>%
     dplyr::mutate(
       krit_oppf_1aar_nyeste_pros_av_typen = dplyr::case_when(
-        eprom_opprettet %in% "ja"  &
+        # eprom_opprettet %in% "ja"  &
           (is.na(dg_til_neste) | dg_til_neste > 365) ~ "ja",
 
 
-        eprom_opprettet %in% "ja"  &
+        # eprom_opprettet %in% "ja"  &
           (!is.na(dg_til_neste) | dg_til_neste <= 365) ~
           "nei, ny prosedyre av samme type innen 1 år",
-        !eprom_opprettet %in% "ja" ~ NA_character_),
-
-    ) %>%
+        # !eprom_opprettet %in% "ja" ~ NA_character_),
+        TRUE ~ NA_character_)) %>%
     dplyr::mutate(
       krit_oppf_1aar_alle = dplyr::case_when(
-        eprom_opprettet %in% "ja"  &
+        # eprom_opprettet %in% "ja"  &
           krit_oppf_1aar_over16 %in% "ja" &
           krit_oppf_1aar_levende %in% "ja" &
           krit_oppf_norsk %in% "ja" &
           krit_oppf_1aar_nyeste_pros_av_typen %in% "ja" ~"ja",
 
-        eprom_opprettet %in% "ja"  &
+        # eprom_opprettet %in% "ja"  &
           (!krit_oppf_1aar_over16 %in% "ja" |
              !krit_oppf_1aar_levende %in% "ja" |
              !krit_oppf_norsk %in% "ja" |
              !krit_oppf_1aar_nyeste_pros_av_typen %in% "ja" ) ~ "nei",
-
-        eprom_opprettet %in% "nei"  ~ NA_character_)
+TRUE ~ NA_character_)
+# eprom_opprettet %in% "nei"  ~ NA_character_)
     )
 
 
