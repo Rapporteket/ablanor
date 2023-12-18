@@ -120,16 +120,6 @@ getBaseregProsFollowup1Data(
   toDate = NULL,
   ...
 )
-
-getBaseregProsFollowup1Data(
-  registryName,
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
 }
 \arguments{
 \item{registryName}{"ablanor"}
