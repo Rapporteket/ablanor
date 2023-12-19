@@ -560,11 +560,10 @@ getBaseregProsHendelseData <- function(registryName,
                                    by = "mceid_adhoc")
 
 
-  d_ut <- right_join(x = dplyr::left_join(d_basereg,
-                                          d_pros,
-                                          by = c("mceid", "centreid")),
-                     y = d_hendelse,
-                     by = c("mceid", "centreid")) %>%
+  d_ut <- dplyr::right_join(
+    x = dplyr::left_join(d_basereg, d_pros, by = c("mceid", "centreid")),
+    y = d_hendelse,
+    by = c("mceid", "centreid")) %>%
 
     # Antall dager fra prosedyre til hendelse
     dplyr::mutate(dager_pros_hendelse = as.numeric(difftime(
