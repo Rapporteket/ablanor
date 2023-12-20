@@ -806,10 +806,6 @@ getBaseregProsFollowup1 <- function(registryName,
   # Mce (type = 9), patientid
   # patientlist
   # followup
-
-
-
-
   if (is.null(fromDate)) {
     fromDate <- as.Date("1900-01-01")
   }
@@ -822,6 +818,7 @@ getBaseregProsFollowup1 <- function(registryName,
 
 
   condition_followup <- ""
+
   if (userRole != "SC") {
     condition_followup <- paste0(" AND mce.CENTREID = '", reshId, "'")
     condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
@@ -931,6 +928,10 @@ getBaseregProsFollowup1 <- function(registryName,
                          FORM_ORDER_STATUS_ERROR_CODE
                   FROM proms
                   WHERE REGISTRATION_TYPE = 'Followup' "
+
+
+
+
 
   if (singleRow) {
     msg <- "Query single row data for 1-year followup"
