@@ -775,26 +775,115 @@ getBaseregProsFollowup1Data <- function(registryName,
         (dato_pros >= as.Date("2020-01-01", format = "%Y-%m-%d") &
            dato_pros <= as.Date("2020-01-24", format = "%Y-%m-%d")) ~
           "teknisk problem",
-      TRUE ~ "nei"),
 
-      eprom_datagrunnlag = dplyr::case_when(
-
-        dato_pros > nyeste_eprom_bestilling ~
-          "nei, registreringen er for ny",
-
-        dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
-          "nei, før innføring av 1års oppf.",
-
-        (has_followup %in% 1 &
-           eprom_opprettet %in% "ja" &
-           kriterie_alle %in% "nei" &
-           eprom_sendt %in% "ja" &
-           eprom_kjente_feil %in% "nei") ~ "sjekk kriterie, eprom sendt",
-
-        (has_followup %in% 1 &
+        (dato_pros >= as.Date("2022-11-22", format = "%Y-%m-%d") &
+           dato_pros <= as.Date("2022-11-25", format = "%Y-%m-%d") &
            eprom_opprettet %in% "ja" &
            kriterie_alle %in% "ja" &
-           eprom_kjente_feil %in% "nei") ~ "ja"),
+           is.na(eprom_sendt))~
+          "teknisk problem",
+
+
+
+      TRUE ~ "nei"),
+
+      eprom_datagrunnlag = factor(
+        x = dplyr::case_when(
+
+          #  ALT FOR NYE REGISTRERINGER
+          dato_pros > nyeste_eprom_bestilling ~
+          "nei, registreringen er for ny",
+
+          # ALT FOR GAMLE REGISTRERINGER
+         dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
+           "nei, før innføring av 1års oppf.",
+
+         dato_pros  == as.Date("2020-01-01", format = "%Y-%m-%d") &
+           is.na(eprom_opprettet) ~
+           "nei, før innføring av 1års oppf.",
+
+         # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
+         (has_followup %in% 1 &
+            eprom_opprettet %in% "ja" &
+            incomplete_reason %in% 3) ~
+           "nei, opprettet satt til død",
+
+         # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
+         (has_followup %in% 1 &
+            eprom_opprettet %in% "ja" &
+            kriterie_alle %in% "nei" &
+            eprom_sendt %in% "ja" &
+            eprom_kjente_feil %in% "nei") ~
+           "nei, eprom feilaktig sendt, sjekk kriterier",
+
+
+         # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
+         (has_followup %in% 1 &
+            versjon_1_5_eller_mer %in% "ja" &
+            is.na(eprom_opprettet)) ~
+           "nei, ikke opprettet etter sjekk kriterier",
+
+         # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
+         # "BESTILT I DAG, SENDES I MORGEN"
+         (has_followup %in% 1 &
+            eprom_opprettet %in% "ja" &
+            kriterie_alle %in% "ja" &
+            eprom_kjente_feil %in% "nei" &
+            is.na(eprom_sendt)) ~
+           "nei, eprom venter på utsendelse",
+
+
+         # GAMMEL VERSJON: EPROM  OPPRETTET FOR ALLE, MEN
+         # KONTROLL KRITERIER FØR UTSENDING
+         (has_followup %in% 1 &
+            versjon_1_5_eller_mer %in% "nei" &
+            eprom_opprettet %in% "ja" &
+            is.na(eprom_sendt) &
+            (kriterie_levende %in% "nei" |
+               kriterie_norsk %in% "nei" |
+               kriterie_alder %in% "nei") &
+            !incomplete_reason %in% 3 &
+            eprom_kjente_feil %in% "nei") ~
+           "nei, opprettet men ikke sendt etter sjekk kriterier",
+
+
+         # NY VERJSON: OPPRETTET, MEN IKKE SENDT SKYLES TEKNISKE PROBLEM
+         # RETT ETTER RELEASE
+         (has_followup %in% 1 &
+            versjon_1_5_eller_mer %in% "ja" &
+            eprom_opprettet %in% "ja" &
+            is.na(eprom_sendt) &
+            !eprom_kjente_feil %in% "nei") ~
+           "nei, opprettet men teknisk feil ved bestilling",
+
+         # GAMMEL VERSJON: OPPRETTET, TEKNISK PROBLEM VED UTSENDELSE I 2021/22,
+         # MED ELLER UTEN FEILAKTIG UTSENDING I 2023
+         (has_followup %in% 1 &
+            versjon_1_5_eller_mer %in% "nei" &
+            eprom_opprettet %in% "ja" &
+            !eprom_kjente_feil %in% "nei") ~
+           "nei, teknisk, mangler utsending eller feilaktig sendt i 2023",
+
+
+         # DISSE ER MED I DATAGRUNNLAGET!
+         (has_followup %in% 1 &
+            eprom_opprettet %in% "ja" &
+            kriterie_alle %in% "ja" &
+            eprom_kjente_feil %in% "nei") ~ "ja"),
+
+
+        levels = c("ja",
+                   "nei, registreringen er for ny",
+                   "nei, før innføring av 1års oppf.",
+                   "nei, opprettet satt til død",
+                   "nei, eprom feilaktig sendt, sjekk kriterier",
+                   "nei, ikke opprettet etter sjekk kriterier",
+                   "nei, eprom venter på utsendelse",
+                   "nei, opprettet men ikke sendt etter sjekk kriterier",
+                   "nei, opprettet men teknisk feil ved bestilling",
+                   "nei, teknisk, mangler utsending eller feilaktig sendt i 2023"),
+        ordered  = TRUE),
+
 
       eprom_status_txt = dplyr::case_when(
 
