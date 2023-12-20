@@ -207,12 +207,12 @@ getFollowupBasisData <- function(registryName,
 
 
       # Tidsvariabler for oppfolging
-      aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
-      maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
+      aar_followup_1aar = as.ordered(lubridate::year(.data$dato_followup)),
+      maaned_followup_1aar = as.ordered(sprintf(fmt = "%02d",
                                               lubridate::month(.data$dato_followup))),
-      maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
+      maaned_followup = ifelse(test = is.na(.data$aar_followup_1aar) | is.na(.data$maaned_followup_1aar),
                                yes = NA,
-                               no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)))
+                               no = paste0(.data$aar_followup_1aar, "-", .data$maaned_followup_1aar)))
 
 }
 
@@ -240,12 +240,12 @@ getFollowupOneYrData <- function(registryName,
 
 
       # Tidsvariabler for oppfolging
-      aar_followup = as.ordered(lubridate::year(.data$dato_followup)),
-      maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
+      aar_followup_1aar = as.ordered(lubridate::year(.data$dato_followup)),
+      maaned_followup_1aar = as.ordered(sprintf(fmt = "%02d",
                                               lubridate::month(.data$dato_followup))),
-      maaned_followup = ifelse(test = is.na(.data$aar_followup) | is.na(.data$maaned_nr_followup),
+      maaned_followup = ifelse(test = is.na(.data$aar_followup_1aar) | is.na(.data$maaned_followup_1aar),
                                yes = NA,
-                               no = paste0(.data$aar_followup, "-", .data$maaned_nr_followup)))
+                               no = paste0(.data$aar_followup_1aar, "-", .data$maaned_followup_1aar)))
 
 }
 
@@ -602,7 +602,7 @@ getBaseregProsFollowup1Data <- function(registryName,
                   "FOLLOWUP_TSCREATED" = "TSCREATED",
                   "MCEID_FOLLOWUP" = "MCEID",
                   "MCEID" = "PARENTMCEID") %>%
-    dplyr::mutate(eprom_opprettet = "ja") %>%
+    dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
     dplyr::select(-MCETYPE)
 
 
@@ -611,7 +611,7 @@ getBaseregProsFollowup1Data <- function(registryName,
                   "MCEID_FOLLOWUP" = "MCEID",
                   "PROMS_TSSENDT" = "TSSENDT",
                   "PROMS_EXPIRY_DATE" = "EXPIRY_DATE") %>%
-    dplyr::mutate(eprom_sendt = "ja")
+    dplyr::mutate(eprom_sendt_1aar = "ja")
 
   names(d_followup) <- tolower(names(d_followup))
   names(d_proms) <- tolower(names(d_proms))
@@ -671,7 +671,7 @@ getBaseregProsFollowup1Data <- function(registryName,
       no = "nei")) %>%
 
     # KRITERIE 3. Levende 50 uker etter prosedyren
-    dplyr::mutate(kriterie_levende = ifelse(
+    dplyr::mutate(kriterie_levende_1aar = ifelse(
       test = (deceased %in% 0 |
                 (deceased %in% 1 & deceased_date > dato_followup_teoretisk )),
       yes = "ja",
@@ -688,16 +688,16 @@ getBaseregProsFollowup1Data <- function(registryName,
                                          units = "days"))) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
-      kriterie_nyeste = ifelse(
+      kriterie_nyeste_1aar = ifelse(
         test= (is.na(dg_til_neste) | dg_til_neste > 351),
         yes = "ja",
         no = "nei"),
 
       # KRITERIE ALLE
-      kriterie_alle = ifelse(
-        test = (kriterie_nyeste %in% "ja" &
+      kriterie_alle_1aar = ifelse(
+        test = (kriterie_nyeste_1aar %in% "ja" &
                   kriterie_alder %in% "ja" &
-                  kriterie_levende %in% "ja" &
+                  kriterie_levende_1aar %in% "ja" &
                   kriterie_norsk %in% "ja"),
         yes = "ja",
         no = "nei"))
@@ -724,37 +724,38 @@ getBaseregProsFollowup1Data <- function(registryName,
         yes = NA,
         no = paste0(aar_prosedyre, "-", maaned_nr_prosedyre)),
 
+
       # Tidsvariabler for besvart followup
-      aar_followup = as.ordered(lubridate::year(dato_followup)),
-      maaned_nr_followup = as.ordered(sprintf(fmt = "%02d",
+      aar_followup_1aar = as.ordered(lubridate::year(dato_followup)),
+      maaned_nr_followup_1aar = as.ordered(sprintf(fmt = "%02d",
                                               lubridate::month(dato_followup))),
-      maaned_followup = ifelse(
-        test = is.na(aar_followup) | is.na(maaned_nr_followup),
+      maaned_followup_1aar = ifelse(
+        test = is.na(aar_followup_1aar) | is.na(maaned_nr_followup_1aar),
         yes = NA,
-        no = paste0(aar_followup, "-", maaned_nr_followup)),
+        no = paste0(aar_followup_1aar, "-", maaned_nr_followup_1aar)),
 
 
 
 
       # Tidsvariabler for opprettet followup
-      aar_followup_tscreated = as.ordered(lubridate::year(followup_tscreated)),
-      maaned_nr_followup_tscreated = as.ordered(sprintf(fmt = "%02d",
+      aar_followup_tscreated_1aar = as.ordered(lubridate::year(followup_tscreated)),
+      maaned_nr_followup_tscreated_1aar = as.ordered(sprintf(fmt = "%02d",
                                               lubridate::month(followup_tscreated))),
-      maaned_followup = ifelse(
-        test = is.na(aar_followup_tscreated) | is.na(maaned_nr_followup_tscreated),
+      maaned_followup_tscreated_1aar = ifelse(
+        test = is.na(aar_followup_tscreated_1aar) | is.na(maaned_nr_followup_tscreated_1aar),
         yes = NA,
-        no = paste0(aar_followup_tscreated, "-", maaned_nr_followup_tscreated)),
+        no = paste0(aar_followup_tscreated_1aar, "-", maaned_nr_followup_tscreated_1aar)),
 
 
 
       # Tidsvariabler for bestilt followup
-      aar_proms_tssendt = as.ordered(lubridate::year(proms_tssendt)),
-      maaned_nr_proms_tssendt = as.ordered(sprintf(fmt = "%02d",
+      aar_proms_tssendt_1aar = as.ordered(lubridate::year(proms_tssendt)),
+      maaned_nr_proms_tssendt_1aar = as.ordered(sprintf(fmt = "%02d",
                                                         lubridate::month(proms_tssendt))),
-      maaned_followup = ifelse(
-        test = is.na(aar_proms_tssendt) | is.na(maaned_nr_proms_tssendt),
+      maaned_proms_tssendt_1aar = ifelse(
+        test = is.na(aar_proms_tssendt_1aar) | is.na(maaned_nr_proms_tssendt_1aar),
         yes = NA,
-        no = paste0(aar_proms_tssendt, "-", maaned_nr_proms_tssendt)),
+        no = paste0(aar_proms_tssendt_1aar, "-", maaned_nr_proms_tssendt_1aar)),
 
 
 
@@ -764,10 +765,14 @@ getBaseregProsFollowup1Data <- function(registryName,
         units = "days"
       ))
       ) %>%
+    dplyr::select(-maaned_nr_prosedyre,
+                  -maaned_nr_followup_tscreated_1aar,
+                  -maaned_nr_proms_tssendt_1aar,
+                  -maaned_nr_followup_1aar) %>%
     dplyr::arrange(mceid) %>%
 
     dplyr::mutate(
-      eprom_kjente_feil = dplyr::case_when(
+      eprom_kjente_feil_1aar = dplyr::case_when(
 
         dato_pros == as.Date("2021-09-01", format = "%Y-%m-%d") ~
         "teknisk problem",
@@ -778,16 +783,16 @@ getBaseregProsFollowup1Data <- function(registryName,
 
         (dato_pros >= as.Date("2022-11-22", format = "%Y-%m-%d") &
            dato_pros <= as.Date("2022-11-25", format = "%Y-%m-%d") &
-           eprom_opprettet %in% "ja" &
-           kriterie_alle %in% "ja" &
-           is.na(eprom_sendt))~
+           eprom_opprettet_1aar %in% "ja" &
+           kriterie_alle_1aar %in% "ja" &
+           is.na(eprom_sendt_1aar))~
           "teknisk problem",
 
 
 
       TRUE ~ "nei"),
 
-      eprom_datagrunnlag = factor(
+      eprom_datagrunnlag_1aar = factor(
         x = dplyr::case_when(
 
           #  ALT FOR NYE REGISTRERINGER
@@ -799,37 +804,37 @@ getBaseregProsFollowup1Data <- function(registryName,
            "nei, før innføring av 1års oppf.",
 
          dato_pros  == as.Date("2020-01-01", format = "%Y-%m-%d") &
-           is.na(eprom_opprettet) ~
+           is.na(eprom_opprettet_1aar) ~
            "nei, før innføring av 1års oppf.",
 
          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
          (has_followup %in% 1 &
-            eprom_opprettet %in% "ja" &
+            eprom_opprettet_1aar %in% "ja" &
             incomplete_reason %in% 3) ~
            "nei, opprettet satt til død",
 
          # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
          (has_followup %in% 1 &
-            eprom_opprettet %in% "ja" &
-            kriterie_alle %in% "nei" &
-            eprom_sendt %in% "ja" &
-            eprom_kjente_feil %in% "nei") ~
+            eprom_opprettet_1aar %in% "ja" &
+            kriterie_alle_1aar %in% "nei" &
+            eprom_sendt_1aar %in% "ja" &
+            eprom_kjente_feil_1aar %in% "nei") ~
            "nei, eprom feilaktig sendt, sjekk kriterier",
 
 
          # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
          (has_followup %in% 1 &
             versjon_1_5_eller_mer %in% "ja" &
-            is.na(eprom_opprettet)) ~
+            is.na(eprom_opprettet_1aar)) ~
            "nei, ikke opprettet etter sjekk kriterier",
 
          # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
          # "BESTILT I DAG, SENDES I MORGEN"
          (has_followup %in% 1 &
-            eprom_opprettet %in% "ja" &
-            kriterie_alle %in% "ja" &
-            eprom_kjente_feil %in% "nei" &
-            is.na(eprom_sendt)) ~
+            eprom_opprettet_1aar %in% "ja" &
+            kriterie_alle_1aar %in% "ja" &
+            eprom_kjente_feil_1aar %in% "nei" &
+            is.na(eprom_sendt_1aar)) ~
            "nei, eprom venter på utsendelse",
 
 
@@ -837,13 +842,13 @@ getBaseregProsFollowup1Data <- function(registryName,
          # KONTROLL KRITERIER FØR UTSENDING
          (has_followup %in% 1 &
             versjon_1_5_eller_mer %in% "nei" &
-            eprom_opprettet %in% "ja" &
-            is.na(eprom_sendt) &
-            (kriterie_levende %in% "nei" |
+            eprom_opprettet_1aar %in% "ja" &
+            is.na(eprom_sendt_1aar) &
+            (kriterie_levende_1aar %in% "nei" |
                kriterie_norsk %in% "nei" |
                kriterie_alder %in% "nei") &
             !incomplete_reason %in% 3 &
-            eprom_kjente_feil %in% "nei") ~
+            eprom_kjente_feil_1aar %in% "nei") ~
            "nei, opprettet men ikke sendt etter sjekk kriterier",
 
 
@@ -851,25 +856,25 @@ getBaseregProsFollowup1Data <- function(registryName,
          # RETT ETTER RELEASE
          (has_followup %in% 1 &
             versjon_1_5_eller_mer %in% "ja" &
-            eprom_opprettet %in% "ja" &
-            is.na(eprom_sendt) &
-            !eprom_kjente_feil %in% "nei") ~
+            eprom_opprettet_1aar %in% "ja" &
+            is.na(eprom_sendt_1aar) &
+            !eprom_kjente_feil_1aar %in% "nei") ~
            "nei, opprettet men teknisk feil ved bestilling",
 
          # GAMMEL VERSJON: OPPRETTET, TEKNISK PROBLEM VED UTSENDELSE I 2021/22,
          # MED ELLER UTEN FEILAKTIG UTSENDING I 2023
          (has_followup %in% 1 &
             versjon_1_5_eller_mer %in% "nei" &
-            eprom_opprettet %in% "ja" &
-            !eprom_kjente_feil %in% "nei") ~
+            eprom_opprettet_1aar %in% "ja" &
+            !eprom_kjente_feil_1aar %in% "nei") ~
            "nei, teknisk, mangler utsending eller feilaktig sendt i 2023",
 
 
          # DISSE ER MED I DATAGRUNNLAGET!
          (has_followup %in% 1 &
-            eprom_opprettet %in% "ja" &
-            kriterie_alle %in% "ja" &
-            eprom_kjente_feil %in% "nei") ~ "ja"),
+            eprom_opprettet_1aar %in% "ja" &
+            kriterie_alle_1aar %in% "ja" &
+            eprom_kjente_feil_1aar %in% "nei") ~ "ja"),
 
 
         levels = c("ja",
@@ -887,29 +892,24 @@ getBaseregProsFollowup1Data <- function(registryName,
 
       eprom_status_txt = dplyr::case_when(
 
-        eprom_datagrunnlag %in% "ja" &
+        eprom_datagrunnlag_1aar %in% "ja" &
           proms_status %in% 1 ~ "avventer svar",
 
-        eprom_datagrunnlag %in% "ja" &
+        eprom_datagrunnlag_1aar %in% "ja" &
           proms_status %in% 2 ~ "utgaatt uten svar",
 
-         eprom_datagrunnlag %in% "ja" &
+         eprom_datagrunnlag_1aar %in% "ja" &
           proms_status %in% 3 ~ "svar mottatt",
 
-        eprom_datagrunnlag %in% "ja" &
+        eprom_datagrunnlag_1aar %in% "ja" &
           proms_status %in% 4 ~ "digitalt inaktiv",
 
-        eprom_datagrunnlag %in% "ja" &
-          is.na(eprom_sendt) ~ "sjekk utsending",
+        eprom_datagrunnlag_1aar %in% "ja" &
+          is.na(eprom_sendt_1aar) ~ "sjekk utsending",
 
         TRUE ~ NA_character_
 
       ))
-
-
-
-
-
 
 }
 

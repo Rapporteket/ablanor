@@ -1,6 +1,6 @@
 ## code to prepare `def_utledete_var` dataset goes here
 
-def_utledete_var <-read.csv2(file = "data-raw/def_utledete_var.txt",
+def_utledete_var <-read.csv2(file = "data-raw/def_utledete_var.csv",
                              sep = ";",
                              header = TRUE,
                              encoding = "UTF-8")
