@@ -55,3 +55,42 @@ indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grun
 indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";nei;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1)  av andre grunner (abla_strat_ingen_arsak = 1, 2, 3, 9)
 indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";manglende;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1) av manglende grunn (abla_strat_inge_arsak = NA)
 indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";NA;Ikke i datagrunnlaget
+eprom_opprettet_1aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 1års oppfølging. ;ja;skjema for oppfølging er opprettet
+eprom_sendt_1aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 1års oppfølging som også finnes i proms-tabellen ;ja;oppfølging har blitt bestilt
+versjon_1_5_eller_mer;utledet_variabel;Følger 1 års oppflging reglene for ablanor 1.5 eller nyere?;ja;ablanor 1.5 eller nyere
+versjon_1_5_eller_mer;utledet_variabel;Følger 1 års oppflging reglene for ablanor 1.5 eller nyere?;nei;før ablanor 1.5
+dato_followup_teoretisk;utledet_variabel;Dato for prosedyre + 50 uker;;
+kriterie_alder;utledet_variabel;Var alder på prosedyretidspunktet 16 eller mer?;ja;16 eller eldre
+kriterie_alder;utledet_variabel;Var alder på prosedyretidspunktet 16 eller mer?;nei;0-15. Skal ikke ha eprom
+kriterie_norsk;utledet_variabel;Norsk fødselsnummertype og norsk eller d nummer?;ja;ssn_type = 1 og ssnsubtype er 1 eller3
+kriterie_norsk;utledet_variabel;Norsk fødselsnummertype og norsk eller d nummer?;nei;ikke ssn_type = 1 eller  ssnsubtype ulik 1 og 3
+kriterie_levende_1aar;utledet_variabel;Levende 50 uker etter prosedyren?;ja;enten levende, eller død over 50 uker etter prosedyren
+kriterie_levende_1aar;utledet_variabel;Levende 50 uker etter prosedyren?;nei;Død innen 50 uker etter prosedyren (innen dato_followup_teoretisk)
+antall_pros;utledet_variabel;Antall prosedyrer av denne prosedyretypen per pasient;;
+dd_til_neste;utledet_variabel;Antall dager til neste prosedyre av samme type for denne pasienten;;
+kriterie_nyeste_1aar;utledet_variabel;Har ingen nyere prosedyre av samme type innen 50 uker?;ja;Nyeste prosedyre av denne typen
+kriterie_nyeste_1aar;utledet_variabel;Har ingen nyere prosedyre av samme type innen 50 uker?;nei;Ikke nyeste prosedyre av denne typen
+kriterie_alle_1aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1 år etter prosedyren;ja;kriterie_alder = ja, kriterie_levende_1aar = ja, kriterie_norsk = ja og kriterie_nyeste_1aar = ja
+kriterie_alle_1aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1 år etter prosedyren;nei;minst et av kriterie_alder, kriterie_levende_1aar , kriterie_norsk eller kriterie_nyeste_1aar er ulik ja
+eprom_kjente_feil_1aar;utledet_variabel;Har utsending av 1års prom tilhørende kjent teknisk problem?;teknisk problem;dato_pros er en av 01_24jan20, 1sept_21 eller 22_25nov_22 
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;ja;Er med i datagrunnlag for svarprosent og analyse av prom
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, registreringen er for ny;For tidlig for 1års oppfølging
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, før innføring av 1års oppf.;Prosedyredato før 01jan2020
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, opprettet satt til død;incomplete_Reason = 3
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, eprom feilaktig sendt, sjekk kriterier;mangler et av kriteriene, men eprom likevel opprettet og sendt
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, ikke opprettet etter sjekk kriterier;etter ablanor 1.5. Sjekk av kriterier for opprettelse av epromskjema
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, eprom venter på utsendelse;Opprettet men ikke ennå sendt. Sendes 1 til 30 dager etter opprettelse av epromskjema
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, opprettet men ikke sendt etter sjekk kriterier;før ablanor 1.5. Opprettet men ikke sendt pga manglende kriterier.
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, opprettet men teknisk feil ved bestilling;Etter ablanor 1.5. Teknisk feil med utsending rett etter release. 
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, teknisk, mangler utsending eller feilaktig sendt i 2023;Før ablanor 1.5. Tekniske feil med utsending. OBS kan ha blitt feilaktig sendt i nov 2023
+eprom_besvart;utledet_variabel;I datagrunnlaget for 1 års oppfølging og svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_1aar er lik ja, og proms_status  er lik 3 svar mottatt. 
+eprom_besvart;utledet_variabel;I datagrunnlaget for 1 års oppfølging og svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_1aar er lik ja, men proms_status  er ulik 3 (svar ikke mottatt). 
+aar_prosedyre;;Aar for prosedyredato;;
+maaned_prosedyre;;Maaned for prosedyredato;;
+aar_followup_1aar;;aar for besvart followup 1 år;;
+maaned_followup_1aar;;maaned for besvart followup 1 år;;
+aar_followup_tscreated_1aar;;aar for opprettet proms skjema 1 år;;
+maaned_followup_tscreated_1aar;;maaned for opprettet proms skjema 1 år;;
+aar_proms_tssendt_1aar;;aar for sendt proms bestilling;;
+maaned_proms_tssendt_1aar;;maaned for sendt proms bestilling;;
+dg_pros_opprettet;;Antall dager mellom prosedyren og 1års oppfølging er opprettet;;
