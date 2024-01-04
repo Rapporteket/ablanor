@@ -20,6 +20,7 @@
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
+\alias{getBaseregProsFollowup0}
 \title{Ablanor SQL}
 \usage{
 getBasereg(
@@ -163,6 +164,16 @@ getBaseregPros(
 )
 
 getBaseregProsFollowup1(
+  registryName,
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsFollowup0(
   registryName,
   singleRow,
   reshId = NULL,

@@ -30,6 +30,8 @@
 #' getPromsData
 #' getBaseregProsData
 #' getBaseregProsHendelseData
+#' getBaseregProsFollowup1Data
+#' getBaseregProsFollowup0Data
 NULL
 
 #' @rdname getPrepDataAblanor
@@ -919,6 +921,277 @@ getBaseregProsFollowup1Data <- function(registryName,
       # Return all
       d_ablanor
     }
+}
+
+
+
+
+#' @rdname getPrepDataAblanor
+#' @export
+getBaseregProsFollowup0Data <- function(registryName,
+                                        singleRow = FALSE,
+                                        reshId = NULL,
+                                        userRole,
+                                        fromDate = NULL,
+                                        toDate = NULL, ...){
+
+  . <- ""
+
+  # NB: i SQL må singleRow være FALSE, Ellers fungerer ikke kobling
+  # av tabeller og utledete variabler.
+  d <- ablanor::getBaseregProsFollowup0(registryName = registryName,
+                                        singleRow = FALSE,
+                                        reshId = reshId,
+                                        userRole = userRole,
+                                        fromDate = fromDate,
+                                        toDate = toDate)
+  d_baseregPat <- d$d_baseregPat
+  d_followup <- d$d_followup
+  d_proms <- d$d_proms
+
+
+
+  d_followup %<>%
+    dplyr::rename("FOLLOWUP_STATUS" = "STATUS",
+                  "FOLLOWUP_TSCREATED" = "TSCREATED",
+                  "MCEID_FOLLOWUP" = "MCEID",
+                  "MCEID" = "PARENTMCEID") %>%
+    dplyr::mutate(eprom_opprettet_basis = "ja") %>%
+    dplyr::select(-MCETYPE)
+
+
+  d_proms %<>%
+    dplyr::rename("PROMS_STATUS" = "STATUS",
+                  "MCEID_FOLLOWUP" = "MCEID",
+                  "PROMS_TSSENDT" = "TSSENDT",
+                  "PROMS_EXPIRY_DATE" = "EXPIRY_DATE") %>%
+    dplyr::mutate(eprom_sendt_basis = "ja")
+
+  names(d_followup) <- tolower(names(d_followup))
+  names(d_proms) <- tolower(names(d_proms))
+  names(d_baseregPat) <- tolower(names(d_baseregPat))
+
+
+
+  # Sjekk at bare en oppfølging per forløp
+  # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
+  followup_data <- d_followup %>%
+    dplyr::filter(!is.na(followup_status)) %>%
+    dplyr::left_join(.,
+                     d_proms,
+                     by = "mceid_followup")
+
+
+  # Legg til follow-up i pasient - prosedyre - data
+  d_ablanor <- d_baseregPat %>%
+    dplyr::left_join(.,
+                     followup_data,
+                     by = c("mceid", "centreid", "patient_id"))
+
+  # Nyeste prosedyredato som har eprom:
+  nyeste_eprom_bestilling <- lubridate::date(max(
+    d_ablanor %>%
+      dplyr::filter(!is.na(followup_status)) %>%
+      dplyr::pull(dato_pros)))
+
+
+
+
+
+  d_ablanor %<>%
+    dplyr::mutate(
+
+      # I Versjon 1.5 ble eprom ved basis opprettet!
+      # Før dette ble skjema plottet manuelt
+      versjon_1_5_eller_mer = ifelse(
+        test = (dato_pros >= as.Date("2023-11-08", format = "%Y-%m-%d")),
+        yes = "ja",
+        no = "nei")) %>%
+
+    # KRITERIER FOR UTSENDING
+    # KRITERIE 1. Alder. Under 16 på prosedyretidspunktet.
+    ablanor::utlede_alder() %>%
+    dplyr::mutate(kriterie_alder = ifelse(test = alder >= 16,
+                                          yes = "ja",
+                                          no = "nei")) %>%
+
+    # KRITERIE 2. Norsk fødselsnummer
+    dplyr::mutate(kriterie_norsk = ifelse(
+      test = (ssn_type %in% 1 & ssnsubtype %in% c(1, 3)),
+      yes = "ja",
+      no = "nei")) %>%
+
+    # KRITERIE 3. Levende dagen etter prosedyren
+    dplyr::mutate(kriterie_levende = ifelse(
+      test = (deceased %in% 0 |
+                (deceased %in% 1 & deceased_date > dato_pros )),
+      yes = "ja",
+      no = "nei"))
+
+
+  # ALLE KRITERIER VED BASIS
+    d_ablanor %<>%
+      dplyr::mutate(
+      kriterie_alle_basis = ifelse(
+        test = (kriterie_alder %in% "ja" &
+                  kriterie_levende %in% "ja" &
+                  kriterie_norsk %in% "ja"),
+        yes = "ja",
+        no = "nei"))
+
+
+
+  d_ablanor %<>%
+    dplyr::mutate(
+
+      # Tidsvariabler for prosedyre
+      aar_prosedyre = as.ordered(lubridate::year(dato_pros)),
+      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
+                                               lubridate::month(dato_pros))),
+      maaned_prosedyre = ifelse(
+        test = (is.na(aar_prosedyre) | is.na(maaned_nr_prosedyre)),
+        yes = NA,
+        no = paste0(aar_prosedyre, "-", maaned_nr_prosedyre)),
+
+
+      # Tidsvariabler for besvart followup
+      aar_followup_basis = as.ordered(lubridate::year(dato_followup)),
+      maaned_nr_followup_basis = as.ordered(sprintf(fmt = "%02d",
+                                                   lubridate::month(dato_followup))),
+      maaned_followup_basis = ifelse(
+        test = is.na(aar_followup_basis) | is.na(maaned_nr_followup_basis),
+        yes = NA,
+        no = paste0(aar_followup_basis, "-", maaned_nr_followup_basis)),
+
+
+
+
+      # Tidsvariabler for opprettet followup
+      aar_followup_tscreated_basis = as.ordered(lubridate::year(followup_tscreated)),
+      maaned_nr_followup_tscreated_basis = as.ordered(sprintf(fmt = "%02d",
+                                                             lubridate::month(followup_tscreated))),
+      maaned_followup_tscreated_basis = ifelse(
+        test = is.na(aar_followup_tscreated_basis) | is.na(maaned_nr_followup_tscreated_basis),
+        yes = NA,
+        no = paste0(aar_followup_tscreated_basis, "-", maaned_nr_followup_tscreated_basis)),
+
+
+
+      # Tidsvariabler for bestilt followup
+      aar_proms_tssendt_basis = as.ordered(lubridate::year(proms_tssendt)),
+      maaned_nr_proms_tssendt_basis = as.ordered(sprintf(fmt = "%02d",
+                                                        lubridate::month(proms_tssendt))),
+      maaned_proms_tssendt_basis = ifelse(
+        test = is.na(aar_proms_tssendt_basis) | is.na(maaned_nr_proms_tssendt_basis),
+        yes = NA,
+        no = paste0(aar_proms_tssendt_basis, "-", maaned_nr_proms_tssendt_basis)),
+
+
+
+      dg_pros_opprettet = as.numeric(difftime(
+        followup_tscreated,
+        dato_pros,
+        units = "days"
+      ))
+    ) %>%
+    dplyr::select(-maaned_nr_prosedyre,
+                  -maaned_nr_followup_tscreated_basis,
+                  -maaned_nr_proms_tssendt_basis,
+                  -maaned_nr_followup_basis) %>%
+    dplyr::arrange(mceid) %>%
+
+
+
+      dplyr::mutate(
+        eprom_datagrunnlag_basis = factor(
+        x = dplyr::case_when(
+
+
+          # ALT FOR GAMLE REGISTRERINGER
+          dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
+            "før innføring av eproms basis",
+
+
+          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
+          (has_basisfollowup %in% 1 &
+             eprom_opprettet_basis %in% "ja" &
+             incomplete_reason %in% 3) ~
+            "nei, opprettet satt til død",
+
+          # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
+          (has_basisfollowup %in% 1 &
+             eprom_opprettet_basis %in% "ja" &
+             kriterie_alle_basis %in% "nei" &
+             eprom_sendt_basis %in% "ja") ~
+            "nei, eprom feilaktig sendt, sjekk kriterier",
+
+
+          # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
+          (has_basisfollowup %in% 1 &
+             versjon_1_5_eller_mer %in% "ja" &
+             is.na(eprom_opprettet_basis)) ~
+            "nei, ikke opprettet etter kriteriesjekk",
+
+          # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
+          # "BESTILT I DAG, SENDES I MORGEN"
+          (has_basisfollowup %in% 1 &
+             eprom_opprettet_basis %in% "ja" &
+             kriterie_alle_basis %in% "ja" &
+             is.na(eprom_sendt_basis)) ~
+            "nei, eprom venter på utsendelse",
+
+
+          # DISSE ER MED I DATAGRUNNLAGET!
+          (has_basisfollowup %in% 1 &
+             eprom_opprettet_basis %in% "ja" &
+             eprom_sendt_basis %in% "ja" &
+             kriterie_alle_basis %in% "ja" ) ~ "ja"),
+
+
+        levels = c("ja",
+                   "før innføring av eproms basis",
+                   "nei, opprettet satt til død",
+                   "nei, eprom feilaktig sendt, sjekk kriterier",
+                   "nei, ikke opprettet etter kriteriesjekk",
+                   "nei, eprom venter på utsendelse"),
+        ordered  = TRUE),
+
+
+      eprom_status_txt = dplyr::case_when(
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          proms_status %in% 1 ~ "avventer svar",
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          proms_status %in% 2 ~ "utgaatt uten svar",
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          proms_status %in% 3 ~ "svar mottatt",
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          proms_status %in% 4 ~ "digitalt inaktiv",
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          is.na(eprom_sendt_basis) ~ "sjekk utsending",
+
+        TRUE ~ NA_character_),
+
+      eprom_besvart =  dplyr::case_when(
+        eprom_datagrunnlag_basis %in% "ja" &
+          proms_status %in% 3 ~ "datagrunnlag og besvart",
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
+    )
+
+
+  if(singleRow == TRUE) {
+    # Return first row only
+    d_ablanor %>% dplyr::filter(dplyr::row_number() == 1)
+  } else {
+    # Return all
+    d_ablanor
+  }
 }
 
 

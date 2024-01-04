@@ -40,6 +40,7 @@ getPivotDataSet <- function(setId = "",
                   "proms",
                   "basereg_pros_indik",
                   "basereg_pros_hendelse",
+                  "pros_pat_followup0",
                   "pros_pat_followup1")
   #
   # "pros_patient_followup",
@@ -173,6 +174,17 @@ getPivotDataSet <- function(setId = "",
                                                   fromDate = fromDate,
                                                   toDate = toDate)
     }
+
+    if (setId == "pros_pat_followup0") {
+      dat <- ablanor::getBaseregProsFollowup0Data(registryName = registryName,
+                                                  singleRow = singleRow,
+                                                  session = session,
+                                                  reshId = reshId,
+                                                  userRole = userRole,
+                                                  fromDate = fromDate,
+                                                  toDate = toDate)
+    }
+
 
 
     if(singleRow == FALSE){
