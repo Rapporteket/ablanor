@@ -585,8 +585,10 @@ getBaseregProsFollowup1Data <- function(registryName,
 
   . <- ""
 
+  # NB: i SQL må singleRow være FALSE, Ellers fungerer ikke kobling
+  # av tabeller og utledete variabler.
   d <- ablanor::getBaseregProsFollowup1(registryName = registryName,
-                                        singleRow = singleRow,
+                                        singleRow = FALSE,
                                         reshId = reshId,
                                         userRole = userRole,
                                         fromDate = fromDate,
@@ -704,15 +706,7 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
 
-
-
-
-
-
-
-
-
-  d_ablanor %>%
+    d_ablanor %<>%
     dplyr::mutate(
 
       # Tidsvariabler for prosedyre
@@ -907,10 +901,24 @@ getBaseregProsFollowup1Data <- function(registryName,
         eprom_datagrunnlag_1aar %in% "ja" &
           is.na(eprom_sendt_1aar) ~ "sjekk utsending",
 
-        TRUE ~ NA_character_
+        TRUE ~ NA_character_),
 
-      ))
+      eprom_besvart =  dplyr::case_when(
+        eprom_datagrunnlag_1aar %in% "ja" &
+          proms_status %in% 3 ~ "datagrunnlag og besvart",
 
+        eprom_datagrunnlag_1aar %in% "ja" &
+          !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
+      )
+
+
+    if(singleRow == TRUE) {
+      # Return first row only
+      d_ablanor %>% dplyr::filter(dplyr::row_number() == 1)
+    } else {
+      # Return all
+      d_ablanor
+    }
 }
 
 
