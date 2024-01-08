@@ -949,6 +949,7 @@ getBaseregProsFollowup0Data <- function(registryName,
   d_followup <- d$d_followup
   d_proms <- d$d_proms
   d_gkv <- d$d_gkv
+  d_rand12_raw <- d$d_rand12
 
 
 
@@ -970,14 +971,50 @@ getBaseregProsFollowup0Data <- function(registryName,
 
   d_gkv %<>%
     dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
-    dplyr::mutate(has_gkv = "ja") %>%
-    dplyr::relocate(has_gkv, .before = GKV_1)
+    dplyr::mutate(besvart_gkv = "ja") %>%
+    dplyr::relocate(besvart_gkv, .before = GKV_1)
+
+
+
+  # RAND12 skjema fra før eprom ved basis, ble samlet inn og plottet manuelt,
+  # på utskrivelses-skjema (mceid til prosedyren)
+   d_rand12_manual <- d_rand12_raw %>%
+    dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 1:4) %>%
+    dplyr::mutate(besvart_rand12 = "manual") %>%
+    dplyr::relocate(besvart_rand12, .before = RAND_1)
+
+   # RAND12 skjema etter før eprom ved basis,
+   # henger på elekronisk oppfølging (mceid til followup)
+   d_rand12_eprom <- d_rand12_raw %>%
+     dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 7) %>%
+     dplyr::mutate(besvart_rand12 = "eprom") %>%
+     dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
+     dplyr::relocate(besvart_rand12, .before = RAND_1) %>%
+     dplyr::left_join(.,
+                      d_followup %>% dplyr::select(MCEID_FOLLOWUP, MCEID),
+                      by = "MCEID_FOLLOWUP") %>%
+     dplyr::relocate(MCEID, .before = FOLLOWUP_PARENT_TYPE)
+
+  # Slå sammen rand12 fra manuell plotting og fra eprom ved basis
+  # Merk, to pasienter fra 8/11-2023 (innføring eprom basis) har begge deler,
+  # vi bruker da eprom
+  dobbel_rand12 <- dplyr::inner_join(
+    d_rand12_eprom %>% dplyr::select(MCEID),
+    d_rand12_manual %>% dplyr::select(MCEID),
+    by = "MCEID") %>%
+    dplyr::pull()
+
+
+  d_rand12 <- dplyr::bind_rows(
+    d_rand12_manual %>% dplyr::filter(!MCEID %in% dobbel_rand12),
+    d_rand12_eprom %>% dplyr::select(-MCEID_FOLLOWUP))
 
 
   names(d_followup) <- tolower(names(d_followup))
   names(d_proms) <- tolower(names(d_proms))
   names(d_baseregPat) <- tolower(names(d_baseregPat))
   names(d_gkv) <- tolower(names(d_gkv))
+  names(d_rand12) <- tolower(names(d_rand12))
 
 
 
@@ -1197,6 +1234,11 @@ getBaseregProsFollowup0Data <- function(registryName,
   d_ablanor %<>% dplyr::left_join(.,
                                   d_gkv,
                                   by = "mceid_followup")
+
+  # LEGG TIL RAND12 KOLONNER
+  d_ablanor %<>% dplyr::left_join(.,
+                                  d_rand12,
+                                  by = "mceid")
 
 
   if(singleRow == TRUE) {

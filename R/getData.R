@@ -1119,12 +1119,37 @@ getBaseregProsFollowup0 <- function(registryName,
                WHERE COMPLETE = 1 AND FORM_COMPLETED_VIA_PROMS = 1"
 
 
+  query_rand12 <- "SELECT MCEID,
+                          FOLLOWUP_PARENT_TYPE,
+                          DATO_RAND12,
+                          RAND_1,
+                          RAND_2A,
+                          RAND_2B,
+                          RAND_3A,
+                          RAND_3B,
+                          RAND_4A,
+                          RAND_4B,
+                          RAND_5,
+                          RAND_6A,
+                          RAND_6B,
+                          RAND_6C,
+                          RAND_7
+                   FROM rand12
+                   WHERE COMPLETE = 1
+                   AND (FOLLOWUP_PARENT_TYPE = 1
+                     OR FOLLOWUP_PARENT_TYPE = 2
+                     OR FOLLOWUP_PARENT_TYPE = 3
+                     OR FOLLOWUP_PARENT_TYPE = 4
+                     OR FOLLOWUP_PARENT_TYPE = 7)"
+
+
   if (singleRow) {
     msg <- "Query single row data for basis followup"
     query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
     query_basePros <- paste0(query_basePros, "\nLIMIT\n  1;")
     query_proms <- paste0(query_proms, "\nLIMIT\n  1;")
     query_gkv <- paste0(query_gkv, "\nLIMIT\n  1;")
+    query_rand12 <- paste0(query_rand12, "\nLIMIT\n  1;")
 
   } else {
     msg <- "Query data for basis followup"
@@ -1132,6 +1157,7 @@ getBaseregProsFollowup0 <- function(registryName,
     query_basePros <- paste0(query_basePros, ";")
     query_proms <- paste0(query_proms, ";")
     query_gkv <- paste0(query_gkv, ";")
+    query_rand12 <- paste0(query_rand12, ";")
   }
 
   if ("session" %in% names(list(...))) {
@@ -1141,20 +1167,22 @@ getBaseregProsFollowup0 <- function(registryName,
     d_followup <- rapbase::loadRegData(registryName , query_followup)
     d_proms <- rapbase::loadRegData(registryName , query_proms)
     d_gkv <- rapbase::loadRegData(registryName , query_gkv)
+    d_rand12 <- rapbase::loadRegData(registryName , query_rand12)
     # nocov end
   } else {
     d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
     d_followup <- rapbase::loadRegData(registryName , query_followup)
     d_proms <- rapbase::loadRegData(registryName , query_proms)
     d_gkv <- rapbase::loadRegData(registryName , query_gkv)
-
+    d_rand12 <- rapbase::loadRegData(registryName , query_rand12)
   }
 
 
   list(d_baseregPat = d_baseregPat,
        d_followup = d_followup,
        d_proms = d_proms,
-       d_gkv = d_gkv)
+       d_gkv = d_gkv,
+       d_rand12 = d_rand12)
 
 }
 
