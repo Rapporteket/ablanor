@@ -17,10 +17,10 @@
 \alias{getMcepatientdata}
 \alias{getBaseregPros}
 \alias{getBaseregProsFollowup1}
+\alias{getBaseregProsFollowup0}
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
-\alias{getBaseregProsFollowup0}
 \title{Ablanor SQL}
 \usage{
 getBasereg(

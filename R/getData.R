@@ -48,6 +48,7 @@
 #' getMcepatientdata
 #' getBaseregPros
 #' getBaseregProsFollowup1
+#' getBaseregProsFollowup0
 #' getLatestEntry
 #' getNameReshId
 #' getHospitalName
@@ -1100,8 +1101,22 @@ getBaseregProsFollowup0 <- function(registryName,
                   FROM proms
                   WHERE REGISTRATION_TYPE = 'Basisfollowup' "
 
-
-
+  query_gkv <- "SELECT MCEID,
+                       DATO_GKV,
+                       GKV_1,
+                       GKV_2,
+                       GKV_3,
+                       GKV_4,
+                       GKV_5,
+                       GKV_6,
+                       GKV_7,
+                       GKV_8,
+                       GKV_9,
+                       GKV_10,
+                       GKV_11,
+                       GKV_12
+               FROM gkv
+               WHERE COMPLETE = 1 AND FORM_COMPLETED_VIA_PROMS = 1"
 
 
   if (singleRow) {
@@ -1109,11 +1124,14 @@ getBaseregProsFollowup0 <- function(registryName,
     query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
     query_basePros <- paste0(query_basePros, "\nLIMIT\n  1;")
     query_proms <- paste0(query_proms, "\nLIMIT\n  1;")
+    query_gkv <- paste0(query_gkv, "\nLIMIT\n  1;")
+
   } else {
     msg <- "Query data for basis followup"
     query_followup <- paste0(query_followup, ";")
     query_basePros <- paste0(query_basePros, ";")
     query_proms <- paste0(query_proms, ";")
+    query_gkv <- paste0(query_gkv, ";")
   }
 
   if ("session" %in% names(list(...))) {
@@ -1122,17 +1140,21 @@ getBaseregProsFollowup0 <- function(registryName,
     d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
     d_followup <- rapbase::loadRegData(registryName , query_followup)
     d_proms <- rapbase::loadRegData(registryName , query_proms)
+    d_gkv <- rapbase::loadRegData(registryName , query_gkv)
     # nocov end
   } else {
     d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
     d_followup <- rapbase::loadRegData(registryName , query_followup)
     d_proms <- rapbase::loadRegData(registryName , query_proms)
+    d_gkv <- rapbase::loadRegData(registryName , query_gkv)
+
   }
 
 
   list(d_baseregPat = d_baseregPat,
        d_followup = d_followup,
-       d_proms = d_proms)
+       d_proms = d_proms,
+       d_gkv = d_gkv)
 
 }
 

@@ -948,6 +948,7 @@ getBaseregProsFollowup0Data <- function(registryName,
   d_baseregPat <- d$d_baseregPat
   d_followup <- d$d_followup
   d_proms <- d$d_proms
+  d_gkv <- d$d_gkv
 
 
 
@@ -967,9 +968,16 @@ getBaseregProsFollowup0Data <- function(registryName,
                   "PROMS_EXPIRY_DATE" = "EXPIRY_DATE") %>%
     dplyr::mutate(eprom_sendt_basis = "ja")
 
+  d_gkv %<>%
+    dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
+    dplyr::mutate(has_gkv = "ja") %>%
+    dplyr::relocate(has_gkv, .before = GKV_1)
+
+
   names(d_followup) <- tolower(names(d_followup))
   names(d_proms) <- tolower(names(d_proms))
   names(d_baseregPat) <- tolower(names(d_baseregPat))
+  names(d_gkv) <- tolower(names(d_gkv))
 
 
 
@@ -1183,6 +1191,12 @@ getBaseregProsFollowup0Data <- function(registryName,
         eprom_datagrunnlag_basis %in% "ja" &
           !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
     )
+
+
+  # LEGG TIL GKV KOLONNER
+  d_ablanor %<>% dplyr::left_join(.,
+                                  d_gkv,
+                                  by = "mceid_followup")
 
 
   if(singleRow == TRUE) {
