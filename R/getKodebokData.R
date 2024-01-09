@@ -22,26 +22,65 @@ getKodebokData <- function() {
         # FRA GKV:
         .data$fysisk_feltnavn %in% c("complete",
                                      "incomplete_reason",
-                                     "status",
-                                     "usercomment") &
+                                     "status") &
           .data$skjemanavn == "GKV spørreskjema somatikk, voksne, døgn" ~
           paste0("gkv_", .data$fysisk_feltnavn),
 
         # FRA RAND12
         .data$fysisk_feltnavn %in% c("complete",
                                      "incomplete_reason",
-                                     "status",
-                                     "usercomment") &
+                                     "status") &
           .data$skjemanavn == "Livskvalitetsskjema" ~
           paste0("rand_", .data$fysisk_feltnavn),
 
         # FRA OPPFØLGING
         .data$fysisk_feltnavn %in% c("complete",
+                                     "dato_followup",
                                      "incomplete_reason",
-                                     "status",
-                                     "usercomment") &
+                                     "q1",
+                                     "q2",
+                                     "q3",
+                                     "q4",
+                                     "q5",
+                                     "q6",
+                                     "q7",
+                                     "status") &
           .data$skjemanavn == "Oppfølging etter 1 år" ~
-          paste0("followup_", .data$fysisk_feltnavn),
+          paste0("followup1_", .data$fysisk_feltnavn),
+
+
+        # FRA OPPFØLGING
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "dato_followup",
+                                     "incomplete_reason",
+                                     "q1",
+                                     "q2",
+                                     "q3",
+                                     "q4",
+                                     "q5",
+                                     "q6",
+                                     "q7",
+                                     "status") &
+          .data$skjemanavn == "Oppfølging etter 5 år" ~
+          paste0("followup5_", .data$fysisk_feltnavn),
+
+
+        # FRA OPPFØLGING
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "dato_followup",
+                                     "incomplete_reason",
+                                     "q1",
+                                     "q2",
+                                     "q3",
+                                     "q4",
+                                     "q5",
+                                     "q6",
+                                     "q7",
+                                     "status") &
+          .data$skjemanavn == "Oppfølging etter behandling" ~
+          paste0("followupbasis_", .data$fysisk_feltnavn),
+
+
 
         # FRA PROSEDYRE
         .data$fysisk_feltnavn %in% c("status",

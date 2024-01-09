@@ -602,10 +602,11 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
   d_followup %<>%
-    dplyr::rename("FOLLOWUP_STATUS" = "STATUS",
-                  "FOLLOWUP_TSCREATED" = "TSCREATED",
-                  "MCEID_FOLLOWUP" = "MCEID",
+    dplyr::rename("MCEID_FOLLOWUP" = "MCEID",
                   "MCEID" = "PARENTMCEID") %>%
+    dplyr::rename_with(.data = .,
+                       ~ paste0("FOLLOWUP1_", .x),
+                       .cols =c("TSCREATED":"STATUS")) %>%
     dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
     dplyr::select(-MCETYPE)
 
@@ -626,7 +627,7 @@ getBaseregProsFollowup1Data <- function(registryName,
   # Sjekk at bare en oppfølging per forløp
   # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
   followup_data <- d_followup %>%
-    dplyr::filter(!is.na(followup_status)) %>%
+    dplyr::filter(!is.na(followup1_status)) %>%
     dplyr::left_join(.,
                      d_proms,
                      by = "mceid_followup")
@@ -641,7 +642,7 @@ getBaseregProsFollowup1Data <- function(registryName,
   # Nyeste prosedyredato som har eprom:
   nyeste_eprom_bestilling <- lubridate::date(max(
     d_ablanor %>%
-      dplyr::filter(!is.na(followup_status)) %>%
+      dplyr::filter(!is.na(followup1_status)) %>%
       dplyr::pull(dato_pros)))
 
 
@@ -722,9 +723,9 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
       # Tidsvariabler for besvart followup
-      aar_followup_1aar = as.ordered(lubridate::year(dato_followup)),
-      maaned_nr_followup_1aar = as.ordered(sprintf(fmt = "%02d",
-                                              lubridate::month(dato_followup))),
+      aar_followup_1aar = as.ordered(lubridate::year(followup1_dato_followup)),
+      maaned_nr_followup_1aar = as.ordered(
+        sprintf(fmt = "%02d", lubridate::month(followup1_dato_followup))),
       maaned_followup_1aar = ifelse(
         test = is.na(aar_followup_1aar) | is.na(maaned_nr_followup_1aar),
         yes = NA,
@@ -734,9 +735,9 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
       # Tidsvariabler for opprettet followup
-      aar_followup_tscreated_1aar = as.ordered(lubridate::year(followup_tscreated)),
+      aar_followup_tscreated_1aar = as.ordered(lubridate::year(followup1_tscreated)),
       maaned_nr_followup_tscreated_1aar = as.ordered(sprintf(fmt = "%02d",
-                                              lubridate::month(followup_tscreated))),
+                                              lubridate::month(followup1_tscreated))),
       maaned_followup_tscreated_1aar = ifelse(
         test = is.na(aar_followup_tscreated_1aar) | is.na(maaned_nr_followup_tscreated_1aar),
         yes = NA,
@@ -756,7 +757,7 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
       dg_pros_opprettet = as.numeric(difftime(
-        followup_tscreated,
+        followup1_tscreated,
         dato_pros,
         units = "days"
       ))
@@ -806,7 +807,7 @@ getBaseregProsFollowup1Data <- function(registryName,
          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
          (has_followup %in% 1 &
             eprom_opprettet_1aar %in% "ja" &
-            incomplete_reason %in% 3) ~
+            followup1_incomplete_reason %in% 3) ~
            "nei, opprettet satt til død",
 
          # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
@@ -843,7 +844,7 @@ getBaseregProsFollowup1Data <- function(registryName,
             (kriterie_levende_1aar %in% "nei" |
                kriterie_norsk %in% "nei" |
                kriterie_alder %in% "nei") &
-            !incomplete_reason %in% 3 &
+            !followup1_incomplete_reason %in% 3 &
             eprom_kjente_feil_1aar %in% "nei") ~
            "nei, opprettet men ikke sendt etter sjekk kriterier",
 
@@ -954,10 +955,11 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
   d_followup %<>%
-    dplyr::rename("FOLLOWUP_STATUS" = "STATUS",
-                  "FOLLOWUP_TSCREATED" = "TSCREATED",
-                  "MCEID_FOLLOWUP" = "MCEID",
+    dplyr::rename("MCEID_FOLLOWUP" = "MCEID",
                   "MCEID" = "PARENTMCEID") %>%
+    dplyr::rename_with(.data = .,
+                       ~ paste0("FOLLOWUPBASIS_", .x),
+                       .cols =c("TSCREATED":"STATUS")) %>%
     dplyr::mutate(eprom_opprettet_basis = "ja") %>%
     dplyr::select(-MCETYPE)
 
@@ -1021,7 +1023,7 @@ getBaseregProsFollowup0Data <- function(registryName,
   # Sjekk at bare en oppfølging per forløp
   # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
   followup_data <- d_followup %>%
-    dplyr::filter(!is.na(followup_status)) %>%
+    dplyr::filter(!is.na(followupbasis_status)) %>%
     dplyr::left_join(.,
                      d_proms,
                      by = "mceid_followup")
@@ -1036,7 +1038,7 @@ getBaseregProsFollowup0Data <- function(registryName,
   # Nyeste prosedyredato som har eprom:
   nyeste_eprom_bestilling <- lubridate::date(max(
     d_ablanor %>%
-      dplyr::filter(!is.na(followup_status)) %>%
+      dplyr::filter(!is.na(followupbasis_status)) %>%
       dplyr::pull(dato_pros)))
 
 
@@ -1100,9 +1102,9 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
       # Tidsvariabler for besvart followup
-      aar_followup_basis = as.ordered(lubridate::year(dato_followup)),
+      aar_followup_basis = as.ordered(lubridate::year(followupbasis_dato_followup)),
       maaned_nr_followup_basis = as.ordered(sprintf(fmt = "%02d",
-                                                   lubridate::month(dato_followup))),
+                                                   lubridate::month(followupbasis_dato_followup))),
       maaned_followup_basis = ifelse(
         test = is.na(aar_followup_basis) | is.na(maaned_nr_followup_basis),
         yes = NA,
@@ -1112,9 +1114,9 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
       # Tidsvariabler for opprettet followup
-      aar_followup_tscreated_basis = as.ordered(lubridate::year(followup_tscreated)),
+      aar_followup_tscreated_basis = as.ordered(lubridate::year(followupbasis_tscreated)),
       maaned_nr_followup_tscreated_basis = as.ordered(sprintf(fmt = "%02d",
-                                                             lubridate::month(followup_tscreated))),
+                                                             lubridate::month(followupbasis_tscreated))),
       maaned_followup_tscreated_basis = ifelse(
         test = is.na(aar_followup_tscreated_basis) | is.na(maaned_nr_followup_tscreated_basis),
         yes = NA,
@@ -1134,7 +1136,7 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
       dg_pros_opprettet = as.numeric(difftime(
-        followup_tscreated,
+        followupbasis_tscreated,
         dato_pros,
         units = "days"
       ))
@@ -1160,7 +1162,7 @@ getBaseregProsFollowup0Data <- function(registryName,
           # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
           (has_basisfollowup %in% 1 &
              eprom_opprettet_basis %in% "ja" &
-             incomplete_reason %in% 3) ~
+             followupbasis_incomplete_reason %in% 3) ~
             "nei, opprettet satt til død",
 
           # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
