@@ -82,6 +82,33 @@ getKodebokData <- function() {
 
 
 
+        # FRA HENDELSE
+        .data$fysisk_feltnavn %in% c("komp_janei",
+                                     "komp_av_fistel",
+                                     "komp_pseudoan",
+                                     "komp_blodning",
+                                     "komp_infek",
+                                     "komp_tamp",
+                                     "komp_nfren",
+                                     "komp_apoplexi",
+                                     "komp_avblokk_pm",
+                                     "komp_pulm",
+                                     "komp_osofag",
+                                     "komp_koronar",
+                                     "komp_perikard",
+                                     "komp_dod",
+                                     "komp_annen",
+                                     "komp_annet_spes",
+                                     "sykehus_opph",
+                                     "sykehus_annet_spes",
+                                     "residiv",
+                                     "residiv_annet_spes",
+                                     "usercomment",
+                                     "status") &
+          .data$skjemanavn == "Hendelse" ~
+          paste0("adhoc_", .data$fysisk_feltnavn),
+
+
         # FRA PROSEDYRE
         .data$fysisk_feltnavn %in% c("status",
                                      "usercomment") &
