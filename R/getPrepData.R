@@ -1120,14 +1120,6 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
   d_ablanor %<>%
-    dplyr::mutate(
-
-      # I Versjon 1.5 ble eprom ved basis opprettet!
-      # Før dette ble skjema plottet manuelt
-      versjon_1_5_eller_mer = ifelse(
-        test = (dato_pros >= as.Date("2023-11-08", format = "%Y-%m-%d")),
-        yes = "ja",
-        no = "nei")) %>%
 
     # KRITERIER FOR UTSENDING
     # KRITERIE 1. Alder. Under 16 på prosedyretidspunktet.
@@ -1147,6 +1139,15 @@ getBaseregProsFollowup0Data <- function(registryName,
       test = (deceased %in% 0 |
                 (deceased %in% 1 & deceased_date > dato_pros )),
       yes = "ja",
+      no = "nei")) %>%
+
+    # KRITERIE 4: Minst en av prosedyrevarighet, rtg_tid eller abla_varighet
+    # er fylt ut
+    dplyr::mutate(kriterie_tid = ifelse(
+      test = (!is.na(pros_varighet) |
+                !is.na(rtg_tid) |
+                !is.na(abla_varighet)),
+      yes = "ja",
       no = "nei"))
 
 
@@ -1156,7 +1157,8 @@ getBaseregProsFollowup0Data <- function(registryName,
       kriterie_alle_basis = ifelse(
         test = (kriterie_alder %in% "ja" &
                   kriterie_levende %in% "ja" &
-                  kriterie_norsk %in% "ja"),
+                  kriterie_norsk %in% "ja" &
+                  kriterie_tid %in% "ja"),
         yes = "ja",
         no = "nei"))
 
@@ -1176,9 +1178,13 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
       # Tidsvariabler for besvart followup
-      aar_followup_basis = as.ordered(lubridate::year(followupbasis_dato_followup)),
-      maaned_nr_followup_basis = as.ordered(sprintf(fmt = "%02d",
-                                                   lubridate::month(followupbasis_dato_followup))),
+      aar_followup_basis = as.ordered(
+        x = lubridate::year(followupbasis_dato_followup)),
+
+      maaned_nr_followup_basis = as.ordered(
+        x = sprintf(fmt = "%02d",
+                    lubridate::month(followupbasis_dato_followup))),
+
       maaned_followup_basis = ifelse(
         test = is.na(aar_followup_basis) | is.na(maaned_nr_followup_basis),
         yes = NA,
@@ -1188,24 +1194,36 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
       # Tidsvariabler for opprettet followup
-      aar_followup_tscreated_basis = as.ordered(lubridate::year(followupbasis_tscreated)),
-      maaned_nr_followup_tscreated_basis = as.ordered(sprintf(fmt = "%02d",
-                                                             lubridate::month(followupbasis_tscreated))),
+      aar_followup_tscreated_basis = as.ordered(
+        x = lubridate::year(followupbasis_tscreated)),
+
+      maaned_nr_followup_tscreated_basis = as.ordered(
+        x = sprintf(fmt = "%02d",lubridate::month(followupbasis_tscreated))),
+
       maaned_followup_tscreated_basis = ifelse(
-        test = is.na(aar_followup_tscreated_basis) | is.na(maaned_nr_followup_tscreated_basis),
+        test = is.na(aar_followup_tscreated_basis) |
+          is.na(maaned_nr_followup_tscreated_basis),
         yes = NA,
-        no = paste0(aar_followup_tscreated_basis, "-", maaned_nr_followup_tscreated_basis)),
+        no = paste0(aar_followup_tscreated_basis,
+                    "-",
+                    maaned_nr_followup_tscreated_basis)),
 
 
 
-      # Tidsvariabler for bestilt followup
-      aar_proms_tssendt_basis = as.ordered(lubridate::year(proms_tssendt)),
-      maaned_nr_proms_tssendt_basis = as.ordered(sprintf(fmt = "%02d",
-                                                        lubridate::month(proms_tssendt))),
+      # Tidsvariabler for sendt followup
+      aar_proms_tssendt_basis = as.ordered(
+        x = lubridate::year(proms_tssendt)),
+
+      maaned_nr_proms_tssendt_basis = as.ordered(
+        x = sprintf(fmt = "%02d", lubridate::month(proms_tssendt))),
+
       maaned_proms_tssendt_basis = ifelse(
-        test = is.na(aar_proms_tssendt_basis) | is.na(maaned_nr_proms_tssendt_basis),
+        test = is.na(aar_proms_tssendt_basis) |
+          is.na(maaned_nr_proms_tssendt_basis),
         yes = NA,
-        no = paste0(aar_proms_tssendt_basis, "-", maaned_nr_proms_tssendt_basis)),
+        no = paste0(aar_proms_tssendt_basis,
+                    "-",
+                    maaned_nr_proms_tssendt_basis)),
 
 
 
@@ -1213,8 +1231,8 @@ getBaseregProsFollowup0Data <- function(registryName,
         followupbasis_tscreated,
         dato_pros,
         units = "days"
-      ))
-    ) %>%
+      ))) %>%
+
     dplyr::select(-maaned_nr_prosedyre,
                   -maaned_nr_followup_tscreated_basis,
                   -maaned_nr_proms_tssendt_basis,
@@ -1248,8 +1266,7 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
           # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
-          (has_basisfollowup %in% 1 &
-             versjon_1_5_eller_mer %in% "ja" &
+          (kriterie_alle_basis %in% "nei" &
              is.na(eprom_opprettet_basis)) ~
             "nei, ikke opprettet etter kriteriesjekk",
 
