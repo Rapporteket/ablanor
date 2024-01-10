@@ -1188,6 +1188,185 @@ getBaseregProsFollowup0 <- function(registryName,
 
 
 
+
+#' @rdname getDataAblanor
+#' @export
+getBaseregProsFollowup5 <- function(registryName,
+                                    singleRow,
+                                    reshId = NULL,
+                                    userRole,
+                                    fromDate = NULL,
+                                    toDate = NULL, ...){
+
+  # PROS + BASEREG sammen
+  # proms,
+  # Mce (type = 10), patientid
+  # patientlist
+  # followup
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry(registryName)
+  }
+  condition <- paste0(" WHERE pros.DATO_PROS >= '", fromDate,
+                      "' AND pros.DATO_PROS <= '", toDate, "'",
+                      " AND pros.DATO_PROS IS NOT NULL")
+
+
+  condition_followup <- ""
+
+  if (userRole != "SC") {
+    condition_followup <- paste0(" AND mce.CENTREID = '", reshId, "'")
+    condition <- paste0(condition, " AND pros.CENTREID = '", reshId, "'")
+  }
+
+
+
+  # BASEREG + PROSEDYRE + PASIENTID + PASIENTINFO
+  # (kun dersom prosedyredato finnes)
+  query_basePros <- paste0(
+    "SELECT pros.MCEID,
+            pros.CENTREID,
+            pros.FORLOPSTYPE,
+            pros.DATO_PROS,
+
+            basereg.HOYDE,
+            basereg.VEKT,
+            basereg.HYPERTONI,
+            basereg.DIABETES,
+            basereg.HJERTESVIKT,
+            basereg.TIA_SLAG,
+            basereg.KARSYKDOM,
+            basereg.HJERTEFEIL,
+            basereg.OSAS_KOLS,
+            basereg.KARDIOMYOPATI,
+            basereg.PACEMAKER,
+            basereg.EJEKFRAK,
+            basereg.DEBUT_ARYT_AAR,
+            basereg.EHRA_SYMPT,
+
+            mce.PATIENT_ID,
+            mce.MCETYPE,
+            mce.HAS_FOLLOWUP,
+
+            patientlist.ID,
+            patientlist.BIRTH_DATE,
+            patientlist.GENDER,
+            patientlist.DECEASED,
+            patientlist.DECEASED_DATE,
+            patientlist.SSN_TYPE,
+            patientlist.SSNSUBTYPE
+
+    FROM pros
+    LEFT JOIN basereg ON
+         pros.MCEID = basereg.MCEID AND
+         pros.CENTREID = basereg.CENTREID
+    LEFT JOIN mce ON
+         pros.MCEID = mce.MCEID AND
+         pros.CENTREID = mce.CENTREID
+    LEFT JOIN patientlist ON
+         mce.PATIENT_ID = patientlist.ID AND
+         mce.CENTREID = patientlist.CENTREID"
+    ,
+    condition,
+    " AND pros.FORLOPSTYPE IS NOT NULL ")
+
+
+
+  query_followup <- paste0(
+    " SELECT mce.MCEID,
+             mce.CENTREID,
+             mce.MCETYPE,
+             mce.PATIENT_ID,
+             mce.PARENTMCEID,
+             mce.TSCREATED,
+
+             fiveyearfollowup.DATO_FOLLOWUP,
+             fiveyearfollowup.COMPLETE,
+             fiveyearfollowup.INCOMPLETE_REASON,
+             fiveyearfollowup.Q1,
+             fiveyearfollowup.Q2,
+             fiveyearfollowup.Q3,
+             fiveyearfollowup.Q4,
+             fiveyearfollowup.Q5,
+             fiveyearfollowup.Q5_BURN_FREEZE,
+             fiveyearfollowup.Q5_PACEMAKER,
+             fiveyearfollowup.Q5_ELECTROCONVERSION,
+             fiveyearfollowup.Q5_OTHER,
+             fiveyearfollowup.Q5_OTHER_SPECIFY,
+             fiveyearfollowup.Q6,
+             fiveyearfollowup.Q6_REGULAR_EKG,
+             fiveyearfollowup.Q6_24_HOUR_EKG,
+             fiveyearfollowup.Q6_PACEMAKER,
+             fiveyearfollowup.Q6_PULSE_WATCH,
+             fiveyearfollowup.Q6_OTHER,
+             fiveyearfollowup.Q6_OTHER_SPECIFY,
+             fiveyearfollowup.Q7,
+             fiveyearfollowup.Q7_STROKE,
+             fiveyearfollowup.Q7_BLOCK,
+             fiveyearfollowup.Q7_OPERATION,
+             fiveyearfollowup.Q7_PACEMAKER,
+             fiveyearfollowup.Q7_OTHER,
+             fiveyearfollowup.Q7_OTHER_SPECIFY,
+             fiveyearfollowup.STATUS
+    FROM mce
+    LEFT JOIN fiveyearfollowup ON
+      mce.MCEID = fiveyearfollowup.MCEID
+    WHERE mce.MCETYPE = 10 ",
+    condition_followup)
+
+  query_proms <- "SELECT MCEID,
+                         REGISTRATION_TYPE,
+                         TSSENDT,
+                         EXPIRY_DATE,
+                         REMINDER_DATE,
+                         STATUS,
+                         FORM_ORDER_STATUS_ERROR_CODE
+                  FROM proms
+                  WHERE REGISTRATION_TYPE = 'Fiveyearfollowup' "
+
+
+
+
+
+  if (singleRow) {
+    msg <- "Query single row data for 5-year followup"
+    query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
+    query_basePros <- paste0(query_basePros, "\nLIMIT\n  1;")
+    query_proms <- paste0(query_proms, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 5-year followup"
+    query_followup <- paste0(query_followup, ";")
+    query_basePros <- paste0(query_basePros, ";")
+    query_proms <- paste0(query_proms, ";")
+  }
+
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
+    d_followup5 <- rapbase::loadRegData(registryName , query_followup)
+    d_proms <- rapbase::loadRegData(registryName , query_proms)
+    # nocov end
+  } else {
+    d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
+    d_followup5 <- rapbase::loadRegData(registryName , query_followup)
+    d_proms <- rapbase::loadRegData(registryName , query_proms)
+  }
+
+
+  list(d_baseregPat = d_baseregPat,
+       d_followup = d_followup5,
+       d_proms = d_proms)
+
+}
+
+
+
+
+
+
 #' @rdname getDataAblanor
 #' @export
 getLatestEntry <- function(registryName) {

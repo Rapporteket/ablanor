@@ -15,6 +15,7 @@
 \alias{getBaseregProsHendelseData}
 \alias{getBaseregProsFollowup1Data}
 \alias{getBaseregProsFollowup0Data}
+\alias{getBaseregProsFollowup5Data}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -132,6 +133,16 @@ getBaseregProsFollowup1Data(
 )
 
 getBaseregProsFollowup0Data(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsFollowup5Data(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
