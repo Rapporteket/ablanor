@@ -47,7 +47,7 @@ app_server <- function(input, output, session) {
     `RAND-12: basis, 1 og 5 år. Rådata.` = "rand12",
     `eProm basis. Rådata` = "followupbasis",
     `eProm 1 år. Rådata` = "followup1",
-    # `eProm 5 år. Rådata` = "followup5",
+    `eProm 5 år. Rådata` = "followup5",
     `GKV (pasienterfaring) basis. Rådata` = "gkv")
 
   if (userRole == "SC") {
@@ -267,6 +267,7 @@ app_server <- function(input, output, session) {
                             "rand12",
                             "followupbasis",
                             "followup1",
+                            "followup5",
                             "gkv",
                             "proms",
                             "basereg_pros_indik",

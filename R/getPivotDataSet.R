@@ -117,6 +117,15 @@ getPivotDataSet <- function(setId = "",
                                            userRole = userRole)
     }
 
+    # FOLLOWUP 5 ÅR RÅDATA
+    if (setId == "followup5") {
+      dat <- ablanor::getFollowupFiveYrData(registryName = registryName,
+                                            singleRow = singleRow,
+                                            session = session,
+                                            reshId = reshId,
+                                            userRole = userRole)
+    }
+
 
     # GKV RÅDATA (prom basis)
     if (setId == "gkv") {

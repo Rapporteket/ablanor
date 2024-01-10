@@ -26,6 +26,7 @@
 #' getRand12Data
 #' getFollowupBasisData
 #' getFollowupOneYrData
+#' getFollowupFiveYrData
 #' getGkvData
 #' getPromsData
 #' getBaseregProsData
@@ -202,6 +203,11 @@ getFollowupBasisData <- function(registryName,
   d_followupBasis <- d$d_followupBasis
 
 
+  # Samme navn som i kodeboken
+  d_followupBasis %<>%
+     dplyr::rename_with(.data = .,
+                       ~ paste0("FOLLOWUPBASIS_", .x),
+                       .cols =c("DATO_FOLLOWUP":"STATUS"))
   names(d_followupBasis) <- tolower(names(d_followupBasis))
 
   d_followupBasis %>%
@@ -209,12 +215,18 @@ getFollowupBasisData <- function(registryName,
 
 
       # Tidsvariabler for oppfolging
-      aar_followup_1aar = as.ordered(lubridate::year(.data$dato_followup)),
-      maaned_followup_1aar = as.ordered(sprintf(fmt = "%02d",
-                                              lubridate::month(.data$dato_followup))),
-      maaned_followup = ifelse(test = is.na(.data$aar_followup_1aar) | is.na(.data$maaned_followup_1aar),
-                               yes = NA,
-                               no = paste0(.data$aar_followup_1aar, "-", .data$maaned_followup_1aar)))
+      aar_followup_1aar = as.ordered(
+        x = lubridate::year(.data$followupbasis_dato_followup)),
+
+      maaned_followup_1aar = as.ordered(
+        x = sprintf(fmt = "%02d",
+                    lubridate::month(.data$followupbasis_dato_followup))),
+
+      maaned_followup = ifelse(
+        test = is.na(.data$aar_followup_1aar) |
+          is.na(.data$maaned_followup_1aar),
+        yes = NA,
+        no = paste0(.data$aar_followup_1aar, "-", .data$maaned_followup_1aar)))
 
 }
 
@@ -235,6 +247,12 @@ getFollowupOneYrData <- function(registryName,
   d_followup <- d$d_followup1
 
 
+  # Samme navn som i kodeboken
+  d_followup %<>%
+    dplyr::rename_with(.data = .,
+                       ~ paste0("FOLLOWUP1_", .x),
+                       .cols =c("DATO_FOLLOWUP":"STATUS"))
+
   names(d_followup) <- tolower(names(d_followup))
 
   d_followup %>%
@@ -242,12 +260,67 @@ getFollowupOneYrData <- function(registryName,
 
 
       # Tidsvariabler for oppfolging
-      aar_followup_1aar = as.ordered(lubridate::year(.data$dato_followup)),
-      maaned_followup_1aar = as.ordered(sprintf(fmt = "%02d",
-                                              lubridate::month(.data$dato_followup))),
-      maaned_followup = ifelse(test = is.na(.data$aar_followup_1aar) | is.na(.data$maaned_followup_1aar),
-                               yes = NA,
-                               no = paste0(.data$aar_followup_1aar, "-", .data$maaned_followup_1aar)))
+      aar_followup_1aar = as.ordered(
+        x = lubridate::year(.data$followup1_dato_followup)),
+
+      maaned_followup_1aar = as.ordered(
+        x = sprintf(fmt = "%02d",
+                    lubridate::month(.data$followup1_dato_followup))),
+
+      maaned_followup = ifelse(
+        test = is.na(.data$aar_followup_1aar) |
+          is.na(.data$maaned_followup_1aar),
+        yes = NA,
+        no = paste0(.data$aar_followup_1aar,
+                    "-",
+                    .data$maaned_followup_1aar)))
+
+}
+
+
+#' @rdname getPrepDataAblanor
+#' @export
+getFollowupFiveYrData <- function(registryName,
+                                 singleRow = FALSE,
+                                 reshId = NULL,
+                                 userRole, ...) {
+
+  . <- ""
+
+  d <- ablanor::getFollowupFiveYr(registryName = registryName,
+                                  singleRow = singleRow,
+                                  reshId = reshId,
+                                  userRole = userRole, ...)
+  d_followup5 <- d$d_followup5
+
+
+  # Samme navn som i kodeboken
+  d_followup5 %<>%
+    dplyr::rename_with(.data = .,
+                       ~ paste0("FOLLOWUP5_", .x),
+                       .cols =c("DATO_FOLLOWUP":"STATUS"))
+
+  names(d_followup5) <- tolower(names(d_followup5))
+
+  d_followup5 %>%
+    dplyr::mutate(
+
+
+      # Tidsvariabler for oppfolging
+      aar_followup_5aar = as.ordered(
+        x = lubridate::year(.data$followup5_dato_followup)),
+
+      maaned_followup_5aar = as.ordered(
+        x = sprintf(fmt = "%02d",
+                    lubridate::month(.data$followup5_dato_followup))),
+
+      maaned_followup_5aar = ifelse(
+        test = is.na(.data$aar_followup_5aar) |
+          is.na(.data$maaned_followup_5aar),
+        yes = NA,
+        no = paste0(.data$aar_followup_5aar,
+                    "-",
+                    .data$maaned_followup_5aar)))
 
 }
 

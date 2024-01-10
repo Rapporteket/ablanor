@@ -8,6 +8,7 @@
 \alias{getRand12Data}
 \alias{getFollowupBasisData}
 \alias{getFollowupOneYrData}
+\alias{getFollowupFiveYrData}
 \alias{getGkvData}
 \alias{getPromsData}
 \alias{getBaseregProsData}
@@ -65,6 +66,14 @@ getFollowupBasisData(
 )
 
 getFollowupOneYrData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  ...
+)
+
+getFollowupFiveYrData(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
