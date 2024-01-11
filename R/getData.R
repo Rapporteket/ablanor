@@ -1016,21 +1016,6 @@ getBaseregProsFollowup0 <- function(registryName,
             pros.RTG_TID,
             pros.ABLA_VARIGHET,
 
-            basereg.HOYDE,
-            basereg.VEKT,
-            basereg.HYPERTONI,
-            basereg.DIABETES,
-            basereg.HJERTESVIKT,
-            basereg.TIA_SLAG,
-            basereg.KARSYKDOM,
-            basereg.HJERTEFEIL,
-            basereg.OSAS_KOLS,
-            basereg.KARDIOMYOPATI,
-            basereg.PACEMAKER,
-            basereg.EJEKFRAK,
-            basereg.DEBUT_ARYT_AAR,
-            basereg.EHRA_SYMPT,
-
             mce.PATIENT_ID,
             mce.MCETYPE,
             mce.HAS_BASISFOLLOWUP,
@@ -1044,10 +1029,7 @@ getBaseregProsFollowup0 <- function(registryName,
             patientlist.SSNSUBTYPE
 
     FROM pros
-    LEFT JOIN basereg ON
-         pros.MCEID = basereg.MCEID AND
-         pros.CENTREID = basereg.CENTREID
-    LEFT JOIN mce ON
+   LEFT JOIN mce ON
          pros.MCEID = mce.MCEID AND
          pros.CENTREID = mce.CENTREID
     LEFT JOIN patientlist ON
