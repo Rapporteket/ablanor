@@ -1222,21 +1222,6 @@ getBaseregProsFollowup5 <- function(registryName,
             pros.FORLOPSTYPE,
             pros.DATO_PROS,
 
-            basereg.HOYDE,
-            basereg.VEKT,
-            basereg.HYPERTONI,
-            basereg.DIABETES,
-            basereg.HJERTESVIKT,
-            basereg.TIA_SLAG,
-            basereg.KARSYKDOM,
-            basereg.HJERTEFEIL,
-            basereg.OSAS_KOLS,
-            basereg.KARDIOMYOPATI,
-            basereg.PACEMAKER,
-            basereg.EJEKFRAK,
-            basereg.DEBUT_ARYT_AAR,
-            basereg.EHRA_SYMPT,
-
             mce.PATIENT_ID,
             mce.MCETYPE,
             mce.HAS_FOLLOWUP,
@@ -1250,9 +1235,6 @@ getBaseregProsFollowup5 <- function(registryName,
             patientlist.SSNSUBTYPE
 
     FROM pros
-    LEFT JOIN basereg ON
-         pros.MCEID = basereg.MCEID AND
-         pros.CENTREID = basereg.CENTREID
     LEFT JOIN mce ON
          pros.MCEID = mce.MCEID AND
          pros.CENTREID = mce.CENTREID
@@ -1317,6 +1299,24 @@ getBaseregProsFollowup5 <- function(registryName,
                   FROM proms
                   WHERE REGISTRATION_TYPE = 'Fiveyearfollowup' "
 
+  query_rand12 <- "SELECT MCEID,
+                          FOLLOWUP_PARENT_TYPE,
+                          DATO_RAND12,
+                          RAND_1,
+                          RAND_2A,
+                          RAND_2B,
+                          RAND_3A,
+                          RAND_3B,
+                          RAND_4A,
+                          RAND_4B,
+                          RAND_5,
+                          RAND_6A,
+                          RAND_6B,
+                          RAND_6C,
+                          RAND_7
+                   FROM rand12
+                   WHERE COMPLETE = 1
+                   AND (FOLLOWUP_PARENT_TYPE = 10)"
 
 
 
@@ -1326,11 +1326,13 @@ getBaseregProsFollowup5 <- function(registryName,
     query_followup <- paste0(query_followup, "\nLIMIT\n  1;")
     query_basePros <- paste0(query_basePros, "\nLIMIT\n  1;")
     query_proms <- paste0(query_proms, "\nLIMIT\n  1;")
+    query_rand12 <- paste0(query_rand12, "\nLIMIT\n  1;")
   } else {
     msg <- "Query data for 5-year followup"
     query_followup <- paste0(query_followup, ";")
     query_basePros <- paste0(query_basePros, ";")
     query_proms <- paste0(query_proms, ";")
+    query_rand12 <- paste0(query_rand12, ";")
   }
 
   if ("session" %in% names(list(...))) {
@@ -1339,17 +1341,20 @@ getBaseregProsFollowup5 <- function(registryName,
     d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
     d_followup5 <- rapbase::loadRegData(registryName , query_followup)
     d_proms <- rapbase::loadRegData(registryName , query_proms)
+    d_rand12 <- rapbase::loadRegData(registryName , query_rand12)
     # nocov end
   } else {
     d_baseregPat <- rapbase::loadRegData(registryName, query_basePros)
     d_followup5 <- rapbase::loadRegData(registryName , query_followup)
     d_proms <- rapbase::loadRegData(registryName , query_proms)
+    d_rand12 <- rapbase::loadRegData(registryName , query_rand12)
   }
 
 
   list(d_baseregPat = d_baseregPat,
        d_followup = d_followup5,
-       d_proms = d_proms)
+       d_proms = d_proms,
+       d_rand12 = d_rand12)
 
 }
 

@@ -1367,6 +1367,7 @@ getBaseregProsFollowup5Data <- function(registryName,
   d_baseregPat <- d$d_baseregPat
   d_followup5 <- d$d_followup5
   d_proms <- d$d_proms
+  d_rand12 <- d$d_rand12
 
 
 
@@ -1387,9 +1388,14 @@ getBaseregProsFollowup5Data <- function(registryName,
                   "PROMS_EXPIRY_DATE" = "EXPIRY_DATE") %>%
     dplyr::mutate(eprom_sendt_5aar = "ja")
 
+  d_rand12 %<>%
+    dplyr::rename("MCEID_FOLLOWUP" = "MCEID")
+
+
   names(d_followup5) <- tolower(names(d_followup5))
   names(d_proms) <- tolower(names(d_proms))
   names(d_baseregPat) <- tolower(names(d_baseregPat))
+  names(d_rand12) <- tolower(names(d_rand12))
 
 
 
@@ -1406,7 +1412,10 @@ getBaseregProsFollowup5Data <- function(registryName,
   d_ablanor <- d_baseregPat %>%
     dplyr::left_join(.,
                      followup_data,
-                     by = c("mceid", "centreid", "patient_id"))
+                     by = c("mceid", "centreid", "patient_id")) %>%
+    dplyr::left_join(.,
+                     d_rand12,
+                     by = "mceid_followup")
 
   # Nyeste prosedyredato som har eprom:
   nyeste_eprom_bestilling <- lubridate::date(max(
@@ -1456,16 +1465,16 @@ getBaseregProsFollowup5Data <- function(registryName,
                                          units = "days"))) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
-      kriterie_nyeste_1aar = ifelse(
+      kriterie_nyeste_5aar = ifelse(
         test= (is.na(dg_til_neste) | dg_til_neste > 1811),
         yes = "ja",
         no = "nei"),
 
       # KRITERIE ALLE
-      kriterie_alle_1aar = ifelse(
-        test = (kriterie_nyeste_1aar %in% "ja" &
+      kriterie_alle_5aar = ifelse(
+        test = (kriterie_nyeste_5aar %in% "ja" &
                   kriterie_alder %in% "ja" &
-                  kriterie_levende_1aar %in% "ja" &
+                  kriterie_levende_5aar %in% "ja" &
                   kriterie_norsk %in% "ja"),
         yes = "ja",
         no = "nei"))
@@ -1489,49 +1498,14 @@ getBaseregProsFollowup5Data <- function(registryName,
       aar_followup_5aar = as.ordered(
         x = lubridate::year(followup5_dato_followup)),
 
-      maaned_nr_followup_5aar = as.ordered(
-        x = sprintf(fmt = "%02d",
-                    lubridate::month(followup5_dato_followup))),
-
-      maaned_followup_5aar = ifelse(
-        test = is.na(aar_followup_5aar) | is.na(maaned_nr_followup_5aar),
-        yes = NA,
-        no = paste0(aar_followup_5aar, "-", maaned_nr_followup_5aar)),
-
-
-
 
       # Tidsvariabler for opprettet followup
       aar_followup_tscreated_5aar = as.ordered(
         x = lubridate::year(followup5_tscreated)),
 
-      maaned_nr_followup_tscreated_5aar = as.ordered(
-        x = sprintf(fmt = "%02d", lubridate::month(followup5_tscreated))),
-
-      maaned_followup_tscreated_5aar = ifelse(
-        test = is.na(aar_followup_tscreated_5aar) |
-          is.na(maaned_nr_followup_tscreated_5aar),
-        yes = NA,
-        no = paste0(aar_followup_tscreated_5aar,
-                    "-",
-                    maaned_nr_followup_tscreated_5aar)),
-
-
 
       # Tidsvariabler for bestilt followup
       aar_proms_tssendt_5aar = as.ordered(lubridate::year(proms_tssendt)),
-
-      maaned_nr_proms_tssendt_5aar = as.ordered(
-        x = sprintf(fmt = "%02d", lubridate::month(proms_tssendt))),
-
-      maaned_proms_tssendt_5aar = ifelse(
-        test = is.na(aar_proms_tssendt_5aar) |
-          is.na(maaned_nr_proms_tssendt_5aar),
-        yes = NA,
-        no = paste0(aar_proms_tssendt_5aar,
-                    "-",
-                    maaned_nr_proms_tssendt_5aar)),
-
 
 
       dg_pros_opprettet = as.numeric(difftime(
@@ -1540,10 +1514,7 @@ getBaseregProsFollowup5Data <- function(registryName,
         units = "days"
       ))
     ) %>%
-    dplyr::select(-maaned_nr_prosedyre,
-                  -maaned_nr_followup_tscreated_5aar,
-                  -maaned_nr_proms_tssendt_5aar,
-                  -maaned_nr_followup_5aar) %>%
+    dplyr::select(-maaned_nr_prosedyre) %>%
     dplyr::arrange(mceid) %>%
 
 
@@ -1599,6 +1570,57 @@ getBaseregProsFollowup5Data <- function(registryName,
         eprom_datagrunnlag_5aar %in% "ja" &
           !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
     )
+
+
+
+  # RYDDE:
+  d_ablanor %<>%
+    dplyr::select(
+      # Pasient og prosedyre
+      centreid, mceid, mceid_followup, patient_id,
+      forlopstype,
+      dato_pros, aar_prosedyre, maaned_prosedyre,
+      gender, alder, aldersklasse,
+
+      # Datagrunnlag for eprom og svarprosent
+      eprom_datagrunnlag_1aar,
+      eprom_besvart,
+      proms_expiry_date,
+
+      # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
+      # besvart manuelt.
+      followup5_q1:followup5_q7_other_specify,
+      rand_1:rand_7,
+
+      # Variabler for å undersøke kriterier for utendelse av eprom nærmere
+
+      # fra hemit
+      proms_expiry_date, reminder_date,
+      proms_status, form_order_status_error_code,
+      proms_tssendt, aar_proms_tssendt_5aar,
+
+      # eprom opprettet
+      has_fiveyearfollowup,
+      registration_type,
+      eprom_opprettet_5aar,
+      followup5_tscreated, aar_followup_tscreated_5aar,
+      followup5_complete, followup5_incomplete_reason,
+
+      eprom_sendt_5aar,
+
+      # Eprom utfylt og mottatt
+      followup1_dato_followup,  aar_followup_1aar,
+
+      # Kriterier opprettelse av eprom
+      dato_followup_teoretisk,
+      dg_pros_opprettet,
+      deceased, deceased_date,
+      ssn_type, ssnsubtype,
+      antall_pros, dg_til_neste,
+      kriterie_alder, kriterie_norsk, kriterie_levende_5aar,
+      kriterie_nyeste_5aar,
+      kriterie_alle_5aar)
+
 
 
   if(singleRow == TRUE) {
