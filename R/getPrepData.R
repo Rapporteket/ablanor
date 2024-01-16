@@ -1038,14 +1038,14 @@ getBaseregProsFollowup0Data <- function(registryName,
   # på utskrivelses-skjema (mceid til prosedyren)
    d_rand12_manual <- d_rand12_raw %>%
     dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 1:4) %>%
-    dplyr::mutate(besvart_rand12 = "manual") %>%
+    dplyr::mutate(besvart_rand12 = "manuelt") %>%
     dplyr::relocate(besvart_rand12, .before = RAND_1)
 
    # RAND12 skjema etter før eprom ved basis,
    # henger på elekronisk oppfølging (mceid til followup)
    d_rand12_eprom <- d_rand12_raw %>%
      dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 7) %>%
-     dplyr::mutate(besvart_rand12 = "eprom") %>%
+     dplyr::mutate(besvart_rand12 = "elektronisk") %>%
      dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
      dplyr::relocate(besvart_rand12, .before = RAND_1) %>%
      dplyr::left_join(.,
@@ -1178,14 +1178,13 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
       dplyr::mutate(
-        eprom_datagrunnlag_basis = factor(
-        x = dplyr::case_when(
 
+        eprom_datagrunnlag_basis = factor(
+          x = dplyr::case_when(
 
           # ALT FOR GAMLE REGISTRERINGER
           dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
             "før innføring av eproms basis",
-
 
           # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
           (has_basisfollowup %in% 1 &
@@ -1200,7 +1199,6 @@ getBaseregProsFollowup0Data <- function(registryName,
              eprom_sendt_basis %in% "ja") ~
             "nei, eprom feilaktig sendt, sjekk kriterier",
 
-
           # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
           (kriterie_alle_basis %in% "nei" &
              is.na(eprom_opprettet_basis)) ~
@@ -1213,7 +1211,6 @@ getBaseregProsFollowup0Data <- function(registryName,
              kriterie_alle_basis %in% "ja" &
              is.na(eprom_sendt_basis)) ~
             "nei, eprom venter på utsendelse",
-
 
           # DISSE ER MED I DATAGRUNNLAGET!
           (has_basisfollowup %in% 1 &
@@ -1232,11 +1229,15 @@ getBaseregProsFollowup0Data <- function(registryName,
 
       eprom_besvart =  dplyr::case_when(
         eprom_datagrunnlag_basis %in% "ja" &
-          proms_status %in% 3 ~ "besvart eprom basis",
+          proms_status %in% 3 ~ "fått og besvart eprom basis",
 
         eprom_datagrunnlag_basis %in% "ja" &
-          !proms_status %in% 3 ~ "ikke besvart eprom basis")
-    )
+          !proms_status %in% 3 ~ "fått, men ikke besvart eprom basis")
+
+      )
+
+
+
 
 
   # LEGG TIL GKV KOLONNER
@@ -1251,15 +1252,49 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
   # RYDDE:
-  # d_ablanor %<>%
-  #   select(mceid, mceid_followup, centreid, patient_id,
-  #          forlopstype, dato_pros,
-  #          aar_prosedyre, maaned_nr_prosedyre, maaned_prosedyre,
-  #          gender, alder, aldersklasse,
-  #          deceased, deceased_date,
-  #          ssn_type, ssn_subtype,
-  #          eprom_besvart, besvart_rand12,
-  #          )
+  d_ablanor %<>%
+    dplyr::select(
+      # Pasient og prosedyre
+      centreid, mceid, mceid_followup, patient_id,
+      forlopstype,
+      dato_pros, aar_prosedyre, maaned_nr_prosedyre, maaned_prosedyre,
+      gender, alder, aldersklasse,
+
+      # Datagrunnlag for eprom og svarprosent
+      eprom_datagrunnlag_basis,
+      eprom_besvart, besvart_rand12, besvart_gkv,
+      proms_expiry_date,
+
+      # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
+      # besvart manuelt.
+      followupbasis_q1:followupbasis_q6_other_specify,
+      gkv_1:gkv_12,
+      dato_rand12, rand_1:rand_7,
+
+      # Variabler for å undersøke kriterier for utendelse av eprom nærmere
+
+      # fra hemit
+      proms_expiry_date, reminder_date,
+      proms_status, form_order_status_error_code,
+      proms_tssendt, aar_proms_tssendt_basis,
+      eprom_sendt_basis,
+
+      # eprom opprettet
+      has_basisfollowup,
+      registration_type,
+      eprom_opprettet_basis,
+      followupbasis_tscreated, aar_followup_tscreated_basis,
+      followupbasis_complete, followupbasis_incomplete_reason,
+
+      # Eprom utfylt og mottatt
+      followupbasis_dato_followup,  aar_followup_besvart_basis,
+
+      # Kriterier opprettelse av eprom
+      deceased, deceased_date,
+      ssn_type, ssnsubtype,
+      rtg_tid, pros_varighet, abla_varighet,
+      kriterie_alder, kriterie_levende, kriterie_norsk, kriterie_tid,
+      kriterie_alle_basis )
   if(singleRow == TRUE) {
     # Return first row only
     d_ablanor %>% dplyr::filter(dplyr::row_number() == 1)
