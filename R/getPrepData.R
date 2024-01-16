@@ -961,24 +961,6 @@ getBaseregProsFollowup1Data <- function(registryName,
         ordered  = TRUE),
 
 
-      eprom_status_txt = dplyr::case_when(
-
-        eprom_datagrunnlag_1aar %in% "ja" &
-          proms_status %in% 1 ~ "avventer svar",
-
-        eprom_datagrunnlag_1aar %in% "ja" &
-          proms_status %in% 2 ~ "utgaatt uten svar",
-
-         eprom_datagrunnlag_1aar %in% "ja" &
-          proms_status %in% 3 ~ "svar mottatt",
-
-        eprom_datagrunnlag_1aar %in% "ja" &
-          proms_status %in% 4 ~ "digitalt inaktiv",
-
-        eprom_datagrunnlag_1aar %in% "ja" &
-          is.na(eprom_sendt_1aar) ~ "sjekk utsending",
-
-        TRUE ~ NA_character_),
 
       eprom_besvart =  dplyr::case_when(
         eprom_datagrunnlag_1aar %in% "ja" &
@@ -1247,26 +1229,6 @@ getBaseregProsFollowup0Data <- function(registryName,
                    "nei, ikke opprettet etter kriteriesjekk",
                    "nei, eprom venter på utsendelse"),
         ordered  = TRUE),
-
-
-      eprom_status_txt = dplyr::case_when(
-
-        eprom_datagrunnlag_basis %in% "ja" &
-          proms_status %in% 1 ~ "avventer svar",
-
-        eprom_datagrunnlag_basis %in% "ja" &
-          proms_status %in% 2 ~ "utgaatt uten svar",
-
-        eprom_datagrunnlag_basis %in% "ja" &
-          proms_status %in% 3 ~ "svar mottatt",
-
-        eprom_datagrunnlag_basis %in% "ja" &
-          proms_status %in% 4 ~ "digitalt inaktiv",
-
-        eprom_datagrunnlag_basis %in% "ja" &
-          is.na(eprom_sendt_basis) ~ "sjekk utsending",
-
-        TRUE ~ NA_character_),
 
       eprom_besvart =  dplyr::case_when(
         eprom_datagrunnlag_basis %in% "ja" &
@@ -1556,24 +1518,6 @@ getBaseregProsFollowup5Data <- function(registryName,
         ordered  = TRUE),
 
 
-      eprom_status_txt = dplyr::case_when(
-
-        eprom_datagrunnlag_5aar %in% "ja" &
-          proms_status %in% 1 ~ "avventer svar",
-
-        eprom_datagrunnlag_5aar %in% "ja" &
-          proms_status %in% 2 ~ "utgaatt uten svar",
-
-        eprom_datagrunnlag_5aar %in% "ja" &
-          proms_status %in% 3 ~ "svar mottatt",
-
-        eprom_datagrunnlag_5aar %in% "ja" &
-          proms_status %in% 4 ~ "digitalt inaktiv",
-
-        eprom_datagrunnlag_5aar %in% "ja" &
-          is.na(eprom_sendt_1aar) ~ "sjekk utsending",
-
-        TRUE ~ NA_character_),
 
       eprom_besvart =  dplyr::case_when(
         eprom_datagrunnlag_5aar %in% "ja" &
