@@ -743,7 +743,7 @@ getBaseregProsFollowup1Data <- function(registryName,
         no = "nei"),
 
       # 50 uker etter prosedyredato blir e-proms  opprettet
-      dato_followup_teoretisk = dato_pros + lubridate::days(351)) %>%
+      dato_followup_teoretisk_1aar = dato_pros + lubridate::days(351)) %>%
 
     # KRITERIER FOR UTSENDING
     # KRITERIE 1. Alder. Under 16 på prosedyretidspunktet.
@@ -762,7 +762,8 @@ getBaseregProsFollowup1Data <- function(registryName,
     # KRITERIE 3. Levende 50 uker etter prosedyren
     dplyr::mutate(kriterie_levende_1aar = ifelse(
       test = (deceased %in% 0 |
-                (deceased %in% 1 & deceased_date > dato_followup_teoretisk )),
+                (deceased %in% 1 &
+                   deceased_date > dato_followup_teoretisk_1aar)),
       yes = "ja",
       no = "nei"))
 
@@ -879,7 +880,7 @@ getBaseregProsFollowup1Data <- function(registryName,
          (has_followup %in% 1 &
             versjon_1_5_eller_mer %in% "ja" &
             is.na(eprom_opprettet_1aar)) ~
-           "nei, ikke opprettet etter sjekk kriterier",
+           "nei, ikke opprettet etter kriteriesjekk",
 
          # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
          # "BESTILT I DAG, SENDES I MORGEN"
@@ -902,7 +903,7 @@ getBaseregProsFollowup1Data <- function(registryName,
                kriterie_alder %in% "nei") &
             !followup1_incomplete_reason %in% 3 &
             eprom_kjente_feil_1aar %in% "nei") ~
-           "nei, opprettet men ikke sendt etter sjekk kriterier",
+           "nei, opprettet men ikke sendt etter kriteriesjekk",
 
 
          # NY VERJSON: OPPRETTET, MEN IKKE SENDT SKYLES TEKNISKE PROBLEM
@@ -935,16 +936,16 @@ getBaseregProsFollowup1Data <- function(registryName,
                    "nei, før innføring av 1års oppf.",
                    "nei, opprettet satt til død",
                    "nei, eprom feilaktig sendt, sjekk kriterier",
-                   "nei, ikke opprettet etter sjekk kriterier",
+                   "nei, ikke opprettet etter kriteriesjekk",
                    "nei, eprom venter på utsendelse",
-                   "nei, opprettet men ikke sendt etter sjekk kriterier",
+                   "nei, opprettet men ikke sendt etter kriteriesjekk",
                    "nei, opprettet men teknisk feil ved bestilling",
                    "nei, teknisk, mangler utsending eller feilaktig sendt i 2023"),
         ordered  = TRUE),
 
 
 
-      eprom_besvart =  dplyr::case_when(
+      eprom_besvart_1aar =  dplyr::case_when(
         eprom_datagrunnlag_1aar %in% "ja" &
           proms_status %in% 3 ~ "datagrunnlag og besvart",
 
@@ -966,7 +967,7 @@ getBaseregProsFollowup1Data <- function(registryName,
 
         # Datagrunnlag for eprom og svarprosent
         eprom_datagrunnlag_1aar,
-        eprom_besvart,
+        eprom_besvart_1aar,
         proms_expiry_date,
 
         # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
@@ -994,7 +995,7 @@ getBaseregProsFollowup1Data <- function(registryName,
         followup1_dato_followup,  aar_followup_1aar,
 
         # Kriterier opprettelse av eprom
-        dato_followup_teoretisk,
+        dato_followup_teoretisk_1aar,
         versjon_1_5_eller_mer,
         eprom_kjente_feil_1aar,
         dg_pros_opprettet,
@@ -1265,12 +1266,12 @@ getBaseregProsFollowup0Data <- function(registryName,
                    "nei, eprom venter på utsendelse"),
         ordered  = TRUE),
 
-      eprom_besvart =  dplyr::case_when(
+      eprom_besvart_basis =  dplyr::case_when(
         eprom_datagrunnlag_basis %in% "ja" &
-          proms_status %in% 3 ~ "fått og besvart eprom basis",
+          proms_status %in% 3 ~ "datagrunnlag og besvart",
 
         eprom_datagrunnlag_basis %in% "ja" &
-          !proms_status %in% 3 ~ "fått, men ikke besvart eprom basis")
+          !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
 
       )
 
@@ -1300,7 +1301,7 @@ getBaseregProsFollowup0Data <- function(registryName,
 
       # Datagrunnlag for eprom og svarprosent
       eprom_datagrunnlag_basis,
-      eprom_besvart, besvart_rand12, besvart_gkv,
+      eprom_besvart_basis, besvart_rand12, besvart_gkv,
       proms_expiry_date,
 
       # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
@@ -1431,8 +1432,8 @@ getBaseregProsFollowup5Data <- function(registryName,
     dplyr::mutate(
 
 
-      # 50 uker etter prosedyredato blir e-proms  opprettet
-      dato_followup_teoretisk = dato_pros + lubridate::days(1811)) %>%
+      # 4år 50 uker etter prosedyredato blir e-proms  opprettet
+      dato_followup_teoretisk_5aar = dato_pros + lubridate::days(1811)) %>%
 
     # KRITERIER FOR UTSENDING
     # KRITERIE 1. Alder. Under 16 på prosedyretidspunktet.
@@ -1450,7 +1451,8 @@ getBaseregProsFollowup5Data <- function(registryName,
     # KRITERIE 3. Levende 4 år og 50 uker etter prosedyren
     dplyr::mutate(kriterie_levende_5aar = ifelse(
       test = (deceased %in% 0 |
-                (deceased %in% 1 & deceased_date > dato_followup_teoretisk )),
+                (deceased %in% 1 &
+                   deceased_date > dato_followup_teoretisk_5aar )),
       yes = "ja",
       no = "nei"))
 
@@ -1537,7 +1539,7 @@ getBaseregProsFollowup5Data <- function(registryName,
           # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
           (has_fiveyearfollowup %in% 1 &
              is.na(eprom_opprettet_5aar)) ~
-            "nei, ikke opprettet etter sjekk kriterier",
+            "nei, ikke opprettet etter kriteriesjekk",
 
           # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
           # "BESTILT I DAG, SENDES I MORGEN"
@@ -1557,13 +1559,13 @@ getBaseregProsFollowup5Data <- function(registryName,
         levels = c("ja",
                    "nei, registreringen er for ny",
                    "nei, opprettet satt til død",
-                   "nei, ikke opprettet etter sjekk kriterier",
+                   "nei, ikke opprettet etter kriteriesjekk",
                    "nei, eprom venter på utsendelse"),
         ordered  = TRUE),
 
 
 
-      eprom_besvart =  dplyr::case_when(
+      eprom_besvart_5aar =  dplyr::case_when(
         eprom_datagrunnlag_5aar %in% "ja" &
           proms_status %in% 3 ~ "datagrunnlag og besvart",
 
@@ -1584,7 +1586,7 @@ getBaseregProsFollowup5Data <- function(registryName,
 
       # Datagrunnlag for eprom og svarprosent
       eprom_datagrunnlag_1aar,
-      eprom_besvart,
+      eprom_besvart_5aar,
       proms_expiry_date,
 
       # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
@@ -1612,7 +1614,7 @@ getBaseregProsFollowup5Data <- function(registryName,
       followup1_dato_followup,  aar_followup_1aar,
 
       # Kriterier opprettelse av eprom
-      dato_followup_teoretisk,
+      dato_followup_teoretisk_5aar,
       dg_pros_opprettet,
       deceased, deceased_date,
       ssn_type, ssnsubtype,
