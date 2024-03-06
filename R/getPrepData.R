@@ -206,7 +206,7 @@ getFollowupBasisData <- function(registryName,
 
   # Samme navn som i kodeboken
   d_followupBasis %<>%
-     dplyr::rename_with(.data = .,
+    dplyr::rename_with(.data = .,
                        ~ paste0("FOLLOWUPBASIS_", .x),
                        .cols =c("DATO_FOLLOWUP":"STATUS"))
   names(d_followupBasis) <- tolower(names(d_followupBasis))
@@ -282,9 +282,9 @@ getFollowupOneYrData <- function(registryName,
 #' @rdname getPrepDataAblanor
 #' @export
 getFollowupFiveYrData <- function(registryName,
-                                 singleRow = FALSE,
-                                 reshId = NULL,
-                                 userRole, ...) {
+                                  singleRow = FALSE,
+                                  reshId = NULL,
+                                  userRole, ...) {
 
   . <- ""
 
@@ -398,7 +398,7 @@ getPromsData <- function(registryName,
     dplyr::mutate(
       aar_tssendt = as.ordered(lubridate::year(tssendt)),
       maaned_nr_tssendt = as.ordered(sprintf(fmt = "%02d",
-                                         lubridate::month(tssendt))),
+                                             lubridate::month(tssendt))),
       maaned_tssendt = ifelse(
         test = is.na(aar_tssendt) | is.na(maaned_nr_tssendt),
         yes = NA,
@@ -561,11 +561,11 @@ getBaseregProsData <- function(registryName,
 #' @rdname getPrepDataAblanor
 #' @export
 getBaseregProsHendelseData <- function(registryName,
-                               singleRow = FALSE,
-                               reshId = NULL,
-                               userRole,
-                               fromDate = NULL,
-                               toDate = NULL, ...){
+                                       singleRow = FALSE,
+                                       reshId = NULL,
+                                       userRole,
+                                       fromDate = NULL,
+                                       toDate = NULL, ...){
 
   d_hendelse <- getHendelse(registryName = registryName,
                             singleRow = singleRow,
@@ -575,26 +575,26 @@ getBaseregProsHendelseData <- function(registryName,
                             toDate = toDate)$d_hendelse
 
   d_mce <- getMce(registryName = registryName,
-                            singleRow = singleRow,
-                            reshId = reshId,
-                            userRole = userRole,
-                            fromDate = fromDate,
-                            toDate = toDate)$d_mce
+                  singleRow = singleRow,
+                  reshId = reshId,
+                  userRole = userRole,
+                  fromDate = fromDate,
+                  toDate = toDate)$d_mce
 
   d_pros <- getPros(registryName = registryName,
-                            singleRow = singleRow,
-                            reshId = reshId,
-                            userRole = userRole,
-                            fromDate = fromDate,
-                            toDate = toDate)$d_pros
-
-
-  d_basereg <- getBasereg(registryName = registryName,
                     singleRow = singleRow,
                     reshId = reshId,
                     userRole = userRole,
                     fromDate = fromDate,
-                    toDate = toDate)$d_basereg
+                    toDate = toDate)$d_pros
+
+
+  d_basereg <- getBasereg(registryName = registryName,
+                          singleRow = singleRow,
+                          reshId = reshId,
+                          userRole = userRole,
+                          fromDate = fromDate,
+                          toDate = toDate)$d_basereg
 
 
 
@@ -659,48 +659,103 @@ getBaseregProsFollowup1Data <- function(registryName,
                                         fromDate = NULL,
                                         toDate = NULL, ...){
 
-  . <- ""
-
-  # NB: i SQL må singleRow være FALSE, Ellers fungerer ikke kobling
-  # av tabeller og utledete variabler.
-  d <- ablanor::getBaseregProsFollowup1(registryName = registryName,
-                                        singleRow = FALSE,
-                                        reshId = reshId,
-                                        userRole = userRole,
-                                        fromDate = fromDate,
-                                        toDate = toDate)
-  d_baseregPat <- d$d_baseregPat
-  d_followup <- d$d_followup
-  d_proms <- d$d_proms
-  d_rand12 <- d$d_rand12
 
 
+  # GET ALL TABELS NEEDED
+  d_basereg <- ablanor::getBasereg(registryName = "ablanor",
+                                   singleRow = FALSE,
+                                   reshId = reshId,
+                                   userRole = userRole,
+                                   fromDate = fromDate,
+                                   toDate = toDate)$d_basereg
 
-  d_followup %<>%
-    dplyr::rename("MCEID_FOLLOWUP" = "MCEID",
-                  "MCEID" = "PARENTMCEID") %>%
+  d_pros <- ablanor::getPros(registryName = "ablanor",
+                             singleRow = FALSE,
+                             reshId = reshId,
+                             userRole = userRole,
+                             fromDate = fromDate,
+                             toDate = toDate)$d_pros
+
+  d_followup1 <- ablanor::getFollowupOneYr(registryName = "ablanor",
+                                           singleRow = FALSE,
+                                           reshId = reshId,
+                                           userRole = userRole,
+                                           fromDate = NULL,
+                                           toDate = NULL)$d_followup1
+
+  d_proms <- ablanor::getProms(registryName = "ablanor",
+                               singleRow = FALSE,
+                               reshId = reshId,
+                               userRole = userRole,
+                               fromDate = NULL,
+                               toDate = NULL)$d_proms
+
+  d_rand12 <- ablanor::getRand12(registryName = "ablanor",
+                                 singleRow = FALSE,
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = NULL,
+                                 toDate = NULL)$d_rand12
+
+  d_mce <- ablanor::getMce(registryName = "ablanor",
+                           singleRow = FALSE,
+                           reshId = reshId,
+                           userRole = userRole,
+                           fromDate = NULL,
+                           toDate = NULL)$d_mce
+
+
+  # Tar utgangspunkt i alle tilgjengelige oppfølgingsdata for 1 aar
+  # Legger til mceid for followup
+  followup_data <- d_followup1 %>%
+    dplyr::rename("MCEID_FOLLOWUP1" = MCEID) %>%
     dplyr::rename_with(.data = .,
                        ~ paste0("FOLLOWUP1_", .x),
-                       .cols =c("TSCREATED":"STATUS")) %>%
-    dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
-    dplyr::select(-MCETYPE)
+                       .cols =c("COMPLETE":"STATUS")) %>%
+    dplyr::left_join(.,
+                     d_mce %>%
+                       filter(MCETYPE == 9) %>%
+                       select(MCEID, PARENTMCEID) %>%
+                       rename("MCEID_FOLLOWUP1" = MCEID,
+                              "MCEID" = PARENTMCEID),
+                     by = "MCEID_FOLLOWUP1") %>%
+    dplyr::mutate(eprom_opprettet_1aar = "ja")
 
 
+
+
+  # VELGER KUN 1 års oppfølging
   d_proms %<>%
+    dplyr::filter(REGISTRATION_TYPE == "Followup") %>%
     dplyr::rename("PROMS_STATUS" = "STATUS",
                   "MCEID_FOLLOWUP" = "MCEID",
                   "PROMS_TSSENDT" = "TSSENDT",
                   "PROMS_EXPIRY_DATE" = "EXPIRY_DATE") %>%
-    dplyr::mutate(eprom_sendt_1aar = "ja")
+    dplyr::mutate(eprom_sendt_1aar = "ja") %>%
+    dplyr::select(MCEID_FOLLOWUP,
+                  PROMS_TSSENDT,
+                  PROMS_STATUS,
+                  PROMS_EXPIRY_DATE,
+                  eprom_sendt_1aar)
 
+  # RAND 12 fra kun 1 års oppfølging
   d_rand12 %<>%
-    dplyr::rename("MCEID_FOLLOWUP" = "MCEID")
+    dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 9, COMPLETE == 1) %>%
+    dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
+    dplyr::mutate(besvart_rand12 = "ja") %>%
+    dplyr::relocate(besvart_rand12, .before = RAND_1) %>%
 
 
-  names(d_followup) <- tolower(names(d_followup))
+
+
+  names(followup_data) <- tolower(names(followup_data))
   names(d_proms) <- tolower(names(d_proms))
-  names(d_baseregPat) <- tolower(names(d_baseregPat))
   names(d_rand12) <- tolower(names(d_rand12))
+  names(d_basereg) <- tolower(names(d_basereg))
+  names(d_pros) <- tolower(names(d_pros))
+
+
+
 
 
 
@@ -767,8 +822,8 @@ getBaseregProsFollowup1Data <- function(registryName,
       yes = "ja",
       no = "nei"))
 
-    # KRITERIE 4: Ingen ny prosedyre av samme type
-    d_ablanor %<>%
+  # KRITERIE 4: Ingen ny prosedyre av samme type
+  d_ablanor %<>%
     dplyr::arrange(dato_pros) %>%
     dplyr::group_by(patient_id, forlopstype) %>%
     dplyr::mutate(
@@ -794,7 +849,7 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
 
-    d_ablanor %<>%
+  d_ablanor %<>%
     dplyr::mutate(
 
       # Tidsvariabler for prosedyre
@@ -823,7 +878,7 @@ getBaseregProsFollowup1Data <- function(registryName,
         followup1_tscreated,
         dato_pros,
         units = "days"))
-      ) %>%
+    ) %>%
     dplyr::select(-maaned_nr_prosedyre) %>%
     dplyr::arrange(mceid) %>%
 
@@ -831,7 +886,7 @@ getBaseregProsFollowup1Data <- function(registryName,
       eprom_kjente_feil_1aar = dplyr::case_when(
 
         dato_pros == as.Date("2021-09-01", format = "%Y-%m-%d") ~
-        "teknisk problem",
+          "teknisk problem",
 
         (dato_pros >= as.Date("2020-01-01", format = "%Y-%m-%d") &
            dato_pros <= as.Date("2020-01-24", format = "%Y-%m-%d")) ~
@@ -844,91 +899,91 @@ getBaseregProsFollowup1Data <- function(registryName,
            is.na(eprom_sendt_1aar))~
           "teknisk problem",
 
-      TRUE ~ "nei"),
+        TRUE ~ "nei"),
 
       eprom_datagrunnlag_1aar = factor(
         x = dplyr::case_when(
 
           #  ALT FOR NYE REGISTRERINGER
           dato_pros > nyeste_eprom_bestilling ~
-          "nei, registreringen er for ny",
+            "nei, registreringen er for ny",
 
           # ALT FOR GAMLE REGISTRERINGER
-         dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
-           "nei, før innføring av 1års oppf.",
+          dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
+            "nei, før innføring av 1års oppf.",
 
-         dato_pros  == as.Date("2020-01-01", format = "%Y-%m-%d") &
-           is.na(eprom_opprettet_1aar) ~
-           "nei, før innføring av 1års oppf.",
+          dato_pros  == as.Date("2020-01-01", format = "%Y-%m-%d") &
+            is.na(eprom_opprettet_1aar) ~
+            "nei, før innføring av 1års oppf.",
 
-         # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
-         (has_followup %in% 1 &
-            eprom_opprettet_1aar %in% "ja" &
-            followup1_incomplete_reason %in% 3) ~
-           "nei, opprettet satt til død",
+          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
+          (has_followup %in% 1 &
+             eprom_opprettet_1aar %in% "ja" &
+             followup1_incomplete_reason %in% 3) ~
+            "nei, opprettet satt til død",
 
-         # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
-         (has_followup %in% 1 &
-            eprom_opprettet_1aar %in% "ja" &
-            kriterie_alle_1aar %in% "nei" &
-            eprom_sendt_1aar %in% "ja" &
-            eprom_kjente_feil_1aar %in% "nei") ~
-           "nei, eprom feilaktig sendt, sjekk kriterier",
-
-
-         # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
-         (has_followup %in% 1 &
-            versjon_1_5_eller_mer %in% "ja" &
-            is.na(eprom_opprettet_1aar)) ~
-           "nei, ikke opprettet etter kriteriesjekk",
-
-         # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
-         # "BESTILT I DAG, SENDES I MORGEN"
-         (has_followup %in% 1 &
-            eprom_opprettet_1aar %in% "ja" &
-            kriterie_alle_1aar %in% "ja" &
-            eprom_kjente_feil_1aar %in% "nei" &
-            is.na(eprom_sendt_1aar)) ~
-           "nei, eprom venter på utsendelse",
+          # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
+          (has_followup %in% 1 &
+             eprom_opprettet_1aar %in% "ja" &
+             kriterie_alle_1aar %in% "nei" &
+             eprom_sendt_1aar %in% "ja" &
+             eprom_kjente_feil_1aar %in% "nei") ~
+            "nei, eprom feilaktig sendt, sjekk kriterier",
 
 
-         # GAMMEL VERSJON: EPROM  OPPRETTET FOR ALLE, MEN
-         # KONTROLL KRITERIER FØR UTSENDING
-         (has_followup %in% 1 &
-            versjon_1_5_eller_mer %in% "nei" &
-            eprom_opprettet_1aar %in% "ja" &
-            is.na(eprom_sendt_1aar) &
-            (kriterie_levende_1aar %in% "nei" |
-               kriterie_norsk %in% "nei" |
-               kriterie_alder %in% "nei") &
-            !followup1_incomplete_reason %in% 3 &
-            eprom_kjente_feil_1aar %in% "nei") ~
-           "nei, opprettet men ikke sendt etter kriteriesjekk",
+          # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
+          (has_followup %in% 1 &
+             versjon_1_5_eller_mer %in% "ja" &
+             is.na(eprom_opprettet_1aar)) ~
+            "nei, ikke opprettet etter kriteriesjekk",
+
+          # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
+          # "BESTILT I DAG, SENDES I MORGEN"
+          (has_followup %in% 1 &
+             eprom_opprettet_1aar %in% "ja" &
+             kriterie_alle_1aar %in% "ja" &
+             eprom_kjente_feil_1aar %in% "nei" &
+             is.na(eprom_sendt_1aar)) ~
+            "nei, eprom venter på utsendelse",
 
 
-         # NY VERJSON: OPPRETTET, MEN IKKE SENDT SKYLES TEKNISKE PROBLEM
-         # RETT ETTER RELEASE
-         (has_followup %in% 1 &
-            versjon_1_5_eller_mer %in% "ja" &
-            eprom_opprettet_1aar %in% "ja" &
-            is.na(eprom_sendt_1aar) &
-            !eprom_kjente_feil_1aar %in% "nei") ~
-           "nei, opprettet men teknisk feil ved bestilling",
-
-         # GAMMEL VERSJON: OPPRETTET, TEKNISK PROBLEM VED UTSENDELSE I 2021/22,
-         # MED ELLER UTEN FEILAKTIG UTSENDING I 2023
-         (has_followup %in% 1 &
-            versjon_1_5_eller_mer %in% "nei" &
-            eprom_opprettet_1aar %in% "ja" &
-            !eprom_kjente_feil_1aar %in% "nei") ~
-           "nei, teknisk, mangler utsending eller feilaktig sendt i 2023",
+          # GAMMEL VERSJON: EPROM  OPPRETTET FOR ALLE, MEN
+          # KONTROLL KRITERIER FØR UTSENDING
+          (has_followup %in% 1 &
+             versjon_1_5_eller_mer %in% "nei" &
+             eprom_opprettet_1aar %in% "ja" &
+             is.na(eprom_sendt_1aar) &
+             (kriterie_levende_1aar %in% "nei" |
+                kriterie_norsk %in% "nei" |
+                kriterie_alder %in% "nei") &
+             !followup1_incomplete_reason %in% 3 &
+             eprom_kjente_feil_1aar %in% "nei") ~
+            "nei, opprettet men ikke sendt etter kriteriesjekk",
 
 
-         # DISSE ER MED I DATAGRUNNLAGET!
-         (has_followup %in% 1 &
-            eprom_opprettet_1aar %in% "ja" &
-            kriterie_alle_1aar %in% "ja" &
-            eprom_kjente_feil_1aar %in% "nei") ~ "ja"),
+          # NY VERJSON: OPPRETTET, MEN IKKE SENDT SKYLES TEKNISKE PROBLEM
+          # RETT ETTER RELEASE
+          (has_followup %in% 1 &
+             versjon_1_5_eller_mer %in% "ja" &
+             eprom_opprettet_1aar %in% "ja" &
+             is.na(eprom_sendt_1aar) &
+             !eprom_kjente_feil_1aar %in% "nei") ~
+            "nei, opprettet men teknisk feil ved bestilling",
+
+          # GAMMEL VERSJON: OPPRETTET, TEKNISK PROBLEM VED UTSENDELSE I 2021/22,
+          # MED ELLER UTEN FEILAKTIG UTSENDING I 2023
+          (has_followup %in% 1 &
+             versjon_1_5_eller_mer %in% "nei" &
+             eprom_opprettet_1aar %in% "ja" &
+             !eprom_kjente_feil_1aar %in% "nei") ~
+            "nei, teknisk, mangler utsending eller feilaktig sendt i 2023",
+
+
+          # DISSE ER MED I DATAGRUNNLAGET!
+          (has_followup %in% 1 &
+             eprom_opprettet_1aar %in% "ja" &
+             kriterie_alle_1aar %in% "ja" &
+             eprom_kjente_feil_1aar %in% "nei") ~ "ja"),
 
 
         levels = c("ja",
@@ -951,72 +1006,72 @@ getBaseregProsFollowup1Data <- function(registryName,
 
         eprom_datagrunnlag_1aar %in% "ja" &
           !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
-      )
+    )
 
 
 
 
-    # RYDDE:
-    d_ablanor %<>%
-      dplyr::select(
-        # Pasient og prosedyre
-        centreid, mceid, mceid_followup, patient_id,
-        forlopstype,
-        dato_pros, aar_prosedyre, maaned_prosedyre,
-        gender, alder, aldersklasse,
+  # RYDDE:
+  d_ablanor %<>%
+    dplyr::select(
+      # Pasient og prosedyre
+      centreid, mceid, mceid_followup, patient_id,
+      forlopstype,
+      dato_pros, aar_prosedyre, maaned_prosedyre,
+      gender, alder, aldersklasse,
 
-        # Datagrunnlag for eprom og svarprosent
-        eprom_datagrunnlag_1aar,
-        eprom_besvart_1aar,
-        proms_expiry_date,
+      # Datagrunnlag for eprom og svarprosent
+      eprom_datagrunnlag_1aar,
+      eprom_besvart_1aar,
+      proms_expiry_date,
 
-        # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
-        # besvart manuelt.
-        followup1_q1:followup1_q7_other_specify,
-        rand_1:rand_7,
+      # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
+      # besvart manuelt.
+      followup1_q1:followup1_q7_other_specify,
+      rand_1:rand_7,
 
-        # Variabler for å undersøke kriterier for utendelse av eprom nærmere
+      # Variabler for å undersøke kriterier for utendelse av eprom nærmere
 
-        # fra hemit
-        proms_expiry_date, reminder_date,
-        proms_status, form_order_status_error_code,
-        proms_tssendt, aar_proms_tssendt_1aar,
+      # fra hemit
+      proms_expiry_date, reminder_date,
+      proms_status, form_order_status_error_code,
+      proms_tssendt, aar_proms_tssendt_1aar,
 
-        # eprom opprettet
-        has_followup,
-        registration_type,
-        eprom_opprettet_1aar,
-        followup1_tscreated, aar_followup_tscreated_1aar,
-        followup1_complete, followup1_incomplete_reason,
+      # eprom opprettet
+      has_followup,
+      registration_type,
+      eprom_opprettet_1aar,
+      followup1_tscreated, aar_followup_tscreated_1aar,
+      followup1_complete, followup1_incomplete_reason,
 
-        eprom_sendt_1aar,
+      eprom_sendt_1aar,
 
-        # Eprom utfylt og mottatt
-        followup1_dato_followup,  aar_followup_1aar,
+      # Eprom utfylt og mottatt
+      followup1_dato_followup,  aar_followup_1aar,
 
-        # Kriterier opprettelse av eprom
-        dato_followup_teoretisk_1aar,
-        versjon_1_5_eller_mer,
-        eprom_kjente_feil_1aar,
-        dg_pros_opprettet,
-        deceased, deceased_date,
-        ssn_type, ssnsubtype,
-        antall_pros, dg_til_neste,
-        kriterie_alder, kriterie_norsk, kriterie_levende_1aar,
-        kriterie_nyeste_1aar,
-        kriterie_alle_1aar)
-
-
+      # Kriterier opprettelse av eprom
+      dato_followup_teoretisk_1aar,
+      versjon_1_5_eller_mer,
+      eprom_kjente_feil_1aar,
+      dg_pros_opprettet,
+      deceased, deceased_date,
+      ssn_type, ssnsubtype,
+      antall_pros, dg_til_neste,
+      kriterie_alder, kriterie_norsk, kriterie_levende_1aar,
+      kriterie_nyeste_1aar,
+      kriterie_alle_1aar)
 
 
 
-    if(singleRow == TRUE) {
-      # Return first row only
-      d_ablanor %>% dplyr::filter(dplyr::row_number() == 1)
-    } else {
-      # Return all
-      d_ablanor
-    }
+
+
+  if(singleRow == TRUE) {
+    # Return first row only
+    d_ablanor %>% dplyr::filter(dplyr::row_number() == 1)
+  } else {
+    # Return all
+    d_ablanor
+  }
 }
 
 
@@ -1075,22 +1130,22 @@ getBaseregProsFollowup0Data <- function(registryName,
 
   # RAND12 skjema fra før eprom ved basis, ble samlet inn og plottet manuelt,
   # på utskrivelses-skjema (mceid til prosedyren)
-   d_rand12_manual <- d_rand12_raw %>%
+  d_rand12_manual <- d_rand12_raw %>%
     dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 1:4) %>%
     dplyr::mutate(besvart_rand12 = "manuelt") %>%
     dplyr::relocate(besvart_rand12, .before = RAND_1)
 
-   # RAND12 skjema etter før eprom ved basis,
-   # henger på elekronisk oppfølging (mceid til followup)
-   d_rand12_eprom <- d_rand12_raw %>%
-     dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 7) %>%
-     dplyr::mutate(besvart_rand12 = "elektronisk") %>%
-     dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
-     dplyr::relocate(besvart_rand12, .before = RAND_1) %>%
-     dplyr::left_join(.,
-                      d_followup %>% dplyr::select(MCEID_FOLLOWUP, MCEID),
-                      by = "MCEID_FOLLOWUP") %>%
-     dplyr::relocate(MCEID, .before = FOLLOWUP_PARENT_TYPE)
+  # RAND12 skjema etter før eprom ved basis,
+  # henger på elekronisk oppfølging (mceid til followup)
+  d_rand12_eprom <- d_rand12_raw %>%
+    dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 7) %>%
+    dplyr::mutate(besvart_rand12 = "elektronisk") %>%
+    dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
+    dplyr::relocate(besvart_rand12, .before = RAND_1) %>%
+    dplyr::left_join(.,
+                     d_followup %>% dplyr::select(MCEID_FOLLOWUP, MCEID),
+                     by = "MCEID_FOLLOWUP") %>%
+    dplyr::relocate(MCEID, .before = FOLLOWUP_PARENT_TYPE)
 
   # Slå sammen rand12 fra manuell plotting og fra eprom ved basis
   # Merk, to pasienter fra 8/11-2023 (innføring eprom basis) har begge deler,
@@ -1174,8 +1229,8 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
   # ALLE KRITERIER VED BASIS
-    d_ablanor %<>%
-      dplyr::mutate(
+  d_ablanor %<>%
+    dplyr::mutate(
       kriterie_alle_basis = ifelse(
         test = (kriterie_alder %in% "ja" &
                   kriterie_levende %in% "ja" &
@@ -1212,14 +1267,14 @@ getBaseregProsFollowup0Data <- function(registryName,
       aar_followup_besvart_basis = as.ordered(
         x = lubridate::year(followupbasis_dato_followup))) %>%
 
-     dplyr::arrange(mceid) %>%
+    dplyr::arrange(mceid) %>%
 
 
 
-      dplyr::mutate(
+    dplyr::mutate(
 
-        eprom_datagrunnlag_basis = factor(
-          x = dplyr::case_when(
+      eprom_datagrunnlag_basis = factor(
+        x = dplyr::case_when(
 
           # ALT FOR GAMLE REGISTRERINGER
           dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
@@ -1273,7 +1328,7 @@ getBaseregProsFollowup0Data <- function(registryName,
         eprom_datagrunnlag_basis %in% "ja" &
           !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
 
-      )
+    )
 
 
 
@@ -1521,39 +1576,39 @@ getBaseregProsFollowup5Data <- function(registryName,
 
 
 
-      eprom_datagrunnlag_5aar = factor(
-        x = dplyr::case_when(
+    eprom_datagrunnlag_5aar = factor(
+      x = dplyr::case_when(
 
-          #  ALT FOR NYE REGISTRERINGER
-          dato_pros > nyeste_eprom_bestilling ~
-            "nei, registreringen er for ny",
-
-
-          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
-          (has_fiveyearfollowup %in% 1 &
-             eprom_opprettet_5aar %in% "ja" &
-             followup5_incomplete_reason %in% 3) ~
-            "nei, opprettet satt til død",
+        #  ALT FOR NYE REGISTRERINGER
+        dato_pros > nyeste_eprom_bestilling ~
+          "nei, registreringen er for ny",
 
 
-          # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
-          (has_fiveyearfollowup %in% 1 &
-             is.na(eprom_opprettet_5aar)) ~
-            "nei, ikke opprettet etter kriteriesjekk",
-
-          # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
-          # "BESTILT I DAG, SENDES I MORGEN"
-          (has_fiveyearfollowup %in% 1 &
-             eprom_opprettet_5aar %in% "ja" &
-             kriterie_alle_5aar %in% "ja" &
-             is.na(eprom_sendt_5aar)) ~
-            "nei, eprom venter på utsendelse",
+        # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
+        (has_fiveyearfollowup %in% 1 &
+           eprom_opprettet_5aar %in% "ja" &
+           followup5_incomplete_reason %in% 3) ~
+          "nei, opprettet satt til død",
 
 
-           # DISSE ER MED I DATAGRUNNLAGET!
-          (has_fiveyearfollowup %in% 1 &
-             eprom_opprettet_5aar %in% "ja" &
-             kriterie_alle_5aar %in% "ja") ~ "ja",
+        # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
+        (has_fiveyearfollowup %in% 1 &
+           is.na(eprom_opprettet_5aar)) ~
+          "nei, ikke opprettet etter kriteriesjekk",
+
+        # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
+        # "BESTILT I DAG, SENDES I MORGEN"
+        (has_fiveyearfollowup %in% 1 &
+           eprom_opprettet_5aar %in% "ja" &
+           kriterie_alle_5aar %in% "ja" &
+           is.na(eprom_sendt_5aar)) ~
+          "nei, eprom venter på utsendelse",
+
+
+        # DISSE ER MED I DATAGRUNNLAGET!
+        (has_fiveyearfollowup %in% 1 &
+           eprom_opprettet_5aar %in% "ja" &
+           kriterie_alle_5aar %in% "ja") ~ "ja",
 
 
         levels = c("ja",
