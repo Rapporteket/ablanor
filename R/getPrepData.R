@@ -1101,108 +1101,233 @@ getBaseregProsFollowup0Data <- function(registryName,
                                         fromDate = NULL,
                                         toDate = NULL, ...){
 
-  . <- ""
+  d_basereg <- ablanor::getBasereg(registryName = "ablanor",
+                                   singleRow = FALSE,
+                                   reshId = reshId,
+                                   userRole = userRole,
+                                   fromDate = fromDate,
+                                   toDate = toDate)$d_basereg
 
-  # NB: i SQL må singleRow være FALSE, Ellers fungerer ikke kobling
-  # av tabeller og utledete variabler.
-  d <- ablanor::getBaseregProsFollowup0(registryName = registryName,
-                                        singleRow = FALSE,
-                                        reshId = reshId,
-                                        userRole = userRole,
-                                        fromDate = fromDate,
-                                        toDate = toDate)
-  d_baseregPat <- d$d_baseregPat
-  d_followup <- d$d_followup
-  d_proms <- d$d_proms
-  d_gkv <- d$d_gkv
-  d_rand12_raw <- d$d_rand12
+  d_pros <- ablanor::getPros(registryName = "ablanor",
+                             singleRow = FALSE,
+                             reshId = reshId,
+                             userRole = userRole,
+                             fromDate = fromDate,
+                             toDate = toDate)$d_pros
+
+  d_followupBasis <- ablanor::getFollowupBasis(registryName = "ablanor",
+                                           singleRow = FALSE,
+                                           reshId = reshId,
+                                           userRole = userRole,
+                                           fromDate = NULL,
+                                           toDate = NULL)$d_followupBasis
+
+  d_proms <- ablanor::getProms(registryName = "ablanor",
+                               singleRow = FALSE,
+                               reshId = reshId,
+                               userRole = userRole,
+                               fromDate = NULL,
+                               toDate = NULL)$d_proms
+
+  d_rand12 <- ablanor::getRand12(registryName = "ablanor",
+                                 singleRow = FALSE,
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = NULL,
+                                 toDate = NULL)$d_rand12
+
+  d_mce <- ablanor::getMce(registryName = "ablanor",
+                           singleRow = FALSE,
+                           reshId = reshId,
+                           userRole = userRole,
+                           fromDate = NULL,
+                           toDate = NULL)$d_mce
+
+  d_mcePatientdata <- ablanor::getMcepatientdata(registryName = "ablanor",
+                                                 singleRow = FALSE,
+                                                 reshId = reshId,
+                                                 userRole = userRole,
+                                                 fromDate = NULL,
+                                                 toDate = NULL)$d_mce_patient_data
+
+
+  d_patientlist <- ablanor::getPatientlist(registryName = "ablanor",
+                                           singleRow = FALSE,
+                                           reshId = reshId,
+                                           userRole = userRole,
+                                           fromDate = NULL,
+                                           toDate = NULL)$d_patientlist
+
+  d_gkv <- ablanor::getGkv(registryName = "ablanor",
+                                           singleRow = FALSE,
+                                           reshId = reshId,
+                                           userRole = userRole,
+                                           fromDate = NULL,
+                                           toDate = NULL)$d_gkv
+
+  names(d_followupBasis) <- tolower(names(d_followupBasis))
+  names(d_proms) <- tolower(names(d_proms))
+  names(d_rand12) <- tolower(names(d_rand12))
+  names(d_basereg) <- tolower(names(d_basereg))
+  names(d_pros) <- tolower(names(d_pros))
+  names(d_mcePatientdata) <- tolower(names(d_mcePatientdata))
+  names(d_patientlist) <- tolower(names(d_patientlist))
+  names(d_mce) <- tolower(names(d_mce))
+  names(d_gkv) <- tolower(names(d_gkv))
 
 
 
-  d_followup %<>%
-    dplyr::rename("MCEID_FOLLOWUP" = "MCEID",
-                  "MCEID" = "PARENTMCEID") %>%
-    dplyr::rename_with(.data = .,
-                       ~ paste0("FOLLOWUPBASIS_", .x),
-                       .cols =c("TSCREATED":"STATUS")) %>%
-    dplyr::mutate(eprom_opprettet_basis = "ja") %>%
-    dplyr::select(-MCETYPE)
 
+  # 2. PROCESS FOLLOWUP DATA----
 
+  # A) PROMS - KUN BASISFOLLOWUP
   d_proms %<>%
-    dplyr::rename("PROMS_STATUS" = "STATUS",
-                  "MCEID_FOLLOWUP" = "MCEID",
-                  "PROMS_TSSENDT" = "TSSENDT",
-                  "PROMS_EXPIRY_DATE" = "EXPIRY_DATE") %>%
-    dplyr::mutate(eprom_sendt_basis = "ja")
+    dplyr::filter(registration_type == "Basisfollowup") %>%
+    dplyr::rename("proms_status" = "status",
+                  "mceid_followupbasis" = "mceid",
+                  "proms_tssendt" = "tssendt",
+                  "proms_expiry_date" = "expiry_date") %>%
+    dplyr::mutate(eprom_sendt_basis = "ja") %>%
+    dplyr::select(mceid_followupbasis,
+                  proms_tssendt,
+                  proms_status,
+                  proms_expiry_date,
+                  eprom_sendt_basis)
 
-  d_gkv %<>%
-    dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
-    dplyr::mutate(besvart_gkv = "ja") %>%
-    dplyr::relocate(besvart_gkv, .before = GKV_1)
-
-
-
+  # B) RAND 12 - KUN  BASIS-FOLLOWUP, MANUELL OG ELEKTRONISKE
   # RAND12 skjema fra før eprom ved basis, ble samlet inn og plottet manuelt,
   # på utskrivelses-skjema (mceid til prosedyren)
-  d_rand12_manual <- d_rand12_raw %>%
-    dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 1:4) %>%
-    dplyr::mutate(besvart_rand12 = "manuelt") %>%
-    dplyr::relocate(besvart_rand12, .before = RAND_1)
+  d_rand12_manual <- d_rand12  %>%
+    dplyr::filter(followup_parent_type %in% 1:4, complete == 1) %>%
+    dplyr::mutate(besvart_rand12 = "manuelt")
 
   # RAND12 skjema etter før eprom ved basis,
   # henger på elekronisk oppfølging (mceid til followup)
-  d_rand12_eprom <- d_rand12_raw %>%
-    dplyr::filter(FOLLOWUP_PARENT_TYPE %in% 7) %>%
+  d_rand12_eprom <- d_rand12 %>%
+    dplyr::filter(followup_parent_type %in% 7, complete == 1) %>%
     dplyr::mutate(besvart_rand12 = "elektronisk") %>%
-    dplyr::rename("MCEID_FOLLOWUP" = "MCEID") %>%
-    dplyr::relocate(besvart_rand12, .before = RAND_1) %>%
+    dplyr::rename("mceid_followupbasis" = "mceid") %>%
     dplyr::left_join(.,
-                     d_followup %>% dplyr::select(MCEID_FOLLOWUP, MCEID),
-                     by = "MCEID_FOLLOWUP") %>%
-    dplyr::relocate(MCEID, .before = FOLLOWUP_PARENT_TYPE)
+                     d_mce %>% transmute(mceid_followupbasis = mceid,
+                                         mceid = parentmceid,),
+                     by = "mceid_followupbasis") %>%
+    dplyr::relocate(mceid, .before = followup_parent_type)
+
 
   # Slå sammen rand12 fra manuell plotting og fra eprom ved basis
   # Merk, to pasienter fra 8/11-2023 (innføring eprom basis) har begge deler,
-  # vi bruker da eprom
+  # vi bruker da eprom.
+  # SAMLET ALLE RAND 12 henger på MCEID
   dobbel_rand12 <- dplyr::inner_join(
-    d_rand12_eprom %>% dplyr::select(MCEID),
-    d_rand12_manual %>% dplyr::select(MCEID),
-    by = "MCEID") %>%
+    d_rand12_eprom %>% dplyr::select(mceid),
+    d_rand12_manual %>% dplyr::select(mceid),
+    by = "mceid") %>%
     dplyr::pull()
+  d_rand12_basis <- dplyr::bind_rows(
+    d_rand12_manual %>% dplyr::filter(!mceid %in% dobbel_rand12),
+    d_rand12_eprom %>% dplyr::select(-mceid_followupbasis))
+
+   d_rand12_basis %<>%
+    dplyr::select(mceid, centreid, dato_rand12, besvart_rand12,
+                  rand_1:rand_7)
 
 
-  d_rand12 <- dplyr::bind_rows(
-    d_rand12_manual %>% dplyr::filter(!MCEID %in% dobbel_rand12),
-    d_rand12_eprom %>% dplyr::select(-MCEID_FOLLOWUP))
+  # GKV
+  d_gkv %<>%
+    dplyr::filter(complete == 1 & form_completed_via_proms == 1) %>%
+    dplyr::select(mceid, centreid, dato_gkv, gkv_1:gkv_12) %>%
+    dplyr::rename("mceid_followupbasis"  = mceid)
 
 
-  names(d_followup) <- tolower(names(d_followup))
-  names(d_proms) <- tolower(names(d_proms))
-  names(d_baseregPat) <- tolower(names(d_baseregPat))
-  names(d_gkv) <- tolower(names(d_gkv))
-  names(d_rand12) <- tolower(names(d_rand12))
-
-
-
-  # Sjekk at bare en oppfølging per forløp
-  # (I starten ble flere skjema sendt ut da er det nyeste skjema som gjelder)
-  followup_data <- d_followup %>%
-    dplyr::filter(!is.na(followupbasis_status)) %>%
+  # Tar utgangspunkt i alle tilgjengelige oppfølgingsdata for 1 aar
+  # Legger til mceid for followup og proms variabler
+  followup_dataBasis <- d_followupBasis %>%
+    dplyr::rename("mceid_followupbasis" = mceid) %>%
+    dplyr::rename_with(.data = .,
+                       ~ paste0("followupbasis_", .x),
+                       .cols =c("complete":"status", "tscreated")) %>%
+    dplyr::select(-tsupdated,
+                  -updatedby,
+                  -form_completed_via_proms,
+                  -first_time_closed,
+                  -first_time_closed_by,
+                  -createdby) %>%
+    dplyr::left_join(.,
+                     d_mce %>%
+                       filter(mcetype == 7) %>%
+                       select(mceid, parentmceid) %>%
+                       rename("mceid_followupbasis" = mceid,
+                              "mceid" = parentmceid),
+                     by = "mceid_followupbasis") %>%
+    dplyr::mutate(eprom_opprettet_basis = "ja") %>%
     dplyr::left_join(.,
                      d_proms,
-                     by = "mceid_followup")
+                     by = "mceid_followupbasis") %>%
 
-
-  # Legg til follow-up i pasient - prosedyre - data
-  d_ablanor <- d_baseregPat %>%
     dplyr::left_join(.,
-                     followup_data,
-                     by = c("mceid", "centreid", "patient_id"))
+                     d_gkv,
+                     by = c("mceid_followupbasis", "centreid")) %>%
+    relocate("mceid", .before = "mceid_followupbasis") %>%
+    relocate("eprom_opprettet_basis", "eprom_sendt_basis", .before = "dato_followup") %>%
+    relocate("proms_tssendt", "proms_status", "proms_expiry_date", .before ="dato_followup"  )
+
+
+
+
+
+
+  # PROCESS PATIENT - BASEREG AND PROCEDURE DATA ----
+  d_pros %<>%
+    dplyr::select(
+      mceid:dato_pros,
+      redo, redo_times, narkose,
+      pros_varighet, rtg_tid, abla_varighet,
+      dplyr::contains("aryt_i"),
+      dplyr::contains("sys_"),
+      dplyr::contains("abla_strat"),
+      akutt_suksess,
+      oppsummering,
+      dplyr::contains("komp_")
+    )
+
+
+  d_basereg %<>%
+    dplyr::select(
+      mceid:forskyvning
+    )
+
+  d_mcePatientdata %<>%
+    dplyr::select(pid, mceid) %>%
+    dplyr::rename(patient_id = pid)
+
+  d_patientlist %<>%
+    dplyr::select(id, birth_date, gender, deceased, deceased_date, ssn_type, ssnsubtype) %>%
+    dplyr::rename(patient_id = id)
+
+
+  # ENDELIG DATASETT MED PASIENT - BASEREG - PROSEDYRE - FOLLOWUPDATA ----
+  df <- right_join(d_basereg,
+                   d_pros,
+                   by = c("mceid", "centreid")) %>%
+    dplyr::filter(!is.na(forlopstype))%>%
+    dplyr::right_join(x = d_mce %>% dplyr::select(mceid, patient_id, has_basisfollowup),
+                      y = .,
+                      by = "mceid") %>%
+    dplyr::right_join(x = d_patientlist %>% dplyr::distinct(),
+                      y = .,
+                      by = c("patient_id"),
+                      multiple = "all") %>%
+    dplyr::left_join(.,
+                     followup_dataBasis,
+                     by = c("mceid", "centreid")) %>%
+    dplyr::left_join(.,
+                     d_rand12_basis,
+                     by = c("mceid", "centreid"))
+
 
   # Nyeste prosedyredato som har eprom:
   nyeste_eprom_bestilling <- lubridate::date(max(
-    d_ablanor %>%
+    df %>%
       dplyr::filter(!is.na(followupbasis_status)) %>%
       dplyr::pull(dato_pros)))
 
@@ -1210,53 +1335,54 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
 
-  d_ablanor %<>%
 
+
+
+  # KRITERIER FOR EPROM ----
+  df %<>%
     # KRITERIER FOR UTSENDING
-    # KRITERIE 1. Alder. Under 16 på prosedyretidspunktet.
+    # KRITERIE 1. Alder. Under 16 p<U+00E5> prosedyretidspunktet.
     ablanor::utlede_alder() %>%
     ablanor::utlede_aldersklasse() %>%
     dplyr::mutate(kriterie_alder = ifelse(test = alder >= 16,
                                           yes = "ja",
                                           no = "nei")) %>%
 
-    # KRITERIE 2. Norsk fødselsnummer
+    # KRITERIE 2. Norsk f<U+00F8>dselsnummer
     dplyr::mutate(kriterie_norsk = ifelse(
       test = (ssn_type %in% 1 & ssnsubtype %in% c(1, 3)),
       yes = "ja",
       no = "nei")) %>%
 
-    # KRITERIE 3. Levende dagen etter prosedyren
+    # KRITERIE 3. Levende dagen etter etter prosedyren
     dplyr::mutate(kriterie_levende = ifelse(
       test = (deceased %in% 0 |
-                (deceased %in% 1 & deceased_date > dato_pros )),
+                (deceased %in% 1 & deceased_date > dato_pros)),
       yes = "ja",
       no = "nei")) %>%
 
     # KRITERIE 4: Minst en av prosedyrevarighet, rtg_tid eller abla_varighet
     # er fylt ut
-    dplyr::mutate(kriterie_tid = ifelse(
-      test = (!is.na(pros_varighet) |
-                !is.na(rtg_tid) |
-                !is.na(abla_varighet)),
-      yes = "ja",
-      no = "nei"))
-
-
-  # ALLE KRITERIER VED BASIS
-  d_ablanor %<>%
     dplyr::mutate(
+      kriterie_tid = ifelse(
+        test = (!is.na(pros_varighet) |
+                  !is.na(rtg_tid) |
+                  !is.na(abla_varighet)),
+        yes = "ja",
+        no = "nei"),
+
+      # KRITERIE ALLE
       kriterie_alle_basis = ifelse(
-        test = (kriterie_alder %in% "ja" &
+        test = (kriterie_tid %in% "ja" &
+                  kriterie_alder %in% "ja" &
                   kriterie_levende %in% "ja" &
-                  kriterie_norsk %in% "ja" &
-                  kriterie_tid %in% "ja"),
+                  kriterie_norsk %in% "ja"),
         yes = "ja",
         no = "nei"))
 
 
-
-  d_ablanor %<>%
+  # UTLEDE TIDSVARIABLER -----
+  df %<>%
     dplyr::mutate(
 
       # Tidsvariabler for prosedyre
@@ -1266,40 +1392,28 @@ getBaseregProsFollowup0Data <- function(registryName,
       maaned_prosedyre = ifelse(
         test = (is.na(aar_prosedyre) | is.na(maaned_nr_prosedyre)),
         yes = NA,
-        no = paste0(aar_prosedyre, "-", maaned_nr_prosedyre)),
-
-
-      # Opprettet followup
-      aar_followup_tscreated_basis = as.ordered(
-        x = lubridate::year(followupbasis_tscreated)),
-
-      # Sendt followup
-      aar_proms_tssendt_basis = as.ordered(
-        x = lubridate::year(proms_tssendt)),
-
-
-      #  Besvart followup
-      aar_followup_besvart_basis = as.ordered(
-        x = lubridate::year(followupbasis_dato_followup))) %>%
-
-    dplyr::arrange(mceid) %>%
+        no = paste0(aar_prosedyre, "-", maaned_nr_prosedyre))) %>%
+    dplyr::select(-maaned_nr_prosedyre) %>%
+    dplyr::arrange(mceid)
 
 
 
-    dplyr::mutate(
+  # DATAGRUNNLAG ----
+  df %<>%
 
+    mutate(
       eprom_datagrunnlag_basis = factor(
         x = dplyr::case_when(
 
           # ALT FOR GAMLE REGISTRERINGER
           dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
-            "før innføring av eproms basis",
+            "foer innfoering av eproms basis",
 
-          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
+          # EPROMS OPPRETTET OG SATT TIL AVD<U+00D8>D MED EN GANG
           (has_basisfollowup %in% 1 &
              eprom_opprettet_basis %in% "ja" &
              followupbasis_incomplete_reason %in% 3) ~
-            "nei, opprettet satt til død",
+            "nei, opprettet satt til doed",
 
           # EPROMS SENDT UT UTEN AT ALLE KRITERIER VAR OPPFYLT
           (has_basisfollowup %in% 1 &
@@ -1308,7 +1422,7 @@ getBaseregProsFollowup0Data <- function(registryName,
              eprom_sendt_basis %in% "ja") ~
             "nei, eprom feilaktig sendt, sjekk kriterier",
 
-          # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
+          # NY VERSJON: KONTROLL KRITIER F<U+00D8>R OPPRETTELSE
           (kriterie_alle_basis %in% "nei" &
              is.na(eprom_opprettet_basis)) ~
             "nei, ikke opprettet etter kriteriesjekk",
@@ -1319,7 +1433,7 @@ getBaseregProsFollowup0Data <- function(registryName,
              eprom_opprettet_basis %in% "ja" &
              kriterie_alle_basis %in% "ja" &
              is.na(eprom_sendt_basis)) ~
-            "nei, eprom venter på utsendelse",
+            "nei, eprom venter paa utsendelse",
 
           # DISSE ER MED I DATAGRUNNLAGET!
           (has_basisfollowup %in% 1 &
@@ -1329,11 +1443,11 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
         levels = c("ja",
-                   "før innføring av eproms basis",
-                   "nei, opprettet satt til død",
+                   "foer innfoering av eproms basis",
+                   "nei, opprettet satt til doed",
                    "nei, eprom feilaktig sendt, sjekk kriterier",
                    "nei, ikke opprettet etter kriteriesjekk",
-                   "nei, eprom venter på utsendelse"),
+                   "nei, eprom venter paa utsendelse"),
         ordered  = TRUE),
 
       eprom_besvart_basis =  dplyr::case_when(
@@ -1348,68 +1462,12 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
 
-
-  # LEGG TIL GKV KOLONNER
-  d_ablanor %<>% dplyr::left_join(.,
-                                  d_gkv,
-                                  by = "mceid_followup")
-
-  # LEGG TIL RAND12 KOLONNER
-  d_ablanor %<>% dplyr::left_join(.,
-                                  d_rand12,
-                                  by = "mceid")
-
-
-  # RYDDE:
-  d_ablanor %<>%
-    dplyr::select(
-      # Pasient og prosedyre
-      centreid, mceid, mceid_followup, patient_id,
-      forlopstype,
-      dato_pros, aar_prosedyre, maaned_nr_prosedyre, maaned_prosedyre,
-      gender, alder, aldersklasse,
-
-      # Datagrunnlag for eprom og svarprosent
-      eprom_datagrunnlag_basis,
-      eprom_besvart_basis, besvart_rand12, besvart_gkv,
-      proms_expiry_date,
-
-      # Dersom besvart, her er svarene. Merk at gamle rand12 kan være
-      # besvart manuelt.
-      followupbasis_q1:followupbasis_q6_other_specify,
-      gkv_1:gkv_12,
-      dato_rand12, rand_1:rand_7,
-
-      # Variabler for å undersøke kriterier for utendelse av eprom nærmere
-
-      # fra hemit
-      proms_expiry_date, reminder_date,
-      proms_status, form_order_status_error_code,
-      proms_tssendt, aar_proms_tssendt_basis,
-      eprom_sendt_basis,
-
-      # eprom opprettet
-      has_basisfollowup,
-      registration_type,
-      eprom_opprettet_basis,
-      followupbasis_tscreated, aar_followup_tscreated_basis,
-      followupbasis_complete, followupbasis_incomplete_reason,
-
-      # Eprom utfylt og mottatt
-      followupbasis_dato_followup,  aar_followup_besvart_basis,
-
-      # Kriterier opprettelse av eprom
-      deceased, deceased_date,
-      ssn_type, ssnsubtype,
-      rtg_tid, pros_varighet, abla_varighet,
-      kriterie_alder, kriterie_levende, kriterie_norsk, kriterie_tid,
-      kriterie_alle_basis )
   if(singleRow == TRUE) {
     # Return first row only
-    d_ablanor %>% dplyr::filter(dplyr::row_number() == 1)
+    df %>% dplyr::filter(dplyr::row_number() == 1)
   } else {
     # Return all
-    d_ablanor
+    df
   }
 }
 
