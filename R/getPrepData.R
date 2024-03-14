@@ -767,8 +767,8 @@ getBaseregProsFollowup0Data <- function(registryName,
     dplyr::mutate(besvart_rand12 = "elektronisk") %>%
     dplyr::rename("mceid_followupbasis" = "mceid") %>%
     dplyr::left_join(.,
-                     d_mce %>% transmute(mceid_followupbasis = mceid,
-                                         mceid = parentmceid,),
+                     d_mce %>% dplyr::transmute(mceid_followupbasis = mceid,
+                                                mceid = parentmceid,),
                      by = "mceid_followupbasis") %>%
     dplyr::relocate(mceid, .before = followup_parent_type)
 
@@ -813,10 +813,10 @@ getBaseregProsFollowup0Data <- function(registryName,
                   -createdby) %>%
     dplyr::left_join(.,
                      d_mce %>%
-                       filter(mcetype == 7) %>%
-                       select(mceid, parentmceid) %>%
-                       rename("mceid_followupbasis" = mceid,
-                              "mceid" = parentmceid),
+                       dplyr::filter(mcetype == 7) %>%
+                       dplyr::select(mceid, parentmceid) %>%
+                       dplyr::rename("mceid_followupbasis" = mceid,
+                                     "mceid" = parentmceid),
                      by = "mceid_followupbasis") %>%
     dplyr::mutate(eprom_opprettet_basis = "ja") %>%
     dplyr::left_join(.,
@@ -826,14 +826,14 @@ getBaseregProsFollowup0Data <- function(registryName,
     dplyr::left_join(.,
                      d_gkv,
                      by = c("mceid_followupbasis", "centreid")) %>%
-    relocate("mceid", .before = "mceid_followupbasis") %>%
-    relocate("eprom_opprettet_basis",
-             "eprom_sendt_basis",
-             .before = "dato_followup") %>%
-    relocate("proms_tssendt",
-             "proms_status",
-             "proms_expiry_date",
-             .before ="dato_followup"  )
+    dplyr::relocate("mceid", .before = "mceid_followupbasis") %>%
+    dplyr::relocate("eprom_opprettet_basis",
+                    "eprom_sendt_basis",
+                    .before = "dato_followup") %>%
+    dplyr::relocate("proms_tssendt",
+                    "proms_status",
+                    "proms_expiry_date",
+                    .before ="dato_followup"  )
 
 
 
@@ -855,10 +855,7 @@ getBaseregProsFollowup0Data <- function(registryName,
     )
 
 
-  d_basereg %<>%
-    dplyr::select(
-      mceid:forskyvning
-    )
+  d_basereg %<>% dplyr::select(mceid:forskyvning)
 
   d_mcePatientdata %<>%
     dplyr::select(pid, mceid) %>%
@@ -872,9 +869,9 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 
   # ENDELIG DATASETT MED PASIENT - BASEREG - PROSEDYRE - FOLLOWUPDATA ----
-  df <- right_join(d_basereg,
-                   d_pros,
-                   by = c("mceid", "centreid")) %>%
+  df <- dplyr::right_join(d_basereg,
+                          d_pros,
+                          by = c("mceid", "centreid")) %>%
     dplyr::filter(!is.na(forlopstype))%>%
     dplyr::right_join(x = d_mce %>%
                         dplyr::select(mceid, patient_id, has_basisfollowup),
@@ -897,10 +894,6 @@ getBaseregProsFollowup0Data <- function(registryName,
     df %>%
       dplyr::filter(!is.na(followupbasis_status)) %>%
       dplyr::pull(dato_pros)))
-
-
-
-
 
 
 
@@ -968,7 +961,7 @@ getBaseregProsFollowup0Data <- function(registryName,
   # DATAGRUNNLAG ----
   df %<>%
 
-    mutate(
+    dplyr::mutate(
       eprom_datagrunnlag_basis = factor(
         x = dplyr::case_when(
 
@@ -1162,9 +1155,9 @@ getBaseregProsFollowup1Data <- function(registryName,
                   -createdby) %>%
     dplyr::left_join(.,
                      d_mce %>%
-                       filter(mcetype == 9) %>%
-                       select(mceid, parentmceid) %>%
-                       rename("mceid_followup" = mceid,
+                       dplyr::filter(mcetype == 9) %>%
+                       dplyr::select(mceid, parentmceid) %>%
+                       dplyr::rename("mceid_followup" = mceid,
                               "mceid" = parentmceid),
                      by = "mceid_followup") %>%
     dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
@@ -1174,14 +1167,14 @@ getBaseregProsFollowup1Data <- function(registryName,
     dplyr::left_join(.,
                      d_rand12,
                      by = c("mceid_followup", "centreid")) %>%
-    relocate("mceid", .before = "mceid_followup") %>%
-    relocate("eprom_opprettet_1aar",
-             "eprom_sendt_1aar",
-             .before = "dato_followup") %>%
-    relocate("proms_tssendt",
-             "proms_status",
-             "proms_expiry_date",
-             .before ="dato_followup"  )
+    dplyr::relocate("mceid", .before = "mceid_followup") %>%
+    dplyr::relocate("eprom_opprettet_1aar",
+                    "eprom_sendt_1aar",
+                    .before = "dato_followup") %>%
+    dplyr::relocate("proms_tssendt",
+                    "proms_status",
+                    "proms_expiry_date",
+                    .before ="dato_followup"  )
 
 
 
@@ -1216,9 +1209,9 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
   # ENDELIG DATASETT MED PASIENT - BASEREG - PROSEDYRE - FOLLOWUPDATA ----
-  df <- right_join(d_basereg,
-                   d_pros,
-                   by = c("mceid", "centreid")) %>%
+  df <- dplyr::right_join(d_basereg,
+                          d_pros,
+                          by = c("mceid", "centreid")) %>%
     dplyr::filter(!is.na(forlopstype))%>%
     dplyr::right_join(x = d_mce %>%
                         dplyr::select(mceid, patient_id, has_followup),
@@ -1332,8 +1325,7 @@ getBaseregProsFollowup1Data <- function(registryName,
       dg_pros_opprettet = as.numeric(difftime(
         followup1_tscreated,
         dato_pros,
-        units = "days"))
-    ) %>%
+        units = "days"))) %>%
     dplyr::select(-maaned_nr_prosedyre) %>%
     dplyr::arrange(mceid) %>%
 
@@ -1478,7 +1470,7 @@ getBaseregProsFollowup1Data <- function(registryName,
                     "eprom_besvart_1aar",
                     .before = "birth_date") %>%
     dplyr::select(-dato_bas) %>%
-    relocate("has_followup", .after = "eprom_kjente_feil_1aar")
+    dplyr::relocate("has_followup", .after = "eprom_kjente_feil_1aar")
 
 
 
@@ -1615,9 +1607,9 @@ getBaseregProsFollowup5Data <- function(registryName,
                   -createdby) %>%
     dplyr::left_join(.,
                      d_mce %>%
-                       filter(mcetype == 10) %>%
-                       select(mceid, parentmceid) %>%
-                       rename("mceid_followup" = mceid,
+                       dplyr::filter(mcetype == 10) %>%
+                       dplyr::select(mceid, parentmceid) %>%
+                       dplyr::rename("mceid_followup" = mceid,
                               "mceid" = parentmceid),
                      by = "mceid_followup") %>%
     dplyr::mutate(eprom_opprettet_5aar = "ja") %>%
@@ -1627,14 +1619,14 @@ getBaseregProsFollowup5Data <- function(registryName,
     dplyr::left_join(.,
                      d_rand12,
                      by = c("mceid_followup", "centreid")) %>%
-    relocate("mceid", .before = "mceid_followup") %>%
-    relocate("eprom_opprettet_5aar",
-             "eprom_sendt_5aar",
-             .before = "dato_followup") %>%
-    relocate("proms_tssendt",
-             "proms_status",
-             "proms_expiry_date",
-             .before ="dato_followup"  )
+    dplyr::relocate("mceid", .before = "mceid_followup") %>%
+    dplyr::relocate("eprom_opprettet_5aar",
+                    "eprom_sendt_5aar",
+                    .before = "dato_followup") %>%
+    dplyr::relocate("proms_tssendt",
+                    "proms_status",
+                    "proms_expiry_date",
+                    .before ="dato_followup"  )
 
 
 
@@ -1653,10 +1645,7 @@ getBaseregProsFollowup5Data <- function(registryName,
     )
 
 
-  d_basereg %<>%
-    dplyr::select(
-      mceid:forskyvning
-    )
+  d_basereg %<>% dplyr::select(mceid:forskyvning)
 
   d_mcePatientdata %<>%
     dplyr::select(pid, mceid) %>%
@@ -1671,7 +1660,7 @@ getBaseregProsFollowup5Data <- function(registryName,
 
 
   # ENDELIG DATASETT MED PASIENT - BASEREG - PROSEDYRE - FOLLOWUPDATA ----
-  df <- right_join(d_basereg,
+  df <- dplyr::right_join(d_basereg,
                    d_pros,
                    by = c("mceid", "centreid")) %>%
     dplyr::filter(!is.na(forlopstype))%>%
@@ -1855,7 +1844,7 @@ getBaseregProsFollowup5Data <- function(registryName,
                     "eprom_besvart_5aar",
                     .before = "birth_date") %>%
     dplyr::select(-dato_bas) %>%
-    relocate("has_fiveyearfollowup", .after = "kriterie_alle_5aar")
+    dplyr::relocate("has_fiveyearfollowup", .after = "kriterie_alle_5aar")
 
 
 
