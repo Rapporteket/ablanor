@@ -122,7 +122,7 @@ getBaseregProsHendelseData(
   ...
 )
 
-getBaseregProsFollowup1Data(
+getBaseregProsFollowup0Data(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
@@ -132,7 +132,7 @@ getBaseregProsFollowup1Data(
   ...
 )
 
-getBaseregProsFollowup0Data(
+getBaseregProsFollowup1Data(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
