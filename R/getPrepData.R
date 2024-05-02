@@ -855,7 +855,7 @@ getBaseregProsFollowup0Data <- function(registryName,
     )
 
 
-  d_basereg %<>% dplyr::select(mceid:forskyvning)
+  d_basereg %<>% dplyr::select(mceid:forskyvning, ehra_sympt)
 
   d_mcePatientdata %<>%
     dplyr::select(pid, mceid) %>%
@@ -1194,7 +1194,8 @@ getBaseregProsFollowup1Data <- function(registryName,
 
   d_basereg %<>%
     dplyr::select(
-      mceid:forskyvning
+      mceid:forskyvning,
+      ehra_sympt
     )
 
   d_mcePatientdata %<>%
@@ -1645,7 +1646,7 @@ getBaseregProsFollowup5Data <- function(registryName,
     )
 
 
-  d_basereg %<>% dplyr::select(mceid:forskyvning)
+  d_basereg %<>% dplyr::select(mceid:forskyvning, ehra_sympt)
 
   d_mcePatientdata %<>%
     dplyr::select(pid, mceid) %>%
