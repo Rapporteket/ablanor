@@ -7,7 +7,6 @@
 \alias{getMce}
 \alias{getRand12}
 \alias{getFollowupBasis}
-\alias{getFollowupOneYr}
 \alias{getFollowupFiveYr}
 \alias{getGkv}
 \alias{getProms}
@@ -16,12 +15,10 @@
 \alias{getFriendlycentre}
 \alias{getMcepatientdata}
 \alias{getBaseregPros}
-\alias{getBaseregProsFollowup1}
-\alias{getBaseregProsFollowup0}
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
-\alias{getBaseregProsFollowup5}
+\alias{getFollowupOneYr}
 \title{Ablanor SQL}
 \usage{
 getBasereg(
@@ -155,36 +152,6 @@ getPatientlist(
 )
 
 getBaseregPros(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
-getBaseregProsFollowup1(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
-getBaseregProsFollowup0(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
-getBaseregProsFollowup5(
   registryName,
   singleRow,
   reshId = NULL,

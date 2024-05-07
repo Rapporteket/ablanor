@@ -1,3 +1,9 @@
+# ablanor 1.3.2
+Fjerne egne getData for sammenstilte skjemaer i utforsker. All 
+databehandling skjer nå i getPrep funksjonene. Lagt til flere variabler fra
+basis og prosedyreskjemaet. Enklere å legge til/fjerne variabler.
+
+
 # ablanor 1.3.1
 Sammenstille prosedyreskjema med Eproms ved basis, 
 1 år og 5 år, samt hendelser. svarprosent.
