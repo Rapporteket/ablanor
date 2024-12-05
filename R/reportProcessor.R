@@ -80,12 +80,16 @@ reportProcessor <- function(report,
       outputType = outputType,
       params = list(
         author = author,
-        hospitalName = ablanor::getHospitalName("ablanor", orgId),
+        hospitalName = ablanor::getHospitalName(registryName = "ablanor",
+                                                reshId = orgId,
+                                                newNames = TRUE,
+                                                shortName = FALSE),
         tableFormat = outputType,
         reshId = orgId,
         registryName = registryName,
         userRole = userRole,
-        userOperator = userOperator
+        userOperator = userOperator,
+        userFullName = userFullName
       )
     )
   }

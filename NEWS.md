@@ -1,3 +1,39 @@
+# ablanor 1.3.2
+Fjerne egne getData for sammenstilte skjemaer i utforsker. All 
+databehandling skjer nå i getPrep funksjonene. Lagt til flere variabler fra
+basis og prosedyreskjemaet. Enklere å legge til/fjerne variabler.
+
+
+# ablanor 1.3.1
+Sammenstille prosedyreskjema med Eproms ved basis, 
+1 år og 5 år, samt hendelser. svarprosent.
+Ny kodebok og tilpasset dupliserte feltnavn til de ulike tabellene. 
+
+# ablanor 1.3.0
+Ny release av innregistrering med nye funksjonaliteter. Eproms ved basis, 
+1 år og 5 år, samt hendelser i egen tabell. Tilpasse Rapporteket til dette. 
+
+## Nytt
+* Rådata i utforsker for alle tabeller
+* Nedlasting av proms-status, hendelse og basis
+* samle alle getData
+* samle alle getPrepData
+* getDataDump bruker getData
+
+
+## Bugfix
+* Nedlasting av followup uten datofilter (status -1 forsvant før)
+
+# ablanor 1.2.0
+Små justeringer på Rapporteket etter overgang til FALK som innloggings-
+portal i prod. 
+To nye reshid. 
+Bruker egendefinerte (finere) sykehusnavn i Rapporteket og i rapporter. 
+
+# ablanor 1.1.1
+
+* Installer Rapbase fra github i stedet for cran. Rapbase ble fjernet fra Cran i slutten av juni 2023 fordi en test feilet. Testen er fikset nå, men Rapbase er ikke publisert på nytt enda. Enn så lenge må pakken installeres direkte fra github.
+
 # ablanor 1.1.0
 ## Nytt
 * Nye versjoner av kvalitetsindikatorene. 

@@ -12,7 +12,7 @@
 #'
 #' @export
 #' @examples
-#' df <- data.frame(centreid = c(102966, 104284, 4214492, 700328, 700728))
+#' df <- data.frame(centreid = c(102966, 104284, 4214492, 700328, 4219765))
 #' ablanor::legg_til_sykehusnavn(df = df, short = TRUE)
 legg_til_sykehusnavn <- function(df, short = TRUE) {
 
@@ -23,18 +23,18 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
     df %>% dplyr::mutate(
       sykehusnavn = dplyr::case_when(centreid == 102966 ~ "HUS",
                                      centreid == 104284 ~ "St.Olavs",
-                                     centreid == 4214492 ~ "AHus",
+                                     centreid == 4218359 ~ "AHus",
                                      centreid == 700328 ~ "OUS",
-                                     centreid == 700728 ~ "UNN",
+                                     centreid == 4219765 ~ "UNN",
                                      TRUE ~ NA_character_))
   } else {
     df %>% dplyr::mutate(
       sykehusnavn = dplyr::case_when(
         centreid == 102966 ~ "Haukeland Universitetssykehus",
         centreid == 104284 ~ "St.Olavs Hospital",
-        centreid == 4214492 ~ "AHus Gardermoen",
+        centreid == 4218359 ~ "AHus Gardermoen",
         centreid == 700328 ~ "Oslo Universitetssykehus",
-        centreid == 700728 ~ "Universitetssykehuset Nord-Norge",
+        centreid == 4219765 ~ "Universitetssykehuset Nord-Norge",
         TRUE ~ NA_character_))
   }
 }

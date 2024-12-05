@@ -16,12 +16,6 @@ app_server <- function(input, output, session) {
   )
 
   # Parameters that will remain throughout the session
-  dataSets <- list(
-    `Bruk og valg av data` = "info",
-    `Prosedyre, basisskjema og oppfølging` = "pros_patient",
-    `RAND-12` = "rand12"
-  )
-
   registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId(registryName)
   userOperator <- "Test Operatoresen"
@@ -59,9 +53,29 @@ app_server <- function(input, output, session) {
     }
   })
 
+  dataSets <- list(
+    `Bruk og valg av data` = "info",
+
+    # SAMLETABELLER MED UTLEDETE VARIABLER
+    `Pasient, prosedyre og kvalitetsindikatorer` = "basereg_pros_indik",
+    `Pasient, prosedyre og hendelse` = "basereg_pros_hendelse",
+    `Pasient, prosedyre og eprom basis` = "pros_pat_followup0",
+    `Pasient, prosedyre og eProm 1 år` = "pros_pat_followup1",
+    `Pasient, prosedyre og eProm 5 år` = "pros_pat_followup5",
+
+    # RÅDATA:
+    `Basisskjema rådata` = "basereg",
+    `Prosedyreskjema rådata` = "pros",
+    `Forløpsoversikt rådata` = "mce",
+    `RAND-12: basis, 1 og 5 år. Rådata.` = "rand12",
+    `eProm basis. Rådata` = "followupbasis",
+    `eProm 1 år. Rådata` = "followup1",
+    `eProm 5 år. Rådata` = "followup5",
+    `GKV (pasienterfaring) basis. Rådata` = "gkv")
 
   contentDump <- function(file, type, userRole, reshId) {
-    d <- ablanor::getDataDump(registryName, input$dumpDataSet,
+    d <- ablanor::getDataDump(registryName = registryName,
+                              tableName = input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,
@@ -183,7 +197,7 @@ app_server <- function(input, output, session) {
                         names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
         if (input$isSelectAllVars) {
-          vars <- names(dat())
+          vars <- names(metaDat())
         } else {
           vars <- rvals$selectedVars
         }
@@ -241,7 +255,19 @@ app_server <- function(input, output, session) {
 
   # vektor med alle variabelnavn i valgt tabell
   selectedkbTabVars <- reactive({
-    if (input$kbdTab %in% c("rand12", "pros_patient")) {
+    if (input$kbdTab %in% c("basereg",
+                            "pros",
+                            "mce",
+                            "rand12",
+                            "followupbasis",
+                            "followup1",
+                            "followup5",
+                            "gkv",
+                            "proms",
+                            "basereg_pros_indik",
+                            "basereg_pros_hendelse",
+                            "pros_pat_followup0",
+                            "pros_pat_followup1")) {
       metaDatKb() %>% names()
     }
     else {
@@ -271,6 +297,35 @@ app_server <- function(input, output, session) {
 
 
   # Datadump
+
+  # Datasets avaliable for download
+  dataSetsDump <- c("basereg",
+                    "pros",
+                    "mce",
+                    "rand12",
+                    "followupbasis",
+                    "followup1",
+                    "followup5",
+                    "gkv",
+                    "hendelse",
+                    "kodeboken")
+  if (userRole == "SC") {
+    dataSetsDump <- c(dataSetsDump,
+                      "proms",
+                      "patientlist",
+                      "friendlycentre",
+                      "mce_patient_data")
+  }
+
+  output$selectDumpSet <- shiny::renderUI({
+    htmltools::tagList(
+      shiny::selectInput(inputId = "dumpDataSet",
+                         label = "Velg datasett:",
+                         choices = dataSetsDump))
+  })
+
+
+
   output$dataDumpInfo <- shiny::renderUI({
     shiny::p(paste("Valgt for nedlasting:", input$dumpDataSet))
   })
@@ -330,7 +385,10 @@ app_server <- function(input, output, session) {
 
 
   # Values shared among subscriptions and dispatchment
-  orgs <- getNameReshId(registryName = registryName, asNamedList = TRUE)
+  orgs <- ablanor::getNameReshId(registryName = registryName,
+                                 asNamedList = TRUE,
+                                 shortName = FALSE,
+                                 newNames = TRUE)
 
   # Abonnement
   subReports <- list(
@@ -344,9 +402,20 @@ app_server <- function(input, output, session) {
     "Månedlige resultater" = list(
       synopsis = "Månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999,
-                      "unknownHospital")
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "orgId",
+                     "orgName",
+                     "userFullName",
+                     "userRole"),
+      paramValues = c("local_monthly",
+                      "pdf",
+                      "Månedsresultater",
+                      999999,
+                      "unknownHospital",
+                      "userFullName",
+                      "userRole")
     )
   )
 
@@ -364,8 +433,16 @@ app_server <- function(input, output, session) {
     "Månedlige resultater" = list(
       synopsis = "AblaNor månedlige resultater sykehus/avdeling",
       fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId"),
-      paramValues = c("local_monthly", "pdf", "Månedsresultater", 999999)
+      paramNames = c("report",
+                     "outputType",
+                     "title",
+                     "orgId",
+                     "userFullName"),
+      paramValues = c("local_monthly",
+                      "pdf",
+                      "Månedsresultater",
+                      999999,
+                      userFullName)
     )
   )
 

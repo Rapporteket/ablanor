@@ -21,6 +21,6 @@ variable is called \code{sykehusnavn}. \code{sykehusnavn} will overwrite
 exising variable of same name.
 }
 \examples{
-df <- data.frame(centreid = c(102966, 104284, 4214492, 700328, 700728))
+df <- data.frame(centreid = c(102966, 104284, 4214492, 700328, 4219765))
 ablanor::legg_til_sykehusnavn(df = df, short = TRUE)
 }
