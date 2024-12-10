@@ -22,7 +22,6 @@ app_ui <- function() {
 
       shiny::tabPanel(
         "Start",
-        shinyalert::useShinyalert(),
         shiny::sidebarLayout(
           shiny::sidebarPanel(
             shiny::radioButtons("format_report",
