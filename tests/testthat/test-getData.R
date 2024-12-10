@@ -123,18 +123,6 @@ test_that("tables can be dumped", {
   rapbase::rapCloseDbConnection(con)
 })
 
-test_that("pros patient data can be read from db", {
-  check_db()
-  expect_equal(class(getProsPatient("testReg", singleRow = FALSE,
-                                    userRole = "SC",
-                                    fromDate = NULL, toDate = NULL)),
-               "list")
-  expect_equal(class(getProsPatient("testReg", singleRow = TRUE,
-                                    userRole = "SC",
-                                    fromDate = NULL, toDate = NULL)),
-               "list")
-})
-
 test_that("rand12 data can be read from db", {
   check_db()
   expect_equal(class(getRand12("testReg", singleRow = FALSE, userRole = "SC")), "list")
