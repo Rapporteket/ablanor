@@ -16,7 +16,7 @@ app_server <- function(input, output, session) {
   )
 
   # Parameters that will remain throughout the session
-  registryName <- "ablanor"
+  registryName <- "data"
   mapOrgId <- ablanor::getNameReshId(registryName)
   userOperator <- "Test Operatoresen"
   # userOperator <- ? #@fixme
@@ -299,6 +299,8 @@ app_server <- function(input, output, session) {
   # Datadump
 
   # Datasets avaliable for download
+
+  output$selectDumpSet <- shiny::renderUI({
   dataSetsDump <- c("basereg",
                     "pros",
                     "mce",
@@ -309,15 +311,13 @@ app_server <- function(input, output, session) {
                     "gkv",
                     "hendelse",
                     "kodeboken")
-  if (userRole == "SC") {
+  if (user$role() == "SC") {
     dataSetsDump <- c(dataSetsDump,
                       "proms",
                       "patientlist",
                       "friendlycentre",
                       "mce_patient_data")
   }
-
-  output$selectDumpSet <- shiny::renderUI({
     htmltools::tagList(
       shiny::selectInput(inputId = "dumpDataSet",
                          label = "Velg datasett:",
@@ -391,7 +391,7 @@ app_server <- function(input, output, session) {
                                  newNames = TRUE)
 
   # Abonnement
-  subReports <- list(
+  subReports <- shiny::reactive(list(
     "Veiledning" = list(
       synopsis = "Veiledningsteksten for testformål",
       fun = "reportProcessor",
@@ -415,18 +415,21 @@ app_server <- function(input, output, session) {
                       999999,
                       "unknownHospital",
                       "userFullName",
-                      "userRole")
+                      user$role())
+    )
     )
   )
 
   subParamNames <- shiny::reactive(c("orgId", "orgName"))
   subParamValues <- shiny::reactive(c(user$org(), user$orgName()))
 
+  shiny::observe({
   rapbase::autoReportServer2(
-    id = "ablanorSubscription", registryName = registryName,
+    id = "ablanorSubscription", registryName = "ablanor",
     type = "subscription", paramNames = subParamNames,
-    paramValues = subParamValues, reports = subReports, orgs = orgs, user = user
+    paramValues = subParamValues, reports = subReports(), orgs = orgs, user = user
   )
+  })
 
   # Utsendelse
   disReports <- list(
@@ -442,7 +445,7 @@ app_server <- function(input, output, session) {
                       "pdf",
                       "Månedsresultater",
                       999999,
-                      userFullName)
+                      "userFullName")
     )
   )
 
@@ -452,12 +455,14 @@ app_server <- function(input, output, session) {
   disParamNames <- shiny::reactive(c("orgId", "outputType"))
   disParamValues <- shiny::reactive(c(org$value(), disFormat()))
 
+  shiny::observe({
   rapbase::autoReportServer2(
-    id = "ablanorDispatchment", registryName = registryName,
+    id = "ablanorDispatchment", registryName = "ablanor",
     type = "dispatchment", org = org$value, paramNames = disParamNames,
     paramValues = disParamValues, reports = disReports, orgs = orgs,
     user = user
   )
+  })
 
 
   # Eksport
