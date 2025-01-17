@@ -1572,7 +1572,7 @@ getBaseregProsFollowup5Data <- function(registryName,
 
   # VELGER KUN 5 års oppfølging (PROMS)
   d_proms %<>%
-    dplyr::filter(registration_type == "FiveYearollowup") %>%
+    dplyr::filter(registration_type == "Fiveyearfollowup") %>%
     dplyr::rename("proms_status" = "status",
                   "mceid_followup" = "mceid",
                   "proms_tssendt" = "tssendt",
