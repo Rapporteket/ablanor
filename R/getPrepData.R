@@ -1759,7 +1759,7 @@ getBaseregProsFollowup5Data <- function(registryName,
 
       # Tidsvariabler for besvart followup
       aar_followup_5aar = as.ordered(
-        x = lubridate::year(followup5_dato_followup)),
+        x = lubridate::year(dato_followup)),
 
 
       # Tidsvariabler for opprettet followup
