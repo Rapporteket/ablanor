@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.3</span>
       </span>
     </div>
 
@@ -31,20 +31,20 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/rapporteket/ablanor/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Make standard table for rmarkdown reports</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rapporteket/ablanor/blob/HEAD/R/makeStandardTable.R" class="external-link"><code>R/makeStandardTable.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rapporteket/ablanor/blob/main/R/makeStandardTable.R" class="external-link"><code>R/makeStandardTable.R</code></a></small>
     <div class="hidden name"><code>makeStandardTable.Rd</code></div>
     </div>
 
@@ -81,25 +81,27 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>tab</dt>
+
+
+<dl><dt id="arg-tab">tab<a class="anchor" aria-label="anchor" href="#arg-tab"></a></dt>
 <dd><p>Data frame or matrix represetnting the table</p></dd>
 
 
-<dt>col_names</dt>
+<dt id="arg-col-names">col_names<a class="anchor" aria-label="anchor" href="#arg-col-names"></a></dt>
 <dd><p>Character vector with column names. Defaults
 <code>colnames(tab)</code></p></dd>
 
 
-<dt>type</dt>
+<dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Character string defining output, either 'html' or 'latex'.
 Default is 'latex'</p></dd>
 
 
-<dt>cap</dt>
+<dt id="arg-cap">cap<a class="anchor" aria-label="anchor" href="#arg-cap"></a></dt>
 <dd><p>Character string with table caption. Empty string by default</p></dd>
 
 
-<dt>label</dt>
+<dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
 <dd><p>Character string defining the label in case the table needs to
 be referenced elsewhere in the overall document. For instance, setting this
 to 'my_table' the corresponding inline rmarkdown reference to use is
@@ -109,36 +111,34 @@ LaTex and HTML the bookdown document processing functions must be used,
 respectively. Default value is <code>knitr::opts_current$get("label")</code>.</p></dd>
 
 
-<dt>digs</dt>
+<dt id="arg-digs">digs<a class="anchor" aria-label="anchor" href="#arg-digs"></a></dt>
 <dd><p>Numeric number of digits to use. = by default</p></dd>
 
 
-<dt>align</dt>
+<dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
 <dd><p>Character vector specifying column alignment in the LaTeX way,
 <em>e.g.</em> <code>c("l", "c", "r")</code> will align the first column to the left,
 center the second and right-aling the last one. Default is NULL in which case</p></dd>
 
 
-<dt>fs</dt>
+<dt id="arg-fs">fs<a class="anchor" aria-label="anchor" href="#arg-fs"></a></dt>
 <dd><p>Numeric providing the font size. Only apply for LaTeX output.
 Default value is 14</p></dd>
 
 
-<dt>lsd</dt>
+<dt id="arg-lsd">lsd<a class="anchor" aria-label="anchor" href="#arg-lsd"></a></dt>
 <dd><p>Logical if table is to be scaled down. Only apply for LaTeX
 output. FALSE by default</p></dd>
 
 
-<dt>full_width</dt>
+<dt id="arg-full-width">full_width<a class="anchor" aria-label="anchor" href="#arg-full-width"></a></dt>
 <dd><p>Logical, if table should use full page width. FALSE by
 default</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>Character string containing RMarkdown table code or an R data object</p>
+    <p>Character string containing RMarkdown table code or an R data object</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -187,15 +187,15 @@ is made already</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

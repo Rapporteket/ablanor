@@ -6,7 +6,7 @@ for å få en rad per måned og en kolonne per nivå av faktoren "legend"'><!-- 
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -20,7 +20,7 @@ for å få en rad per måned og en kolonne per nivå av faktoren "legend"'><!-- 
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.3</span>
       </span>
     </div>
 
@@ -34,20 +34,20 @@ for å få en rad per måned og en kolonne per nivå av faktoren "legend"'><!-- 
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/rapporteket/ablanor/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Utvid og organiser Funksjon som utvider tabellen og legger til alle manglende kombinasjoner av variablene "maned" og "legend". Deretter brukes tidyr::pivot_wider for å få en rad per måned og en kolonne per nivå av faktoren "legend"</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rapporteket/ablanor/blob/HEAD/R/leggTilTommePivotWide.R" class="external-link"><code>R/leggTilTommePivotWide.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rapporteket/ablanor/blob/main/R/leggTilTommePivotWide.R" class="external-link"><code>R/leggTilTommePivotWide.R</code></a></small>
     <div class="hidden name"><code>leggTilTomme_PivotWide.Rd</code></div>
     </div>
 
@@ -64,11 +64,13 @@ for å få en rad per måned og en kolonne per nivå av faktoren "legend"</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>data</dt>
+
+
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>datasett med variablene maaned,legend og value</p></dd>
 
 
-<dt>remove_NAcols</dt>
+<dt id="arg-remove-nacols">remove_NAcols<a class="anchor" aria-label="anchor" href="#arg-remove-nacols"></a></dt>
 <dd><p>Boolsk variabel. Remove_NA =TRUE dersom nivået "NA" skal
 fjernes. FALSE, dersom vi ønsker beholde nivået "NA" og ha en kolonne for
 dette nivået</p></dd>
@@ -76,9 +78,7 @@ dette nivået</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>data.frame med en rad per nivå av maaned og en kolonne per nivå av
+    <p>data.frame med en rad per nivå av maaned og en kolonne per nivå av
 "legend"</p>
     </div>
 
@@ -110,15 +110,15 @@ dette nivået</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 
