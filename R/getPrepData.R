@@ -1781,50 +1781,51 @@ getBaseregProsFollowup5Data <- function(registryName,
     dplyr::arrange(mceid) %>%
 
 
+    dplyr::mutate(
 
-    eprom_datagrunnlag_5aar = factor(
-      x = dplyr::case_when(
+      eprom_datagrunnlag_5aar = factor(
+        x = dplyr::case_when(
 
-        #  ALT FOR NYE REGISTRERINGER
-        dato_pros > nyeste_eprom_bestilling ~
-          "nei, registreringen er for ny",
-
-
-        # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
-        (has_fiveyearfollowup %in% 1 &
-           eprom_opprettet_5aar %in% "ja" &
-           followup5_incomplete_reason %in% 3) ~
-          "nei, opprettet satt til død",
+          #  ALT FOR NYE REGISTRERINGER
+          dato_pros > nyeste_eprom_bestilling ~
+            "nei, registreringen er for ny",
 
 
-        # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
-        (has_fiveyearfollowup %in% 1 &
-           is.na(eprom_opprettet_5aar)) ~
-          "nei, ikke opprettet etter kriteriesjekk",
-
-        # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
-        # "BESTILT I DAG, SENDES I MORGEN"
-        (has_fiveyearfollowup %in% 1 &
-           eprom_opprettet_5aar %in% "ja" &
-           kriterie_alle_5aar %in% "ja" &
-           is.na(eprom_sendt_5aar)) ~
-          "nei, eprom venter på utsendelse",
+          # EPROMS OPPRETTET OG SATT TIL AVDØD MED EN GANG
+          (has_fiveyearfollowup %in% 1 &
+             eprom_opprettet_5aar %in% "ja" &
+             followup5_incomplete_reason %in% 3) ~
+            "nei, opprettet satt til død",
 
 
-        # DISSE ER MED I DATAGRUNNLAGET!
-        (has_fiveyearfollowup %in% 1 &
-           eprom_opprettet_5aar %in% "ja" &
-           kriterie_alle_5aar %in% "ja") ~ "ja",
+          # NY VERSJON: KONTROLL KRITIER FØR OPPRETTELSE
+          (has_fiveyearfollowup %in% 1 &
+             is.na(eprom_opprettet_5aar)) ~
+            "nei, ikke opprettet etter kriteriesjekk",
+
+          # NY VERSJON: OPPRETTELES EN DAG, OG BESTILLING INNEN 30 DAGER ETTER
+          # "BESTILT I DAG, SENDES I MORGEN"
+          (has_fiveyearfollowup %in% 1 &
+             eprom_opprettet_5aar %in% "ja" &
+             kriterie_alle_5aar %in% "ja" &
+             is.na(eprom_sendt_5aar)) ~
+            "nei, eprom venter på utsendelse",
 
 
-        levels = c("ja",
-                   "nei, registreringen er for ny",
-                   "nei, opprettet satt til død",
-                   "nei, ikke opprettet etter kriteriesjekk",
-                   "nei, eprom venter på utsendelse"),
-        ordered  = TRUE),
+          # DISSE ER MED I DATAGRUNNLAGET!
+          (has_fiveyearfollowup %in% 1 &
+             eprom_opprettet_5aar %in% "ja" &
+             kriterie_alle_5aar %in% "ja") ~ "ja"
+          ),
 
 
+          levels = c("ja",
+                     "nei, registreringen er for ny",
+                     "nei, opprettet satt til død",
+                     "nei, ikke opprettet etter kriteriesjekk",
+                     "nei, eprom venter på utsendelse"),
+
+          ordered  = TRUE),
 
       eprom_besvart_5aar =  dplyr::case_when(
         eprom_datagrunnlag_5aar %in% "ja" &
