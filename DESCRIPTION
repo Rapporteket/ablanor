@@ -44,7 +44,7 @@ Imports:
     tidyr,
     tidyselect
 Remotes:
-    Rapporteket/rapbase@autoreport_db
+    Rapporteket/rapbase@main
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
 Depends: 
