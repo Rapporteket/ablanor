@@ -1,3 +1,6 @@
+# ablanor 1.3.3
+Bugfiks av det sammenstilte prosedyreskjemaet med 5-års oppfølging.
+
 # ablanor 1.3.2
 Fjerne egne getData for sammenstilte skjemaer i utforsker. All 
 databehandling skjer nå i getPrep funksjonene. Lagt til flere variabler fra
