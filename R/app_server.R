@@ -11,15 +11,16 @@ app_server <- function(input, output, session) {
 
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
-  user <- rapbase::navbarWidgetServer2(
-    "ablanorWidget", "Ablanor", map_orgname = NULL, caller = packageName()
-  )
 
   # Parameters that will remain throughout the session
   registryName <- "data"
   mapOrgId <- ablanor::getNameReshId(registryName)
   userOperator <- "Test Operatoresen"
-  # userOperator <- ? #@fixme
+
+  mapOrgIdMod <- mapOrgId %>% dplyr::rename(UnitId = id, orgname = name)
+  user <- rapbase::navbarWidgetServer2(
+    "ablanorWidget", "Ablanor", map_orgname = mapOrgIdMod, caller = packageName()
+  )
 
   shiny::observeEvent(user$role(), {
     if (user$role() == "LU") {
