@@ -12,7 +12,7 @@ app_server <- function(input, output, session) {
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
 
   user <- rapbase::navbarWidgetServer2(
-    "ablanorWidget", "Ablanor", packageName()
+    "ablanorWidget", "Ablanor", map_orgname = NULL, caller = packageName()
   )
 
   # Parameters that will remain throughout the session
