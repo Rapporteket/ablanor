@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: macOS-latest
+    runs-on: ubuntu-24.04
     env:
       GITHUB_PAT: ${{ secrets.GH_TOKEN }}
     steps:
