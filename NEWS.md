@@ -1,3 +1,17 @@
+# ablanor 1.3.3
+Bugfiks av det sammenstilte prosedyreskjemaet med 5-års oppfølging.
+
+# ablanor 1.3.2
+Fjerne egne getData for sammenstilte skjemaer i utforsker. All 
+databehandling skjer nå i getPrep funksjonene. Lagt til flere variabler fra
+basis og prosedyreskjemaet. Enklere å legge til/fjerne variabler.
+
+
+# ablanor 1.3.1
+Sammenstille prosedyreskjema med Eproms ved basis, 
+1 år og 5 år, samt hendelser. svarprosent.
+Ny kodebok og tilpasset dupliserte feltnavn til de ulike tabellene. 
+
 # ablanor 1.3.0
 Ny release av innregistrering med nye funksjonaliteter. Eproms ved basis, 
 1 år og 5 år, samt hendelser i egen tabell. Tilpasse Rapporteket til dette. 

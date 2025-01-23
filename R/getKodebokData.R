@@ -22,26 +22,144 @@ getKodebokData <- function() {
         # FRA GKV:
         .data$fysisk_feltnavn %in% c("complete",
                                      "incomplete_reason",
-                                     "status",
-                                     "usercomment") &
+                                     "status") &
           .data$skjemanavn == "GKV spørreskjema somatikk, voksne, døgn" ~
           paste0("gkv_", .data$fysisk_feltnavn),
 
         # FRA RAND12
         .data$fysisk_feltnavn %in% c("complete",
                                      "incomplete_reason",
-                                     "status",
-                                     "usercomment") &
+                                     "status") &
           .data$skjemanavn == "Livskvalitetsskjema" ~
           paste0("rand_", .data$fysisk_feltnavn),
 
         # FRA OPPFØLGING
         .data$fysisk_feltnavn %in% c("complete",
+                                     "dato_followup",
                                      "incomplete_reason",
-                                     "status",
-                                     "usercomment") &
+                                     "q1",
+                                     "q2",
+                                     "q3",
+                                     "q4",
+                                     "q5",
+                                     "q5_burn_freeze",
+                                     "q5_pacemaker",
+                                     "q5_electroconversion",
+                                     "q5_other",
+                                     "q5_other_specify",
+                                     "q6",
+                                     "q6_regular_ekg",
+                                     "q6_24_hour_ekg",
+                                     "q6_pacemaker",
+                                     "q6_pulse_watch",
+                                     "q6_other",
+                                     "q6_other_specify",
+                                     "q7",
+                                     "q7_stroke",
+                                     "q7_block",
+                                     "q7_operation",
+                                     "q7_pacemaker",
+                                     "q7_other",
+                                     "q7_other_specify",
+                                     "status") &
           .data$skjemanavn == "Oppfølging etter 1 år" ~
-          paste0("followup_", .data$fysisk_feltnavn),
+          paste0("followup1_", .data$fysisk_feltnavn),
+
+
+        # FRA OPPFØLGING
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "dato_followup",
+                                     "incomplete_reason",
+                                     "q1",
+                                     "q2",
+                                     "q3",
+                                     "q4",
+                                     "q5",
+                                     "q5_burn_freeze",
+                                     "q5_pacemaker",
+                                     "q5_electroconversion",
+                                     "q5_other",
+                                     "q5_other_specify",
+                                     "q6",
+                                     "q6_regular_ekg",
+                                     "q6_24_hour_ekg",
+                                     "q6_pacemaker",
+                                     "q6_pulse_watch",
+                                     "q6_other",
+                                     "q6_other_specify",
+                                     "q7",
+                                     "q7_stroke",
+                                     "q7_block",
+                                     "q7_operation",
+                                     "q7_pacemaker",
+                                     "q7_other",
+                                     "q7_other_specify",
+                                     "status") &
+          .data$skjemanavn == "Oppfølging etter 5 år" ~
+          paste0("followup5_", .data$fysisk_feltnavn),
+
+
+        # FRA OPPFØLGING
+        .data$fysisk_feltnavn %in% c("complete",
+                                     "dato_followup",
+                                     "incomplete_reason",
+                                     "q1",
+                                     "q2",
+                                     "q3",
+                                     "q4",
+                                     "q5",
+                                     "q5_burn_freeze",
+                                     "q5_pacemaker",
+                                     "q5_electroconversion",
+                                     "q5_other",
+                                     "q5_other_specify",
+                                     "q6",
+                                     "q6_regular_ekg",
+                                     "q6_24_hour_ekg",
+                                     "q6_pacemaker",
+                                     "q6_pulse_watch",
+                                     "q6_other",
+                                     "q6_other_specify",
+                                     "status") &
+          .data$skjemanavn == "Oppfølging etter behandling" ~
+          paste0("followupbasis_", .data$fysisk_feltnavn),
+
+
+
+        # FRA HENDELSE
+        .data$fysisk_feltnavn %in% c("komp_janei",
+                                     "komp_av_fistel",
+                                     "komp_pseudoan",
+                                     "komp_blodning",
+                                     "komp_infek",
+                                     "komp_tamp",
+                                     "komp_nfren",
+                                     "komp_apoplexi",
+                                     "komp_avblokk_pm",
+                                     "komp_pulm",
+                                     "komp_osofag",
+                                     "komp_koronar",
+                                     "komp_perikard",
+                                     "komp_dod",
+                                     "komp_annen",
+                                     "komp_annet_spes",
+                                     "sykehus_opph",
+                                     "sykehus_elektrokonv",
+                                     "sykehus_medikakonv",
+                                     "sykehus_annet",
+                                     "sykehus_annet_spes",
+                                     "residiv",
+                                     "residiv_annet_spes",
+                                     "ekg_vanlig",
+                                     "ekg_24h",
+                                     "pacemaker",
+                                     "pulsklokke",
+                                     "residiv_annet",
+                                     "usercomment",
+                                     "status") &
+          .data$skjemanavn == "Hendelse" ~
+          paste0("adhoc_", .data$fysisk_feltnavn),
+
 
         # FRA PROSEDYRE
         .data$fysisk_feltnavn %in% c("status",

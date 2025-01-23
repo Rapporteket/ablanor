@@ -38,12 +38,12 @@ getPivotDataSet <- function(setId = "",
                   "followup5",
                   "gkv",
                   "proms",
-                  "basereg_pros_indik")
-                  #
-                  # "pros_patient_followup",
-                  # "pros_pat_followup0",
-                  # "pros_pat_followup1",
-                  # "pros_pat_followup5")
+                  "basereg_pros_indik",
+                  "basereg_pros_hendelse",
+                  "pros_pat_followup0",
+                  "pros_pat_followup1",
+                  "pros_pat_followup5")
+
 
   if (setId %in% validSetId) {
 
@@ -107,12 +107,21 @@ getPivotDataSet <- function(setId = "",
 
 
     # FOLLOWUP 1 ÅR RÅDATA
-     if (setId == "followup1") {
+    if (setId == "followup1") {
       dat <- ablanor::getFollowupOneYrData(registryName = registryName,
                                            singleRow = singleRow,
                                            session = session,
                                            reshId = reshId,
                                            userRole = userRole)
+    }
+
+    # FOLLOWUP 5 ÅR RÅDATA
+    if (setId == "followup5") {
+      dat <- ablanor::getFollowupFiveYrData(registryName = registryName,
+                                            singleRow = singleRow,
+                                            session = session,
+                                            reshId = reshId,
+                                            userRole = userRole)
     }
 
 
@@ -139,16 +148,8 @@ getPivotDataSet <- function(setId = "",
     }
 
 
-    # if (setId == "pros_pat_followup1") {
-    #   dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
-    #                                               singleRow = singleRow,
-    #                                               session = session,
-    #                                               reshId = reshId,
-    #                                               userRole = userRole,
-    #                                               fromDate = fromDate,
-    #                                               toDate = toDate)
-    # }
 
+    # BASIS-PROSEDYRE- KVALITETSINDIKATORER
     if (setId == "basereg_pros_indik") {
       dat <- ablanor::getBaseregProsData(registryName = registryName,
                                          singleRow = singleRow,
@@ -157,11 +158,50 @@ getPivotDataSet <- function(setId = "",
                                          userRole = userRole,
                                          fromDate = fromDate,
                                          toDate = toDate)
+    }
+
+    # BASIS-PROSEDYRE-HENDELSE
+    if (setId == "basereg_pros_hendelse") {
+      dat <- ablanor::getBaseregProsHendelseData(registryName = registryName,
+                                                 singleRow = singleRow,
+                                                 session = session,
+                                                 reshId = reshId,
+                                                 userRole = userRole,
+                                                 fromDate = fromDate,
+                                                 toDate = toDate)
+    }
 
 
-}
+    if (setId == "pros_pat_followup1") {
+      dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
+                                                  singleRow = singleRow,
+                                                  session = session,
+                                                  reshId = reshId,
+                                                  userRole = userRole,
+                                                  fromDate = fromDate,
+                                                  toDate = toDate)
+    }
+
+    if (setId == "pros_pat_followup0") {
+      dat <- ablanor::getBaseregProsFollowup0Data(registryName = registryName,
+                                                  singleRow = singleRow,
+                                                  session = session,
+                                                  reshId = reshId,
+                                                  userRole = userRole,
+                                                  fromDate = fromDate,
+                                                  toDate = toDate)
+    }
 
 
+    if (setId == "pros_pat_followup5") {
+      dat <- ablanor::getBaseregProsFollowup5Data(registryName = registryName,
+                                                  singleRow = singleRow,
+                                                  session = session,
+                                                  reshId = reshId,
+                                                  userRole = userRole,
+                                                  fromDate = fromDate,
+                                                  toDate = toDate)
+    }
 
 
     if(singleRow == FALSE){

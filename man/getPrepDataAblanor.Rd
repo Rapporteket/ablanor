@@ -8,10 +8,14 @@
 \alias{getRand12Data}
 \alias{getFollowupBasisData}
 \alias{getFollowupOneYrData}
+\alias{getFollowupFiveYrData}
 \alias{getGkvData}
 \alias{getPromsData}
 \alias{getBaseregProsData}
+\alias{getBaseregProsHendelseData}
 \alias{getBaseregProsFollowup1Data}
+\alias{getBaseregProsFollowup0Data}
+\alias{getBaseregProsFollowup5Data}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -70,6 +74,14 @@ getFollowupOneYrData(
   ...
 )
 
+getFollowupFiveYrData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  ...
+)
+
 getGkvData(
   registryName,
   singleRow = FALSE,
@@ -100,7 +112,17 @@ getBaseregProsData(
   ...
 )
 
-getBaseregProsFollowup1Data(
+getBaseregProsHendelseData(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsFollowup0Data(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
@@ -111,6 +133,16 @@ getBaseregProsFollowup1Data(
 )
 
 getBaseregProsFollowup1Data(
+  registryName,
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsFollowup5Data(
   registryName,
   singleRow = FALSE,
   reshId = NULL,
