@@ -771,7 +771,6 @@ getBaseregPros <- function(registryName,
     d_mcepatientdata <- rapbase::loadRegData(registryName, query_mcepatientdata)
 
 
-    # nocov end
   } else {
     d_mce <- rapbase::loadRegData(registryName, query_mce)
     d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
