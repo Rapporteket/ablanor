@@ -17,7 +17,9 @@ check_db <- function(is_test_that = TRUE) {
 
 withr::with_envvar(
   new = c(
-    "R_RAP_CONFIG_PATH" = tempdir()
+    "R_RAP_CONFIG_PATH" = tempdir(),
+    "FALK_EXTENDED_USER_RIGHTS" = "[{\"A\":80,\"R\":\"LC\",\"U\":1},{\"A\":80,\"R\":\"SC\",\"U\":2},{\"A\":81,\"R\":\"LC\",\"U\":2}]",
+    "FALK_APP_ID" = "80"
   ),
   code = {
     test_that("env vars needed for testing is present", {
