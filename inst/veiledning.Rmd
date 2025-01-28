@@ -12,7 +12,6 @@ params:
 
 ## Rapporteket for AblaNor `r params$hospitalName`
 
-
 ### Utforsker
 Denne siden inneholder en løsning som benytter R-pakken `rpivotTable`. 
 Logget inn som lokal koordinator (LC-rolle) kan du laste inn datasett med ditt 
