@@ -22,19 +22,10 @@ app_ui <- function() {
 
       shiny::tabPanel(
         "Start",
-        shiny::sidebarLayout(
-          shiny::sidebarPanel(
-            shiny::radioButtons("format_report",
-                                "Format for nedlasting",
-                                list(PDF = "pdf", HTML = "html"),
-                                inline = FALSE),
-            shiny::downloadButton("download_report", "Last ned!")
-          ),
           shiny::mainPanel(
             shiny::htmlOutput("veiledning", inline = TRUE),
             rapbase::navbarWidgetInput("ablanorWidget", selectOrganization = TRUE)
           )
-        )
       ),
 
       shiny::tabPanel(
