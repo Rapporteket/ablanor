@@ -83,18 +83,18 @@ test_that("hospital name can be read from db", {
   query <- paste("INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1',",
                  "FRIENDLYNAME='friendly1';")
   RMariaDB::dbExecute(con, query)
-  expect_equal(class(getHospitalName("testReg", 1)), "character")
-  expect_equal(getHospitalName("testReg", 1), "friendly1")
-  expect_equal(getHospitalName("testReg", 1, shortName = TRUE), "s1")
-  expect_warning(getHospitalName("testReg", 2))
+  expect_equal(class(getHospitalName(1)), "character")
+  expect_equal(getHospitalName(1), "friendly1")
+  expect_equal(getHospitalName(1, shortName = TRUE), "s1")
+  expect_warning(getHospitalName(2))
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("name-id mapping can be obtained", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
-  expect_equal(class(getNameReshId("testReg")), "data.frame")
-  expect_equal(class(getNameReshId("testReg", asNamedList = TRUE)),
+  expect_equal(class(getNameReshId()), "data.frame")
+  expect_equal(class(getNameReshId(asNamedList = TRUE)),
                "list")
   rapbase::rapCloseDbConnection(con)
 })
@@ -103,30 +103,30 @@ test_that("tables can be dumped", {
   check_db()
   con <- rapbase::rapOpenDbConnection("testReg")$con
   expect_equal(class(
-    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),userRole = "SC", reshID = NULL)
+    getDataDump("friendlycentre", Sys.Date(), Sys.Date(),userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "mce", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("mce", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("patientlist", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "pros", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("pros", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_error(
-    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("notATable", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   )
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("rand12 data can be read from db", {
   check_db()
-  expect_equal(class(getRand12("testReg", singleRow = FALSE, userRole = "SC")), "list")
-  expect_equal(class(getRand12("testReg", singleRow = TRUE, userRole = "SC")), "list")
+  expect_equal(class(getRand12(singleRow = FALSE, userRole = "SC")), "list")
+  expect_equal(class(getRand12(singleRow = TRUE, userRole = "SC")), "list")
 })
 
 

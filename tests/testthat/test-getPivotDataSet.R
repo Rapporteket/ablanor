@@ -5,7 +5,7 @@ test_that("Function returns data frame when non-valid setId", {
 test_that("error is provided on impossible combo of reshId and allData", {
   expect_error(
     getPivotDataSet(
-      setId = "pros_patient", registryName = "ablanor", session = list(),
+      setId = "pros_patient", session = list(),
       singleRow = TRUE, reshId = NULL, allData = FALSE
     )
   )
