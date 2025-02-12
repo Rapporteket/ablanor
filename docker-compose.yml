@@ -24,9 +24,9 @@ services:
     environment:
       USERID: $USERID
       PASSWORD: password
-      DB_HOST: db
-      DB_USER: root
-      DB_PASS: root
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
 
   adminer:
     depends_on:
