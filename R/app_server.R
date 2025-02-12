@@ -13,8 +13,8 @@ app_server <- function(input, output, session) {
 
 
   # Parameters that will remain throughout the session
-  registryName <- "data"
-  mapOrgId <- ablanor::getNameReshId(registryName)
+  registryName <- "ablanor"
+  mapOrgId <- ablanor::getNameReshId()
   userOperator <- "Test Operatoresen"
 
   mapOrgIdMod <- mapOrgId %>% dplyr::rename(UnitId = id, orgname = name)
@@ -75,8 +75,7 @@ app_server <- function(input, output, session) {
     `GKV (pasienterfaring) basis. Rådata` = "gkv")
 
   contentDump <- function(file, type, userRole, reshId) {
-    d <- ablanor::getDataDump(registryName = registryName,
-                              tableName = input$dumpDataSet,
+    d <- ablanor::getDataDump(tableName = input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,
@@ -100,7 +99,7 @@ app_server <- function(input, output, session) {
         outputType = "html_fragment",
         params = list(title = "empty title",
                       author = user$fullName(),
-                      hospitalName = getHospitalName(registryName, user$org()),
+                      hospitalName = getHospitalName(user$org()),
                       tableFormat = "html",
                       reshId = user$org())
       )
@@ -156,7 +155,6 @@ app_server <- function(input, output, session) {
 
   dat <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$selectedDataSet,
-                             registryName = registryName,
                              session = session,
                              reshId = user$org(),
                              userRole = user$role())
@@ -165,7 +163,6 @@ app_server <- function(input, output, session) {
 
   metaDat <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$selectedDataSet,
-                             registryName = registryName,
                              session = session,
                              reshId = user$org(),
                              userRole = user$role(),
@@ -240,7 +237,6 @@ app_server <- function(input, output, session) {
   kodebok <- ablanor::getKodebokMedUtledetedVar()
   metaDatKb <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$kbdTab,
-                             registryName = registryName,
                              session = session,
                              reshId = user$org(),
                              userRole = user$role(),
@@ -350,7 +346,7 @@ app_server <- function(input, output, session) {
       outputType = "html_fragment",
       params = list(
         author = user$fullName,
-        hospitalName = ablanor::getHospitalName(registryName, user$org()),
+        hospitalName = ablanor::getHospitalName(user$org()),
         tableFormat = "html",
         reshId = user$org(),
         registryName = registryName,
@@ -371,7 +367,7 @@ app_server <- function(input, output, session) {
         outputType = input$formatReport,
         params = list(
           author = user$fullName(),
-          hospitalName = getHospitalName(registryName, user$org()),
+          hospitalName = getHospitalName(user$org()),
           tableFormat = input$formatReport,
           reshId = user$org(),
           registryName = registryName,
@@ -386,8 +382,7 @@ app_server <- function(input, output, session) {
 
 
   # Values shared among subscriptions and dispatchment
-  orgs <- ablanor::getNameReshId(registryName = registryName,
-                                 asNamedList = TRUE,
+  orgs <- ablanor::getNameReshId(asNamedList = TRUE,
                                  shortName = FALSE,
                                  newNames = TRUE)
 
@@ -467,7 +462,7 @@ app_server <- function(input, output, session) {
 
 
   # Eksport
-  rapbase::exportUCServer("ablanorExport", registryName)
+  rapbase::exportUCServer("ablanorExport", "data")
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
