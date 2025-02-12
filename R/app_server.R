@@ -469,7 +469,7 @@ app_server <- function(input, output, session) {
 
 
   # Eksport
-  rapbase::exportUCServer("ablanorExport", "data")
+  rapbase::exportUCServer("ablanorExport", registryName)
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
