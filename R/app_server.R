@@ -298,23 +298,23 @@ app_server <- function(input, output, session) {
   # Datasets avaliable for download
 
   output$selectDumpSet <- shiny::renderUI({
-  dataSetsDump <- c("basereg",
-                    "pros",
-                    "mce",
-                    "rand12",
-                    "followupbasis",
-                    "followup1",
-                    "followup5",
-                    "gkv",
-                    "hendelse",
-                    "kodeboken")
-  if (user$role() == "SC") {
-    dataSetsDump <- c(dataSetsDump,
-                      "proms",
-                      "patientlist",
-                      "friendlycentre",
-                      "mce_patient_data")
-  }
+    dataSetsDump <- c("basereg",
+                      "pros",
+                      "mce",
+                      "rand12",
+                      "followupbasis",
+                      "followup1",
+                      "followup5",
+                      "gkv",
+                      "hendelse",
+                      "kodeboken")
+    if (user$role() == "SC") {
+      dataSetsDump <- c(dataSetsDump,
+                        "proms",
+                        "patientlist",
+                        "friendlycentre",
+                        "mce_patient_data")
+    }
     htmltools::tagList(
       shiny::selectInput(inputId = "dumpDataSet",
                          label = "Velg datasett:",
@@ -387,63 +387,50 @@ app_server <- function(input, output, session) {
                                  newNames = TRUE)
 
   # Abonnement
-  subReports <- shiny::reactive(list(
-    "Veiledning" = list(
-      synopsis = "Veiledningsteksten for testformål",
-      fun = "reportProcessor",
-      paramNames = c("report", "outputType", "title", "orgId", "orgName"),
-      paramValues =c("veiledning", "pdf", "Veiledning", 999999,
-                     "unknownHospital")
-    ),
-    "Månedlige resultater" = list(
-      synopsis = "Månedlige resultater sykehus/avdeling",
-      fun = "reportProcessor",
-      paramNames = c("report",
-                     "outputType",
-                     "title",
-                     "orgId",
-                     "orgName",
-                     "userFullName",
-                     "userRole"),
-      paramValues = c("local_monthly",
-                      "pdf",
-                      "Månedsresultater",
-                      999999,
-                      "unknownHospital",
-                      "userFullName",
-                      user$role())
-    )
-    )
-  )
 
   subParamNames <- shiny::reactive(c("orgId", "orgName"))
   subParamValues <- shiny::reactive(c(user$org(), user$orgName()))
 
   shiny::observe({
-  rapbase::autoReportServer2(
-    id = "ablanorSubscription", registryName = "ablanor",
-    type = "subscription", paramNames = subParamNames,
-    paramValues = subParamValues, reports = subReports(), orgs = orgs, user = user
-  )
+    rapbase::autoReportServer2(
+      id = "ablanorSubscription",
+      registryName = "ablanor",
+      type = "subscription",
+      paramNames = subParamNames,
+      paramValues = subParamValues,
+      reports = list(
+        "Veiledning" = list(
+          synopsis = "Veiledningsteksten for testformål",
+          fun = "reportProcessor",
+          paramNames = c("report", "outputType", "title", "orgId", "orgName"),
+          paramValues =c("veiledning", "pdf", "Veiledning", user$org(),
+                         getHospitalName(user$org()))
+        ),
+        "Månedlige resultater" = list(
+          synopsis = "Månedlige resultater sykehus/avdeling",
+          fun = "reportProcessor",
+          paramNames = c("report",
+                         "outputType",
+                         "title",
+                         "orgId",
+                         "orgName",
+                         "userFullName",
+                         "userRole"),
+          paramValues = c("local_monthly",
+                          "pdf",
+                          "Månedsresultater",
+                          user$org(),
+                          getHospitalName(user$org()),
+                          user$fullName(),
+                          user$role())
+        )
+      ),
+      orgs = orgs,
+      user = user
+    )
   })
 
   # Utsendelse
-  disReports <- list(
-    "Månedlige resultater" = list(
-      synopsis = "AblaNor månedlige resultater sykehus/avdeling",
-      fun = "reportProcessor",
-      paramNames = c("report",
-                     "outputType",
-                     "title",
-                     "orgId",
-                     "userFullName"),
-      paramValues = c("local_monthly",
-                      "pdf",
-                      "Månedsresultater",
-                      999999,
-                      "userFullName")
-    )
-  )
 
   org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
   disFormat <- rapbase::autoReportFormatServer("ablanorDispatchment")
@@ -452,12 +439,32 @@ app_server <- function(input, output, session) {
   disParamValues <- shiny::reactive(c(org$value(), disFormat()))
 
   shiny::observe({
-  rapbase::autoReportServer2(
-    id = "ablanorDispatchment", registryName = "ablanor",
-    type = "dispatchment", org = org$value, paramNames = disParamNames,
-    paramValues = disParamValues, reports = disReports, orgs = orgs,
-    user = user
-  )
+    rapbase::autoReportServer2(
+      id = "ablanorDispatchment",
+      registryName = "ablanor",
+      type = "dispatchment",
+      org = org$value,
+      paramNames = disParamNames,
+      paramValues = disParamValues,
+      reports = list(
+        "Månedlige resultater" = list(
+          synopsis = "AblaNor månedlige resultater sykehus/avdeling",
+          fun = "reportProcessor",
+          paramNames = c("report",
+                         "outputType",
+                         "title",
+                         "orgId",
+                         "userFullName"),
+          paramValues = c("local_monthly",
+                          "pdf",
+                          "Månedsresultater",
+                          user$org(),
+                          user$fullName())
+        )
+      ),
+      orgs = orgs,
+      user = user
+    )
   })
 
 

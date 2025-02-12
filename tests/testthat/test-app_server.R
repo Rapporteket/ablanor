@@ -113,7 +113,7 @@ withr::with_envvar(
     test_that("server can run", {
       check_db()
       shiny::testServer(app = app_server, {
-        expect_equal(class(disReports), "list")
+        expect_equal(class(dataSets), "list")
       })
     })
 
