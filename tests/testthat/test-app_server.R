@@ -113,6 +113,9 @@ withr::with_envvar(
     test_that("server can run", {
       check_db()
       shiny::testServer(app = app_server, {
+        print("CLASS SUBREPORTS")
+        print(class(subReports))
+        print("######\n")
         expect_equal(class(subReports), "list")
       })
     })
