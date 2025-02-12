@@ -22,7 +22,6 @@
 \title{Ablanor SQL}
 \usage{
 getBasereg(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -32,7 +31,6 @@ getBasereg(
 )
 
 getPros(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -41,18 +39,9 @@ getPros(
   ...
 )
 
-getMce(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
+getMce(singleRow, reshId = NULL, userRole, fromDate = NULL, toDate = NULL, ...)
 
 getRand12(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -62,7 +51,6 @@ getRand12(
 )
 
 getFollowupBasis(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -72,7 +60,6 @@ getFollowupBasis(
 )
 
 getFollowupOneYr(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -82,7 +69,6 @@ getFollowupOneYr(
 )
 
 getFollowupFiveYr(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -91,18 +77,9 @@ getFollowupFiveYr(
   ...
 )
 
-getGkv(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
+getGkv(singleRow, reshId = NULL, userRole, fromDate = NULL, toDate = NULL, ...)
 
 getProms(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -112,7 +89,6 @@ getProms(
 )
 
 getHendelse(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -122,7 +98,6 @@ getHendelse(
 )
 
 getFriendlycentre(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -131,18 +106,9 @@ getFriendlycentre(
   ...
 )
 
-getMcepatientdata(
-  registryName,
-  singleRow,
-  reshId = NULL,
-  userRole,
-  fromDate,
-  toDate,
-  ...
-)
+getMcepatientdata(singleRow, reshId = NULL, userRole, fromDate, toDate, ...)
 
 getPatientlist(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -152,7 +118,6 @@ getPatientlist(
 )
 
 getBaseregPros(
-  registryName,
   singleRow,
   reshId = NULL,
   userRole,
@@ -161,20 +126,13 @@ getBaseregPros(
   ...
 )
 
-getLatestEntry(registryName)
+getLatestEntry()
 
-getNameReshId(
-  registryName,
-  asNamedList = FALSE,
-  shortNames = FALSE,
-  newNames = FALSE
-)
+getNameReshId(asNamedList = FALSE, shortNames = FALSE, newNames = FALSE)
 
-getHospitalName(registryName, reshId, shortName = FALSE, newNames = FALSE)
+getHospitalName(reshId, shortName = FALSE, newNames = FALSE)
 }
 \arguments{
-\item{registryName}{"ablanor"}
-
 \item{singleRow}{bools. TRUE only one row, for variable names. FALSE all
 rows.}
 

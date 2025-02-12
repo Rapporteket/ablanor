@@ -22,18 +22,10 @@ app_ui <- function() {
 
       shiny::tabPanel(
         "Start",
-        shinyalert::useShinyalert(),
-        shiny::mainPanel(
-          width = 12,
-          shiny::htmlOutput("veiledning", inline = TRUE),
-          rapbase::appNavbarUserWidget(
-            user = shiny::uiOutput("appUserName"),
-            organization = shiny::uiOutput("appOrgName"),
-            addUserInfo = TRUE),
-          shiny::tags$head(
-            shiny::tags$link(rel = "shortcut icon", href = "rap/favicon.ico")
+          shiny::mainPanel(
+            shiny::htmlOutput("veiledning", inline = TRUE),
+            rapbase::navbarWidgetInput("ablanorWidget", selectOrganization = TRUE)
           )
-        )
       ),
 
       shiny::tabPanel(
@@ -110,7 +102,6 @@ app_ui <- function() {
 
       shiny::navbarMenu(
         "Verktøy",
-
         shiny::tabPanel(
           "Utsending",
           shiny::sidebarLayout(
