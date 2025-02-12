@@ -88,7 +88,7 @@ withr::with_envvar(
 
     test_that("relevant test database and tables can be made", {
       check_db()
-      con <- rapbase::rapOpenDbConnection("ablanor")$con
+      con <- rapbase::rapOpenDbConnection("data")$con
       for (i in seq_len(length(queries))) {
         expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
 
@@ -98,13 +98,13 @@ withr::with_envvar(
 
     test_that("an org can be added to db", {
       check_db()
-      con <- rapbase::rapOpenDbConnection("ablanor")$con
+      con <- rapbase::rapOpenDbConnection("data")$con
       query <- paste("INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1',",
                      "FRIENDLYNAME='friendly1';")
       RMariaDB::dbExecute(con, query)
-      expect_equal(class(getHospitalName("ablanor", 1)), "character")
-      expect_equal(getHospitalName("ablanor", 1), "friendly1")
-      expect_equal(getHospitalName("ablanor", 1, shortName = TRUE), "s1")
+      expect_equal(class(getHospitalName(1)), "character")
+      expect_equal(getHospitalName(1), "friendly1")
+      expect_equal(getHospitalName(1, shortName = TRUE), "s1")
       rapbase::rapCloseDbConnection(con)
     })
 
@@ -119,7 +119,7 @@ withr::with_envvar(
 
     # remove test db
     if (is.null(check_db(is_test_that = FALSE))) {
-      con <- rapbase::rapOpenDbConnection("ablanor")$con
+      con <- rapbase::rapOpenDbConnection("data")$con
       RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
       rapbase::rapCloseDbConnection(con)
     }

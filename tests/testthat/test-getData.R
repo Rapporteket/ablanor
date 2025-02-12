@@ -68,7 +68,7 @@ queries <- strsplit(sql, ";")[[1]]
 
 test_that("relevant test database and tables can be made", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   for (i in seq_len(length(queries))) {
     expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
 
@@ -79,7 +79,7 @@ test_that("relevant test database and tables can be made", {
 # onto main testing
 test_that("hospital name can be read from db", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   query <- paste("INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1',",
                  "FRIENDLYNAME='friendly1';")
   RMariaDB::dbExecute(con, query)
@@ -92,7 +92,7 @@ test_that("hospital name can be read from db", {
 
 test_that("name-id mapping can be obtained", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   expect_equal(class(getNameReshId()), "data.frame")
   expect_equal(class(getNameReshId(asNamedList = TRUE)),
                "list")
@@ -101,7 +101,7 @@ test_that("name-id mapping can be obtained", {
 
 test_that("tables can be dumped", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   expect_equal(class(
     getDataDump("basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
@@ -134,7 +134,7 @@ test_that("rand12 data can be read from db", {
 
 # remove test db
 if (is.null(check_db(is_test_that = FALSE))) {
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
   rapbase::rapCloseDbConnection(con)
 }
