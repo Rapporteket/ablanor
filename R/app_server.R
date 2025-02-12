@@ -13,7 +13,7 @@ app_server <- function(input, output, session) {
 
 
   # Parameters that will remain throughout the session
-  registryName <- "data"
+  registryName <- "ablanor"
   mapOrgId <- ablanor::getNameReshId()
   userOperator <- "Test Operatoresen"
 
@@ -462,7 +462,7 @@ app_server <- function(input, output, session) {
 
 
   # Eksport
-  rapbase::exportUCServer("ablanorExport", registryName)
+  rapbase::exportUCServer("ablanorExport", "data")
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
