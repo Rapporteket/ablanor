@@ -6,7 +6,6 @@
 \usage{
 getPivotDataSet(
   setId = "",
-  registryName,
   session,
   singleRow = FALSE,
   reshId = NULL,
@@ -19,8 +18,6 @@ getPivotDataSet(
 \item{setId}{String providing name of data set to be returned. One of the
 values "pros_patient" containing procedure and patient data or "rand12"
 containing data from rand12 questionnaire.}
-
-\item{registryName}{String providing registry name.}
 
 \item{session}{List shiny session object.}
 
