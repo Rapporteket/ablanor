@@ -559,14 +559,14 @@ getFriendlycentre <- function(singleRow,
                               fromDate = NULL,
                               toDate = NULL, ...){
 
-  query <- "SELECT * FROM friendlycentre"
+  query <- "SELECT * FROM centre"
 
   # En eller alle rader:
   if (singleRow) {
-    msg <- "Query single row data for friendlycentre"
+    msg <- "Query single row data for centre"
     query <- paste0(query, "\nLIMIT\n  1;")
   } else {
-    msg <- "Query data for friendlycentre"
+    msg <- "Query data for centre"
     query <- paste0(query, ";")
   }
 
@@ -791,7 +791,7 @@ SELECT
   CENTRESHORTNAME AS name,
   ID AS id
 FROM
-  friendlycentre
+  centre
 WHERE
   CENTRESHORTNAME NOT LIKE 'Test%'
 GROUP BY
@@ -824,14 +824,14 @@ getHospitalName <- function(reshId, shortName = FALSE, newNames = FALSE) {
   if (shortName) {
     dbField <- "CENTRESHORTNAME"
   } else {
-    dbField <- "FRIENDLYNAME"
+    dbField <- "CENTRENAME"
   }
 
   query <- paste0("
 SELECT
   ", dbField, "
 FROM
-  friendlycentre
+  centre
 WHERE
   ID = ", reshId, ";")
 
