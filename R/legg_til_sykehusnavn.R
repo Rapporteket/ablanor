@@ -26,6 +26,7 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
                                      centreid == 4218359 ~ "AHus",
                                      centreid == 700328 ~ "OUS",
                                      centreid == 4219765 ~ "UNN",
+                                     centreid == 4208026 ~ "Ibsen",
                                      TRUE ~ NA_character_))
   } else {
     df %>% dplyr::mutate(
@@ -35,6 +36,7 @@ legg_til_sykehusnavn <- function(df, short = TRUE) {
         centreid == 4218359 ~ "AHus Gardermoen",
         centreid == 700328 ~ "Oslo Universitetssykehus",
         centreid == 4219765 ~ "Universitetssykehuset Nord-Norge",
+        centreid == 4208026 ~ "IbsenSykehusene",
         TRUE ~ NA_character_))
   }
 }

@@ -10,27 +10,28 @@ test_that("legg til sykehusnavn works", {
     c("centreid", "sykehusnavn")
   )
 
-  # FOrventer Sykehusnavn = NA dersom feil centreid
+  # Forventer Sykehusnavn = NA dersom feil centreid
   testthat::expect_true(all(
     ablanor::legg_til_sykehusnavn(df) %>%
       dplyr::filter(is.na(.data$centreid) | .data$centreid == 123456) %>%
       dplyr::pull(.data$sykehusnavn) %>%
       is.na()))
 
-  # FOrventer disse navnene (short)
+  # Forventer disse navnene (short)
   testthat::expect_equal(
     ablanor::legg_til_sykehusnavn(df, short = TRUE) %>%
       dplyr::filter(! is.na(.data$centreid) & .data$centreid != 123456) %>%
       dplyr::pull(.data$sykehusnavn),
-    c("HUS", "St.Olavs", "AHus", "OUS", "UNN"))
+    c("HUS", "St.Olavs", "AHus", "OUS", "UNN", "Ibsen"))
 
-  # FOrventer disse navnene (long)
+  # Forventer disse navnene (long)
   testthat::expect_equal(
     ablanor::legg_til_sykehusnavn(df, short = FALSE) %>%
       dplyr::filter(! is.na(.data$centreid) & .data$centreid != 123456) %>%
       dplyr::pull(.data$sykehusnavn),
     c("Haukeland Universitetssykehus", "St.Olavs Hospital", "AHus Gardermoen",
-      "Oslo Universitetssykehus", "Universitetssykehuset Nord-Norge"))
+      "Oslo Universitetssykehus", "Universitetssykehuset Nord-Norge",
+      "IbsenSykehusene"))
 
 
    # Mangler centreid - error
