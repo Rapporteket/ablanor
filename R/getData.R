@@ -786,17 +786,23 @@ getLatestEntry <- function() {
 #' @export
 getNameReshId <- function(asNamedList = FALSE, shortNames = FALSE, newNames = FALSE) {
 
-  query <- "
+  if (shortNames) {
+    dbField <- "CENTRESHORTNAME"
+  } else {
+    dbField <- "FRIENDLYNAME"
+  }
+
+  query <- paste0("
 SELECT
-  CENTRESHORTNAME AS name,
+  ", dbField, " AS name,
   ID AS id
 FROM
   friendlycentre
 WHERE
-  CENTRESHORTNAME NOT LIKE 'Test%'
+  ", dbField, " NOT LIKE 'Test%'
 GROUP BY
-  CENTRESHORTNAME,
-  ID;"
+  ", dbField, ",
+  ID;")
 
   res <- rapbase::loadRegData("data", query)
 
