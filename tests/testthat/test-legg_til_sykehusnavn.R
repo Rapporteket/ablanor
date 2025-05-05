@@ -1,7 +1,7 @@
 test_that("legg til sykehusnavn works", {
 
   df <- data.frame(centreid = c(102966, 104284, 4218359, 700328, 4219765,
-                                NA, 123456))
+                                NA, 123456, 4208026))
 
 
   # Navn ny kolonne
