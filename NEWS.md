@@ -1,3 +1,6 @@
+# ablanor 1.4
+Legger til Ibsensykehuset som nytt sykehus.
+
 # ablanor 1.3.3
 Bugfiks av det sammenstilte prosedyreskjemaet med 5-års oppfølging.
 
