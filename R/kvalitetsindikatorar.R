@@ -74,9 +74,9 @@ ki_dod <- function(d_pros, d_mce, d_pas, dagar_innan = 29) {
     dato_oppdatert_dodsinfo <- Sys.Date()
 
   d_dod <- d_pros %>%
-    dplyr::left_join(., dplyr::select(d_mce, .data$mceid, .data$patient_id),
+    dplyr::left_join(., dplyr::select(d_mce, "mceid", "patient_id"),
                      by = "mceid") %>%
-    dplyr::left_join(., dplyr::select(d_pas, .data$id, .data$deceased_date),
+    dplyr::left_join(., dplyr::select(d_pas, "id", "deceased_date"),
                      by = c("patient_id" = "id"))
 
   d_dod <- d_dod %>%

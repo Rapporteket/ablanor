@@ -51,9 +51,9 @@ aggreger_ki_prop <- function(d_ki_ind, alfa = 0.05, forenklet = FALSE) {
 
                      est = .data$ki_teller / .data$ki_nevner) %>%
     dplyr::select(!!!dplyr::groups(d_ki_ind),
-                  .data$est,
-                  .data$ki_teller,
-                  .data$ki_nevner)
+                  "est",
+                  "ki_teller",
+                  "ki_nevner")
 
   konfint <- binom::binom.wilson(d_sammendrag$ki_teller, d_sammendrag$ki_nevner,
                                 conf.level = 1 - alfa)

@@ -355,9 +355,9 @@ indik_overlevelse30dg <- function(df) {
         labels = c("ja", "nei"),
         ordered = TRUE)) %>%
 
-    dplyr::select(- .data$utvalgt,
-                  -.data$time.diff_lag,
-                  -.data$time.diff_lead) %>%
+    dplyr::select(- "utvalgt",
+                  -"time.diff_lag",
+                  -"time.diff_lead") %>%
     dplyr::arrange(.data$mceid)
 
 }

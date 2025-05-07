@@ -112,13 +112,13 @@ kodebok_sjekk_foer_leggtil <- function(df,
   }
 
   # Dersom klokeboka har duplikerte verdiar for ein variabel:
-  if (any(koder %>%  dplyr::select(.data$listeverdier) %>% duplicated())) {
+  if (any(koder %>%  dplyr::select("listeverdier") %>% duplicated())) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
 
   # Dersom klokeboka har duplikert tekst for ein variabel:
-  if (any(koder %>%  dplyr::select(.data$listetekst) %>% duplicated())) {
+  if (any(koder %>%  dplyr::select("listetekst") %>% duplicated())) {
     resultat_sjekk <- FALSE
     return(resultat_sjekk)
   }
