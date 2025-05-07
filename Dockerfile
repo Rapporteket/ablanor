@@ -1,16 +1,22 @@
-FROM rapporteket/base-r:4.2.1
+FROM rapporteket/base-r:main
 
-LABEL maintainer "Are Edvardsen <are.edvardsen@helse-nord.no>"
+LABEL maintainer="Arnfinn Hykkerud Steindal <arnfinn.hykkerud.steindal@helse-nord.no>"
 LABEL no.rapporteket.cd.enable="true"
 
 WORKDIR /app/R
 
-# hadolint ignore=DL3010
 COPY *.tar.gz .
 
 RUN R -e "remotes::install_local(list.files(pattern = \"*.tar.gz\"))" \
-    && rm ./*.tar.gz
+    && rm ./*.tar.gz \
+    && R -e "remotes::install_github(\"Rapporteket/rapbase\", ref = \"main\")" \
+    && tlmgr update --self && tlmgr install xkeyval
 
-EXPOSE 3008
+EXPOSE 3838
 
-CMD ["R", "-e", "options(shiny.port = 3008,shiny.host = \"0.0.0.0\"); ablanor::run_app()"]
+RUN adduser --uid "1000" --disabled-password rapporteket && \
+    chown -R 1000:1000 /app/R && \
+    chmod -R 755 /app/R
+USER rapporteket
+
+CMD ["R", "-e", "options(shiny.port = 3838, shiny.host = \"0.0.0.0\"); ablanor::run_app()"]

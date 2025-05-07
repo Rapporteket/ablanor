@@ -19,7 +19,6 @@
 \title{Data managment on tables}
 \usage{
 getBaseregData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -29,7 +28,6 @@ getBaseregData(
 )
 
 getProsData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -39,7 +37,6 @@ getProsData(
 )
 
 getMceData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -49,7 +46,6 @@ getMceData(
 )
 
 getRand12Data(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -58,32 +54,13 @@ getRand12Data(
   ...
 )
 
-getFollowupBasisData(
-  registryName,
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  ...
-)
+getFollowupBasisData(singleRow = FALSE, reshId = NULL, userRole, ...)
 
-getFollowupOneYrData(
-  registryName,
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  ...
-)
+getFollowupOneYrData(singleRow = FALSE, reshId = NULL, userRole, ...)
 
-getFollowupFiveYrData(
-  registryName,
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  ...
-)
+getFollowupFiveYrData(singleRow = FALSE, reshId = NULL, userRole, ...)
 
 getGkvData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -93,7 +70,6 @@ getGkvData(
 )
 
 getPromsData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -103,7 +79,6 @@ getPromsData(
 )
 
 getBaseregProsData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -113,7 +88,6 @@ getBaseregProsData(
 )
 
 getBaseregProsHendelseData(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -123,7 +97,6 @@ getBaseregProsHendelseData(
 )
 
 getBaseregProsFollowup0Data(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -133,7 +106,6 @@ getBaseregProsFollowup0Data(
 )
 
 getBaseregProsFollowup1Data(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -143,7 +115,6 @@ getBaseregProsFollowup1Data(
 )
 
 getBaseregProsFollowup5Data(
-  registryName,
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -153,8 +124,6 @@ getBaseregProsFollowup5Data(
 )
 }
 \arguments{
-\item{registryName}{"ablanor"}
-
 \item{singleRow}{bools. TRUE bare metadata, FALSE hele datasettet}
 
 \item{reshId}{Integer organization id. From login settings.}
