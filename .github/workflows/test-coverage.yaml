@@ -30,7 +30,9 @@ jobs:
 
       - name: Set up MySQL, ubuntu only
         run: |
-          sudo /etc/init.d/mysql start
+          sudo apt-get update
+          sudo apt-get install -y mysql-server
+          sudo service mysql start
           mysql -e 'CREATE DATABASE IF NOT EXISTS testdb;' -uroot -proot
 
       - uses: r-lib/actions/setup-r-dependencies@v2
