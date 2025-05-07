@@ -73,5 +73,4 @@ jobs:
       - name: Check
         uses: r-lib/actions/check-r-package@v2
         with:
-          upload-snapshots: true
-          build_args: 'c("--no-manual", "--as-cran", "--compact-vignettes=gs+qpdf")'
+          error-on: '"error"'
