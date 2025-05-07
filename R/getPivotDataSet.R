@@ -191,10 +191,10 @@ getPivotDataSet <- function(setId = "",
     if(singleRow == FALSE){
       # Erstatte listeverdi med listetekst og ja/nei for avkrysningsboks
       kb <- ablanor::getKodebokData() %>%
-        dplyr::select(.data$fysisk_feltnavn,
-                      .data$listeverdier,
-                      .data$listetekst,
-                      .data$type)
+        dplyr::select("fysisk_feltnavn",
+                      "listeverdier",
+                      "listetekst",
+                      "type")
 
       dat %<>% ablanor::kodebok_fyll_listetekstvar(df = .,
                                                    kb = kb,
