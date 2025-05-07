@@ -196,7 +196,7 @@ getKodebokData <- function() {
 
 getKodebokMedUtledetedVar <- function() {
 
-   ablanor::getKodebokData() %>%
+  ablanor::getKodebokData() %>%
     dplyr::select("skjemanavn",
                   "fysisk_feltnavn",
                   "ledetekst",

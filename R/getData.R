@@ -819,11 +819,11 @@ GROUP BY
 
   if(newNames){
     res %<>%
-      dplyr::mutate(centreid = id) %>%
+      dplyr::mutate(centreid = .data$id) %>%
       ablanor::legg_til_sykehusnavn(., short = shortNames) %>%
-      dplyr::select(id, sykehusnavn) %>%
+      dplyr::select("id", "sykehusnavn") %>%
       dplyr::rename("name" = "sykehusnavn") %>%
-      dplyr::filter(!is.na(name))
+      dplyr::filter(!is.na(.data$name))
   }
 
   if (asNamedList) {
@@ -856,7 +856,7 @@ WHERE
     name <- ablanor::legg_til_sykehusnavn(
         df = data.frame(centreid = reshId),
         short = shortName) %>%
-      dplyr::pull(sykehusnavn)
+      dplyr::pull(.data$sykehusnavn)
     } else {
       name <- rapbase::loadRegData(registryName, query)[1, ]
     }
