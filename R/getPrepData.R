@@ -422,23 +422,23 @@ getBaseregProsData <- function(singleRow = FALSE,
   # Slik finner Kodeboken alle variablene
 
   d_pros %<>%
-    dplyr::select(- TSUPDATED,
-                  - UPDATEDBY,
-                  - FIRST_TIME_CLOSED,
-                  - FIRST_TIME_CLOSED_BY,
-                  - TSCREATED,
-                  - CREATEDBY) %>%
+    dplyr::select(- "TSUPDATED",
+                  - "UPDATEDBY",
+                  - "FIRST_TIME_CLOSED",
+                  - "FIRST_TIME_CLOSED_BY",
+                  - "TSCREATED",
+                  - "CREATEDBY") %>%
     dplyr::rename("PROS_STATUS" = "STATUS",
                   "PROS_USERCOMMENT" = "USERCOMMENT")
 
   d_basereg %<>%
-    dplyr::select(- TSUPDATED,
-                  - UPDATEDBY,
-                  - FIRST_TIME_CLOSED,
-                  - FIRST_TIME_CLOSED_BY,
-                  - TSCREATED,
-                  - CREATEDBY,
-                  - DATO_PROS) %>%
+    dplyr::select(- "TSUPDATED",
+                  - "UPDATEDBY",
+                  - "FIRST_TIME_CLOSED",
+                  - "FIRST_TIME_CLOSED_BY",
+                  - "TSCREATED",
+                  - "CREATEDBY",
+                  - "DATO_PROS") %>%
     dplyr::rename("BASEREG_STATUS" = "STATUS",
                   "BASEREG_USERCOMMENT" = "USERCOMMENT")
 
@@ -458,13 +458,13 @@ getBaseregProsData <- function(singleRow = FALSE,
                                   d_pros,
                                   by = c("MCEID", "CENTREID")) %>%
     # Legg til pasient_id til venstre
-    dplyr::right_join(d_mce %>% dplyr::select(MCEID,
-                                              PATIENT_ID),
+    dplyr::right_join(d_mce %>% dplyr::select("MCEID",
+                                              "PATIENT_ID"),
                       .,
                       by = "MCEID") %>%
     # Legg til kommunmenummer til venstre
     # Kommunenummer på forløpstidspunktet.
-    dplyr::right_join(d_mcepatientdata %>% dplyr::select(-PID),
+    dplyr::right_join(d_mcepatientdata %>% dplyr::select(-"PID"),
                       .,
                       by = "MCEID") %>%
     # Legg til pasientinformasjon til venstre
@@ -472,7 +472,7 @@ getBaseregProsData <- function(singleRow = FALSE,
     # Men repetert for hvert sykehus!
     dplyr::right_join(d_patientlist %>%
                         dplyr::rename("PATIENT_ID" = "ID") %>%
-                        dplyr::select(-CENTREID) %>%
+                        dplyr::select(-"CENTREID") %>%
                         dplyr::distinct(),
                       .,
                       by = "PATIENT_ID",
@@ -579,20 +579,20 @@ getBaseregProsHendelseData <- function(singleRow = FALSE,
                        paste0("adhoc_", x)
                      }) %>%
     dplyr::rename("MCEID_adhoc" = "MCEID") %>%
-    dplyr::select(MCEID_adhoc,
-                  CENTREID,
-                  DATO_ADHOC,
-                  adhoc_KOMP_JANEI:adhoc_STATUS)
+    dplyr::select("MCEID_adhoc",
+                  "CENTREID",
+                  "DATO_ADHOC",
+                  "adhoc_KOMP_JANEI":"adhoc_STATUS")
 
   d_pros %<>%
-    dplyr::select(MCEID, CENTREID, FORLOPSTYPE, DATO_PROS)
+    dplyr::select("MCEID", "CENTREID", "FORLOPSTYPE", "DATO_PROS")
 
   d_basereg %<>%
-    dplyr::select(MCEID, CENTREID, HOYDE, VEKT)
+    dplyr::select("MCEID", "CENTREID", "HOYDE", "VEKT")
 
 
   d_mce %<>%
-    dplyr::select(MCEID, CENTREID, MCETYPE, PARENTMCEID)
+    dplyr::select("MCEID", "CENTREID", "MCETYPE", "PARENTMCEID")
 
   names(d_hendelse) <- tolower(names(d_hendelse))
   names(d_mce) <- tolower(names(d_mce))
@@ -604,9 +604,9 @@ getBaseregProsHendelseData <- function(singleRow = FALSE,
 
   d_hendelse %<>% dplyr::left_join(.,
                                    d_mce %>% dplyr::filter(mcetype == 8) %>%
-                                     dplyr::select(mceid, parentmceid) %>%
-                                     dplyr::rename(mceid_adhoc = mceid,
-                                                   mceid = parentmceid),
+                                     dplyr::select("mceid", "parentmceid") %>%
+                                     dplyr::rename("mceid_adhoc" = "mceid",
+                                                   "mceid" = "parentmceid"),
                                    by = "mceid_adhoc")
 
 
@@ -711,11 +711,11 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
                   "proms_tssendt" = "tssendt",
                   "proms_expiry_date" = "expiry_date") %>%
     dplyr::mutate(eprom_sendt_basis = "ja") %>%
-    dplyr::select(mceid_followupbasis,
-                  proms_tssendt,
-                  proms_status,
-                  proms_expiry_date,
-                  eprom_sendt_basis)
+    dplyr::select("mceid_followupbasis",
+                  "proms_tssendt",
+                  "proms_status",
+                  "proms_expiry_date",
+                  "eprom_sendt_basis")
 
   # B) RAND 12 - KUN  BASIS-FOLLOWUP, MANUELL OG ELEKTRONISKE
   # RAND12 skjema fra før eprom ved basis, ble samlet inn og plottet manuelt,
@@ -751,14 +751,14 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
     d_rand12_eprom %>% dplyr::select(-mceid_followupbasis))
 
   d_rand12_basis %<>%
-    dplyr::select(mceid, centreid, dato_rand12, besvart_rand12,
-                  rand_1:rand_7)
+    dplyr::select("mceid", "centreid", "dato_rand12", "besvart_rand12",
+                  "rand_1":"rand_7")
 
 
   # GKV
   d_gkv %<>%
     dplyr::filter(complete == 1 & form_completed_via_proms == 1) %>%
-    dplyr::select(mceid, centreid, dato_gkv, gkv_1:gkv_12) %>%
+    dplyr::select("mceid", "centreid", "dato_gkv", "gkv_1":"gkv_12") %>%
     dplyr::rename("mceid_followupbasis"  = mceid)
 
 
@@ -769,16 +769,16 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
     dplyr::rename_with(.data = .,
                        ~ paste0("followupbasis_", .x),
                        .cols =c("complete":"status", "tscreated")) %>%
-    dplyr::select(-tsupdated,
-                  -updatedby,
-                  -form_completed_via_proms,
-                  -first_time_closed,
-                  -first_time_closed_by,
-                  -createdby) %>%
+    dplyr::select(-"tsupdated",
+                  -"updatedby",
+                  -"form_completed_via_proms",
+                  -"first_time_closed",
+                  -"first_time_closed_by",
+                  -"createdby") %>%
     dplyr::left_join(.,
                      d_mce %>%
                        dplyr::filter(mcetype == 7) %>%
-                       dplyr::select(mceid, parentmceid) %>%
+                       dplyr::select("mceid", "parentmceid") %>%
                        dplyr::rename("mceid_followupbasis" = mceid,
                                      "mceid" = parentmceid),
                      by = "mceid_followupbasis") %>%
@@ -807,28 +807,28 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
   # PROCESS PATIENT - BASEREG AND PROCEDURE DATA ----
   d_pros %<>%
     dplyr::select(
-      mceid:dato_pros,
-      redo, redo_times, narkose,
-      pros_varighet, rtg_tid, abla_varighet,
+      "mceid":"dato_pros",
+      "redo", "redo_times", "narkose",
+      "pros_varighet", "rtg_tid", "abla_varighet",
       dplyr::contains("aryt_i"),
       dplyr::contains("sys_"),
       dplyr::contains("abla_strat"),
-      akutt_suksess,
-      oppsummering,
+      "akutt_suksess",
+      "oppsummering",
       dplyr::contains("komp_")
     )
 
 
-  d_basereg %<>% dplyr::select(mceid:forskyvning, ehra_sympt)
+  d_basereg %<>% dplyr::select("mceid":"forskyvning", "ehra_sympt")
 
   d_mcePatientdata %<>%
-    dplyr::select(pid, mceid) %>%
+    dplyr::select("pid", "mceid") %>%
     dplyr::rename(patient_id = pid)
 
   d_patientlist %<>%
-    dplyr::select(id, birth_date, gender,
-                  deceased, deceased_date,
-                  ssn_type, ssnsubtype) %>%
+    dplyr::select("id", "birth_date", "gender",
+                  "deceased", "deceased_date",
+                  "ssn_type", "ssnsubtype") %>%
     dplyr::rename(patient_id = id)
 
 
@@ -838,7 +838,7 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
                           by = c("mceid", "centreid")) %>%
     dplyr::filter(!is.na(forlopstype))%>%
     dplyr::right_join(x = d_mce %>%
-                        dplyr::select(mceid, patient_id, has_basisfollowup),
+                        dplyr::select("mceid", "patient_id", "has_basisfollowup"),
                       y = .,
                       by = "mceid") %>%
     dplyr::right_join(x = d_patientlist %>% dplyr::distinct(),
@@ -917,7 +917,7 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
         test = (is.na(aar_prosedyre) | is.na(maaned_nr_prosedyre)),
         yes = NA,
         no = paste0(aar_prosedyre, "-", maaned_nr_prosedyre))) %>%
-    dplyr::select(-maaned_nr_prosedyre) %>%
+    dplyr::select(-"maaned_nr_prosedyre") %>%
     dplyr::arrange(mceid)
 
 
@@ -1080,11 +1080,11 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
                   "proms_tssendt" = "tssendt",
                   "proms_expiry_date" = "expiry_date") %>%
     dplyr::mutate(eprom_sendt_1aar = "ja") %>%
-    dplyr::select(mceid_followup,
-                  proms_tssendt,
-                  proms_status,
-                  proms_expiry_date,
-                  eprom_sendt_1aar)
+    dplyr::select("mceid_followup",
+                  "proms_tssendt",
+                  "proms_status",
+                  "proms_expiry_date",
+                  "eprom_sendt_1aar")
 
   # RAND 12 fra kun 1 års oppfølging
   d_rand12 %<>%
@@ -1092,8 +1092,8 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
     dplyr::rename("mceid_followup" = "mceid",
                   "rand_complete" = "complete",
                   "rand_incomplete_reason"  = "incomplete_reason") %>%
-    dplyr::select(mceid_followup:rand_7) %>%
-    dplyr::select(-followup_parent_type)
+    dplyr::select("mceid_followup":"rand_7") %>%
+    dplyr::select(-"followup_parent_type")
 
   # Tar utgangspunkt i alle tilgjengelige oppfølgingsdata for 1 aar
   # Legger til mceid for followup og proms variabler
@@ -1102,18 +1102,18 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
     dplyr::rename_with(.data = .,
                        ~ paste0("followup1_", .x),
                        .cols =c("complete":"status", "tscreated")) %>%
-    dplyr::select(-tsupdated,
-                  -updatedby,
-                  -form_completed_via_proms,
-                  -first_time_closed,
-                  -first_time_closed_by,
-                  -createdby) %>%
+    dplyr::select(-"tsupdated",
+                  -"updatedby",
+                  -"form_completed_via_proms",
+                  -"first_time_closed",
+                  -"first_time_closed_by",
+                  -"createdby") %>%
     dplyr::left_join(.,
                      d_mce %>%
                        dplyr::filter(mcetype == 9) %>%
-                       dplyr::select(mceid, parentmceid) %>%
-                       dplyr::rename("mceid_followup" = mceid,
-                              "mceid" = parentmceid),
+                       dplyr::select("mceid", "parentmceid") %>%
+                       dplyr::rename("mceid_followup" = "mceid",
+                              "mceid" = "parentmceid"),
                      by = "mceid_followup") %>%
     dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
     dplyr::left_join(.,
@@ -1136,31 +1136,31 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
   # PROCESS PATIENT - BASEREG AND PROCEDURE DATA ----
   d_pros %<>%
     dplyr::select(
-      mceid:dato_pros,
-      redo, redo_times, narkose,
+      "mceid":"dato_pros",
+      "redo", "redo_times", "narkose",
       dplyr::contains("aryt_i"),
       dplyr::contains("sys_"),
       dplyr::contains("abla_strat"),
-      akutt_suksess,
-      oppsummering,
+      "akutt_suksess",
+      "oppsummering",
       dplyr::contains("komp_")
     )
 
 
   d_basereg %<>%
     dplyr::select(
-      mceid:forskyvning,
-      ehra_sympt
+      "mceid":"forskyvning",
+      "ehra_sympt"
     )
 
   d_mcePatientdata %<>%
-    dplyr::select(pid, mceid) %>%
-    dplyr::rename(patient_id = pid)
+    dplyr::select("pid", "mceid") %>%
+    dplyr::rename("patient_id" = "pid")
 
   d_patientlist %<>%
-    dplyr::select(id, birth_date, gender,
-                  deceased, deceased_date,
-                  ssn_type, ssnsubtype) %>%
+    dplyr::select("id", "birth_date", "gender",
+                  "deceased", "deceased_date",
+                  "ssn_type", "ssnsubtype") %>%
     dplyr::rename(patient_id = id)
 
 
@@ -1170,7 +1170,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
                           by = c("mceid", "centreid")) %>%
     dplyr::filter(!is.na(forlopstype))%>%
     dplyr::right_join(x = d_mce %>%
-                        dplyr::select(mceid, patient_id, has_followup),
+                        dplyr::select("mceid", "patient_id", "has_followup"),
                       y = .,
                       by = "mceid") %>%
     dplyr::right_join(x = d_patientlist %>% dplyr::distinct(),
@@ -1282,7 +1282,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
         followup1_tscreated,
         dato_pros,
         units = "days"))) %>%
-    dplyr::select(-maaned_nr_prosedyre) %>%
+    dplyr::select(-"maaned_nr_prosedyre") %>%
     dplyr::arrange(mceid) %>%
 
     dplyr::mutate(
@@ -1425,7 +1425,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
                     "eprom_datagrunnlag_1aar",
                     "eprom_besvart_1aar",
                     .before = "birth_date") %>%
-    dplyr::select(-dato_bas) %>%
+    dplyr::select(-"dato_bas") %>%
     dplyr::relocate("has_followup", .after = "eprom_kjente_feil_1aar")
 
 
@@ -1524,11 +1524,11 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
                   "proms_tssendt" = "tssendt",
                   "proms_expiry_date" = "expiry_date") %>%
     dplyr::mutate(eprom_sendt_5aar = "ja") %>%
-    dplyr::select(mceid_followup,
-                  proms_tssendt,
-                  proms_status,
-                  proms_expiry_date,
-                  eprom_sendt_5aar)
+    dplyr::select("mceid_followup",
+                  "proms_tssendt",
+                  "proms_status",
+                  "proms_expiry_date",
+                  "eprom_sendt_5aar")
 
   # RAND 12 fra kun 1 års oppfølging
   d_rand12 %<>%
@@ -1791,7 +1791,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
                     "eprom_datagrunnlag_5aar",
                     "eprom_besvart_5aar",
                     .before = "birth_date") %>%
-    dplyr::select(-dato_bas) %>%
+    dplyr::select(-"dato_bas") %>%
     dplyr::relocate("has_fiveyearfollowup", .after = "kriterie_alle_5aar")
 
 

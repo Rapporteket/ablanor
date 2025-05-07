@@ -48,7 +48,7 @@ utlede_alder_75 <- function(df) {
     dplyr::mutate(alder_75 = ifelse(.data$alder >= 75,
                                     yes = ">=75",
                                     no = "<75")) %>%
-    dplyr::relocate(.data$alder_75, .after = .data$alder)
+    dplyr::relocate("alder_75", .after = "alder")
 }
 
 
@@ -77,7 +77,7 @@ utlede_aldersklasse <- function(df) {
         include.lowest = TRUE,
         labels = c("18-49", "50-59", "60-69", "70-79", "80-89", "90-99"),
         ordered_result = TRUE)) %>%
-    dplyr::relocate(.data$aldersklasse, .after = .data$alder)
+    dplyr::relocate("aldersklasse", .after = "alder")
 }
 
 

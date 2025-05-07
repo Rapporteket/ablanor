@@ -168,7 +168,7 @@ d_ablanor %>%
   dplyr::count(.data$forlopstype) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
-  dplyr::select(.data$forlopstype_tekst, .data$n) %>% 
+  dplyr::select("forlopstype_tekst", "n") %>% 
   dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
                 "Antall" = .data$n) %>% 
   rapbase::mst(.,
@@ -259,14 +259,14 @@ figtekst <- paste0("Andel forløp fra ", hospitalNameShort,
                    "komplikasjoner delt på totalt antall forløp per måned.")
 
 d_kompl_fig <- d_ablanor %>%
-  dplyr::select(.data$maaned, .data$komp_janei) %>%
+  dplyr::select("maaned", "komp_janei") %>%
   ablanor::ki_komplikasjonar() %>%
   dplyr::group_by(.data$maaned) %>%
   ablanor::aggreger_ki_prop() %>%
-  dplyr::select(-.data$konfint_nedre, -.data$konfint_ovre, -.data$est) %>%
+  dplyr::select(-"konfint_nedre", -"konfint_ovre", -"est") %>%
   dplyr::mutate(komp_pros = .data$ki_teller / .data$ki_nevner,
                 komp_text = paste0(.data$ki_teller, "/", .data$ki_nevner)) %>% 
-  dplyr::select(.data$maaned, .data$komp_pros, .data$komp_text)
+  dplyr::select("maaned", "komp_pros", "komp_text")
 
 d_kompl_fig2 <- dplyr::left_join(
   d_kompl_fig %>%
@@ -307,7 +307,7 @@ cap <- paste0(
   "ikke dette forløpet i undergruppene.")
 
 d_komp_tot <- d_ablanor %>%
-  dplyr::select(.data$komp_janei, .data$maaned) %>%
+  dplyr::select("komp_janei", "maaned") %>%
   dplyr::group_by(.data$maaned) %>%
   ablanor::ki_komplikasjonar() %>%
   ablanor::aggreger_ki_prop() %>%
@@ -317,7 +317,7 @@ d_komp_tot <- d_ablanor %>%
 
 
 d_komp_forlop <- d_ablanor %>%
-  dplyr::select(.data$forlopstype, .data$komp_janei, .data$maaned) %>%
+  dplyr::select("forlopstype", "komp_janei", "maaned") %>%
   ablanor::ki_komplikasjonar() %>%
   dplyr::group_by(.data$forlopstype, .data$maaned) %>%
   ablanor::aggreger_ki_prop() %>%
@@ -325,7 +325,7 @@ d_komp_forlop <- d_ablanor %>%
                    legend = .data$forlopstype,
                    value = paste0(.data$ki_teller, "/", .data$ki_nevner)) %>%
   dplyr::ungroup() %>%  
-  dplyr::select(-.data$forlopstype) %>%
+  dplyr::select(-"forlopstype") %>%
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
   dplyr::rename("AFLI" = "1",
                 "VT" = "2", 
@@ -334,7 +334,7 @@ d_komp_forlop <- d_ablanor %>%
 
 
 d_komp_bmi <- d_ablanor %>%
-  dplyr::select(.data$bmi_over35, .data$komp_janei, .data$maaned) %>%
+  dplyr::select("bmi_over35", "komp_janei", "maaned") %>%
   ablanor::ki_komplikasjonar() %>%
   dplyr::group_by(.data$bmi_over35, .data$maaned) %>%
   ablanor::aggreger_ki_prop() %>%
@@ -342,13 +342,13 @@ d_komp_bmi <- d_ablanor %>%
                    legend = .data$bmi_over35,
                    value = paste0(.data$ki_teller, "/", .data$ki_nevner)) %>%
   dplyr::ungroup() %>%  
-  dplyr::select(- .data$bmi_over35) %>% 
+  dplyr::select(- "bmi_over35") %>% 
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
   dplyr::rename("over 35" = "BMI >=35", 
                 "under 35" = "BMI <35")
 
 d_komp_alder <- d_ablanor %>%
-  dplyr::select(.data$alder_75, .data$komp_janei, .data$maaned) %>%
+  dplyr::select("alder_75", "komp_janei", "maaned") %>%
   ablanor::ki_komplikasjonar() %>%
   dplyr::group_by(.data$alder_75, .data$maaned) %>%
   ablanor::aggreger_ki_prop() %>%
@@ -356,7 +356,7 @@ d_komp_alder <- d_ablanor %>%
                    legend = .data$alder_75,
                    value = paste0(.data$ki_teller, "/", .data$ki_nevner)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(- .data$alder_75) %>% 
+  dplyr::select(- "alder_75") %>% 
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
   dplyr::rename("over 75" = ">=75", 
                 "under 75" = "<75")
@@ -425,7 +425,7 @@ cap <- paste0("Andel forløp med akutt suksess per måned de ",
 
 
 d_akutt_suksess_fig <- d_ablanor %>%
-  dplyr::select(.data$maaned, .data$abla_strat_ingen, .data$akutt_suksess) %>%
+  dplyr::select("maaned", "abla_strat_ingen", "akutt_suksess") %>%
   ablanor::ki_akutt_suksess() %>%
   dplyr::group_by(maaned) %>%
   ablanor::aggreger_ki_prop() %>%
@@ -471,7 +471,7 @@ cap <- paste0("Andel forløp med akutt suksess. ",
               "uoverensstemmelser i nevnerne. ")
 
 d_akuttSuksess_tot <- d_ablanor %>%
-  dplyr::select(.data$abla_strat_ingen, .data$akutt_suksess, .data$maaned) %>%
+  dplyr::select("abla_strat_ingen", "akutt_suksess", "maaned") %>%
   dplyr::group_by(maaned, .drop = FALSE) %>%
   ablanor::ki_akutt_suksess() %>%
   ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
@@ -482,10 +482,10 @@ d_akuttSuksess_tot <- d_ablanor %>%
 
 
 d_akuttSuksess_forlop <- d_ablanor %>%
-  dplyr::select(.data$forlopstype,
-                .data$abla_strat_ingen, 
-                .data$akutt_suksess, 
-                .data$maaned) %>%
+  dplyr::select("forlopstype",
+                "abla_strat_ingen",
+                "akutt_suksess",
+                "maaned") %>%
   ablanor::ki_akutt_suksess() %>%
   dplyr::group_by(.data$forlopstype, .data$maaned, .drop=FALSE) %>%
   ablanor::aggreger_ki_prop(., forenklet = TRUE) %>%
@@ -503,10 +503,10 @@ d_akuttSuksess_forlop <- d_ablanor %>%
                 "EFU" = "4")
 
 d_akutt_suksess_AFLI_icd <- d_ablanor %>%
-  dplyr::select(.data$kategori_afli_aryt_i48,
-                .data$abla_strat_ingen, 
-                .data$akutt_suksess, 
-                .data$maaned) %>%
+  dplyr::select("kategori_afli_aryt_i48",
+                "abla_strat_ingen",
+                "akutt_suksess",
+                "maaned") %>%
   dplyr::filter(!is.na(.data$kategori_afli_aryt_i48)) %>%
   ablanor::ki_akutt_suksess() %>%
   dplyr::group_by(.data$kategori_afli_aryt_i48, .data$maaned, .drop = FALSE) %>%
@@ -515,17 +515,17 @@ d_akutt_suksess_AFLI_icd <- d_ablanor %>%
                    legend = .data$kategori_afli_aryt_i48,
                    value = paste0(.data$ki_teller, "/", .data$ki_nevner)) %>%
   dplyr::ungroup() %>% 
-  dplyr::select(- .data$kategori_afli_aryt_i48) %>%
+  dplyr::select(- "kategori_afli_aryt_i48") %>%
   dplyr::mutate(value = dplyr::recode(.data$value, 
                                       "0/0" = " -- ")) %>% 
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
 
 
 d_akutt_suksess_VT <- d_ablanor %>%
-  dplyr::select(.data$forlopstype, 
-                .data$kategori_vt_kardiomyopati, 
-                .data$abla_strat_ingen, 
-                .data$akutt_suksess, maaned) %>%
+  dplyr::select("forlopstype",
+                "kategori_vt_kardiomyopati",
+                "abla_strat_ingen",
+                "akutt_suksess", maaned) %>%
   dplyr::filter(.data$forlopstype == 2) %>%
   ablanor::ki_akutt_suksess() %>%
   dplyr::group_by(.data$kategori_vt_kardiomyopati,
@@ -536,7 +536,7 @@ d_akutt_suksess_VT <- d_ablanor %>%
                    legend = .data$kategori_vt_kardiomyopati,
                    value = paste0(.data$ki_teller, "/", .data$ki_nevner)) %>%
   dplyr::ungroup() %>%  
-  dplyr::select(- .data$kategori_vt_kardiomyopati) %>% 
+  dplyr::select(- "kategori_vt_kardiomyopati") %>% 
   dplyr::mutate(value = dplyr::recode(.data$value,
                                       "0/0" = " -- ")) %>% 
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE)
@@ -612,18 +612,18 @@ cap <- paste0("Andel forløp med komplikasjon: AV-blokk med ",
 
 
 d_komplikasjonar_pacemaker <- d_ablanor %>%
-  dplyr::select(.data$maaned, .data$komp_avblokk_pm) %>%
+  dplyr::select("maaned", "komp_avblokk_pm") %>%
   ablanor::ki_komplikasjonar_pacemaker() %>%
   dplyr::group_by(.data$maaned, .drop = FALSE) %>%
   ablanor::aggreger_ki_prop(., forenklet = TRUE) %>% 
-  dplyr::select(.data$maaned, .data$ki_teller, .data$ki_nevner)
+  dplyr::select("maaned", "ki_teller", "ki_nevner")
 
 
 d_komplikasjonar_pacemaker_tot <- d_ablanor %>%
-  dplyr::select(.data$maaned, .data$komp_avblokk_pm) %>%
+  dplyr::select("maaned", "komp_avblokk_pm") %>%
   ablanor::ki_komplikasjonar_pacemaker() %>%
   ablanor::aggreger_ki_prop() %>% 
-  dplyr::select(.data$ki_teller, .data$ki_nevner)
+  dplyr::select("ki_teller", "ki_nevner")
 
 
 d_komplikasjonar_pacemaker %>%
@@ -692,7 +692,7 @@ d_ablanor %>%
 # VARIGHET prosedyre per måned, TOTALT :
 d_varighet_pros_tot <- d_ablanor %>%
   dplyr::filter(!is.na(.data$pros_varighet)) %>% 
-  dplyr::select(.data$pros_varighet, .data$maaned) %>%
+  dplyr::select("pros_varighet", "maaned") %>%
   dplyr::group_by(maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)), 
@@ -705,7 +705,7 @@ d_varighet_pros_tot <- d_ablanor %>%
 # FORLØPSTYPE
 d_varighet_forlop <- d_ablanor %>%
   dplyr::filter(!is.na(.data$pros_varighet)) %>% 
-  dplyr::select(.data$forlopstype, .data$pros_varighet, .data$maaned) %>%
+  dplyr::select("forlopstype", "pros_varighet", "maaned") %>%
   dplyr::group_by(.data$forlopstype, .data$maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(pros_varighet)), 
@@ -729,9 +729,9 @@ d_varighet_forlop_pros <- d_varighet_forlop %>%
 #ALDER
 d_varighet_alder_pros<- d_ablanor %>%
   dplyr::filter(!is.na(.data$pros_varighet)) %>% 
-  dplyr::select(.data$alder_75, 
-                .data$pros_varighet, 
-                .data$maaned) %>%
+  dplyr::select("alder_75", 
+                "pros_varighet", 
+                "maaned") %>%
   dplyr::group_by(.data$alder_75, .data$maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)),
@@ -751,10 +751,10 @@ d_varighet_alder_pros<- d_ablanor %>%
 #BMI
 d_varighet_bmi_pros <- d_ablanor %>%
   dplyr::filter(!is.na(.data$pros_varighet)) %>% 
-  dplyr::select(.data$bmi_over35,
-                .data$rtg_tid, 
-                .data$pros_varighet,
-                .data$maaned) %>%
+  dplyr::select("bmi_over35",
+                "rtg_tid",
+                "pros_varighet",
+                "maaned") %>%
   dplyr::group_by(.data$bmi_over35, .data$maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)), 
@@ -766,16 +766,16 @@ d_varighet_bmi_pros <- d_ablanor %>%
   dplyr::ungroup() %>%
   dplyr::rename(legend = .data$bmi_over35, value = .data$pros_meanN) %>%
   ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
-  dplyr::rename("over 35" = "BMI >=35", 
+  dplyr::rename("over 35" = "BMI >=35",
                 "under 35" = "BMI <35")
 
 # AFLI - ICD
 d_varighet_afli_icd_pros <- d_ablanor %>%
   dplyr::filter(!is.na(.data$pros_varighet), 
                 !is.na(.data$kategori_afli_aryt_i48)) %>%
-  dplyr::select(.data$kategori_afli_aryt_i48, 
-                .data$pros_varighet,
-                .data$maaned) %>%
+  dplyr::select("kategori_afli_aryt_i48",
+                "pros_varighet",
+                "maaned") %>%
   dplyr::group_by(.data$kategori_afli_aryt_i48, .data$maaned, .drop = FALSE) %>%
   dplyr::summarise(pros_meanN = paste0(sprintf("%0.0f", 
                                                mean(.data$pros_varighet)),
@@ -795,9 +795,9 @@ d_varighet_afli_icd_pros <- d_ablanor %>%
 d_varighet_vt_kardiomyopati_pros <- d_ablanor %>%
   dplyr::filter(!is.na(.data$pros_varighet), 
                 !is.na(.data$kategori_vt_kardiomyopati)) %>%
-  dplyr::select(.data$kategori_vt_kardiomyopati,
-                .data$pros_varighet,
-                .data$maaned) %>%
+  dplyr::select("kategori_vt_kardiomyopati",
+                "pros_varighet",
+                "maaned") %>%
   dplyr::group_by(.data$kategori_vt_kardiomyopati, 
                   .data$maaned,
                   .drop = FALSE) %>%
@@ -923,7 +923,7 @@ cap <- "Røntgentid i minutter per måned."
 
 d_varighet_tot_maaned <- d_ablanor %>%
   dplyr::filter(!is.na(.data$rtg_tid)) %>% 
-  dplyr::select(.data$maaned, .data$rtg_tid) %>%
+  dplyr::select("maaned", "rtg_tid") %>%
   dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
   dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60)
 
@@ -943,7 +943,7 @@ d_varighet_tot_maaned %>%
 # VARIGHET røntgen per måned TOTALT:
 d_varighetRtg_mnd <- d_ablanor %>%
   dplyr::filter(!is.na(.data$rtg_tid)) %>% 
-  dplyr::select(.data$rtg_tid, .data$maaned) %>%
+  dplyr::select("rtg_tid", "maaned") %>%
   dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
   dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60) %>%
   dplyr::group_by(.data$maaned, .drop = FALSE) %>%
@@ -956,8 +956,8 @@ d_varighetRtg_mnd <- d_ablanor %>%
 
 # FORLØPSTYPE
 d_varighetRtg_forlop <- d_ablanor %>%
-  dplyr::filter(!is.na(.data$rtg_tid)) %>% 
-  dplyr::select(.data$forlopstype, .data$rtg_tid, .data$maaned) %>%
+  dplyr::filter(!is.na(.data$rtg_tid)) %>%
+  dplyr::select("forlopstype", "rtg_tid", "maaned") %>%
   dplyr::group_by(.data$forlopstype, .data$maaned, .drop = FALSE) %>%
   dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
   dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60) %>%

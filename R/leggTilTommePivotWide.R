@@ -39,7 +39,7 @@ leggTilTomme_PivotWide <- function(data, remove_NAcols = TRUE) {
    tidyr::replace_na(list(value = " -- ")) %>%
    dplyr::arrange(.data$legend) %>%
    dplyr::arrange(.data$maaned) %>%
-   tidyr::pivot_wider(names_from = .data$legend, values_from = .data$value)
+   tidyr::pivot_wider(names_from = "legend", values_from = "value")
 
 
   if (!is.null(data) & remove_NAcols == TRUE) {
