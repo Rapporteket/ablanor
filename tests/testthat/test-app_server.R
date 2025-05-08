@@ -15,11 +15,14 @@ check_db <- function(is_test_that = TRUE) {
   }
 }
 
+autoreportDbName <- "autoreporttest"
+
 withr::with_envvar(
   new = c(
     "R_RAP_CONFIG_PATH" = tempdir(),
     "FALK_EXTENDED_USER_RIGHTS" = "[{\"A\":80,\"R\":\"LC\",\"U\":1},{\"A\":80,\"R\":\"SC\",\"U\":2},{\"A\":81,\"R\":\"LC\",\"U\":2}]",
-    "FALK_APP_ID" = "80"
+    "FALK_APP_ID" = "80",
+    "MYSQL_DB_AUTOREPORT" = autoreportDbName
   ),
   code = {
     test_that("env vars needed for testing is present", {
@@ -38,6 +41,9 @@ withr::with_envvar(
                                  bigint = "integer"
       )
       RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
+      RMariaDB::dbExecute(con, paste0(
+        "CREATE DATABASE ", autoreportDbName, ";"
+        ))
       RMariaDB::dbDisconnect(con)
     }
 
@@ -75,9 +81,6 @@ withr::with_envvar(
     cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "rapbaseConfig.yml"))
     writeLines(base_config, cf)
     close(cf)
-    cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "dbConfig.yml"))
-    writeLines(test_config, cf)
-    close(cf)
 
     # make queries for creating tables
     fc <- file(system.file("testDb.sql", package = "ablanor"), "r")
@@ -91,6 +94,23 @@ withr::with_envvar(
       con <- rapbase::rapOpenDbConnection("data")$con
       for (i in seq_len(length(queries))) {
         expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
+
+      }
+      rapbase::rapCloseDbConnection(con)
+    })
+
+    # creating autoreport tables
+    fc <- file(system.file("createAutoReportTab.sql", package = "rapbase"), "r")
+    t <- readLines(fc)
+    close(fc)
+    sql <- paste0(t, collapse = "\n")
+    autoreportqueries <- strsplit(sql, ";")[[1]]
+
+    test_that("relevant test database and tables can be made", {
+      check_db()
+      con <- rapbase::rapOpenDbConnection("autoreport")$con
+      for (i in seq_len(length(autoreportqueries))) {
+        expect_equal(class(RMariaDB::dbExecute(con, autoreportqueries[i])), "integer")
 
       }
       rapbase::rapCloseDbConnection(con)
@@ -121,6 +141,7 @@ withr::with_envvar(
     if (is.null(check_db(is_test_that = FALSE))) {
       con <- rapbase::rapOpenDbConnection("data")$con
       RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
+      RMariaDB::dbExecute(con, "DROP DATABASE autoreporttest;")
       rapbase::rapCloseDbConnection(con)
     }
   }
