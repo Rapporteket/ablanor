@@ -1,9 +1,9 @@
 
-Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"SC\",\"U\":102966},{\"A\":80,\"R\":\"LU\",\"U\":4219765},{\"A\":80,\"R\":\"LC\",\"U\":4219765},{\"A\":80,\"R\":\"LC\",\"U\":700328}]")
+Sys.setenv(FALK_EXTENDED_USER_RIGHTS="[{\"A\":80,\"R\":\"SC\",\"U\":4219765},{\"A\":80,\"R\":\"LU\",\"U\":4219765},{\"A\":80,\"R\":\"LC\",\"U\":4219765},{\"A\":80,\"R\":\"LC\",\"U\":700328}]")
 Sys.setenv(MYSQL_DB_LOG="db_log")
 Sys.setenv(MYSQL_DB_AUTOREPORT="db_autoreport")
 Sys.setenv(MYSQL_DB_DATA="ablanor")
-Sys.setenv(MYSQL_HOST="db")
+Sys.setenv(MYSQL_HOST="localhost")
 Sys.setenv(MYSQL_USER="root")
 Sys.setenv(MYSQL_PASSWORD="root")
 Sys.setenv(FALK_APP_ID="80")

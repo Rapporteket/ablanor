@@ -53,29 +53,13 @@ withr::with_envvar(
       "\n  raplog :",
       "\n    archiveDir : logArchive",
       "\n    eolDays : 730",
-      "\n    target: file",
+      "\n    target: db",
       "\n    key: raplogTest\n",
       "\n",
       "\n  autoReport:",
-      "\n    target: file",
+      "\n    target: db",
       "\n    key: autoreport\n",
-      "\n",
-      "\n  testUser:",
-      "\n    user : ttester",
-      "\n    groups : ablanor",
-      "\n    role : LC",
-      "\n    resh_id : 1",
-      "\n    email : ttester@reg.no",
-      "\n    full_name : Tore Tester",
-      "\n    phone : 0123456789\n"
-    )
-    test_config <- paste0(
-      "ablanor:",
-      "\n  host : ", Sys.getenv("MYSQL_HOST"),
-      "\n  name : testDb",
-      "\n  user : ", Sys.getenv("MYSQL_USER"),
-      "\n  pass : ", Sys.getenv("MYSQL_PASSWORD"),
-      "\n  disp : ephemaralUnitTesting\n"
+      "\n"
     )
 
     cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "rapbaseConfig.yml"))
