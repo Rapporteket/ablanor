@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ablanor</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.4.9000</span>
       </span>
     </div>
 
@@ -44,7 +44,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get datadump ablanor</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rapporteket/ablanor/blob/v1.4.0/R/getDataDump.R" class="external-link"><code>R/getDataDump.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rapporteket/ablanor/blob/main/R/getDataDump.R" class="external-link"><code>R/getDataDump.R</code></a></small>
     <div class="hidden name"><code>getDataDump.Rd</code></div>
     </div>
 
@@ -53,26 +53,14 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getDataDump</span><span class="op">(</span></span>
-<span>  <span class="va">registryName</span>,</span>
-<span>  <span class="va">tableName</span>,</span>
-<span>  <span class="va">fromDate</span>,</span>
-<span>  <span class="va">toDate</span>,</span>
-<span>  reshId <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">userRole</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">getDataDump</span><span class="op">(</span><span class="va">tableName</span>, <span class="va">fromDate</span>, <span class="va">toDate</span>, reshId <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">userRole</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
 
 
-<dl><dt id="arg-registryname">registryName<a class="anchor" aria-label="anchor" href="#arg-registryname"></a></dt>
-<dd><p>"ablanor"</p></dd>
-
-
-<dt id="arg-tablename">tableName<a class="anchor" aria-label="anchor" href="#arg-tablename"></a></dt>
+<dl><dt id="arg-tablename">tableName<a class="anchor" aria-label="anchor" href="#arg-tablename"></a></dt>
 <dd><p>Selected table for download</p></dd>
 
 
@@ -112,7 +100,7 @@ Some tables are only available for SC users.</p></dd>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Kristina Skaare, Mary Autenried, Are Edvardsen.</p>
+  <p></p><p>Developed by Kristina Skaare, Mary Autenried, Are Edvardsen, Arnfinn Hykkerud Steindal.</p>
 </div>
 
 <div class="pkgdown">
