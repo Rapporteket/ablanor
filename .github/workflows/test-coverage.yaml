@@ -21,6 +21,7 @@ jobs:
       MYSQL_HOST: "localhost"
       MYSQL_USER: "root"
       MYSQL_PASSWORD: "root"
+      MYSQL_DB_DATA: "testdb"
     steps:
       - uses: actions/checkout@v4
 
