@@ -12,12 +12,11 @@ devtools::install(upgrade = FALSE)
 devtools::install("../rapbase/.", upgrade = FALSE)
 
 source("dev/sysSetenv.R")
-
 ablanor::run_app(browser = TRUE)
 
 # For å kjøre tester
 
-Sys.setenv(MYSQL_DB_DATA = "ablanor")
+Sys.setenv(MYSQL_DB_DATA = "testDb")
 Sys.setenv(MYSQL_HOST = "localhost")
 Sys.setenv(MYSQL_USER = "root")
 Sys.setenv(MYSQL_PASSWORD = "root")

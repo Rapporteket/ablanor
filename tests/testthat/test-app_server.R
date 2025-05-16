@@ -22,7 +22,9 @@ withr::with_envvar(
     "R_RAP_CONFIG_PATH" = tempdir(),
     "FALK_EXTENDED_USER_RIGHTS" = "[{\"A\":80,\"R\":\"LC\",\"U\":1},{\"A\":80,\"R\":\"SC\",\"U\":2},{\"A\":81,\"R\":\"LC\",\"U\":2}]",
     "FALK_APP_ID" = "80",
-    "MYSQL_DB_AUTOREPORT" = autoreportDbName
+    "MYSQL_DB_AUTOREPORT" = autoreportDbName,
+    "MYSQL_DB_DATA" = "testDb",
+    "MYSQL_DB_LOG" = "raplogTest"
   ),
   code = {
     test_that("env vars needed for testing is present", {
@@ -41,9 +43,10 @@ withr::with_envvar(
                                  bigint = "integer"
       )
       RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
+      RMariaDB::dbExecute(con, "CREATE DATABASE IF NOT EXISTS raplogTest;")
       RMariaDB::dbExecute(con, paste0(
         "CREATE DATABASE ", autoreportDbName, ";"
-        ))
+      ))
       RMariaDB::dbDisconnect(con)
     }
 
@@ -59,7 +62,16 @@ withr::with_envvar(
       "\n  autoReport:",
       "\n    target: db",
       "\n    key: autoreport\n",
-      "\n"
+      "\n",
+      "\n",
+      "\n  testUser:",
+      "\n    user : ttester",
+      "\n    groups : ablanor",
+      "\n    role : LC",
+      "\n    resh_id : 1",
+      "\n    email : ttester@reg.no",
+      "\n    full_name : Tore Tester",
+      "\n    phone : 0123456789\n"
     )
 
     cf <- file(file.path(Sys.getenv("R_RAP_CONFIG_PATH"), "rapbaseConfig.yml"))
@@ -100,6 +112,23 @@ withr::with_envvar(
       rapbase::rapCloseDbConnection(con)
     })
 
+    # creating log tables
+    fc <- file(system.file("createRaplogTabs.sql", package = "rapbase"), "r")
+    t <- readLines(fc)
+    close(fc)
+    sql <- paste0(t, collapse = "\n")
+    logqueries <- strsplit(sql, ";")[[1]]
+
+    test_that("relevant test database and tables can be made", {
+      check_db()
+      con <- rapbase::rapOpenDbConnection("raplog")$con
+      for (i in seq_len(length(logqueries))) {
+        expect_equal(class(RMariaDB::dbExecute(con, logqueries[i])), "integer")
+
+      }
+      rapbase::rapCloseDbConnection(con)
+    })
+
     test_that("an org can be added to db", {
       check_db()
       con <- rapbase::rapOpenDbConnection("data")$con
@@ -126,6 +155,7 @@ withr::with_envvar(
       con <- rapbase::rapOpenDbConnection("data")$con
       RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
       RMariaDB::dbExecute(con, "DROP DATABASE autoreporttest;")
+      RMariaDB::dbExecute(con, "DROP DATABASE raplogTest;")
       rapbase::rapCloseDbConnection(con)
     }
   }
