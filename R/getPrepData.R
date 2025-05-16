@@ -7,7 +7,6 @@
 #'
 
 
-#' @param registryName "ablanor"
 #' @param singleRow bools. TRUE bare metadata, FALSE hele datasettet
 #' @param reshId Integer organization id. From login settings.
 #' @param userRole String dummy/placeholder role. "LC" has access only
@@ -38,8 +37,7 @@ NULL
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregData <- function(registryName,
-                           singleRow = FALSE,
+getBaseregData <- function(singleRow = FALSE,
                            reshId = NULL,
                            userRole,
                            fromDate = NULL,
@@ -47,8 +45,7 @@ getBaseregData <- function(registryName,
 
   . <- ""
 
-  d <- ablanor::getBasereg(registryName = registryName,
-                           singleRow = singleRow,
+  d <- ablanor::getBasereg(singleRow = singleRow,
                            reshId = reshId,
                            userRole = userRole,
                            fromDate = fromDate,
@@ -71,16 +68,14 @@ getBaseregData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getProsData <- function(registryName,
-                        singleRow = FALSE,
+getProsData <- function(singleRow = FALSE,
                         reshId = NULL,
                         userRole,
                         fromDate = NULL,
                         toDate = NULL, ...) {
   . <- ""
 
-  d <- ablanor::getPros(registryName = registryName,
-                        singleRow = singleRow,
+  d <- ablanor::getPros(singleRow = singleRow,
                         reshId = reshId,
                         userRole = userRole,
                         fromDate = fromDate,
@@ -101,8 +96,7 @@ getProsData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getMceData <- function(registryName,
-                       singleRow = FALSE,
+getMceData <- function(singleRow = FALSE,
                        reshId = NULL,
                        userRole,
                        fromDate = NULL,
@@ -110,8 +104,7 @@ getMceData <- function(registryName,
 
   . <- ""
 
-  d <- ablanor::getMce(registryName = registryName,
-                       singleRow = singleRow,
+  d <- ablanor::getMce(singleRow = singleRow,
                        reshId = reshId,
                        userRole = userRole,
                        fromDate = fromDate,
@@ -142,8 +135,7 @@ getMceData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getRand12Data <- function(registryName,
-                          singleRow = FALSE,
+getRand12Data <- function(singleRow = FALSE,
                           reshId = NULL,
                           userRole,
                           fromDate = NULL,
@@ -151,8 +143,7 @@ getRand12Data <- function(registryName,
 
   . <- ""
 
-  d <- ablanor::getRand12(registryName = registryName,
-                          singleRow = singleRow,
+  d <- ablanor::getRand12(singleRow = singleRow,
                           reshId = reshId,
                           userRole = userRole,
                           fromDate = fromDate,
@@ -190,15 +181,13 @@ getRand12Data <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getFollowupBasisData <- function(registryName,
-                                 singleRow = FALSE,
+getFollowupBasisData <- function(singleRow = FALSE,
                                  reshId = NULL,
                                  userRole, ...) {
 
   . <- ""
 
-  d <- ablanor::getFollowupBasis(registryName = registryName,
-                                 singleRow = singleRow,
+  d <- ablanor::getFollowupBasis(singleRow = singleRow,
                                  reshId = reshId,
                                  userRole = userRole, ...)
   d_followupBasis <- d$d_followupBasis
@@ -234,15 +223,13 @@ getFollowupBasisData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getFollowupOneYrData <- function(registryName,
-                                 singleRow = FALSE,
+getFollowupOneYrData <- function(singleRow = FALSE,
                                  reshId = NULL,
                                  userRole, ...) {
 
   . <- ""
 
-  d <- ablanor::getFollowupOneYr(registryName = registryName,
-                                 singleRow = singleRow,
+  d <- ablanor::getFollowupOneYr(singleRow = singleRow,
                                  reshId = reshId,
                                  userRole = userRole, ...)
   d_followup <- d$d_followup1
@@ -281,15 +268,13 @@ getFollowupOneYrData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getFollowupFiveYrData <- function(registryName,
-                                  singleRow = FALSE,
+getFollowupFiveYrData <- function(singleRow = FALSE,
                                   reshId = NULL,
                                   userRole, ...) {
 
   . <- ""
 
-  d <- ablanor::getFollowupFiveYr(registryName = registryName,
-                                  singleRow = singleRow,
+  d <- ablanor::getFollowupFiveYr(singleRow = singleRow,
                                   reshId = reshId,
                                   userRole = userRole, ...)
   d_followup5 <- d$d_followup5
@@ -328,8 +313,7 @@ getFollowupFiveYrData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getGkvData <- function(registryName,
-                       singleRow = FALSE,
+getGkvData <- function(singleRow = FALSE,
                        reshId = NULL,
                        userRole,
                        fromDate = NULL,
@@ -337,8 +321,7 @@ getGkvData <- function(registryName,
 
   . <- ""
 
-  d <- ablanor::getGkv(registryName = registryName,
-                       singleRow = singleRow,
+  d <- ablanor::getGkv(singleRow = singleRow,
                        reshId = reshId,
                        userRole = userRole,
                        fromDate = fromDate,
@@ -371,8 +354,7 @@ getGkvData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getPromsData <- function(registryName,
-                         singleRow = FALSE,
+getPromsData <- function(singleRow = FALSE,
                          reshId = NULL,
                          userRole,
                          fromDate = NULL,
@@ -380,8 +362,7 @@ getPromsData <- function(registryName,
 
   . <- ""
 
-  d <- ablanor::getProms(registryName = registryName,
-                         singleRow = singleRow,
+  d <- ablanor::getProms(singleRow = singleRow,
                          reshId = reshId,
                          userRole = userRole,
                          fromDate = fromDate,
@@ -413,8 +394,7 @@ getPromsData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsData <- function(registryName,
-                               singleRow = FALSE,
+getBaseregProsData <- function(singleRow = FALSE,
                                reshId = NULL,
                                userRole,
                                fromDate = NULL,
@@ -422,8 +402,7 @@ getBaseregProsData <- function(registryName,
 
   . <- ""
 
-  d <- ablanor::getBaseregPros(registryName = registryName,
-                               singleRow = singleRow,
+  d <- ablanor::getBaseregPros(singleRow = singleRow,
                                reshId = reshId,
                                userRole = userRole,
                                fromDate = fromDate,
@@ -560,37 +539,32 @@ getBaseregProsData <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsHendelseData <- function(registryName,
-                                       singleRow = FALSE,
+getBaseregProsHendelseData <- function(singleRow = FALSE,
                                        reshId = NULL,
                                        userRole,
                                        fromDate = NULL,
                                        toDate = NULL, ...){
 
-  d_hendelse <- getHendelse(registryName = registryName,
-                            singleRow = singleRow,
+  d_hendelse <- getHendelse(singleRow = singleRow,
                             reshId = reshId,
                             userRole = userRole,
                             fromDate = fromDate,
                             toDate = toDate)$d_hendelse
 
-  d_mce <- getMce(registryName = registryName,
-                  singleRow = singleRow,
+  d_mce <- getMce(singleRow = singleRow,
                   reshId = reshId,
                   userRole = userRole,
                   fromDate = fromDate,
                   toDate = toDate)$d_mce
 
-  d_pros <- getPros(registryName = registryName,
-                    singleRow = singleRow,
+  d_pros <- getPros(singleRow = singleRow,
                     reshId = reshId,
                     userRole = userRole,
                     fromDate = fromDate,
                     toDate = toDate)$d_pros
 
 
-  d_basereg <- getBasereg(registryName = registryName,
-                          singleRow = singleRow,
+  d_basereg <- getBasereg(singleRow = singleRow,
                           reshId = reshId,
                           userRole = userRole,
                           fromDate = fromDate,
@@ -652,57 +626,49 @@ getBaseregProsHendelseData <- function(registryName,
 }
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsFollowup0Data <- function(registryName,
-                                        singleRow = FALSE,
+getBaseregProsFollowup0Data <- function(singleRow = FALSE,
                                         reshId = NULL,
                                         userRole,
                                         fromDate = NULL,
                                         toDate = NULL, ...){
 
-  d_basereg <- ablanor::getBasereg(registryName = "ablanor",
-                                   singleRow = FALSE,
+  d_basereg <- ablanor::getBasereg(singleRow = FALSE,
                                    reshId = reshId,
                                    userRole = userRole,
                                    fromDate = fromDate,
                                    toDate = toDate)$d_basereg
 
-  d_pros <- ablanor::getPros(registryName = "ablanor",
-                             singleRow = FALSE,
+  d_pros <- ablanor::getPros(singleRow = FALSE,
                              reshId = reshId,
                              userRole = userRole,
                              fromDate = fromDate,
                              toDate = toDate)$d_pros
 
-  d_followupBasis <- ablanor::getFollowupBasis(registryName = "ablanor",
-                                               singleRow = FALSE,
+  d_followupBasis <- ablanor::getFollowupBasis(singleRow = FALSE,
                                                reshId = reshId,
                                                userRole = userRole,
                                                fromDate = NULL,
                                                toDate = NULL)$d_followupBasis
 
-  d_proms <- ablanor::getProms(registryName = "ablanor",
-                               singleRow = FALSE,
+  d_proms <- ablanor::getProms(singleRow = FALSE,
                                reshId = reshId,
                                userRole = userRole,
                                fromDate = NULL,
                                toDate = NULL)$d_proms
 
-  d_rand12 <- ablanor::getRand12(registryName = "ablanor",
-                                 singleRow = FALSE,
+  d_rand12 <- ablanor::getRand12(singleRow = FALSE,
                                  reshId = reshId,
                                  userRole = userRole,
                                  fromDate = NULL,
                                  toDate = NULL)$d_rand12
 
-  d_mce <- ablanor::getMce(registryName = "ablanor",
-                           singleRow = FALSE,
+  d_mce <- ablanor::getMce(singleRow = FALSE,
                            reshId = reshId,
                            userRole = userRole,
                            fromDate = NULL,
                            toDate = NULL)$d_mce
 
   d_mcePatientdata <- ablanor::getMcepatientdata(
-    registryName = "ablanor",
     singleRow = FALSE,
     reshId = reshId,
     userRole = userRole,
@@ -710,15 +676,13 @@ getBaseregProsFollowup0Data <- function(registryName,
     toDate = NULL)$d_mce_patient_data
 
 
-  d_patientlist <- ablanor::getPatientlist(registryName = "ablanor",
-                                           singleRow = FALSE,
+  d_patientlist <- ablanor::getPatientlist(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = NULL,
                                            toDate = NULL)$d_patientlist
 
-  d_gkv <- ablanor::getGkv(registryName = "ablanor",
-                           singleRow = FALSE,
+  d_gkv <- ablanor::getGkv(singleRow = FALSE,
                            reshId = reshId,
                            userRole = userRole,
                            fromDate = NULL,
@@ -1036,8 +1000,7 @@ getBaseregProsFollowup0Data <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsFollowup1Data <- function(registryName,
-                                        singleRow = FALSE,
+getBaseregProsFollowup1Data <- function(singleRow = FALSE,
                                         reshId = NULL,
                                         userRole,
                                         fromDate = NULL,
@@ -1046,50 +1009,43 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 
   # 1 GET ALL TABELS NEEDED ----
-  d_basereg <- ablanor::getBasereg(registryName = "ablanor",
-                                   singleRow = FALSE,
+  d_basereg <- ablanor::getBasereg(singleRow = FALSE,
                                    reshId = reshId,
                                    userRole = userRole,
                                    fromDate = fromDate,
                                    toDate = toDate)$d_basereg
 
-  d_pros <- ablanor::getPros(registryName = "ablanor",
-                             singleRow = FALSE,
+  d_pros <- ablanor::getPros(singleRow = FALSE,
                              reshId = reshId,
                              userRole = userRole,
                              fromDate = fromDate,
                              toDate = toDate)$d_pros
 
-  d_followup1 <- ablanor::getFollowupOneYr(registryName = "ablanor",
-                                           singleRow = FALSE,
+  d_followup1 <- ablanor::getFollowupOneYr(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = NULL,
                                            toDate = NULL)$d_followup1
 
-  d_proms <- ablanor::getProms(registryName = "ablanor",
-                               singleRow = FALSE,
+  d_proms <- ablanor::getProms(singleRow = FALSE,
                                reshId = reshId,
                                userRole = userRole,
                                fromDate = NULL,
                                toDate = NULL)$d_proms
 
-  d_rand12 <- ablanor::getRand12(registryName = "ablanor",
-                                 singleRow = FALSE,
+  d_rand12 <- ablanor::getRand12(singleRow = FALSE,
                                  reshId = reshId,
                                  userRole = userRole,
                                  fromDate = NULL,
                                  toDate = NULL)$d_rand12
 
-  d_mce <- ablanor::getMce(registryName = "ablanor",
-                           singleRow = FALSE,
+  d_mce <- ablanor::getMce(singleRow = FALSE,
                            reshId = reshId,
                            userRole = userRole,
                            fromDate = NULL,
                            toDate = NULL)$d_mce
 
   d_mcePatientdata <- ablanor::getMcepatientdata(
-    registryName = "ablanor",
     singleRow = FALSE,
     reshId = reshId,
     userRole = userRole,
@@ -1097,8 +1053,7 @@ getBaseregProsFollowup1Data <- function(registryName,
     toDate = NULL)$d_mce_patient_data
 
 
-  d_patientlist <- ablanor::getPatientlist(registryName = "ablanor",
-                                           singleRow = FALSE,
+  d_patientlist <- ablanor::getPatientlist(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = NULL,
@@ -1491,58 +1446,50 @@ getBaseregProsFollowup1Data <- function(registryName,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsFollowup5Data <- function(registryName,
-                                        singleRow = FALSE,
+getBaseregProsFollowup5Data <- function(singleRow = FALSE,
                                         reshId = NULL,
                                         userRole,
                                         fromDate = NULL,
                                         toDate = NULL, ...){
 
   # 1 GET ALL TABELS NEEDED ----
-  d_basereg <- ablanor::getBasereg(registryName = "ablanor",
-                                   singleRow = FALSE,
+  d_basereg <- ablanor::getBasereg(singleRow = FALSE,
                                    reshId = reshId,
                                    userRole = userRole,
                                    fromDate = fromDate,
                                    toDate = toDate)$d_basereg
 
-  d_pros <- ablanor::getPros(registryName = "ablanor",
-                             singleRow = FALSE,
+  d_pros <- ablanor::getPros(singleRow = FALSE,
                              reshId = reshId,
                              userRole = userRole,
                              fromDate = fromDate,
                              toDate = toDate)$d_pros
 
-  d_followup5 <- ablanor::getFollowupFiveYr(registryName = "ablanor",
-                                            singleRow = FALSE,
+  d_followup5 <- ablanor::getFollowupFiveYr(singleRow = FALSE,
                                             reshId = reshId,
                                             userRole = userRole,
                                             fromDate = NULL,
                                             toDate = NULL)$d_followup5
 
-  d_proms <- ablanor::getProms(registryName = "ablanor",
-                               singleRow = FALSE,
+  d_proms <- ablanor::getProms(singleRow = FALSE,
                                reshId = reshId,
                                userRole = userRole,
                                fromDate = NULL,
                                toDate = NULL)$d_proms
 
-  d_rand12 <- ablanor::getRand12(registryName = "ablanor",
-                                 singleRow = FALSE,
+  d_rand12 <- ablanor::getRand12(singleRow = FALSE,
                                  reshId = reshId,
                                  userRole = userRole,
                                  fromDate = NULL,
                                  toDate = NULL)$d_rand12
 
-  d_mce <- ablanor::getMce(registryName = "ablanor",
-                           singleRow = FALSE,
+  d_mce <- ablanor::getMce(singleRow = FALSE,
                            reshId = reshId,
                            userRole = userRole,
                            fromDate = NULL,
                            toDate = NULL)$d_mce
 
   d_mcePatientdata <- ablanor::getMcepatientdata(
-    registryName = "ablanor",
     singleRow = FALSE,
     reshId = reshId,
     userRole = userRole,
@@ -1550,8 +1497,7 @@ getBaseregProsFollowup5Data <- function(registryName,
     toDate = NULL)$d_mce_patient_data
 
 
-  d_patientlist <- ablanor::getPatientlist(registryName = "ablanor",
-                                           singleRow = FALSE,
+  d_patientlist <- ablanor::getPatientlist(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = NULL,

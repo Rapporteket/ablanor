@@ -9,24 +9,50 @@
 
 app_server <- function(input, output, session) {
 
-
   rapbase::appLogger(session = session, msg = "Starting AblaNor application")
+
 
   # Parameters that will remain throughout the session
   registryName <- "ablanor"
-  mapOrgId <- ablanor::getNameReshId(registryName)
-  reshId <- rapbase::getUserReshId(session)
-  hospitalName <- ablanor::getHospitalName(registryName = registryName,
-                                           reshId = reshId,
-                                           shortName = FALSE,
-                                           newNames = TRUE)
-  userFullName <- rapbase::getUserFullName(session)
-  userRole <- rapbase::getUserRole(session)
+  mapOrgId <- ablanor::getNameReshId()
   userOperator <- "Test Operatoresen"
-  author <- userFullName
-  # userOperator <- ? #@fixme
 
+  mapOrgIdMod <- mapOrgId %>% dplyr::rename(UnitId = id, orgname = name)
+  user <- rapbase::navbarWidgetServer2(
+    "ablanorWidget", "Ablanor", map_orgname = mapOrgIdMod, caller = packageName()
+  )
 
+  shiny::observeEvent(user$role(), {
+    if (user$role() == "LU") {
+      shiny::showTab(inputId = "tabs", target = "Start")
+      shiny::hideTab(inputId = "tabs", target = "Utforsker")
+      shiny::hideTab(inputId = "tabs", target = "Datadump")
+      shiny::hideTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    }
+    if (user$role() == "LC") {
+      shiny::showTab(inputId = "tabs", target = "Start")
+      shiny::showTab(inputId = "tabs", target = "Utforsker")
+      shiny::showTab(inputId = "tabs", target = "Datadump")
+      shiny::showTab(inputId = "tabs", target = "Kodebok")
+      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
+      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    }
+
+    # Hide tabs when role 'SC'
+    if (user$role() == "SC") {
+      shiny::showTab(inputId = "tabs", target = "Start")
+      shiny::showTab(inputId = "tabs", target = "Utforsker")
+      shiny::showTab(inputId = "tabs", target = "Datadump")
+      shiny::showTab(inputId = "tabs", target = "Kodebok")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
+      shiny::showTab(inputId = "tabs", target = "Verktøy")
+    }
+  })
 
   dataSets <- list(
     `Bruk og valg av data` = "info",
@@ -48,40 +74,8 @@ app_server <- function(input, output, session) {
     `eProm 5 år. Rådata` = "followup5",
     `GKV (pasienterfaring) basis. Rådata` = "gkv")
 
-  if (userRole == "SC") {
-    dataSets <- c(dataSets,
-                  list(`Proms-status. Rådata` = "proms",
-                       `Patientlist. Rådata`= "patientlist"))
-  }
-
-
-  # Hide all tabs if LU -role
-  if (userRole == "LU") {
-    shiny::hideTab(inputId = "tabs", target = "Utforsker")
-    shiny::hideTab(inputId = "tabs", target = "Datadump")
-    shiny::hideTab(inputId = "tabs", target = "Kodebok")
-    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-    shiny::hideTab(inputId = "tabs", target = "Abonnement")
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-  }
-
-
-  # Hide tabs when not role 'SC'
-  if (userRole != "SC") {
-    shiny::hideTab(inputId = "tabs", target = "Verktøy")
-  }
-
-  # Hide tabs when role 'SC'
-  if (userRole == "SC") {
-    shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-    shiny::hideTab(inputId = "tabs", target = "Abonnement")
-
-  }
-
-
   contentDump <- function(file, type, userRole, reshId) {
-    d <- ablanor::getDataDump(registryName = registryName,
-                              tableName = input$dumpDataSet,
+    d <- ablanor::getDataDump(tableName = input$dumpDataSet,
                               fromDate = input$dumpDateRange[1],
                               toDate = input$dumpDateRange[2],
                               session = session,
@@ -95,38 +89,40 @@ app_server <- function(input, output, session) {
   }
 
 
-  # widget
-  output$appUserName <- shiny::renderText(userFullName)
-  output$appOrgName <- shiny::renderText(
-    paste(hospitalName, userRole, sep = ", "))
-
-  # User info in widget
-  userInfo <- rapbase::howWeDealWithPersonalData(session,
-                                                 callerPkg = "ablanor")
-  shiny::observeEvent(input$userInfo, {
-    shinyalert::shinyalert(
-      "Dette vet Rapporteket om deg:", userInfo,
-      type = "", imageUrl = "rap/logo.svg",
-      closeOnEsc = TRUE, closeOnClickOutside = TRUE,
-      html = TRUE, confirmButtonText = rapbase::noOptOutOk()
-    )
-  })
-
-
-
-
   # Start
   output$veiledning <- shiny::renderUI({
-    rapbase::renderRmd(
-      system.file("veiledning.Rmd", package = "ablanor"),
-      outputType = "html_fragment",
-      params = list(title = "empty title",
-                    author = author,
-                    hospitalName = hospitalName,
-                    tableFormat = "html",
-                    reshId = reshId)
-    )
+    if (is.null(user$org())) {
+      NULL
+    } else {
+      rapbase::renderRmd(
+        system.file("veiledning.Rmd", package = "ablanor"),
+        outputType = "html_fragment",
+        params = list(title = "empty title",
+                      author = user$fullName(),
+                      hospitalName = getHospitalName(user$org()),
+                      tableFormat = "html",
+                      reshId = user$org())
+      )
+    }
   })
+  output$download_report <- shiny::downloadHandler(
+    filename = function() {
+      basename(tempfile(pattern = "veiledning",
+                        fileext = paste0(".", input$format_report)))
+    },
+    content = function(file) {
+      fn <- rapbase::renderRmd(
+        system.file("veiledning.Rmd", package = "ablanor"),
+        outputType = input$format_report,
+        params = list(
+          author = user$fullName(),
+          tableFormat = input$format_report,
+          reshId = user$org()
+        )
+      )
+      file.rename(fn, file)
+    }
+  )
 
 
   # Utforsker
@@ -159,19 +155,17 @@ app_server <- function(input, output, session) {
 
   dat <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$selectedDataSet,
-                             registryName = registryName,
                              session = session,
-                             reshId = reshId,
-                             userRole = userRole)
+                             reshId = user$org(),
+                             userRole = user$role())
   })
 
 
   metaDat <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$selectedDataSet,
-                             registryName = registryName,
                              session = session,
-                             reshId = reshId,
-                             userRole = userRole,
+                             reshId = user$org(),
+                             userRole = user$role(),
                              singleRow = TRUE)
   })
 
@@ -196,7 +190,7 @@ app_server <- function(input, output, session) {
     if (length(input$isSelectAllVars) == 0) {
       NULL
     } else {
-      if (length(rvals$showPivotTable) == 0 | rvals$showPivotTable) {
+      if (length(rvals$showPivotTable) == 0 || rvals$showPivotTable) {
         shiny::h4(paste("Valgt datasett:",
                         names(dataSets)[dataSets == input$selectedDataSet]))
       } else {
@@ -243,10 +237,9 @@ app_server <- function(input, output, session) {
   kodebok <- ablanor::getKodebokMedUtledetedVar()
   metaDatKb <- shiny::reactive({
     ablanor::getPivotDataSet(setId = input$kbdTab,
-                             registryName = registryName,
                              session = session,
-                             reshId = reshId,
-                             userRole = userRole,
+                             reshId = user$org(),
+                             userRole = user$role(),
                              singleRow = TRUE)
   })
 
@@ -303,25 +296,25 @@ app_server <- function(input, output, session) {
   # Datadump
 
   # Datasets avaliable for download
-  dataSetsDump <- c("basereg",
-                    "pros",
-                    "mce",
-                    "rand12",
-                    "followupbasis",
-                    "followup1",
-                    "followup5",
-                    "gkv",
-                    "hendelse",
-                    "kodeboken")
-  if (userRole == "SC") {
-    dataSetsDump <- c(dataSetsDump,
-                      "proms",
-                      "patientlist",
-                      "friendlycentre",
-                      "mce_patient_data")
-  }
 
   output$selectDumpSet <- shiny::renderUI({
+    dataSetsDump <- c("basereg",
+                      "pros",
+                      "mce",
+                      "rand12",
+                      "followupbasis",
+                      "followup1",
+                      "followup5",
+                      "gkv",
+                      "hendelse",
+                      "kodeboken")
+    if (user$role() == "SC") {
+      dataSetsDump <- c(dataSetsDump,
+                        "proms",
+                        "patientlist",
+                        "friendlycentre",
+                        "mce_patient_data")
+    }
     htmltools::tagList(
       shiny::selectInput(inputId = "dumpDataSet",
                          label = "Velg datasett:",
@@ -340,7 +333,9 @@ app_server <- function(input, output, session) {
                         fileext = ".csv"))
     },
     content = function(file) {
-      contentDump(file, input$dumpFormat, userRole = userRole, reshId = reshId)
+      contentDump(
+        file, input$dumpFormat, userRole = user$role(), reshId = user$org()
+      )
     }
   )
 
@@ -349,13 +344,15 @@ app_server <- function(input, output, session) {
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
       outputType = "html_fragment",
-      params = list(author = author,
-                    hospitalName = hospitalName,
-                    tableFormat = "html",
-                    reshId = reshId,
-                    registryName = registryName,
-                    userRole = userRole,
-                    userOperator = userOperator)
+      params = list(
+        author = user$fullName,
+        hospitalName = ablanor::getHospitalName(user$org()),
+        tableFormat = "html",
+        reshId = user$org(),
+        registryName = registryName,
+        userRole = user$role(),
+        userOperator = userOperator
+      )
     )
   })
 
@@ -368,14 +365,16 @@ app_server <- function(input, output, session) {
       fn <- rapbase::renderRmd(
         system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
         outputType = input$formatReport,
-        params = list(author = author,
-                      hospitalName = hospitalName,
-                      tableFormat = input$formatReport,
-                      reshId = reshId,
-                      registryName = registryName,
-                      userFullName = userFullName,
-                      userRole = userRole,
-                      userOperator = userOperator)
+        params = list(
+          author = user$fullName(),
+          hospitalName = getHospitalName(user$org()),
+          tableFormat = input$formatReport,
+          reshId = user$org(),
+          registryName = registryName,
+          userFullName = user$fullName(),
+          userRole = user$role(),
+          userOperator = userOperator
+        )
       )
       file.rename(fn, file)
     }
@@ -383,77 +382,117 @@ app_server <- function(input, output, session) {
 
 
   # Values shared among subscriptions and dispatchment
-  orgs <- ablanor::getNameReshId(registryName = registryName,
-                                 asNamedList = TRUE,
+  orgs <- ablanor::getNameReshId(asNamedList = TRUE,
                                  shortName = FALSE,
                                  newNames = TRUE)
 
   # Abonnement
-  subReports <- list(
-    "Månedlige resultater" = list(
-      synopsis = "Månedlige resultater sykehus/avdeling",
-      fun = "reportProcessor",
-      paramNames = c("report",
-                     "outputType",
-                     "title",
-                     "orgId",
-                     "orgName",
-                     "userFullName",
-                     "userRole"),
-      paramValues = c("local_monthly",
-                      "pdf",
-                      "Månedsresultater",
-                      reshId,
-                      hospitalName,
-                      userFullName,
-                      userRole)
-    )
-  )
+
+  subParamNames <- shiny::reactive(c(
+    "orgId",
+    "orgName",
+    "userFullName",
+    "userRole"
+  ))
+  subParamValues <- shiny::reactive(c(
+    user$org(),
+    user$orgName(),
+    user$fullName(),
+    user$role()
+  ))
 
   rapbase::autoReportServer(
-    id = "ablanorSubscription", registryName = registryName,
-    type = "subscription", reports = subReports, orgs = orgs
+    id = "ablanorSubscription",
+    registryName = "ablanor",
+    type = "subscription",
+    paramNames = subParamNames,
+    paramValues = subParamValues,
+    reports = list(
+      "Veiledning" = list(
+        synopsis = "Veiledningsteksten for testformål",
+        fun = "reportProcessor",
+        paramNames = c("report",
+                       "outputType",
+                       "title",
+                       "orgId",
+                       "orgName"),
+        paramValues =c("veiledning",
+                       "pdf",
+                       "Veiledning",
+                       9999999,
+                       "orgname")
+      ),
+      "Månedlige resultater" = list(
+        synopsis = "Månedlige resultater sykehus/avdeling",
+        fun = "reportProcessor",
+        paramNames = c("report",
+                       "outputType",
+                       "title",
+                       "orgId",
+                       "orgName",
+                       "userFullName",
+                       "userRole"),
+        paramValues = c("local_monthly",
+                        "pdf",
+                        "Månedsresultater",
+                        999999,
+                        "orgname",
+                        "user fullName",
+                        "userrole")
+      )
+    ),
+    orgs = orgs,
+    user = user
   )
 
   # Utsendelse
-  disReports <- list(
-    "Månedlige resultater" = list(
-      synopsis = "AblaNor månedlige resultater sykehus/avdeling",
-      fun = "reportProcessor",
-      paramNames = c("report",
-                     "outputType",
-                     "title",
-                     "orgId",
-                     "userFullName"),
-      paramValues = c("local_monthly",
-                      "pdf",
-                      "Månedsresultater",
-                      999999,
-                      userFullName)
-    )
-  )
 
   org <- rapbase::autoReportOrgServer("ablanorDispatchment", orgs)
   disFormat <- rapbase::autoReportFormatServer("ablanorDispatchment")
 
-  disParamNames <- shiny::reactive(c("orgId", "outputType"))
-  disParamValues <- shiny::reactive(c(org$value(), disFormat()))
+  disParamNames <- shiny::reactive(c(
+    "orgId",
+    "outputType",
+    "userFullName"
+  ))
+  disParamValues <- shiny::reactive(c(
+    org$value(),
+    disFormat(),
+    user$fullName()
+  ))
 
   rapbase::autoReportServer(
-    id = "ablanorDispatchment", registryName = registryName,
-    type = "dispatchment", org = org$value, paramNames = disParamNames,
-    paramValues = disParamValues, reports = disReports, orgs = orgs,
-    eligible = (userRole == "SC")
+    id = "ablanorDispatchment",
+    registryName = "ablanor",
+    type = "dispatchment",
+    org = org$value,
+    paramNames = disParamNames,
+    paramValues = disParamValues,
+    reports = list(
+      "Månedlige resultater" = list(
+        synopsis = "AblaNor månedlige resultater sykehus/avdeling",
+        fun = "reportProcessor",
+        paramNames = c("report",
+                       "outputType",
+                       "title",
+                       "orgId",
+                       "userFullName"),
+        paramValues = c("local_monthly",
+                        "pdf",
+                        "Månedsresultater",
+                        999999,
+                        "Full Name")
+      )
+    ),
+    orgs = orgs,
+    user = user
   )
 
+
   # Eksport
-  ## brukerkontroller
-  rapbase::exportUCServer("ablanorExport", registryName,
-                          eligible = (userRole == "SC"))
-  ## veileding
+  rapbase::exportUCServer("ablanorExport", registryName)
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
-  rapbase::statsServer("ablanorStats", registryName,
-                       eligible = (userRole == "SC"))
+  rapbase::statsServer("ablanorStats", registryName)
 }

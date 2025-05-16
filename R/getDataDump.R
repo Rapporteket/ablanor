@@ -2,7 +2,6 @@
 #'
 #' Use getDataAbalnor function to get selected table.
 #'
-#' @param registryName "ablanor"
 #' @param tableName Selected table for download
 #' @param fromDate default 01-01-1900. Start date in calendar if
 #' tableName is pros or basereg, argument ignored for other tableNames.
@@ -15,8 +14,7 @@
 #'
 #' @return data.frame
 #' @export
-getDataDump <- function(registryName,
-                        tableName,
+getDataDump <- function(tableName,
                         fromDate,
                         toDate,
                         reshId = NULL,
@@ -39,8 +37,7 @@ getDataDump <- function(registryName,
 
 
   if (tableName == "basereg") {
-    tab_list <- ablanor::getBasereg(registryName = registryName,
-                                    singleRow = FALSE,
+    tab_list <- ablanor::getBasereg(singleRow = FALSE,
                                     reshId = reshId,
                                     userRole = userRole,
                                     fromDate = fromDate,
@@ -49,8 +46,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "pros") {
-    tab_list <- ablanor::getPros(registryName = registryName,
-                                 singleRow = FALSE,
+    tab_list <- ablanor::getPros(singleRow = FALSE,
                                  reshId = reshId,
                                  userRole = userRole,
                                  fromDate = fromDate,
@@ -59,8 +55,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "mce") {
-    tab_list <- ablanor::getMce(registryName = registryName,
-                                singleRow = FALSE,
+    tab_list <- ablanor::getMce(singleRow = FALSE,
                                 reshId = reshId,
                                 userRole = userRole,
                                 fromDate = fromDate,
@@ -69,8 +64,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "rand12") {
-    tab_list <- ablanor::getRand12(registryName = registryName,
-                                   singleRow = FALSE,
+    tab_list <- ablanor::getRand12(singleRow = FALSE,
                                    reshId = reshId,
                                    userRole = userRole,
                                    fromDate = fromDate,
@@ -79,8 +73,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "followupbasis") {
-    tab_list <- ablanor::getFollowupBasis(registryName = registryName,
-                                          singleRow = FALSE,
+    tab_list <- ablanor::getFollowupBasis(singleRow = FALSE,
                                           reshId = reshId,
                                           userRole = userRole,
                                           fromDate = fromDate,
@@ -89,8 +82,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "followup1") {
-    tab_list <- ablanor::getFollowupOneYr(registryName = registryName,
-                                          singleRow = FALSE,
+    tab_list <- ablanor::getFollowupOneYr(singleRow = FALSE,
                                           reshId = reshId,
                                           userRole = userRole,
                                           fromDate = fromDate,
@@ -100,8 +92,7 @@ getDataDump <- function(registryName,
 
 
   if (tableName == "followup5") {
-    tab_list <- ablanor::getFollowupFiveYr(registryName = registryName,
-                                           singleRow = FALSE,
+    tab_list <- ablanor::getFollowupFiveYr(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = fromDate,
@@ -110,8 +101,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "gkv") {
-    tab_list <- ablanor::getGkv(registryName = registryName,
-                                singleRow = FALSE,
+    tab_list <- ablanor::getGkv(singleRow = FALSE,
                                 reshId = reshId,
                                 userRole = userRole,
                                 fromDate = fromDate,
@@ -120,8 +110,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "hendelse") {
-    tab_list <- ablanor::getHendelse(registryName = registryName,
-                                     singleRow = FALSE,
+    tab_list <- ablanor::getHendelse(singleRow = FALSE,
                                      reshId = reshId,
                                      userRole = userRole,
                                      fromDate = fromDate,
@@ -130,8 +119,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "friendlycentre") {
-    tab_list <- ablanor::getFriendlycentre(registryName = registryName,
-                                           singleRow = FALSE,
+    tab_list <- ablanor::getFriendlycentre(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = fromDate,
@@ -140,8 +128,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "mce_patient_data") {
-    tab_list <- ablanor::getMcepatientdata(registryName = registryName,
-                                           singleRow = FALSE,
+    tab_list <- ablanor::getMcepatientdata(singleRow = FALSE,
                                            reshId = reshId,
                                            userRole = userRole,
                                            fromDate = fromDate,
@@ -150,8 +137,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "patientlist") {
-    tab_list <- ablanor::getPatientlist(registryName = registryName,
-                                        singleRow = FALSE,
+    tab_list <- ablanor::getPatientlist(singleRow = FALSE,
                                         reshId = reshId,
                                         userRole = userRole,
                                         fromDate = fromDate,
@@ -160,8 +146,7 @@ getDataDump <- function(registryName,
   }
 
   if (tableName == "proms") {
-    tab_list <- ablanor::getProms(registryName = registryName,
-                                  singleRow = FALSE,
+    tab_list <- ablanor::getProms(singleRow = FALSE,
                                   reshId = reshId,
                                   userRole = userRole,
                                   fromDate = fromDate,

@@ -25,22 +25,47 @@ services:
     environment:
       USERID: $USERID
       PASSWORD: password
-      DB_HOST: db
-      DB_USER: root
-      DB_PASS: root
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
 
   app:
     depends_on:
       - dev
-    image: rapporteket/ablanor:main
+    image: rapporteket/ablanor:poc
     volumes:
       - config:/app/R
     ports:
-      - "3008:3008"
+      - "3008:3838"
     restart: "no"
     environment:
       R_RAP_CONFIG_PATH: /app/R
-      R_RAP_INSTANCE: DEV
+      R_RAP_INSTANCE: QAC
+      USERFULLNAME: Tore Tester Container
+      SHINYPROXY_USERNAME: ttesterc
+      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC"
+      USERORGID: "[1, 2, 3, 4]"
+      USEREMAIL: ttesterc@holigong.no
+  
+  rapadm:
+    depends_on:
+      - dev
+    image: rapporteket/rapadm:main
+    volumes:
+      - config:/app/R
+    ports:
+      - "3088:3838"
+    restart: "no"
+    environment:
+      R_RAP_CONFIG_PATH: /app/R
+      R_RAP_INSTANCE: QAC
+      USERFULLNAME: Tore Tester Container
+      SHINYPROXY_USERNAME: ttesterc
+      SHINYPROXY_USERGROUPS: "LC,LC,SC,LC,SC,SC"
+      USERORGID: "[1, 2, 3, 4, 5, 6]"
+      USEREMAIL: ttesterc@holigong.no
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
 
   adminer:
     depends_on:

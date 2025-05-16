@@ -5,6 +5,7 @@ on:
   pull_request:
     branches:
       - main
+      - poc
 
 name: R-CMD-check
 
@@ -48,10 +49,10 @@ jobs:
         run: |
           if [[ ${{ runner.os }} == Linux ]]; then
             echo "GITHUB_ACTIONS_RUN_DB_UNIT_TESTS=true" >> $GITHUB_ENV
-            echo "DB_HOST=localhost" >> $GITHUB_ENV
-            echo "DB_NAME=testDb" >> $GITHUB_ENV
-            echo "DB_USER=root" >> $GITHUB_ENV
-            echo "DB_PASS=root" >> $GITHUB_ENV
+            echo "MYSQL_HOST=localhost" >> $GITHUB_ENV
+            echo "MYSQL_DB_DATA=testDb" >> $GITHUB_ENV
+            echo "MYSQL_USER=root" >> $GITHUB_ENV
+            echo "MYSQL_PASSWORD=root" >> $GITHUB_ENV
           else
             echo "GITHUB_ACTIONS_RUN_DB_UNIT_TESTS=false" >> $GITHUB_ENV
           fi
@@ -70,16 +71,6 @@ jobs:
           needs: check
 
       - name: Check
-        env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
-        run: |
-          options(crayon.enabled = TRUE)
-          rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "error", check_dir = "check")
-        shell: Rscript {0}
-
-      - name: Upload check results
-        if: failure()
-        uses: actions/upload-artifact@v4
+        uses: r-lib/actions/check-r-package@v2
         with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
-          path: check
+          error-on: '"error"'

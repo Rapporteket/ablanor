@@ -7,7 +7,6 @@
 #' @param setId String providing name of data set to be returned. One of the
 #' values "pros_patient" containing procedure and patient data or "rand12"
 #' containing data from rand12 questionnaire.
-#' @param registryName String providing registry name.
 #' @param session List shiny session object.
 #' @param singleRow Logical defining if only one row is to be returned.
 #' @param reshId Integer organization id
@@ -20,7 +19,6 @@
 #' \dontrun{d_ablanor <- getPivotDataSet(setId = "pros_patient")
 #' }
 getPivotDataSet <- function(setId = "",
-                            registryName,
                             session,
                             singleRow = FALSE,
                             reshId = NULL,
@@ -54,8 +52,7 @@ getPivotDataSet <- function(setId = "",
 
     # BASISSKJEMA RÅDATA
     if (setId == "basereg") {
-      dat <- ablanor::getBaseregData(registryName = registryName,
-                                     singleRow = singleRow,
+      dat <- ablanor::getBaseregData(singleRow = singleRow,
                                      session = session,
                                      reshId = reshId,
                                      userRole = userRole,
@@ -65,8 +62,7 @@ getPivotDataSet <- function(setId = "",
 
     # PROSEDYRESKJEMA RÅDATA
     if (setId == "pros") {
-      dat <- ablanor::getProsData(registryName = registryName,
-                                  singleRow = singleRow,
+      dat <- ablanor::getProsData(singleRow = singleRow,
                                   session = session,
                                   reshId = reshId,
                                   userRole = userRole,
@@ -76,8 +72,7 @@ getPivotDataSet <- function(setId = "",
 
     # FORLØPSOVERSIKT RÅDATA
     if (setId == "mce") {
-      dat <- ablanor::getMceData(registryName = registryName,
-                                 singleRow = singleRow,
+      dat <- ablanor::getMceData(singleRow = singleRow,
                                  session = session,
                                  reshId = reshId,
                                  userRole = userRole,
@@ -86,8 +81,7 @@ getPivotDataSet <- function(setId = "",
     }
     # RAND 12: BASIS, 1 OG 5 ÅR. RÅDATA
     if (setId == "rand12") {
-      dat <- ablanor::getRand12Data(registryName = registryName,
-                                    singleRow = singleRow,
+      dat <- ablanor::getRand12Data(singleRow = singleRow,
                                     session = session,
                                     reshId = reshId,
                                     userRole = userRole,
@@ -98,8 +92,7 @@ getPivotDataSet <- function(setId = "",
 
     # FOLLOWUP BASIS RÅDATA
     if (setId == "followupbasis") {
-      dat <- ablanor::getFollowupBasisData(registryName = registryName,
-                                           singleRow = singleRow,
+      dat <- ablanor::getFollowupBasisData(singleRow = singleRow,
                                            session = session,
                                            reshId = reshId,
                                            userRole = userRole)
@@ -108,8 +101,7 @@ getPivotDataSet <- function(setId = "",
 
     # FOLLOWUP 1 ÅR RÅDATA
     if (setId == "followup1") {
-      dat <- ablanor::getFollowupOneYrData(registryName = registryName,
-                                           singleRow = singleRow,
+      dat <- ablanor::getFollowupOneYrData(singleRow = singleRow,
                                            session = session,
                                            reshId = reshId,
                                            userRole = userRole)
@@ -117,8 +109,7 @@ getPivotDataSet <- function(setId = "",
 
     # FOLLOWUP 5 ÅR RÅDATA
     if (setId == "followup5") {
-      dat <- ablanor::getFollowupFiveYrData(registryName = registryName,
-                                            singleRow = singleRow,
+      dat <- ablanor::getFollowupFiveYrData(singleRow = singleRow,
                                             session = session,
                                             reshId = reshId,
                                             userRole = userRole)
@@ -127,8 +118,7 @@ getPivotDataSet <- function(setId = "",
 
     # GKV RÅDATA (prom basis)
     if (setId == "gkv") {
-      dat <- ablanor::getGkvData(registryName = registryName,
-                                 singleRow = singleRow,
+      dat <- ablanor::getGkvData(singleRow = singleRow,
                                  session = session,
                                  reshId = reshId,
                                  userRole = userRole,
@@ -138,8 +128,7 @@ getPivotDataSet <- function(setId = "",
 
     # PROMS STATUS - RÅDATA
     if (setId == "proms") {
-      dat <- ablanor::getPromsData(registryName = registryName,
-                                   singleRow = singleRow,
+      dat <- ablanor::getPromsData(singleRow = singleRow,
                                    session = session,
                                    reshId = reshId,
                                    userRole = userRole,
@@ -151,8 +140,7 @@ getPivotDataSet <- function(setId = "",
 
     # BASIS-PROSEDYRE- KVALITETSINDIKATORER
     if (setId == "basereg_pros_indik") {
-      dat <- ablanor::getBaseregProsData(registryName = registryName,
-                                         singleRow = singleRow,
+      dat <- ablanor::getBaseregProsData(singleRow = singleRow,
                                          session = session,
                                          reshId = reshId,
                                          userRole = userRole,
@@ -162,8 +150,7 @@ getPivotDataSet <- function(setId = "",
 
     # BASIS-PROSEDYRE-HENDELSE
     if (setId == "basereg_pros_hendelse") {
-      dat <- ablanor::getBaseregProsHendelseData(registryName = registryName,
-                                                 singleRow = singleRow,
+      dat <- ablanor::getBaseregProsHendelseData(singleRow = singleRow,
                                                  session = session,
                                                  reshId = reshId,
                                                  userRole = userRole,
@@ -173,8 +160,7 @@ getPivotDataSet <- function(setId = "",
 
 
     if (setId == "pros_pat_followup1") {
-      dat <- ablanor::getBaseregProsFollowup1Data(registryName = registryName,
-                                                  singleRow = singleRow,
+      dat <- ablanor::getBaseregProsFollowup1Data(singleRow = singleRow,
                                                   session = session,
                                                   reshId = reshId,
                                                   userRole = userRole,
@@ -183,8 +169,7 @@ getPivotDataSet <- function(setId = "",
     }
 
     if (setId == "pros_pat_followup0") {
-      dat <- ablanor::getBaseregProsFollowup0Data(registryName = registryName,
-                                                  singleRow = singleRow,
+      dat <- ablanor::getBaseregProsFollowup0Data(singleRow = singleRow,
                                                   session = session,
                                                   reshId = reshId,
                                                   userRole = userRole,
@@ -194,8 +179,7 @@ getPivotDataSet <- function(setId = "",
 
 
     if (setId == "pros_pat_followup5") {
-      dat <- ablanor::getBaseregProsFollowup5Data(registryName = registryName,
-                                                  singleRow = singleRow,
+      dat <- ablanor::getBaseregProsFollowup5Data(singleRow = singleRow,
                                                   session = session,
                                                   reshId = reshId,
                                                   userRole = userRole,

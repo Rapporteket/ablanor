@@ -4,19 +4,9 @@
 \alias{getDataDump}
 \title{Get datadump ablanor}
 \usage{
-getDataDump(
-  registryName,
-  tableName,
-  fromDate,
-  toDate,
-  reshId = NULL,
-  userRole,
-  ...
-)
+getDataDump(tableName, fromDate, toDate, reshId = NULL, userRole, ...)
 }
 \arguments{
-\item{registryName}{"ablanor"}
-
 \item{tableName}{Selected table for download}
 
 \item{fromDate}{default 01-01-1900. Start date in calendar if

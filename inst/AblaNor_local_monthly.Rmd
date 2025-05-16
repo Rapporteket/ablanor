@@ -57,8 +57,7 @@ colKontrast <- "#FF7260"
 showN <- 12
 
 #Egendefinerte kortnavn:
-hospitalNameShort <- ablanor::getHospitalName(registryName = "ablanor",
-                                              reshId = params$reshId, 
+hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId, 
                                               shortName = TRUE,
                                               newNames = TRUE)
 ```
@@ -77,7 +76,7 @@ hospitalNameShort <- ablanor::getHospitalName(registryName = "ablanor",
 # ELDSTE DATO: 
 # 12 komplette måneder før siste dato
 
-nyeste_reg <- ablanor::getLatestEntry(registryName = params$registryName)
+nyeste_reg <- ablanor::getLatestEntry()
 
 periode_data <- data.frame(
   siste_dato = min((as.Date(Sys.time()) - 1), 
@@ -90,8 +89,7 @@ periode_data <- data.frame(
 
 
 ```{r GetData}
-d_ablanor <- ablanor::getBaseregProsData(registryName = params$registryName, 
-                                         singleRow = FALSE, 
+d_ablanor <- ablanor::getBaseregProsData(singleRow = FALSE, 
                                          reshId = params$reshId,
                                          userRole = params$userRole, 
                                          fromDate = periode_data$forste_dato, 

@@ -8,7 +8,6 @@
 #' can also return a list of named values (ids), \emph{e.g.} for use in shiny
 #' selection lists.
 #'
-#' @param registryName "ablanor"
 #' @param singleRow bools. TRUE only one row, for variable names. FALSE all
 #' rows.
 #' @param reshId Integer organization id. From login settings.
@@ -54,8 +53,7 @@ NULL
 
 #' @rdname getDataAblanor
 #' @export
-getBasereg <- function(registryName,
-                       singleRow,
+getBasereg <- function(singleRow,
                        reshId = NULL,
                        userRole,
                        fromDate = NULL,
@@ -67,7 +65,7 @@ getBasereg <- function(registryName,
     fromDate <- as.Date("1900-01-01")
   }
   if (is.null(toDate)) {
-    toDate <- ablanor::getLatestEntry(registryName)
+    toDate <- ablanor::getLatestEntry()
   }
 
   # SQL only in defined interval, with non-missing dates.
@@ -105,10 +103,10 @@ getBasereg <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_basereg <- rapbase::loadRegData(registryName, query)
+    d_basereg <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_basereg <- rapbase::loadRegData(registryName, query)
+    d_basereg <- rapbase::loadRegData("data", query)
   }
 
 
@@ -121,8 +119,7 @@ getBasereg <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getPros <- function(registryName,
-                    singleRow,
+getPros <- function(singleRow,
                     reshId = NULL,
                     userRole,
                     fromDate = NULL,
@@ -134,7 +131,7 @@ getPros <- function(registryName,
     fromDate <- as.Date("1900-01-01")
   }
   if (is.null(toDate)) {
-    toDate <- ablanor::getLatestEntry(registryName)
+    toDate <- ablanor::getLatestEntry()
   }
 
   # SQL only in defined interval, with non-missing dates.
@@ -165,10 +162,10 @@ getPros <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_pros <- rapbase::loadRegData(registryName, query)
+    d_pros <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_pros <- rapbase::loadRegData(registryName, query)
+    d_pros <- rapbase::loadRegData("data", query)
   }
 
   list(d_pros = d_pros)
@@ -178,8 +175,7 @@ getPros <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getMce <- function(registryName,
-                   singleRow,
+getMce <- function(singleRow,
                    reshId = NULL,
                    userRole,
                    fromDate = NULL,
@@ -211,10 +207,10 @@ getMce <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_mce <- rapbase::loadRegData(registryName, query)
+    d_mce <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_mce <- rapbase::loadRegData(registryName, query)
+    d_mce <- rapbase::loadRegData("data", query)
   }
 
   list(d_mce = d_mce)
@@ -225,8 +221,7 @@ getMce <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getRand12 <- function(registryName,
-                      singleRow,
+getRand12 <- function(singleRow,
                       reshId = NULL,
                       userRole,
                       fromDate = NULL,
@@ -259,10 +254,10 @@ getRand12 <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_rand12 <- rapbase::loadRegData(registryName, query)
+    d_rand12 <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_rand12 <- rapbase::loadRegData(registryName, query)
+    d_rand12 <- rapbase::loadRegData("data", query)
   }
 
   list(d_rand12 = d_rand12)
@@ -273,8 +268,7 @@ getRand12 <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getFollowupBasis <- function(registryName,
-                             singleRow,
+getFollowupBasis <- function(singleRow,
                              reshId = NULL,
                              userRole,
                              fromDate = NULL,
@@ -306,10 +300,10 @@ getFollowupBasis <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_followupBasis <- rapbase::loadRegData(registryName, query)
+    d_followupBasis <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_followupBasis <- rapbase::loadRegData(registryName, query)
+    d_followupBasis <- rapbase::loadRegData("data", query)
   }
 
   list(d_followupBasis = d_followupBasis)
@@ -322,8 +316,7 @@ getFollowupBasis <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getFollowupOneYr <- function(registryName,
-                             singleRow,
+getFollowupOneYr <- function(singleRow,
                              reshId = NULL,
                              userRole,
                              fromDate = NULL,
@@ -355,10 +348,10 @@ getFollowupOneYr <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_followup1 <- rapbase::loadRegData(registryName, query)
+    d_followup1 <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_followup1 <- rapbase::loadRegData(registryName, query)
+    d_followup1 <- rapbase::loadRegData("data", query)
   }
 
   list(d_followup1 = d_followup1)
@@ -370,8 +363,7 @@ getFollowupOneYr <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getFollowupFiveYr <- function(registryName,
-                              singleRow,
+getFollowupFiveYr <- function(singleRow,
                               reshId = NULL,
                               userRole,
                               fromDate = NULL,
@@ -403,10 +395,10 @@ getFollowupFiveYr <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_followup5 <- rapbase::loadRegData(registryName, query)
+    d_followup5 <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_followup5 <- rapbase::loadRegData(registryName, query)
+    d_followup5 <- rapbase::loadRegData("data", query)
   }
 
   list(d_followup5 = d_followup5)
@@ -414,8 +406,7 @@ getFollowupFiveYr <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getGkv <- function(registryName,
-                   singleRow,
+getGkv <- function(singleRow,
                    reshId = NULL,
                    userRole,
                    fromDate = NULL,
@@ -451,10 +442,10 @@ getGkv <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_gkv <- rapbase::loadRegData(registryName, query)
+    d_gkv <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_gkv <- rapbase::loadRegData(registryName, query)
+    d_gkv <- rapbase::loadRegData("data", query)
   }
 
 
@@ -465,8 +456,7 @@ getGkv <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getProms <- function(registryName,
-                     singleRow,
+getProms <- function(singleRow,
                      reshId = NULL,
                      userRole,
                      fromDate = NULL,
@@ -500,10 +490,10 @@ getProms <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_proms <- rapbase::loadRegData(registryName, query)
+    d_proms <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_proms <- rapbase::loadRegData(registryName, query)
+    d_proms <- rapbase::loadRegData("data", query)
   }
 
   list(d_proms = d_proms)
@@ -516,8 +506,7 @@ getProms <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getHendelse <- function(registryName,
-                        singleRow,
+getHendelse <- function(singleRow,
                         reshId = NULL,
                         userRole,
                         fromDate = NULL,
@@ -550,10 +539,10 @@ getHendelse <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_gkv <- rapbase::loadRegData(registryName, query)
+    d_gkv <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_hendelse <- rapbase::loadRegData(registryName, query)
+    d_hendelse <- rapbase::loadRegData("data", query)
   }
 
 
@@ -564,8 +553,7 @@ getHendelse <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getFriendlycentre <- function(registryName,
-                              singleRow,
+getFriendlycentre <- function(singleRow,
                               reshId = NULL,
                               userRole,
                               fromDate = NULL,
@@ -586,10 +574,10 @@ getFriendlycentre <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_friendlycentre <- rapbase::loadRegData(registryName, query)
+    d_friendlycentre <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_friendlycentre <- rapbase::loadRegData(registryName, query)
+    d_friendlycentre <- rapbase::loadRegData("data", query)
   }
 
   list(d_friendlycentre = d_friendlycentre)
@@ -600,8 +588,7 @@ getFriendlycentre <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getMcepatientdata <- function(registryName,
-                              singleRow,
+getMcepatientdata <- function(singleRow,
                               reshId = NULL,
                               userRole,
                               fromDate,
@@ -623,10 +610,10 @@ getMcepatientdata <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_mce_patient_data <- rapbase::loadRegData(registryName, query)
+    d_mce_patient_data <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_mce_patient_data <- rapbase::loadRegData(registryName, query)
+    d_mce_patient_data <- rapbase::loadRegData("data", query)
   }
 
   list(d_mce_patient_data = d_mce_patient_data)
@@ -636,8 +623,7 @@ getMcepatientdata <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getPatientlist <- function(registryName,
-                           singleRow,
+getPatientlist <- function(singleRow,
                            reshId = NULL,
                            userRole,
                            fromDate = NULL,
@@ -671,10 +657,10 @@ getPatientlist <- function(registryName,
   if ("session" %in% names(list(...))) {
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
-    d_patientlist <- rapbase::loadRegData(registryName, query)
+    d_patientlist <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
-    d_patientlist <- rapbase::loadRegData(registryName, query)
+    d_patientlist <- rapbase::loadRegData("data", query)
   }
 
   list(d_patientlist = d_patientlist)
@@ -687,22 +673,19 @@ getPatientlist <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getBaseregPros <- function(registryName,
-                           singleRow,
+getBaseregPros <- function(singleRow,
                            reshId = NULL,
                            userRole,
                            fromDate = NULL,
                            toDate = NULL, ...) {
 
-  d_pros <- ablanor::getPros(registryName = registryName,
-                             singleRow = singleRow,
+  d_pros <- ablanor::getPros(singleRow = singleRow,
                              reshId = reshId,
                              userRole = userRole,
                              fromDate = fromDate,
                              toDate = toDate)
 
-  d_basereg <- ablanor::getBasereg(registryName = registryName,
-                                   singleRow = singleRow,
+  d_basereg <- ablanor::getBasereg(singleRow = singleRow,
                                    reshId =reshId,
                                    userRole = userRole,
                                    fromDate = fromDate,
@@ -760,21 +743,21 @@ getBaseregPros <- function(registryName,
   # log db request if shiny app session object is provided
   if ("session" %in% names(list(...))) {
     rapbase::repLogger(session = list(...)[["session"]], msg = msg_mce)
-    d_mce <- rapbase::loadRegData(registryName, query_mce)
+    d_mce <- rapbase::loadRegData("data", query_mce)
 
     rapbase::repLogger(session = list(...)[["session"]],
                        msg = msg_patientlist)
-    d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
+    d_patientlist <- rapbase::loadRegData("data", query_patientlist)
 
     rapbase::repLogger(session = list(...)[["session"]],
                        msg = msg_mcepatientdata)
-    d_mcepatientdata <- rapbase::loadRegData(registryName, query_mcepatientdata)
+    d_mcepatientdata <- rapbase::loadRegData("data", query_mcepatientdata)
 
 
   } else {
-    d_mce <- rapbase::loadRegData(registryName, query_mce)
-    d_patientlist <- rapbase::loadRegData(registryName, query_patientlist)
-    d_mcepatientdata <- rapbase::loadRegData(registryName, query_mcepatientdata)
+    d_mce <- rapbase::loadRegData("data", query_mce)
+    d_patientlist <- rapbase::loadRegData("data", query_patientlist)
+    d_mcepatientdata <- rapbase::loadRegData("data", query_mcepatientdata)
   }
 
   list(
@@ -792,30 +775,36 @@ getBaseregPros <- function(registryName,
 
 #' @rdname getDataAblanor
 #' @export
-getLatestEntry <- function(registryName) {
+getLatestEntry <- function() {
 
   # Get date of newest registration (National data)
   query <- "SELECT max(DATO_PROS) AS date FROM pros;"
-  rapbase::loadRegData(registryName, query = query)$date
+  rapbase::loadRegData("data", query = query)$date
 }
 
 #' @rdname getDataAblanor
 #' @export
-getNameReshId <- function(registryName, asNamedList = FALSE, shortNames = FALSE, newNames = FALSE) {
+getNameReshId <- function(asNamedList = FALSE, shortNames = FALSE, newNames = FALSE) {
 
-  query <- "
+  if (shortNames) {
+    dbField <- "CENTRESHORTNAME"
+  } else {
+    dbField <- "FRIENDLYNAME"
+  }
+
+  query <- paste0("
 SELECT
-  CENTRESHORTNAME AS name,
+  ", dbField, " AS name,
   ID AS id
 FROM
   friendlycentre
 WHERE
-  CENTRESHORTNAME NOT LIKE 'Test%'
+  ", dbField, " NOT LIKE 'Test%'
 GROUP BY
-  CENTRESHORTNAME,
-  ID;"
+  ", dbField, ",
+  ID;")
 
-  res <- rapbase::loadRegData(registryName, query)
+  res <- rapbase::loadRegData("data", query)
 
   if(newNames){
     res %<>%
@@ -836,7 +825,7 @@ GROUP BY
 
 #' @rdname getDataAblanor
 #' @export
-getHospitalName <- function(registryName, reshId, shortName = FALSE, newNames = FALSE) {
+getHospitalName <- function(reshId, shortName = FALSE, newNames = FALSE) {
 
   if (shortName) {
     dbField <- "CENTRESHORTNAME"
@@ -858,7 +847,7 @@ WHERE
         short = shortName) %>%
       dplyr::pull(sykehusnavn)
     } else {
-      name <- rapbase::loadRegData(registryName, query)[1, ]
+      name <- rapbase::loadRegData("data", query)[1, ]
     }
 
 

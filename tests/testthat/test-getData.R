@@ -28,17 +28,17 @@ config_path <- Sys.getenv("R_RAP_CONFIG_PATH")
 
 test_that("env vars needed for testing is present", {
   check_db()
-  expect_true("DB_HOST" %in% names(Sys.getenv()))
-  expect_true("DB_USER" %in% names(Sys.getenv()))
-  expect_true("DB_PASS" %in% names(Sys.getenv()))
+  expect_true("MYSQL_HOST" %in% names(Sys.getenv()))
+  expect_true("MYSQL_USER" %in% names(Sys.getenv()))
+  expect_true("MYSQL_PASSWORD" %in% names(Sys.getenv()))
 })
 
 # prep db for testing
 if (is.null(check_db(is_test_that = FALSE))) {
   con <- RMariaDB::dbConnect(RMariaDB::MariaDB(),
-                             host = Sys.getenv("DB_HOST"),
-                             user = Sys.getenv("DB_USER"),
-                             password = Sys.getenv("DB_PASS"),
+                             host = Sys.getenv("MYSQL_HOST"),
+                             user = Sys.getenv("MYSQL_USER"),
+                             password = Sys.getenv("MYSQL_PASSWORD"),
                              bigint = "integer"
   )
   RMariaDB::dbExecute(con, "CREATE DATABASE testDb;")
@@ -48,10 +48,10 @@ if (is.null(check_db(is_test_that = FALSE))) {
 # make temporary config
 test_config <- paste0(
   "testReg:",
-  "\n  host : ", Sys.getenv("DB_HOST"),
+  "\n  host : ", Sys.getenv("MYSQL_HOST"),
   "\n  name : testDb",
-  "\n  user : ", Sys.getenv("DB_USER"),
-  "\n  pass : ", Sys.getenv("DB_PASS"),
+  "\n  user : ", Sys.getenv("MYSQL_USER"),
+  "\n  pass : ", Sys.getenv("MYSQL_PASSWORD"),
   "\n  disp : ephemaralUnitTesting\n"
 )
 Sys.setenv(R_RAP_CONFIG_PATH = tempdir())
@@ -68,7 +68,7 @@ queries <- strsplit(sql, ";")[[1]]
 
 test_that("relevant test database and tables can be made", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   for (i in seq_len(length(queries))) {
     expect_equal(class(RMariaDB::dbExecute(con, queries[i])), "integer")
 
@@ -79,54 +79,54 @@ test_that("relevant test database and tables can be made", {
 # onto main testing
 test_that("hospital name can be read from db", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   query <- paste("INSERT INTO friendlycentre SET ID=1, CENTRESHORTNAME='s1',",
                  "FRIENDLYNAME='friendly1';")
   RMariaDB::dbExecute(con, query)
-  expect_equal(class(getHospitalName("testReg", 1)), "character")
-  expect_equal(getHospitalName("testReg", 1), "friendly1")
-  expect_equal(getHospitalName("testReg", 1, shortName = TRUE), "s1")
-  expect_warning(getHospitalName("testReg", 2))
+  expect_equal(class(getHospitalName(1)), "character")
+  expect_equal(getHospitalName(1), "friendly1")
+  expect_equal(getHospitalName(1, shortName = TRUE), "s1")
+  expect_warning(getHospitalName(2))
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("name-id mapping can be obtained", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
-  expect_equal(class(getNameReshId("testReg")), "data.frame")
-  expect_equal(class(getNameReshId("testReg", asNamedList = TRUE)),
+  con <- rapbase::rapOpenDbConnection("data")$con
+  expect_equal(class(getNameReshId()), "data.frame")
+  expect_equal(class(getNameReshId(asNamedList = TRUE)),
                "list")
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("tables can be dumped", {
   check_db()
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   expect_equal(class(
-    getDataDump("testReg", "basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("basereg", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "friendlycentre", Sys.Date(), Sys.Date(),userRole = "SC", reshID = NULL)
+    getDataDump("friendlycentre", Sys.Date(), Sys.Date(),userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "mce", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("mce", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "patientlist", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("patientlist", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_equal(class(
-    getDataDump("testReg", "pros", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("pros", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   ), "data.frame")
   expect_error(
-    getDataDump("testReg", "notATable", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
+    getDataDump("notATable", Sys.Date(), Sys.Date(), userRole = "SC", reshID = NULL)
   )
   rapbase::rapCloseDbConnection(con)
 })
 
 test_that("rand12 data can be read from db", {
   check_db()
-  expect_equal(class(getRand12("testReg", singleRow = FALSE, userRole = "SC")), "list")
-  expect_equal(class(getRand12("testReg", singleRow = TRUE, userRole = "SC")), "list")
+  expect_equal(class(getRand12(singleRow = FALSE, userRole = "SC")), "list")
+  expect_equal(class(getRand12(singleRow = TRUE, userRole = "SC")), "list")
 })
 
 
@@ -134,7 +134,7 @@ test_that("rand12 data can be read from db", {
 
 # remove test db
 if (is.null(check_db(is_test_that = FALSE))) {
-  con <- rapbase::rapOpenDbConnection("testReg")$con
+  con <- rapbase::rapOpenDbConnection("data")$con
   RMariaDB::dbExecute(con, "DROP DATABASE testDb;")
   rapbase::rapCloseDbConnection(con)
 }

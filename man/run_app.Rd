@@ -4,7 +4,7 @@
 \alias{run_app}
 \title{Run the Ablanor Shiny Application}
 \usage{
-run_app()
+run_app(browser = FALSE, logAsJson = FALSE)
 }
 \value{
 An object representing the Ablanor app
