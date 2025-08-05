@@ -115,7 +115,7 @@ testthat::test_that("Make_sorters works", {
 
   testthat::expect_equal(
     NULL,
-    ablanor::make_sorters(df = df %>% dplyr::select(.data$kommentar)),
+    ablanor::make_sorters(df = df %>% dplyr::select("kommentar")),
   )
 
 
