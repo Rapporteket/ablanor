@@ -494,5 +494,9 @@ app_server <- function(input, output, session) {
   rapbase::exportGuideServer("ablanorExportGuide", registryName)
 
   # Brukerstatistikk
-  rapbase::statsServer("ablanorStats", registryName)
+  rapbase::statsServer(
+    "ablanorStats",
+    registryName,
+    app_id = Sys.getenv("FALK_APP_ID")
+  )
 }
