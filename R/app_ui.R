@@ -4,20 +4,13 @@
 #' @export
 
 app_ui <- function() {
-  shiny::addResourcePath("rap", system.file("www", package = "rapbase"))
   reg_title <- "AblaNor"
 
   ui <- shiny::tagList(
     shiny::navbarPage(
-      title = shiny::div(
-        shiny::a(
-          shiny::includeHTML(
-            system.file("www/logo.svg", package = "rapbase")
-          )
-        ),
-        reg_title),
+      title = rapbase::title(reg_title),
       windowTitle = reg_title,
-      theme = "rap/bootstrap.css",
+      theme = rapbase::theme(),
       id = "tabs",
 
       shiny::tabPanel(
