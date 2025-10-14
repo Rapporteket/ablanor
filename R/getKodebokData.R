@@ -197,11 +197,11 @@ getKodebokData <- function() {
 getKodebokMedUtledetedVar <- function() {
 
    ablanor::getKodebokData() %>%
-    dplyr::select(.data$skjemanavn,
-                  .data$fysisk_feltnavn,
-                  .data$ledetekst,
-                  .data$listeverdier,
-                  .data$listetekst) %>%
+    dplyr::select("skjemanavn",
+                  "fysisk_feltnavn",
+                  "ledetekst",
+                  "listeverdier",
+                  "listetekst") %>%
     dplyr::mutate(listeverdier = as.character(.data$listeverdier)) %>%
     dplyr::bind_rows(ablanor::def_utledete_var %>%
                        tidyr::replace_na(replace = list(listeverdier= "NA")))
