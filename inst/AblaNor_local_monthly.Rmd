@@ -9,8 +9,13 @@ params:
   userFullName: Tore Tester
   userRole: ukjent rolle
   userOperator: ukjent operatør
-title: Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
-abstract: Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av  `r params$hospitalName` de 12 siste månedene . Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.    
+title: |  
+  | Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
+  |
+  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  |
+  |
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, " de siste 12 månedene.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
@@ -23,6 +28,12 @@ output:
 
 ```{r knitrOptions, include=FALSE}
 library(ablanor)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
 # make sure to use a temporary directory AND absolute paths, e.g. that figs
 # can be found also when deployed at a server. See below link for explanation
@@ -95,6 +106,12 @@ d_ablanor <- ablanor::getBaseregProsData(singleRow = FALSE,
                                          fromDate = periode_data$forste_dato, 
                                          toDate = periode_data$siste_dato)
 
+d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE, 
+                                         reshId = params$reshId,
+                                         userRole = "SC", 
+                                         fromDate = periode_data$forste_dato, 
+                                         toDate = periode_data$siste_dato)
+
 ```
 
 ```{r forste_siste_registrering_SHUS}
@@ -104,6 +121,15 @@ periode_data$forste_dato_shus <- d_ablanor %>%
   dplyr::pull()
 
 periode_data$nyeste_dato_shus <- d_ablanor %>% 
+  dplyr::summarise(max(.data$dato_pros)) %>% 
+  dplyr::pull()
+
+
+periode_data$forste_dato_shus <- d_ablanor_nasjonalt %>% 
+  dplyr::summarise(min(.data$dato_pros)) %>% 
+  dplyr::pull()
+
+periode_data$nyeste_dato_shus <- d_ablanor_nasjonalt %>% 
   dplyr::summarise(max(.data$dato_pros)) %>% 
   dplyr::pull()
 
@@ -120,8 +146,18 @@ d_ablanor %<>%
     maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
   )
 
+d_ablanor_nasjonalt %<>%
+  dplyr::mutate(
+    aar = as.ordered(lubridate::year(.data$dato_pros)),
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
+  )
+
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
 d_ablanor %<>%
+  dplyr::mutate(forlopstype = factor(x = forlopstype,
+                                     levels = 1:4))
+
+d_ablanor_nasjonalt %<>%
   dplyr::mutate(forlopstype = factor(x = forlopstype,
                                      levels = 1:4))
 
@@ -158,25 +194,41 @@ måned, samt fordeling etter forløpstype.
 
 ```{r typeForlopAar}
 cap <- paste("Totalt antall forløp fra ", 
-             hospitalNameShort, " de ", showN, " siste månedene.",
-             "For hver av de 4 forløpstypene: ",
+             hospitalNameShort, " de ", showN, " siste månedene sammenlignet ",
+             "med nasjonale tall. For hver av de 4 forløpstypene: ",
              "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
              "Supraventrikulær takykardi (SVT) eller ", 
              "Elektrofysiologisk undersøkelse (EFU).")
 
-d_ablanor %>%  
-  dplyr::count(.data$forlopstype) %>% 
+forlopstype_lokalt <- d_ablanor_nasjonalt %>%
+  dplyr::filter(.data$centreid %in% params$reshId) %>% 
+  dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select("forlopstype_tekst", "n") %>% 
   dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
-                "Antall" = .data$n) %>% 
+                "Antall" = .data$n)
+
+forlopstype_nasjonalt <- d_ablanor_nasjonalt %>%
+  dplyr::count(forlopstype) %>% 
+  janitor::adorn_totals() %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
+  dplyr::select("forlopstype_tekst", "n") %>% 
+  dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
+                "Nasjonalt" = .data$n)
+
+tabForlopstype <- forlopstype_lokalt %>% 
+  left_join(.,
+            forlopstype_nasjonalt,
+            by = "Forløpstype")
+
+tabForlopstype %>%   
   rapbase::mst(.,
                type = params$tableFormat,
                cap = cap,
                digs = 1,
-               align = "lcc",
-               fs = 9, 
+               align = "lrr",
+               fs = 9,
                lsd = FALSE)
 
 ```
