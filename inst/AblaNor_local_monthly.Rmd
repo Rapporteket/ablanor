@@ -15,7 +15,8 @@ title: |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, " de siste 12 månedene.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, " for hele 
+fjorårets registreringer, samt alle fullførte måndeder hittil i år.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
@@ -92,8 +93,16 @@ nyeste_reg <- ablanor::getLatestEntry()
 periode_data <- data.frame(
   siste_dato = min((as.Date(Sys.time()) - 1), 
                    nyeste_reg)) %>% 
-  dplyr::mutate(forste_dato  = lubridate::floor_date(.data$siste_dato, 
-                                                     "month") - months(showN))
+  dplyr::mutate(
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1,
+    
+     # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d"))
 
 
 ```
@@ -107,10 +116,90 @@ d_ablanor <- ablanor::getBaseregProsData(singleRow = FALSE,
                                          toDate = periode_data$siste_dato)
 
 d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE, 
-                                         reshId = params$reshId,
-                                         userRole = "SC", 
-                                         fromDate = periode_data$forste_dato, 
-                                         toDate = periode_data$siste_dato)
+                                                   reshId = params$reshId,
+                                                   userRole = "SC", 
+                                                   fromDate = periode_data$forste_dato, 
+                                                   toDate = periode_data$siste_dato)
+
+tab_list_hendelse_nasjonalt <- ablanor::getHendelse(singleRow = FALSE, 
+                                                     reshId = params$reshId,
+                                                     userRole = "SC", 
+                                                     fromDate = NULL, 
+                                                     toDate = NULL)
+
+
+d_hendelse_nasjonalt <- tab_list_hendelse_nasjonalt$d_hendelse %>% 
+      dplyr::rename_at(dplyr::vars(KOMP_JANEI:STATUS),
+                       function(x) {
+                         paste0("adhoc_", x)
+                       }) %>%
+      dplyr::rename("MCEID_adhoc" = "MCEID") %>%
+      dplyr::select(MCEID_adhoc,
+                    CENTREID,
+                    DATO_ADHOC,
+                    adhoc_KOMP_JANEI:adhoc_STATUS)
+
+
+tab_list_basereg_nasjonalt <- ablanor::getBasereg(singleRow = FALSE, 
+                                           reshId = params$reshId,
+                                           userRole = "SC", 
+                                           fromDate = periode_data$forste_dato, 
+                                           toDate = periode_data$siste_dato)
+
+d_basereg_nasjonalt <- tab_list_basereg_nasjonalt$d_basereg %>% 
+  dplyr::select(MCEID, CENTREID, HOYDE, VEKT)
+
+tab_list_pros_nasjonalt <- ablanor::getPros(singleRow = FALSE, 
+                                            reshId = params$reshId,
+                                            userRole = "SC", 
+                                            fromDate = periode_data$forste_dato, 
+                                            toDate = periode_data$siste_dato)
+
+d_pros_nasjonalt <- tab_list_pros_nasjonalt$d_pros %>% 
+  dplyr::select(MCEID, CENTREID, FORLOPSTYPE, DATO_PROS)
+
+
+tab_list_mce_nasjonalt <- ablanor::getMce(singleRow = FALSE, 
+                                          reshId = params$reshId,
+                                          userRole = "SC", 
+                                          fromDate = periode_data$forste_dato, 
+                                          toDate = periode_data$siste_dato)
+
+d_mce_nasjonalt <- tab_list_mce_nasjonalt$d_mce %>% 
+  dplyr::select(MCEID, CENTREID, MCETYPE, PARENTMCEID)
+
+
+names(d_hendelse_nasjonalt) <- tolower(names(d_hendelse_nasjonalt))
+names(d_basereg_nasjonalt) <- tolower(names(d_basereg_nasjonalt))
+names(d_pros_nasjonalt) <- tolower(names(d_pros_nasjonalt))
+names(d_mce_nasjonalt) <- tolower(names(d_mce_nasjonalt))
+
+d_hendelse_nasjonalt %<>% dplyr::left_join(.,
+                                     d_mce_nasjonalt %>% 
+                                       dplyr::filter(mcetype == 8) %>%
+                                       dplyr::select(mceid, parentmceid) %>%
+                                       dplyr::rename(mceid_adhoc = mceid,
+                                                     mceid = parentmceid),
+                                     by = "mceid_adhoc")
+
+# Legg til hendelse i pasient - prosedyre - data
+d_ablanor_hendelse_nasjonalt <-  dplyr::right_join(
+  x = dplyr::left_join(d_basereg_nasjonalt, d_pros_nasjonalt, by = c("mceid", "centreid")),
+  y = d_hendelse_nasjonalt,
+  by = c("mceid", "centreid")) %>%
+  
+  # Antall dager fra prosedyre til hendelse
+  dplyr::mutate(dager_pros_hendelse = as.numeric(difftime(
+    dato_adhoc,
+    dato_pros,
+    units = "days"
+  )))
+
+
+d_ablanor_hendelse_nasjonalt %<>% filter(
+  dato_pros >= periode_data$forste_dato,
+  dato_pros <= periode_data$siste_dato)
+
 
 ```
 
@@ -133,6 +222,49 @@ periode_data$nyeste_dato_shus <- d_ablanor_nasjonalt %>%
   dplyr::summarise(max(.data$dato_pros)) %>% 
   dplyr::pull()
 
+```
+
+```{r monthTabPrepare, include=FALSE, eval=TRUE}
+
+timeTableMonth <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::mutate(maaned = as.ordered(maaned))
+
+
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+
+
+rangeProsDato <- paste(format(periode_data$forste_dato, 
+                              "%d/%m-%Y"), 
+                       "til", 
+                       format(periode_data$siste_dato, 
+                              "%d/%m-%Y"))
+
+siste_dato_txt <- format(x = periode_data$siste_dato,
+                         format = "%d/%m-%Y")
 ```
 
 
@@ -202,20 +334,20 @@ cap <- paste("Totalt antall forløp fra ",
 
 forlopstype_lokalt <- d_ablanor_nasjonalt %>%
   dplyr::filter(.data$centreid %in% params$reshId) %>% 
-  dplyr::count(forlopstype) %>% 
+  dplyr::count(forlopstype, aar) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
-                "Antall" = .data$n)
+  dplyr::rename("Forløpstype" = forlopstype_tekst, 
+                "Antall" = n)
 
 forlopstype_nasjonalt <- d_ablanor_nasjonalt %>%
   dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forløpstype" = .data$forlopstype_tekst, 
-                "Nasjonalt" = .data$n)
+  dplyr::rename("Forløpstype" = .forlopstype_tekst, 
+                "Nasjonalt" = n)
 
 tabForlopstype <- forlopstype_lokalt %>% 
   left_join(.,
@@ -294,21 +426,14 @@ cat("\n\n\\pagebreak\n")
 I Ablanor registreres følgende: "Skjedde det komplikasjoner som følge av 
 operasjonen?". Dette kan enten være komplikasjoner som oppstod umiddelbart 
 etter operasjonen eller som var senkomplikasjoner som (sannsynligvis) skyldtes 
-operasjonen.
-
-Figur \@ref(fig:komplikasjonerFig) viser prosentandel forløp der komplikasjoner
-skjedde, per måned. Tallene i søylen viser antall forløp med komplikasjoner, 
-delt på på totalt antall forløp den måneden. Tabell
-\@ref(tab:komplikasjonerMaanedTabell) viser andel forløp med komplikasjoner
-totalt per måned og i underpopulasjoner per måned. 
+operasjonen (hendelse).
 
 
 
-```{r komplikasjonerFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "100%", fig.asp = 0.8 }
-figtekst <- paste0("Andel forløp fra ", hospitalNameShort, 
-                   " med komplikasjoner det siste året. " ,
-                   "Tallene i søylene viser antall forløp med ", 
-                   "komplikasjoner delt på totalt antall forløp per måned.")
+
+```{r komplikasjonerTab}
+caption <- paste0("Antall komplikasjoner registrert ved ", hospitalNameShort, 
+                   "det siste året sammenlignet med nasjonale tall. ")
 
 d_kompl_fig <- d_ablanor %>%
   dplyr::select("maaned", "komp_janei") %>%
