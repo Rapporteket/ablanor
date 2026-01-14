@@ -1,6 +1,7 @@
 # ablanor 2.1.0
 Legg til funksjon for å utlede scoren CHA2DS2VASc. Bruke denne i utforsker
-for "basereg, prosedyre, kvalitetsindikator"
+for "basereg, prosedyre, kvalitetsindikator". 
+Tilgjengeligegjort samletabell for nedlasting (basis, prosedyre, mce)
 
 # ablanor 1.4
 Legger til Ibsensykehuset som nytt sykehus.
