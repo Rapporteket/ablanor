@@ -246,7 +246,8 @@ d_ablanor_nasjonalt %<>%
 
 # Datagrunnlag 
 Datagrunnlaget for denne rapporten er alle forløp registrert i AblaNor de 
-siste `r showN`  månedene: det vil si i intervallet fra  `r format(periode_data$forste_dato , "%d/%m-%Y")` til
+siste `r showN`  månedene: det vil si i perioden 
+`r format(periode_data$forste_dato , "%d/%m-%Y")` til
 `r format(periode_data$siste_dato, "%d/%m-%Y")`. 
 
 
@@ -381,7 +382,7 @@ operasjonen (hendelser innen 4 dager).
 
 ```{r komplikasjonerTab}
 caption <- paste0("Antall komplikasjoner registrert ved ", hospitalNameShort, 
-                   "det siste året sammenlignet med nasjonale tall. ")
+                   " det siste året sammenlignet med nasjonale tall. ")
 
 d_ablanor_hendelse_innen4dager_nasjonalt <- d_ablanor_hendelse_nasjonalt %>% 
   filter(dager_pros_hendelse <= 4)
@@ -528,7 +529,7 @@ tab_komp_samlet <- tab_komp %>%
 tab_komp_samlet %>%   
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = cap,
+               cap = caption,
                digs = 1,
                align = "lrr",
                fs = 9,
