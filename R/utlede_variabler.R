@@ -355,3 +355,90 @@ utlede_hjertesvikt_redusert_ef <- function(df) {
 
         ordered = TRUE))
 }
+
+
+#' CHA2DS2VASc
+#'
+#' Add variable \code{CHA2DS2VASc} score from 0 to 9.
+#' #'
+#' @param df data.frame with Ablanor-data. Must contain variables
+#' \code{hjertesvikt}, \code{hypertoni} and \code{diabetes},
+#' \code{tia_slag}, \code{alder} and \code{gender}.
+#' @details
+#' \itemize{
+#' \item{hjertesvikt:}{ score +1}
+#' \item{hypertoni:}{ score +1}
+#' \item{karsykdom:}{ score +1}
+#' \item{diabetes:}{ score +1}
+#' \item{tia_slag:}{ score +2}
+#' \item{gender(kvinne:)}{ score +1}
+#' \item{alder(>=65; <75):}{ score +1}
+#' \item{alder(>=75):}{ score +2}
+#'
+#' }
+#'
+#'
+#' @return Returns \code{df} with 1 new column
+#' @export
+#'
+#' @examples
+#'   df <- data.frame(
+#'     hjertesvikt = c(NA, 2, rep(1, 8)),
+#'     hypertoni = c(NA, 1, NA, 0, 0, 9, 9, 1, 1, 1),
+#'     karsykdom = c(0, 1, 1, 1, 1, 0, 0, NA, NA, 9),
+#'     diabetes = c(NA, 9, 1, 9, 1, 1, NA, 1, 0, 9),
+#'     tia_slag = c(NA, 1, 1, 9, 1, 1, 0, 1, 0, 0),
+#'     alder = c(18, 25, 64, 65, 70, 74, 75, 76, 80, 105),
+#'     gender = c(rep(1, 4), NA, NA, rep(2, 4)))
+#'
+#'  ablanor::utlede_CHA2DS2VASc(df)
+utlede_CHA2DS2VASc <- function(df) {
+
+  stopifnot(c("hjertesvikt",
+              "hypertoni",
+              "karsykdom",
+              "diabetes",
+              "tia_slag",
+              "alder",
+              "gender") %in% names(df))
+
+
+
+  df %>%
+    dplyr::mutate(
+      # Alderspoeng
+      CHA2DS2VASc = dplyr::case_when(is.na(alder) ~ 0,
+                                     alder < 65 ~ 0,
+                                     alder >= 65 & alder < 75 ~ 1,
+                                     alder >= 75 ~ 2,
+                                     TRUE ~ NA)) %>%
+    # Alle Andre variabler
+    dplyr::mutate(CHA2DS2VASc = ifelse(test = hjertesvikt %in% 1,
+                                yes = CHA2DS2VASc + 1,
+                                no = CHA2DS2VASc)) %>%
+
+    dplyr::mutate(CHA2DS2VASc = ifelse(test = hypertoni %in% 1,
+                                yes = CHA2DS2VASc + 1,
+                                no = CHA2DS2VASc)) %>%
+
+    dplyr::mutate(CHA2DS2VASc = ifelse(test = karsykdom  %in% 1,
+                                yes = CHA2DS2VASc + 1,
+                                no = CHA2DS2VASc)) %>%
+
+    dplyr::mutate(CHA2DS2VASc = ifelse(test = diabetes %in% 1,
+                                yes = CHA2DS2VASc + 1,
+                                no = CHA2DS2VASc)) %>%
+
+    dplyr::mutate(CHA2DS2VASc = ifelse(test = tia_slag %in% 1,
+                                yes = CHA2DS2VASc + 2,
+                                no = CHA2DS2VASc)) %>%
+
+    dplyr::mutate(CHA2DS2VASc = ifelse(test = gender  %in% 2,
+                                yes = CHA2DS2VASc + 1,
+                                no = CHA2DS2VASc))
+}
+
+
+
+
+

@@ -1,25 +1,20 @@
 Package: ablanor
 Title: AblaNor- Rapporteket
-Version: 2.0.10
+Version: 2.1.0
 Authors@R: c(
   person(given = "Kristina",
-           family = "Skaare",
-           role = c("aut", "cre"),
-           email = "kristina.skare@helse-bergen.no"),
+         family = "Skaare",
+         role = c("aut", "cre"),
+         email = "kristina.skare@helse-bergen.no"),
   person(given = "Mary",
          family = "Autenried",
          role = c("aut"),
          email = "mary.gerina.autenried@helse-bergen.no"),
-  person(given = "Are",
-         family = "Edvardsen",
+  person(given = "Arnfinn Hykkerud",
+         family = "Steindal",
          role = c("aut"),
-         email = "biorakel@gmail.com",
-         comment = c(ORCID = "0000-0002-5210-3656")),
-    person(given = "Arnfinn Hykkerud",
-           family = "Steindal",
-           role = c("aut"),
-           email = "arnfinn.hykkerud.steindal@helse-nord.no",
-           comment = c(ORCID = "0000-0002-4088-7860")))
+         email = "arnfinn.hykkerud.steindal@helse-nord.no",
+         comment = c(ORCID = "0000-0002-4088-7860")))
 Description: An implemetation of all R related resources for AblaNor (Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge). 
 License: GPL-3
 Encoding: UTF-8

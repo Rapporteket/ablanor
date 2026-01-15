@@ -33,7 +33,8 @@ getDataDump <- function(tableName,
                              "kodeboken",
                              "friendlycentre",
                              "mce_patient_data",
-                             "patientlist"))
+                             "patientlist",
+                             "basereg_prosedyre"))
 
 
   if (tableName == "basereg") {
@@ -157,6 +158,14 @@ getDataDump <- function(tableName,
 
   if (tableName == "kodeboken") {
     dat <- ablanor::getKodebokData()
+  }
+
+  if (tableName == "basereg_prosedyre") {
+    dat <- ablanor::getBaseregProsData(singleRow = FALSE,
+                                       reshId = reshId,
+                                       userRole = userRole,
+                                       fromDate = fromDate,
+                                       toDate = toDate)
   }
 
   return(dat)

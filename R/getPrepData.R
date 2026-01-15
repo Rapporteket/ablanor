@@ -511,6 +511,8 @@ getBaseregProsData <- function(singleRow = FALSE,
   # HJERTESVIKT OG REDUSERT EF
   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
+  # CHA2DS2VASc
+  d_ablanor %<>% ablanor::utlede_CHA2DS2VASc(.)
 
   # Indikator tamponade, indikator for avbrudd
   d_ablanor %<>%
