@@ -15,7 +15,7 @@ title: |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, " de siste 12 månedene.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, " for hele fjorårets registreringer samt alle fullførte måndeder hittil i år.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
@@ -77,6 +77,7 @@ hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId,
 ```{r latest_entry, include=FALSE, eval=TRUE}
 
 # DATAGRUNNLAG: PERIODE
+
 # NYESTE DATO: 
 # Finne nyeste prosedyredato i prosedyre-tabellen. Vi ønsker ikke at 
 # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
@@ -85,26 +86,108 @@ hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId,
 # overføringer har stoppet opp
 
 # ELDSTE DATO: 
-# 12 komplette måneder før siste dato
+# Januar fra i fjor (hele foregående år skal vise i rapporten)
 
-nyeste_reg <- ablanor::getLatestEntry()
+# nyeste_reg <- ablanor::getLatestEntry()
+nyeste_reg <- min(
+  (as.Date(Sys.time()-1)),
+  ablanor::getLatestEntry())
 
-periode_data <- data.frame(
-  siste_dato = min((as.Date(Sys.time()) - 1), 
-                   nyeste_reg)) %>% 
-  dplyr::mutate(forste_dato  = lubridate::floor_date(.data$siste_dato, 
-                                                     "month") - months(showN))
+# periode_data <- data.frame(
+#   siste_dato = min((as.Date(Sys.time()) - 1), 
+#                    nyeste_reg)) %>% 
+#   dplyr::mutate(forste_dato  = lubridate::floor_date(.data$siste_dato, 
+#                                                      "month") - months(showN))
 
+periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
+  dplyr::mutate(
+    
+    # SISTE DATO AVGJØR SISTE MÅNED: 
+    siste_dato_innevarende_mnd = lubridate::ceiling_date(
+      x = nyeste_reg, unit =  "month") - lubridate::days(1),
+    
+    siste_dato = dplyr::case_when(
+      # siste dato er nyeste dato --> nyeste mnd er komlett
+      siste_dato_innevarende_mnd == nyeste_reg ~ 
+        nyeste_reg, 
+      
+      # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+      siste_dato_innevarende_mnd != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, "month") - 
+        lubridate::days(1), 
+      
+      TRUE ~ as.Date(NA_character_)),
+
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1, 
+    
+    # Inneværende måned i år: 
+    nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d")
+  ) %>% 
+  dplyr::select(-siste_dato_innevarende_mnd)
 
 ```
 
+```{r monthTabPrepare, include=FALSE, eval=TRUE}
 
-```{r GetData}
+timeTableMonth <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::mutate(maaned = as.ordered(maaned))
+
+
+timeTableMonth_fjor <- data.frame(
+  monthDato = seq(periode_data$forste_dato, 
+                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
+                          format = "%d-%m-%Y"),
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+timeTableMonth_aar <- data.frame(
+  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
+                          format = "%d-%m-%Y"),
+                  periode_data$siste_dato,
+                  by = "month")) %>% 
+  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
+                                             format = "%Y-%m"))) %>% 
+  dplyr::transmute(
+    maaned = as.ordered(maaned))
+
+
+
+rangeProsDato <- paste(format(periode_data$forste_dato, 
+                              "%d/%m-%Y"), 
+                       "til", 
+                       format(periode_data$siste_dato, 
+                              "%d/%m-%Y"))
+
+siste_dato_txt <- format(x = periode_data$siste_dato,
+                         format = "%d/%m-%Y")
+```
+
+
+```{r GetData, warning=FALSE}
+# Fjernes når alle fig og tab bruker nasjonal database
 d_ablanor <- ablanor::getBaseregProsData(singleRow = FALSE, 
                                          reshId = params$reshId,
                                          userRole = params$userRole, 
                                          fromDate = periode_data$forste_dato, 
                                          toDate = periode_data$siste_dato)
+
+
 
 d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE, 
                                                    reshId = params$reshId,
@@ -196,6 +279,7 @@ d_ablanor_hendelse_nasjonalt %<>% filter(
 
 ```{r forste_siste_registrering_SHUS}
 
+# Fjernes når alle fig og tab bruker nasjonal database
 periode_data$forste_dato_shus <- d_ablanor %>% 
   dplyr::summarise(min(.data$dato_pros)) %>% 
   dplyr::pull()
@@ -203,6 +287,8 @@ periode_data$forste_dato_shus <- d_ablanor %>%
 periode_data$nyeste_dato_shus <- d_ablanor %>% 
   dplyr::summarise(max(.data$dato_pros)) %>% 
   dplyr::pull()
+
+
 
 
 periode_data$forste_dato_shus <- d_ablanor_nasjonalt %>% 
@@ -220,6 +306,8 @@ periode_data$nyeste_dato_shus <- d_ablanor_nasjonalt %>%
 
 # OPPDATERE : UKE, MÅNED, ÅR for å få riktig levels i faktorer, også dersom 
 # ingen registreringer i løpet av en måned
+
+# Fjernes når alle fig og tab bruker nasjonal database
 d_ablanor %<>%
   dplyr::mutate(
     aar = as.ordered(lubridate::year(.data$dato_pros)),
@@ -233,6 +321,8 @@ d_ablanor_nasjonalt %<>%
   )
 
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
+
+# Fjernes når alle fig og tab bruker nasjonal database
 d_ablanor %<>%
   dplyr::mutate(forlopstype = factor(x = forlopstype,
                                      levels = 1:4))
@@ -245,8 +335,7 @@ d_ablanor_nasjonalt %<>%
 
 
 # Datagrunnlag 
-Datagrunnlaget for denne rapporten er alle forløp registrert i AblaNor de 
-siste `r showN`  månedene: det vil si i perioden 
+Datagrunnlaget for denne rapporten er hele fjorårets registreringer samt alle fullførte måndeder hittil i år i AblaNor, det vil si i perioden 
 `r format(periode_data$forste_dato , "%d/%m-%Y")` til
 `r format(periode_data$siste_dato, "%d/%m-%Y")`. 
 
@@ -267,100 +356,93 @@ Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
 Elektrofysiologisk undersøkelse (EFU). Dersom forløpstype ikke er registrert
 blir verdien NA (not available), dette gjelder forløp der prosedyreskjema ikke
 er ferdigstilte. 
+
 Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
-registrert i AblaNor fra `r hospitalNameShort` de `r showN` siste månedene, 
-for hver forløpstype og sammenlagt. 
-Figur \@ref(fig:typeForlopFig) viser antall forløp per
-måned, samt fordeling etter forløpstype. 
+registrert i AblaNor for siste hele år samt alle fullførte måneder 
+hittil i år fra `r hospitalNameShort` og nasjonalt, for hver forløpstype og sammenlagt. 
+ 
 
 ```{r typeForlopAar}
 cap <- paste("Totalt antall forløp fra ", 
-             hospitalNameShort, " de ", showN, " siste månedene sammenlignet ",
-             "med nasjonale tall. For hver av de 4 forløpstypene: ",
+             hospitalNameShort, " sammenlignet med nasjonale tall. ", 
+             "Tabellen viser forløp fra det siste hele året samt alle ", 
+             "fullførte måneder hittil i år for hver av de 4 forløpstypene: ",
              "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
              "Supraventrikulær takykardi (SVT) eller ", 
              "Elektrofysiologisk undersøkelse (EFU).")
 
-forlopstype_lokalt <- d_ablanor_nasjonalt %>%
-  dplyr::filter(.data$centreid %in% params$reshId) %>% 
+forlopstype_lokalt_fjor <- d_ablanor_nasjonalt %>%
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$sisteHeleYear) %>% 
   dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forløpstype" = forlopstype_tekst, 
-                "Antall" = n)
+  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+                "Antall_fjor" = n)
 
-forlopstype_nasjonalt <- d_ablanor_nasjonalt %>%
+forlopstype_lokalt_aar <- d_ablanor_nasjonalt %>%
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$nyesteRegYear) %>% 
   dplyr::count(forlopstype) %>% 
   janitor::adorn_totals() %>% 
   ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
   dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forløpstype" = forlopstype_tekst, 
-                "Nasjonalt" = n)
+  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+                "Antall_aar" = n)
 
-tabForlopstype <- forlopstype_lokalt %>% 
-  left_join(.,
-            forlopstype_nasjonalt,
-            by = "Forløpstype")
+forlopstype_nasjonalt_fjor <- d_ablanor_nasjonalt %>%
+  dplyr::filter(aar %in% periode_data$sisteHeleYear) %>%
+  dplyr::count(forlopstype) %>% 
+  janitor::adorn_totals() %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
+  dplyr::select("forlopstype_tekst", "n") %>% 
+  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+                "Nasjonalt_fjor" = n)
+
+forlopstype_nasjonalt_aar <- d_ablanor_nasjonalt %>%
+  dplyr::filter(aar %in% periode_data$nyesteRegYear) %>%
+  dplyr::count(forlopstype) %>% 
+  janitor::adorn_totals() %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
+  dplyr::select("forlopstype_tekst", "n") %>% 
+  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+                "Nasjonalt_aar" = n)
+
+
+tabForlopstype <- forlopstype_lokalt_fjor %>% 
+  dplyr::left_join(.,
+            forlopstype_nasjonalt_fjor,
+            by = "Forlopstype") %>% 
+  dplyr::left_join(.,
+            forlopstype_lokalt_aar,
+            by = "Forlopstype") %>% 
+  dplyr::left_join(.,
+            forlopstype_nasjonalt_aar,
+            by = "Forlopstype")
+
+tabForlopstype[tabForlopstype == 0] <- " - "
+tabForlopstype[is.na(tabForlopstype)] <- " - "
+
+colnames(tabForlopstype)[2] <- paste0("Totalt i ", periode_data$sisteHeleYear)
+colnames(tabForlopstype)[3] <- paste0("Nasjonalt i ", periode_data$sisteHeleYear)
+colnames(tabForlopstype)[4] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
+colnames(tabForlopstype)[5] <- paste0("Nasjonalt hittil i ",
+                                      periode_data$nyesteRegYear)
+
+align <- c("l", rep("r", ncol(tabForlopstype)-1))
 
 tabForlopstype %>%   
   rapbase::mst(.,
                type = params$tableFormat,
                cap = cap,
                digs = 1,
-               align = "lrr",
+               align = align,
                fs = 9,
                lsd = FALSE)
 
 ```
 
-```{r typeForlopFig, fig.cap = figtekst, fig.pos = "H", fig.align = "center", out.width = "80%", fig.asp = 0.8 }
-
-figtekst <- paste0("Antall registreringer i AblaNor fra ", 
-                   hospitalNameShort, " hver måned det siste året. ", 
-                   "Tallene i søylene viser antall registrerte forløp per ", 
-                   "forløpstype. ", 
-                   "Atrieflimmer/atypisk flutter (AFLI), ", 
-                   "Ventrikkeltakykardi (VT), ", 
-                   "Supraventrikulær takykardi (SVT) eller ", 
-                   "Elektrofysiologisk undersøkelse (EFU).")
-
-d_forlop_mnd <- d_ablanor %>%
-  dplyr::count(.data$maaned, .data$forlopstype, .drop = FALSE) %>%
-  ablanor::legg_til_forlopstype_kortnavn() %>% 
-  dplyr::mutate(
-    n_uten0 = dplyr::case_when(
-      .data$n == 0 ~ "", .data$n != 0 ~ as.character(.data$n)
-    )
-  ) %>% 
-  dplyr::mutate(forlopstype_tekst = factor(
-    x = .data$forlopstype_tekst, 
-    levels = c("AFLI", "VT", "SVT", "EFU")))
-
-
-ggplot2::ggplot(
-  data = d_forlop_mnd,  
-  ggplot2::aes(
-    x = .data$n,
-    y = .data$maaned,
-    fill = .data$forlopstype_tekst
-  )
-) +
-  ggplot2::geom_bar(stat = "identity", 
-                    position = ggplot2::position_stack(reverse = TRUE)) +
-  ggplot2::scale_fill_manual(values = colPrimary[3:6]) +
-  ablanor::ablanor_plot_theme() + 
-  ggplot2::labs(title = paste0("Antall registreringer i AblaNor de ",
-                               showN, " siste månedene" ),
-                subtitle = hospitalNameShort) +
-  ggplot2::geom_vline(xintercept = 0, size = 1, colour = "gray45") +
-  ggplot2::geom_text(
-    ggplot2::aes(label = .data$n_uten0),
-    family = "sans",
-    position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE)
-  ) 
-
-```
 
 
 
