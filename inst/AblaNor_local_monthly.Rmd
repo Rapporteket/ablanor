@@ -9,6 +9,11 @@ params:
   userFullName: Tore Tester
   userRole: ukjent rolle
   userOperator: ukjent operatør
+header-includes:
+- \usepackage[english, norsk]{babel}
+- \usepackage{booktabs}
+- \usepackage{rotating}
+- \usepackage{float}
 title: |  
   | Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
   |
@@ -21,6 +26,7 @@ registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
 regtext: '`r readLines(system.file("registryShortDescription.txt", package = "ablanor"))`'
 userFullName: '`r params$userFullName`'
+linkcolor: darkblue
 output:
   fig_caption: yes
 ---
@@ -179,7 +185,7 @@ siste_dato_txt <- format(x = periode_data$siste_dato,
 ```
 
 
-```{r GetData, warning=FALSE}
+```{r GetData, include=FALSE, warning=FALSE, cache=FALSE}
 # Fjernes når alle fig og tab bruker nasjonal database
 d_ablanor <- ablanor::getBaseregProsData(singleRow = FALSE, 
                                          reshId = params$reshId,
@@ -320,6 +326,12 @@ d_ablanor_nasjonalt %<>%
     maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
   )
 
+d_ablanor_hendelse_nasjonalt %<>%
+  dplyr::mutate(
+    aar = as.ordered(lubridate::year(.data$dato_pros)),
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
+  )
+
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
 
 # Fjernes når alle fig og tab bruker nasjonal database
@@ -346,9 +358,9 @@ henholdsvis `r format(periode_data$forste_dato_shus, "%d/%m-%Y") ` og
 
 
 
-```{r pagebreak1, results = "asis", eval = (params$tableFormat == "pdf")}
-cat("\n\n\\pagebreak\n")
-```
+`r if(params$tableFormat !="pdf") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="pdf") {"-->"}`
 
 # Forløpstype
 Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
@@ -362,7 +374,7 @@ registrert i AblaNor for siste hele år samt alle fullførte måneder
 hittil i år fra `r hospitalNameShort` og nasjonalt, for hver forløpstype og sammenlagt. 
  
 
-```{r typeForlopAar}
+```{r typeForlopAar, echo = FALSE, results = "asis"}
 cap <- paste("Totalt antall forløp fra ", 
              hospitalNameShort, " sammenlignet med nasjonale tall. ", 
              "Tabellen viser forløp fra det siste hele året samt alle ", 
@@ -432,25 +444,54 @@ colnames(tabForlopstype)[5] <- paste0("Nasjonalt hittil i ",
 
 align <- c("l", rep("r", ncol(tabForlopstype)-1))
 
-tabForlopstype %>%   
+
+if(params$tableFormat %in% "html") {
+  tabForlopstype %>%   
   rapbase::mst(.,
                type = params$tableFormat,
                cap = cap,
                digs = 1,
                align = align,
                fs = 9,
-               lsd = FALSE)
+               lsd = FALSE) %>% 
+    kableExtra::column_spec(column = 3,
+                            background = "#EBEBEB") %>% 
+    kableExtra::column_spec(column = ncol(tabForlopstype),
+                            background = "#EBEBEB") %>% 
+    kableExtra::row_spec(row = nrow(tabForlopstype),
+                         background = "#EBEBEB")
+  
+  
+} else if (params$tableFormat %in% "pdf") {
+  tabForlopstype %>%   
+  rapbase::mst(.,
+               type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) %>%
+    kableExtra::kable_styling(latex_options = c("scale_down"),
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = nrow(tabForlopstype)-1, hline_after = TRUE) %>%
+    kableExtra::add_header_above(
+      .,
+      header = c("",
+                 setNames(2,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(tabForlopstype)-3),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 10)
+}
 
 ```
 
 
 
-
-
-
-```{r pagebreak2, results = "asis", eval = (params$tableFormat == "pdf")}
-cat("\n\n\\pagebreak\n")
-```
+`r if(params$tableFormat !="pdf") {"<!--"}`
+\newpage
+`r if(params$tableFormat !="pdf") {"-->"}`
 
 
 # Komplikasjoner
@@ -462,9 +503,9 @@ operasjonen (hendelser innen 4 dager).
 
 
 
-```{r komplikasjonerTab}
+```{r komplikasjonerTab, echo = FALSE, results = "asis"}
 caption <- paste0("Antall komplikasjoner registrert ved ", hospitalNameShort, 
-                   " det siste året sammenlignet med nasjonale tall. ")
+                   " det siste hele året samt hittil i år sammenlignet med nasjonale tall. ")
 
 d_ablanor_hendelse_innen4dager_nasjonalt <- d_ablanor_hendelse_nasjonalt %>% 
   filter(dager_pros_hendelse <= 4)
@@ -486,8 +527,11 @@ tab_komp <- data.frame(
                  "Annen komplikasjon",
                  "Totalt"))
 
-tab_kompl_pros_lokalt <- d_ablanor_nasjonalt %>% 
-  dplyr::filter(centreid %in% params$reshId,
+# Lokalt i fjor
+
+tab_kompl_pros_lokalt_fjor <- d_ablanor_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                centreid %in% params$reshId,
                 komp_janei %in% 1)  %>% 
   mutate(komp_tekst = case_when(
     komp_av_fistel %in% 1 ~ "AV-fistel",
@@ -512,8 +556,9 @@ tab_kompl_pros_lokalt <- d_ablanor_nasjonalt %>%
                 "Antall fra pros" = n)
 
 
-tab_kompl_hendelse_lokalt <- d_ablanor_hendelse_innen4dager_nasjonalt %>% 
-  dplyr::filter(centreid %in% params$reshId,
+tab_kompl_hendelse_lokalt_fjor <- d_ablanor_hendelse_innen4dager_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                centreid %in% params$reshId,
                 adhoc_komp_janei %in% 1)  %>% 
   mutate(komp_tekst = case_when(
     adhoc_komp_av_fistel %in% 1 ~ "AV-fistel",
@@ -538,16 +583,18 @@ tab_kompl_hendelse_lokalt <- d_ablanor_hendelse_innen4dager_nasjonalt %>%
                 "Antall fra hendelse" = n)
 
 
-tab_komp_lokalt <- tab_komp %>% 
-  dplyr::left_join(., tab_kompl_pros_lokalt, by = "Komplikasjoner") %>% 
-  dplyr::left_join(., tab_kompl_hendelse_lokalt, by = "Komplikasjoner") %>% 
-  janitor::adorn_totals("col", name = "Antall") %>% 
-  select(Komplikasjoner, Antall)
+tab_komp_lokalt_fjor <- tab_komp %>% 
+  dplyr::left_join(., tab_kompl_pros_lokalt_fjor, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_kompl_hendelse_lokalt_fjor, by = "Komplikasjoner") %>% 
+  janitor::adorn_totals("col", name = "Antall_fjor") %>% 
+  select(Komplikasjoner, Antall_fjor)
 
+# Lokalt i år
 
-
-tab_kompl_pros_nasjonalt <- d_ablanor_nasjonalt %>% 
-  dplyr::filter(komp_janei %in% 1)  %>% 
+tab_kompl_pros_lokalt_aar <- d_ablanor_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                centreid %in% params$reshId,
+                komp_janei %in% 1)  %>% 
   mutate(komp_tekst = case_when(
     komp_av_fistel %in% 1 ~ "AV-fistel",
     komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
@@ -571,8 +618,10 @@ tab_kompl_pros_nasjonalt <- d_ablanor_nasjonalt %>%
                 "Antall fra pros" = n)
 
 
-tab_kompl_hendelse_nasjonalt <- d_ablanor_hendelse_innen4dager_nasjonalt %>% 
-  dplyr::filter(adhoc_komp_janei %in% 1)  %>% 
+tab_kompl_hendelse_lokalt_aar <- d_ablanor_hendelse_innen4dager_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                centreid %in% params$reshId,
+                adhoc_komp_janei %in% 1)  %>% 
   mutate(komp_tekst = case_when(
     adhoc_komp_av_fistel %in% 1 ~ "AV-fistel",
     adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
@@ -596,26 +645,187 @@ tab_kompl_hendelse_nasjonalt <- d_ablanor_hendelse_innen4dager_nasjonalt %>%
                 "Antall fra hendelse" = n)
 
 
-tab_komp_nasjonalt <- tab_komp %>% 
-  dplyr::left_join(., tab_kompl_pros_nasjonalt, by = "Komplikasjoner") %>% 
-  dplyr::left_join(., tab_kompl_hendelse_nasjonalt, by = "Komplikasjoner") %>% 
-  janitor::adorn_totals("col", name = "Nasjonalt") %>% 
-  select(Komplikasjoner, Nasjonalt)
+tab_komp_lokalt_aar <- tab_komp %>% 
+  dplyr::left_join(., tab_kompl_pros_lokalt_aar, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_kompl_hendelse_lokalt_aar, by = "Komplikasjoner") %>% 
+  janitor::adorn_totals("col", name = "Antall_aar") %>% 
+  select(Komplikasjoner, Antall_aar)
+
+
+# Nasjonalt i fjor
+
+tab_kompl_pros_nasjonalt_fjor <- d_ablanor_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                komp_janei %in% 1)  %>% 
+  mutate(komp_tekst = case_when(
+    komp_av_fistel %in% 1 ~ "AV-fistel",
+    komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
+    komp_blodning %in% 1 ~ "Blødning",
+    komp_infek %in% 1 ~ "Infeksjon",
+    komp_tamp %in% 1 ~ "Tamponade",
+    komp_nfren %in% 1 ~ "N. frenicus parese",
+    komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
+    komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
+    komp_pulm %in% 1 ~ "Pulmonalvenestenose",
+    komp_osofag %in% 1 ~ "Øsofagusfistel",
+    komp_koronar %in% 1 ~ "Hjerteinfarkt eller iskemi",
+    komp_perikard %in% 1 ~ "Perikarditt/perikardvæske",
+    komp_dod %in% 1 ~ "Død",
+    komp_annen %in% 1 ~ "Annen komplikasjon",
+    .default = NA_character_
+  )) %>% 
+  count(komp_tekst) %>% 
+  janitor::adorn_totals(name = "Totalt") %>%
+  dplyr::rename("Komplikasjoner" = komp_tekst,
+                "Antall fra pros" = n)
+
+
+tab_kompl_hendelse_nasjonalt_fjor <- d_ablanor_hendelse_innen4dager_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                adhoc_komp_janei %in% 1)  %>% 
+  mutate(komp_tekst = case_when(
+    adhoc_komp_av_fistel %in% 1 ~ "AV-fistel",
+    adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
+    adhoc_komp_blodning %in% 1 ~ "Blødning",
+    adhoc_komp_infek %in% 1 ~ "Infeksjon",
+    adhoc_komp_tamp %in% 1 ~ "Tamponade",
+    adhoc_komp_nfren %in% 1 ~ "N. frenicus parese",
+    adhoc_komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
+    adhoc_komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
+    adhoc_komp_pulm %in% 1 ~ "Pulmonalvenestenose",
+    adhoc_komp_osofag %in% 1 ~ "Øsofagusfistel",
+    adhoc_komp_koronar %in% 1 ~ "Hjerteinfarkt eller iskemi",
+    adhoc_komp_perikard %in% 1 ~ "Perikarditt/perikardvæske",
+    adhoc_komp_dod %in% 1 ~ "Død",
+    adhoc_komp_annen %in% 1 ~ "Annen komplikasjon",
+    .default = NA_character_
+  )) %>% 
+  count(komp_tekst) %>% 
+  janitor::adorn_totals(name = "Totalt") %>%
+  dplyr::rename("Komplikasjoner" = komp_tekst,
+                "Antall fra hendelse" = n)
+
+
+tab_komp_nasjonalt_fjor <- tab_komp %>% 
+  dplyr::left_join(., tab_kompl_pros_nasjonalt_fjor, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_kompl_hendelse_nasjonalt_fjor, by = "Komplikasjoner") %>% 
+  janitor::adorn_totals("col", name = "Nasjonalt_fjor") %>% 
+  select(Komplikasjoner, Nasjonalt_fjor)
+
+
+# Nasjonalt i aar
+
+tab_kompl_pros_nasjonalt_aar <- d_ablanor_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                komp_janei %in% 1)  %>% 
+  mutate(komp_tekst = case_when(
+    komp_av_fistel %in% 1 ~ "AV-fistel",
+    komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
+    komp_blodning %in% 1 ~ "Blødning",
+    komp_infek %in% 1 ~ "Infeksjon",
+    komp_tamp %in% 1 ~ "Tamponade",
+    komp_nfren %in% 1 ~ "N. frenicus parese",
+    komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
+    komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
+    komp_pulm %in% 1 ~ "Pulmonalvenestenose",
+    komp_osofag %in% 1 ~ "Øsofagusfistel",
+    komp_koronar %in% 1 ~ "Hjerteinfarkt eller iskemi",
+    komp_perikard %in% 1 ~ "Perikarditt/perikardvæske",
+    komp_dod %in% 1 ~ "Død",
+    komp_annen %in% 1 ~ "Annen komplikasjon",
+    .default = NA_character_
+  )) %>% 
+  count(komp_tekst) %>% 
+  janitor::adorn_totals(name = "Totalt") %>%
+  dplyr::rename("Komplikasjoner" = komp_tekst,
+                "Antall fra pros" = n)
+
+
+tab_kompl_hendelse_nasjonalt_aar <- d_ablanor_hendelse_innen4dager_nasjonalt %>% 
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                adhoc_komp_janei %in% 1)  %>% 
+  mutate(komp_tekst = case_when(
+    adhoc_komp_av_fistel %in% 1 ~ "AV-fistel",
+    adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
+    adhoc_komp_blodning %in% 1 ~ "Blødning",
+    adhoc_komp_infek %in% 1 ~ "Infeksjon",
+    adhoc_komp_tamp %in% 1 ~ "Tamponade",
+    adhoc_komp_nfren %in% 1 ~ "N. frenicus parese",
+    adhoc_komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
+    adhoc_komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
+    adhoc_komp_pulm %in% 1 ~ "Pulmonalvenestenose",
+    adhoc_komp_osofag %in% 1 ~ "Øsofagusfistel",
+    adhoc_komp_koronar %in% 1 ~ "Hjerteinfarkt eller iskemi",
+    adhoc_komp_perikard %in% 1 ~ "Perikarditt/perikardvæske",
+    adhoc_komp_dod %in% 1 ~ "Død",
+    adhoc_komp_annen %in% 1 ~ "Annen komplikasjon",
+    .default = NA_character_
+  )) %>% 
+  count(komp_tekst) %>% 
+  janitor::adorn_totals(name = "Totalt") %>%
+  dplyr::rename("Komplikasjoner" = komp_tekst,
+                "Antall fra hendelse" = n)
+
+
+tab_komp_nasjonalt_aar <- tab_komp %>% 
+  dplyr::left_join(., tab_kompl_pros_nasjonalt_aar, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_kompl_hendelse_nasjonalt_aar, by = "Komplikasjoner") %>% 
+  janitor::adorn_totals("col", name = "Nasjonalt_aar") %>% 
+  select(Komplikasjoner, Nasjonalt_aar)
 
 
 tab_komp_samlet <- tab_komp %>% 
-  dplyr::left_join(., tab_komp_lokalt, by = "Komplikasjoner") %>% 
-  dplyr::left_join(., tab_komp_nasjonalt, by = "Komplikasjoner")
+  dplyr::left_join(., tab_komp_lokalt_fjor, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_komp_nasjonalt_fjor, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_komp_lokalt_aar, by = "Komplikasjoner") %>% 
+  dplyr::left_join(., tab_komp_nasjonalt_aar, by = "Komplikasjoner")
 
+colnames(tab_komp_samlet)[2] <- paste0("Totalt i ", periode_data$sisteHeleYear)
+colnames(tab_komp_samlet)[3] <- paste0("Nasjonalt i ", periode_data$sisteHeleYear)
+colnames(tab_komp_samlet)[4] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
+colnames(tab_komp_samlet)[5] <- paste0("Nasjonalt hittil i ",
+                                      periode_data$nyesteRegYear)
 
-tab_komp_samlet %>%   
+align <- c("l", rep("r", ncol(tab_komp_samlet)-1))
+
+if(params$tableFormat %in% "html") {
+  tab_komp_samlet %>%   
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = caption,
+               cap = cap,
                digs = 1,
-               align = "lrr",
+               align = align,
                fs = 9,
-               lsd = FALSE)
+               lsd = FALSE) %>% 
+    kableExtra::column_spec(column = 3,
+                            background = "#EBEBEB") %>% 
+    kableExtra::column_spec(column = ncol(tab_komp_samlet),
+                            background = "#EBEBEB") %>% 
+    kableExtra::row_spec(row = nrow(tab_komp_samlet),
+                         background = "#EBEBEB")
+  
+  } else if (params$tableFormat %in% "pdf") {
+  tab_komp_samlet %>%
+  rapbase::mst(.,
+               type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) %>%
+    kableExtra::kable_styling(latex_options = c("scale_down"),
+                              font_size = 8) %>%
+    kableExtra::row_spec(row = nrow(tab_komp_samlet)-1, hline_after = TRUE) %>%
+    kableExtra::add_header_above(
+      .,
+      header = c("",
+                 setNames(2,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(tab_komp_samlet)-3),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 10)
+  }
 
 ```
 
