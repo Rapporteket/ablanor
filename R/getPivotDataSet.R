@@ -209,7 +209,9 @@ getPivotDataSet <- function(setId = "",
           fjerne_suffiks_fra_navn = TRUE)
     }
 
-    dat %<>% ablanor::legg_til_sykehusnavn(df = ., short = FALSE)
+    dat %<>%
+      ablanor::legg_til_sykehusnavn(df = ., short = FALSE) %>%
+      dplyr::relocate(sykehusnavn, .after = centreid)
 
   } else {
     dat <- NULL

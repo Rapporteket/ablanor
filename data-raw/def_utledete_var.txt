@@ -1,34 +1,37 @@
 fysisk_feltnavn;skjemanavn;ledetekst;listeverdier;listetekst
 alder;utledet_variabel;alder ved prosedyretidspunktet;NA;NA
-alder_75;utledet_variabel;alder ved prosedyretidspunktet >= 75   år eller <75  år;NA;NA
-aldersklasse;utledet_variabel;"alder ved prosedyretidspunktete gruppert i klasser. ""18-49"", ""50-59"", ""60-69"" osv. Alder under 18  år eller over 99  år blir gitt aldersklasse NA.";NA;NA
-bmi_manual;utledet_variabel;bmi utledet med formelen : bmi = vekt/(hoyde*h øyde) = [kg]/[m2];NA;NA
-bmi_klasse;utledet_variabel;bmi_manual gruppert i klasser, basert p å FHI sin definisjon;NA;NA
+alder_65_75;utledet_variabel;alder ved prosedyretidspunktet <65, [65-75> eller >= 75;NA;NA
+alder_75;utledet_variabel;alder ved prosedyretidspunktet >= 75  år eller <75 år;NA;NA
+aldersklasse;utledet_variabel;"alder ved prosedyretidspunktete gruppert i klasser. ""18-49"", ""50-59"", ""60-69"" osv. Alder under 18 år eller over 99 år blir gitt aldersklasse NA.";NA;NA
+bmi_manual;utledet_variabel;bmi utledet med formelen : bmi = vekt/(hoyde*høyde) = [kg]/[m2];NA;NA
+bmi_klasse;utledet_variabel;bmi_manual gruppert i klasser, basert på FHI sin definisjon;NA;NA
 bmi_over35;utledet_variabel;bmi_manual >= 35 eller <35. Utledet;NA;NA
 aar;utledet_variabel;Aar for prosedyredato;NA;NA
-maaned_nr;utledet_variabel;M åned (numerisk) for prosedyredato;NA;NA
-maaned;utledet_variabel;" år og m åned for prosedyredato (f.eks ""2021-10"" for oktober 2021)";NA;NA
+maaned_nr;utledet_variabel;Måned (numerisk) for prosedyredato;NA;NA
+maaned;utledet_variabel;"År og måned for prosedyredato (f.eks ""2021-10"" for oktober 2021)";NA;NA
+CHA2DS2VASc;utledet_variabel;CHA2DS2VASc score får følgenge poeng: hjertesvikt (+1), hypertoni(+1), alder>=75 (+2), diabetes (+1), tia_slag (+2), karsykdom (+1), alder [65-75> (+1), kvinne (+1);NA;NA
+CHA2DS2VA;utledet_variabel;CHA2DS2VA score får følgenge poeng: hjertesvikt (+1), hypertoni(+1), alder>=75 (+2), diabetes (+1), tia_slag (+2), karsykdom (+1), alder [65-75> (+1);NA;NA
 kategori_afli_aryt_i48;utledet_variabel;ICD-kode for Atrieflimmer;AFLI-ICD 48.0 Paroksymal atrieflimmer;forlopstype = 1, aryt_i48_0 = 1
 kategori_afli_aryt_i48;utledet_variabel;ICD-kode for Atrieflimmer;AFLI-ICD 48.1 Persisterende atrieflimmer;forlopstype = 1, aryt_i48_1 = 1, aryt_i48_1_underkat = 1
 kategori_afli_aryt_i48;utledet_variabel;ICD-kode for Atrieflimmer;AFLI-ICD 48.1 Langtidspersisterende atrieflimmer;forlopstype = 1, aryt_i48_1 = 1, aryt_i48_1_underkat = 2
-kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forl øpstype VT;Uten kardiomyopati;forlopstype = 2, kardiomyopati = 0
-kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forl øpstype VT;Iskemisk KM (ICM);forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = 1
-kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forl øpstype VT;Dilatert KM (DCM);forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = 2
-kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forl øpstype VT;Annen KM;forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = verken 1 eller 2
-kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forl øpstype VT;Ukjent om kardiomyopati;forlopstype = 2, kardiomyopati = 9
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Uten kardiomyopati;forlopstype = 2, kardiomyopati = 0
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Iskemisk KM (ICM);forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = 1
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Dilatert KM (DCM);forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = 2
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Annen KM;forlopstype = 2, kardiomyopati = 1, type_kardiomyopati = verken 1 eller 2
+kategori_vt_kardiomyopati;utledet_variabel;kategori kardiomyopati for forløpstype VT;Ukjent om kardiomyopati;forlopstype = 2, kardiomyopati = 9
 kategori_afli_hjsvikt_ef;utledet_variabel;kategori AFLI hjertesvikt og redusert EF;AFLI-Verken hjertesvikt eller redusert EF;forlopstype = 1,  enten  hjertesvikt = 1 eller ejekfrak = 2 eller 3
 kategori_afli_hjsvikt_ef;utledet_variabel;kategori AFLI hjertesvikt og redusert EF;AFLI-Hjertesvikt og/eller redusert EF;forlopstype = 1,  verken  hjertesvikt = 1 eller ejekfrak = 2 eller 3
-indik_tamp_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";ja;"Datagrunnlaget er ""ja"" for AFLI-forl øp uten AV-knuter (forlopstype =1, abla_strat_av_his =0)"
-indik_tamp_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";nei;"Datagrunnlaget er ""nei"" for  VT, SVT eller EFU-forl øp samt AV-knuter (forlopstype =2, 3, 4 eller abla_strat_av_his =1)"
+indik_tamp_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";ja;"Datagrunnlaget er ""ja"" for AFLI-forløp uten AV-knuter (forlopstype =1, abla_strat_av_his =0)"
+indik_tamp_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";nei;"Datagrunnlaget er ""nei"" for  VT, SVT eller EFU-forløp samt AV-knuter (forlopstype =2, 3, 4 eller abla_strat_av_his =1)"
 indik_tamp;utledet_variabel;"Kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";ja;I datagrunnlaget og komplikasjon tamponade (komp_tamp = 1). 
 indik_tamp;utledet_variabel;"Kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";nei;I datagrunnlaget, men ikke  komplikasjon tamponade (komp_tamp = 0). 
 indik_tamp;utledet_variabel;"Kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";manglende;I datagrunnlaget men manglende komplikasjon tamponade (komp_tamp = NA). 
 indik_tamp;utledet_variabel;"Kvalitetsindikatoren ""Tamponade i forbindelse med prosedyren""";NA;Ikke i datagrunnlaget
-indik_prom_klineff_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";ja;"Datagrunnlaget er ""ja"" dersom alle disse kriteriene er oppfylt:  AFLI-forl øp (forlopstype =1) +  uten AV-knuter (abla_strat_av_his =0) + utfylt oppf ølgingsskjema (followup_status  -1, 0 eller 1)"
+indik_prom_klineff_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";ja;"Datagrunnlaget er ""ja"" dersom alle disse kriteriene er oppfylt:  AFLI-forløp (forlopstype =1) +  uten AV-knuter (abla_strat_av_his =0) + utfylt oppfølgingsskjema (followup_status  -1, 0 eller 1)"
 indik_prom_klineff_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";nei;"Datagrunnlaget er ""nei"" dersom minst et av kriteriene for ""ja"" mangler."
-indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";ja;I datagrunnlaget og 'N år det gjelder arytmien er tilstanden din N å sammenlignet med for 1  år siden' er ' Bedre', 'Mye bedre' eller 'Helt bra' (q2 = 1, 2, 3)
-indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";nei;I datagrunnlaget og 'N år det gjelder arytmien er tilstanden din N å sammenlignet med for 1  år siden' er ' Uforandret' eller 'Verre' (q2 = 4, 5)
-indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";manglende;I datagrunnlaget, men sp ørsm ålet er ikke besvart.
+indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";ja;I datagrunnlaget og 'Når det gjelder arytmien er tilstanden din NÅ sammenlignet med for 1 år siden' er ' Bedre', 'Mye bedre' eller 'Helt bra' (q2 = 1, 2, 3)
+indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";nei;I datagrunnlaget og 'Når det gjelder arytmien er tilstanden din NÅ sammenlignet med for 1 år siden' er ' Uforandret' eller 'Verre' (q2 = 4, 5)
+indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";manglende;I datagrunnlaget, men spørsmålet er ikke besvart.
 indik_prom_klineff;utledet_variabel;"Kvalitetsindikatoren ""Klinisk effekt 12 mnd etter prosedyren""";NA;Ikke i datagrunnlaget
 indik_ferdig_komp_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Ferdig utfylt komplikasjonsskjema""";ja;"Datagrunnlaget er ""ja"" for alle prosedyrer"
 indik_ferdig_komp;utledet_variabel;"Kvalitetsindikatoren ""Ferdig utfylt komplikasjonsskjema""";ja;I datagrunnlaget og komp_janei er enten 'ja' eller 'nei'
@@ -42,88 +45,80 @@ indik_akuttsuksess;utledet_variabel;"Kvalitetsindikatoren ""Vellykket prosedyre 
 indik_akuttsuksess;utledet_variabel;"Kvalitetsindikatoren ""Vellykket prosedyre (akutt suksess)""";nei;Dersom i datagrunnlaget og akutt suksess 'Nei'/'Usikker' (akutt_suksess = 0 eller 2)
 indik_akuttsuksess;utledet_variabel;"Kvalitetsindikatoren ""Vellykket prosedyre (akutt suksess)""";manglende;Dersom i datagrunnlaget men akutt suksess mangler (akutt_suksess = NA)
 indik_akuttsuksess;utledet_variabel;"Kvalitetsindikatoren ""Vellykket prosedyre (akutt suksess)""";NA;Ikke i datagrunnlaget
-indik_pacemaker_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Behov for pacemaker""";ja;"Datagrunnlaget er ""ja"" dersom alle disse kriteriene er oppfylt:  SVT-forl øp (forlopstype =3) +  uten AV-knuter (abla_strat_av_his =0) "
+indik_pacemaker_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Behov for pacemaker""";ja;"Datagrunnlaget er ""ja"" dersom alle disse kriteriene er oppfylt:  SVT-forløp (forlopstype =3) +  uten AV-knuter (abla_strat_av_his =0) "
 indik_pacemaker_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Behov for pacemaker""";nei;"Datagrunnlaget er ""nei"" dersom minst et av kriteriene for ""ja"" mangler."
 indik_pacemaker;utledet_variabel;"Kvalitetsindikatoren ""Behov for pacemaker""";ja;I datagrunnlaget og 'komplikasjon AV-blokk etterfulgt av innsetting av pacemaker' (komp_avblokk_pm = 1)
 indik_pacemaker;utledet_variabel;"Kvalitetsindikatoren ""Behov for pacemaker""";nei;I datagrunnlaget men ikke 'komplikasjon AV-blokk etterfulgt av innsetting av pacemaker' (komp_avblokk_pm = 0)
 indik_pacemaker;utledet_variabel;"Kvalitetsindikatoren ""Behov for pacemaker""";manglende;I datagrunnlaget og manglende 'komplikasjon AV-blokk etterfulgt av innsetting av pacemaker' (komp_avblokk_pm = NA)
 indik_pacemaker;utledet_variabel;"Kvalitetsindikatoren ""Behov for pacemaker""";NA;Ikke i datagrunnlaget
-indik_avbrudd_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";AFLI;"Datagrunnlaget er ""AFLI"" dersom alle kriteriene er oppfylt: AFLI -forl øp (forlopstype = 1) + uten AV-knuter (abla_strat_av_his = 0)"
-indik_avbrudd_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";VT, SVT, AV-knuter;"Datagrunnlaget er ""VT, SVT, AV-knuter"" dersom alle kriteriene er oppfylt: AFLI -forl øp med AV-knuter (forlopstype = 1, abla_strat_av_his = 1) eller SVT/VT (forlopstype = 2,3 )"
-indik_avbrudd_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";nei;"Datagrunnlaget er ""nei"" ellers"
-indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";ja;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1) p å grunn av komplikasjon eller tekniske problemer (abla_strat_ingen_arsak = 4, 5)
-indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";nei;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1)  av andre grunner (abla_strat_ingen_arsak = 1, 2, 3, 9)
-indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";manglende;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1) av manglende grunn (abla_strat_inge_arsak = NA)
-indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd p å grunn av tekniske problemer eller komplikasjoner""";NA;Ikke i datagrunnlaget
-eprom_opprettet_basis;utledet_variabel;Dersom prosedyren har en tilhørende mceid for oppf ølging ved basis. ;ja;skjema for oppf ølging er opprettet
-eprom_opprettet_1aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 1 års oppf ølging. ;ja;skjema for oppf ølging er opprettet
-eprom_opprettet_5aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 5 års oppf ølging. ;ja;skjema for oppf ølging er opprettet
-eprom_sendt_basis;utledet_variabel;Dersom prosedyren har en tilhørende mceid for basisoppf ølging som også finnes i proms-tabellen ;ja;oppf ølging har blitt bestilt
-eprom_sendt_1aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 1 års oppf ølging som også finnes i proms-tabellen ;ja;oppf ølging har blitt bestilt
-eprom_sendt_5aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 5 års oppfølging som også finnes i proms-tabellen ;ja;oppf ølging har blitt bestilt
-versjon_1_5_eller_mer;utledet_variabel;F ølger 1  års oppflging reglene for ablanor 1.5 eller nyere?;ja;ablanor 1.5 eller nyere
-versjon_1_5_eller_mer;utledet_variabel;F ølger 1  års oppflging reglene for ablanor 1.5 eller nyere?;nei;f ør ablanor 1.5
-dato_followup_teoretisk_1aar;utledet_variabel;Dato for prosedyre + 50 uker;;
-dato_followup_teoretisk_5aar;utledet_variabel;Dato for prosedyre + 1811 dager (4år og 50 uker);;
-kriterie_alder;utledet_variabel;Var alder p å prosedyretidspunktet 16 eller mer?;ja;16 eller eldre
-kriterie_alder;utledet_variabel;Var alder p å prosedyretidspunktet 16 eller mer?;nei;0-15. Skal ikke ha eprom
-kriterie_norsk;utledet_variabel;Norsk f ødselsnummertype og norsk eller d nummer?;ja;ssn_type = 1 og ssnsubtype er 1 eller3
-kriterie_norsk;utledet_variabel;Norsk f ødselsnummertype og norsk eller d nummer?;nei;ikke ssn_type = 1 eller  ssnsubtype ulik 1 og 3
-kriterie_levende_basis;utledet_variabel;Levende rett etter prosedyren?;ja;Enten levende, eller død  4 uker  eller mer etter prosedyren
-kriterie_levende_basis;utledet_variabel;Levende rett etter prosedyren?;nei;Død samme dag som proseydren eller dato for oppretteles av eprom
-kriterie_levende_1aar;utledet_variabel;Levende 50 uker etter prosedyren?;ja;Enten levende, eller d ød over 50 uker etter prosedyren
-kriterie_levende_1aar;utledet_variabel;Levende 50 uker etter prosedyren?;nei;Død innen 50 uker etter prosedyren (innen dato_followup_teoretisk_1aar)
-kriterie_levende_5aar;utledet_variabel;Levende 4år og 50 uker etter prosedyren?;ja;Enten levende, eller død etter 4år og 50 uker etter prosedyren
-kriterie_levende_5aar;utledet_variabel;Levende 4år og 50 uker etter prosedyren?;nei;Død innen 4 år og 50 uker etter prosedyren (innen dato_followup_teoretisk_5aar)
-kriterie_tid;utledet_variabel;Minst en av rtg_tid, pros_varighet eller abla_varighet er fylt ut;ja;Registrert minst en varighet
-kriterie_tid;utledet_variabel;Minst en av rtg_tid, pros_varighet eller abla_varighet er fylt ut;nei;Manglende registrering for alle de tre prosedyrevarighetene.
+indik_avbrudd_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";AFLI;"Datagrunnlaget er ""AFLI"" dersom alle kriteriene er oppfylt: AFLI -forløp (forlopstype = 1) + uten AV-knuter (abla_strat_av_his = 0)"
+indik_avbrudd_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";VT, SVT, AV-knuter;"Datagrunnlaget er ""VT, SVT, AV-knuter"" dersom alle kriteriene er oppfylt: AFLI -forløp med AV-knuter (forlopstype = 1, abla_strat_av_his = 1) eller SVT/VT (forlopstype = 2,3 )"
+indik_avbrudd_data;utledet_variabel;"Datagrunnlag for kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";nei;"Datagrunnlaget er ""nei"" ellers"
+indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";ja;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1) på grunn av komplikasjon eller tekniske problemer (abla_strat_ingen_arsak = 4, 5)
+indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";nei;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1)  av andre grunner (abla_strat_ingen_arsak = 1, 2, 3, 9)
+indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";manglende;I datagrunnlaget og ikke abladert (abla_strat_ingen = 1) av manglende grunn (abla_strat_inge_arsak = NA)
+indik_avbrudd;utledet_variabel;"Kvalitetsindikatoren ""Prosedyreavbrudd på grunn av tekniske problemer eller komplikasjoner""";NA;Ikke i datagrunnlaget
+eprom_opprettet_1aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 1års oppfølging. ;ja;skjema for oppfølging er opprettet
+eprom_sendt_1aar;utledet_variabel;Dersom prosedyren har en tilhørende mceid for 1års oppfølging som også finnes i proms-tabellen ;ja;oppfølging har blitt bestilt
+versjon_1_5_eller_mer;utledet_variabel;Følger 1 års oppflging reglene for ablanor 1.5 eller nyere?;ja;ablanor 1.5 eller nyere
+versjon_1_5_eller_mer;utledet_variabel;Følger 1 års oppflging reglene for ablanor 1.5 eller nyere?;nei;før ablanor 1.5
+dato_followup_teoretisk;utledet_variabel;Dato for prosedyre + 50 uker;;
+kriterie_alder;utledet_variabel;Var alder på prosedyretidspunktet 16 eller mer?;ja;16 eller eldre
+kriterie_alder;utledet_variabel;Var alder på prosedyretidspunktet 16 eller mer?;nei;0-15. Skal ikke ha eprom
+kriterie_norsk;utledet_variabel;Norsk fødselsnummertype og norsk eller d nummer?;ja;ssn_type = 1 og ssnsubtype er 1 eller3
+kriterie_norsk;utledet_variabel;Norsk fødselsnummertype og norsk eller d nummer?;nei;ikke ssn_type = 1 eller  ssnsubtype ulik 1 og 3
+kriterie_levende_1aar;utledet_variabel;Levende 50 uker etter prosedyren?;ja;enten levende, eller død over 50 uker etter prosedyren
+kriterie_levende_1aar;utledet_variabel;Levende 50 uker etter prosedyren?;nei;Død innen 50 uker etter prosedyren (innen dato_followup_teoretisk)
 antall_pros;utledet_variabel;Antall prosedyrer av denne prosedyretypen per pasient;;
-dd_til_neste;utledet_variabel;Antall dager til neste prosedyre av samme type for denne pasienten;;
+dg_til_neste;utledet_variabel;Antall dager til neste prosedyre av samme type for denne pasienten;;
 kriterie_nyeste_1aar;utledet_variabel;Har ingen nyere prosedyre av samme type innen 50 uker?;ja;Nyeste prosedyre av denne typen
 kriterie_nyeste_1aar;utledet_variabel;Har ingen nyere prosedyre av samme type innen 50 uker?;nei;Ikke nyeste prosedyre av denne typen
-kriterie_nyeste_5aar;utledet_variabel;Har ingen nyere prosedyre av samme type innen 4 år og 50 uker?;ja;Nyeste prosedyre av denne typen
-kriterie_nyeste_5aar;utledet_variabel;Har ingen nyere prosedyre av samme type innen 4år og 50 uker?;nei;Ikke nyeste prosedyre av denne typen
-kriterie_alle_basis;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1  år etter prosedyren;ja;kriterie_alder = ja, kriterie_levende_basis = ja, kriterie_norsk = ja og kriterie_tid= ja
-kriterie_alle_basis;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1  år etter prosedyren;nei;minst et av kriterie_alder, kriterie_levende_basis, kriterie_norsk eller kriterie_tid_1aar er ulik ja
-kriterie_alle_1aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1  år etter prosedyren;ja;kriterie_alder = ja, kriterie_levende_1aar = ja, kriterie_norsk = ja og kriterie_nyeste_1aar = ja
-kriterie_alle_1aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1  år etter prosedyren;nei;minst et av kriterie_alder, kriterie_levende_1aar , kriterie_norsk eller kriterie_nyeste_1aar er ulik ja
-kriterie_alle_5aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1  år etter prosedyren;ja;kriterie_alder = ja, kriterie_levende_5aar = ja, kriterie_norsk = ja og kriterie_nyeste_5aar = ja
-kriterie_alle_5aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1  år etter prosedyren;nei;minst et av kriterie_alder, kriterie_levende_5aar , kriterie_norsk eller kriterie_nyeste_5aar er ulik ja
-datagrunnlag_eprom_basis;utledet_variabel;Flytskjema for oppfølging ved basis;ja;Er med i datagrunnlag for svarprosent og analyse av prom ved basis
-datagrunnlag_eprom_basis;utledet_variabel;Flytskjema for oppfølging ved basis;før innføring av eproms basis;Prosedyredato før 8.nov 2023
-datagrunnlag_eprom_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, opprettet satt til død;pasienten er død, eprom opprettet men ikke bestil
-datagrunnlag_eprom_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, eprom feilaktig sendt, sjekk kriterier;eprom er feilaktig opprettet og sendt. Minst et av kriteriene mangler.
-datagrunnlag_eprom_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, ikke opprettet etter kriteriesjekk;minst et av kriteriene mangler, eprom er ikke opprettet
-datagrunnlag_eprom_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, eprom venter på utsendelse;Opprettet men ikke enn å sendt. Sendes 1 til 30 dager etter opprettelse av epromskjema
-eprom_kjente_feil_1aar;utledet_variabel;Har utsending av 1 års prom tilh ørende kjent teknisk problem?;teknisk problem;dato_pros er en av 01_24jan20, 1sept_21 eller 22_25nov_22 
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;ja;Er med i datagrunnlag for svarprosent og analyse av prom
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, registreringen er for ny;For tidlig for 1 års oppf ølging
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, før innf øring av 1 års oppf.;Prosedyredato f ør 01jan2020
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, opprettet satt til d ød;incomplete_Reason = 3
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, eprom feilaktig sendt, sjekk kriterier;mangler et av kriteriene, men eprom likevel opprettet og sendt
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, ikke opprettet etter kriteriesjekk;etter ablanor 1.5. Sjekk av kriterier for opprettelse av epromskjema
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, eprom venter p å utsendelse;Opprettet men ikke enn å sendt. Sendes 1 til 30 dager etter opprettelse av epromskjema
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, opprettet men ikke sendt etter kriteriesjekk;f ør ablanor 1.5. Opprettet men ikke sendt pga manglende kriterier.
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, opprettet men teknisk feil ved bestilling;Etter ablanor 1.5. Teknisk feil med utsending rett etter release. 
-eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1 års oppf ølging;nei, teknisk, mangler utsending eller feilaktig sendt i 2023;F ør ablanor 1.5. Tekniske feil med utsending. OBS kan ha blitt feilaktig sendt i nov 2023
-eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for 5års oppfølging;ja;Er med i datagrunnlag for svarprosent og analyse av prom 5 år etter prosedyren
-eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for 5års oppfølging;nei, registreringen er for ny;5 år er ikke gått
-eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for 5års oppfølging;nei, opprettet satt til død;er død før 5 år er gått
-eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for 5års oppfølging;nei, ikke opprettet etter kriteriesjekk;minst et av kriteriene mangler, eprom er ikke opprettet
-eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for 5års oppfølging;nei, eprom venter på utsendelse;Opprettet men ikke enn å sendt. Sendes 1 til 30 dager etter opprettelse av epromskjema
-eprom_besvart_basis;utledet_variabel;I datagrunnlaget for basisoppfølging og svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_1aar er lik ja, og proms_status  er lik 3 svar mottatt. 
-eprom_besvart_basis;utledet_variabel;I datagrunnlaget for basisoppfølging og svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_1aar er lik ja, men proms_status  er ulik 3 (svar ikke mottatt). 
-eprom_besvart_1aar;utledet_variabel;I datagrunnlaget for 1  års oppf ølging og svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_1aar er lik ja, og proms_status  er lik 3 svar mottatt. 
-eprom_besvart_1aar;utledet_variabel;I datagrunnlaget for 1  års oppf ølging og svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_1aar er lik ja, men proms_status  er ulik 3 (svar ikke mottatt). 
-eprom_besvart_5aar;utledet_variabel;I datagrunnlaget for 5  års oppf ølging og svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_1aar er lik ja, og proms_status  er lik 3 svar mottatt. 
-eprom_besvart_5aar;utledet_variabel;I datagrunnlaget for 5  års oppf ølging og svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_1aar er lik ja, men proms_status  er ulik 3 (svar ikke mottatt). 
-;;;;
+kriterie_alle_1aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1 år etter prosedyren;ja;kriterie_alder = ja, kriterie_levende_1aar = ja, kriterie_norsk = ja og kriterie_nyeste_1aar = ja
+kriterie_alle_1aar;utledet_variabel;Oppfyller alle kriterier for utsending av prom 1 år etter prosedyren;nei;minst et av kriterie_alder, kriterie_levende_1aar , kriterie_norsk eller kriterie_nyeste_1aar er ulik ja
+eprom_kjente_feil_1aar;utledet_variabel;Har utsending av 1års prom tilhørende kjent teknisk problem?;teknisk problem;dato_pros er en av 01_24jan20, 1sept_21 eller 22_25nov_22 
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;ja;Er med i datagrunnlag for svarprosent og analyse av prom
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, registreringen er for ny;For tidlig for 1års oppfølging
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, før innføring av 1års oppf.;Prosedyredato før 01jan2020
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, opprettet satt til død;incomplete_Reason = 3
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, eprom feilaktig sendt, sjekk kriterier;mangler et av kriteriene, men eprom likevel opprettet og sendt
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, ikke opprettet etter kriteriesjekk;etter ablanor 1.5. Sjekk av kriterier for opprettelse av epromskjema
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, eprom venter på utsendelse;Opprettet men ikke ennå sendt. Sendes 1 til 30 dager etter opprettelse av epromskjema
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, opprettet men ikke sendt etter kriteriesjekk;før ablanor 1.5. Opprettet men ikke sendt pga manglende kriterier.
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, opprettet men teknisk feil ved bestilling;Etter ablanor 1.5. Teknisk feil med utsending rett etter release. 
+eprom_datagrunnlag_1aar;utledet_variabel;Flytskjema for 1års oppfølging;nei, teknisk, mangler utsending eller feilaktig sendt i 2023;Før ablanor 1.5. Tekniske feil med utsending. OBS kan ha blitt feilaktig sendt i nov 2023
+eprom_besvart;utledet_variabel;I datagrunnlaget for 1 års oppfølging og svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_1aar er lik ja, og proms_status  er lik 3 svar mottatt. 
+eprom_besvart;utledet_variabel;I datagrunnlaget for 1 års oppfølging og svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_1aar er lik ja, men proms_status  er ulik 3 (svar ikke mottatt). 
 aar_prosedyre;;Aar for prosedyredato;;
 maaned_prosedyre;;Maaned for prosedyredato;;
-aar_followup_1aar;;aar for besvart followup 1  år;;
-maaned_followup_1aar;;maaned for besvart followup 1  år;;
-aar_followup_tscreated_1aar;;aar for opprettet proms skjema 1  år;;
-maaned_followup_tscreated_1aar;;maaned for opprettet proms skjema 1  år;;
+aar_followup_1aar;;aar for besvart followup 1 år;;
+maaned_followup_1aar;;maaned for besvart followup 1 år;;
+aar_followup_tscreated_1aar;;aar for opprettet proms skjema 1 år;;
+maaned_followup_tscreated_1aar;;maaned for opprettet proms skjema 1 år;;
 aar_proms_tssendt_1aar;;aar for sendt proms bestilling;;
 maaned_proms_tssendt_1aar;;maaned for sendt proms bestilling;;
-dg_pros_opprettet;;Antall dager mellom prosedyren og 1 års oppf ølging er opprettet;;
+dg_pros_opprettet;;Antall dager mellom prosedyren og 1års-/5års-oppfølging er opprettet;;
+kriterie_levende ;utledet_variabel;Levende  når basisprom blir bestilt;ja, nei;NA
+kriterie_tid;utledet_variabel;Kriterie basisprom, et av pros_varighet, rtg_tid eller abla_varighet må være registrert;NA;NA
+kriterie_alle_basis;utledet_variabel;Alle disse må være ja: kriterie_tid, kriterie_alder, kriterie_levende, kriterie_norsk;NA;NA
+eprom_datagrunnlag_basis;utledet_variabel;Flytskjema for oppfølging ved basis;foer innfoering av eproms basis;Prosedyredato før 08112023
+eprom_datagrunnlag_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, opprettet satt til doed;foloowupbasis_incomplete_reason = 3 (has_basisfolloup og eprom_opprettet_basis = ja)
+eprom_datagrunnlag_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, eprom feilaktig sendt, sjekk kriterier;kritere_alle_basis = nei, men has_basisfollowup, eprom_opprette_basis, eprom_sendt_basis er alle ja.
+eprom_datagrunnlag_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, ikke opprettet etter kriteriesjekk;kriterie_alle_basis = nei og eprom_opprette_basis = NA
+eprom_datagrunnlag_basis;utledet_variabel;Flytskjema for oppfølging ved basis;nei, eprom venter paa utsendelse;eprom_sendt_basis = NA, men has_basisfollowup, eprom_opprettet_basis, kriterie_alle_basis er alle ja.
+eprom_datagrunnlag_basis;utledet_variabel;Flytskjema for oppfølging ved basis;ja;ja, med i datagrunnlaget
+eprom_besvart_basis;utledet_variabel;Datagrunnlag, svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_basis = ja og proms_status = 3
+eprom_besvart_basis;utledet_variabel;Datagrunnlag, svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_basis = ja og proms_status ulik 3
+dato_followup_teoretisk_5aar;utledet_variabel;Teoretisk dato for 5 årsoppfølging, 4 år og 50 uker etter posedyren;NA;NA
+kriterie_levende_5aar;utledet_variabel;Levende, eller død etter dato_followup_teoretisk_5aar;ja, nei;NA
+kriterie_nyeste_5aar;utledet_variabel;Ingen ny prosedyre av samme type i perioden mellom prosedyredato og dato_followup_teoretisk_5aar;ja, nei;NA
+kriterie_alle_5aar;utledet_variabel;Alle disse må være ja: kriterie_nyeste_5aar, kriterie_alder, kriterie_levende_5aar, kriterie_norsk;ja, nei;NA
+aar_followup_5aar;utledet_variabel;aar for besvart followup 1 år;NA;NA
+aar_followup_tscreated_5aar;utledet_variabel;aar for opprettet proms skjema 1 år;NA;NA
+aar_proms_tssendt_5aar;utledet_variabel;aar for sendt proms bestilling;NA;NA
+eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for oppfølging 5 år etter prosedyren;ja;ja, med i datagrunnlaget
+eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for oppfølging 5 år etter prosedyren;nei, registreringen er for ny;nei, registreringen er for ny
+eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for oppfølging 5 år etter prosedyren;nei, opprettet satt til død;has_fiveyearfollowup, eprom_opprettet_5aar, men followup5_incimplete_reason = 3
+eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for oppfølging 5 år etter prosedyren;nei, ikke opprettet etter kriteriesjekk;has_fiveyearfollowup, men eprom_opprettet_5aar = NA
+eprom_datagrunnlag_5aar;utledet_variabel;Flytskjema for oppfølging 5 år etter prosedyren;nei, eprom venter på utsendelse;has_fiveyearfollowup, eprom_opprettet_5aar, kriterie_alle_5aar, men eprom_sendt_5aar = NA
+eprom_besvart_5aar;utledet_variabel;Datagrunnlag, svarprosent;datagrunnlag og besvart;eprom_datagrunnlag_5aar= ja og proms_status = 3
+eprom_besvart_5aar;utledet_variabel;Datagrunnlag, svarprosent;datagrunnlag, men ikke besvart;eprom_datagrunnlag_5aar = ja og proms_status ulik 3
