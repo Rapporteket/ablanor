@@ -524,18 +524,8 @@ getBaseregProsData <- function(singleRow = FALSE,
     ablanor::indik_avbrudd(.)
 
   d_ablanor %>%
-    # dplyr::relocate(dato_pros, .after = centreid) %>%
     ablanor::utlede_tidsvariabler() %>%
     dplyr::arrange(.data$mceid)
-  # dplyr::mutate(
-
-      # # Tidsvariabler for prosedyre
-      # aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
-      # maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
-      #                                          lubridate::month(.data$dato_pros))),
-      # maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
-      #                           yes = NA,
-      #                           no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
 }
 
 

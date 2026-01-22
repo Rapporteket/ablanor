@@ -264,7 +264,8 @@ app_server <- function(input, output, session) {
                             "basereg_pros_indik",
                             "basereg_pros_hendelse",
                             "pros_pat_followup0",
-                            "pros_pat_followup1")) {
+                            "pros_pat_followup1",
+                            "pros_pat_followup5")) {
       metaDatKb() %>% names()
     }
     else {

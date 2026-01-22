@@ -2,7 +2,8 @@
 Legg til funksjon for å utlede scoren CHA2DS2VA (uten kjønn). 
 Bruke denne i utforsker for "basereg, prosedyre, kvalitetsindikator". 
 Tilgjengeligegjort samletabell for nedlasting (basis, prosedyre, mce), 
-kun LC rolle
+kun LC rolle. 
+Oppdatert kodebok med utledete variabler for chadsva-sc og 5års eprom.
 
 # ablanor 2.1.0
 Legg til funksjon for å utlede scoren CHA2DS2VASc. Bruke denne i utforsker

@@ -366,7 +366,7 @@ utlede_hjertesvikt_redusert_ef <- function(df) {
 #' \itemize{
 #' \item{C- hjertesvikt:}{ score +1}
 #' \item{H- hypertoni:}{ score +1}
-#' \item{A2- alder(>=75):}{ score +2}#'
+#' \item{A2- alder(>=75):}{ score +2}
 #' \item{D- diabetes:}{ score +1}
 #' \item{S2- tia_slag:}{ score +2}
 #' \item{V- karsykdom:}{ score +1}
