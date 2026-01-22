@@ -264,7 +264,8 @@ app_server <- function(input, output, session) {
                             "basereg_pros_indik",
                             "basereg_pros_hendelse",
                             "pros_pat_followup0",
-                            "pros_pat_followup1")) {
+                            "pros_pat_followup1",
+                            "pros_pat_followup5")) {
       metaDatKb() %>% names()
     }
     else {
@@ -300,7 +301,6 @@ app_server <- function(input, output, session) {
   output$selectDumpSet <- shiny::renderUI({
     dataSetsDump <- c("basereg",
                       "pros",
-                      "basereg_prosedyre",
                       "mce",
                       "rand12",
                       "followupbasis",
@@ -310,7 +310,8 @@ app_server <- function(input, output, session) {
                       "hendelse",
                       "kodeboken")
     if (user$role() == "SC") {
-      dataSetsDump <- c(dataSetsDump,
+      dataSetsDump <- c("basereg_prosedyre",
+                        dataSetsDump,
                         "proms",
                         "patientlist",
                         "friendlycentre",

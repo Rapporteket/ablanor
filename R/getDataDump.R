@@ -165,7 +165,9 @@ getDataDump <- function(tableName,
                                        reshId = reshId,
                                        userRole = userRole,
                                        fromDate = fromDate,
-                                       toDate = toDate)
+                                       toDate = toDate) %>%
+      ablanor::legg_til_sykehusnavn() %>%
+      dplyr::relocate(sykehusnavn, .after = centreid)
   }
 
   return(dat)
