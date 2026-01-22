@@ -249,7 +249,7 @@ testthat::test_that("Utlede tidsvariabler fungerer", {
 
   testthat::expect_equal(
     names(df_out),
-    c("dato_pros", "aar_prosedyre", "maaned_nr_prosedyre", "maaned_prosedyre")
+    c("dato_pros", "aar_prosedyre", "maaned_prosedyre", "maaned_nr_prosedyre")
   )
 
   testthat::expect_true(
