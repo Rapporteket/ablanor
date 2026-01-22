@@ -249,7 +249,7 @@ testthat::test_that("Utlede tidsvariabler fungerer", {
 
   testthat::expect_equal(
     names(df_out),
-    c("dato_pros", "aar", "maaned_nr", "maaned")
+    c("dato_pros", "aar_prosedyre", "maaned_nr_prosedyre", "maaned_prosedyre")
   )
 
   testthat::expect_true(
@@ -260,13 +260,13 @@ testthat::test_that("Utlede tidsvariabler fungerer", {
   testthat::expect_true(all(
     df_out %>%
       dplyr::filter(is.na(.data$dato_pros)) %>%
-      dplyr::pull(.data$maaned) %>%
+      dplyr::pull(.data$maaned_prosedyre) %>%
       is.na()))
 
   testthat::expect_equal(
     df_out %>%
       dplyr::filter(!is.na(.data$dato_pros)) %>%
-      dplyr::pull(.data$maaned) %>%
+      dplyr::pull(.data$maaned_prosedyre) %>%
       as.character(),
     c("2021-10", "2020-11", "1998-01", "2020-07"))
 
