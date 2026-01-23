@@ -887,14 +887,16 @@ fig.cap <-  paste0("Prosedyrevarighet i minutter for ",
                    hospitalNameShort, " og nasjonalt for siste hele år samt ",
                    "alle fullførte måneder hittil i år")
 
-d_ablanor %>% 
-  dplyr::filter(!is.na(.data$pros_varighet)) %>% 
-  ggplot2::ggplot(ggplot2::aes(y = maaned, x = pros_varighet)) +
+# Lokal boxplot
+
+d_ablanor_nasjonalt %>% 
+  dplyr::filter(centreid %in% params$reshId,
+                !is.na(.data$pros_varighet)) %>% 
+  ggplot2::ggplot(ggplot2::aes(y = forlopstype, x = pros_varighet)) +
   ggplot2::geom_boxplot(fill = colPrimary[4]) +
   ablanor::ablanor_plot_theme() +
   ggplot2::scale_y_discrete(drop = FALSE) + 
-  ggplot2::labs(title = paste0("Prosedyrevarighet (minutter) de ",
-                               showN, " siste månedene"), 
+  ggplot2::labs(title = "Prosedyrevarighet (minutter)", 
                 subtitle = hospitalNameShort) 
 
 ```
