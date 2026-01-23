@@ -141,48 +141,48 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 
 ```
 
-```{r monthTabPrepare, include=FALSE, eval=TRUE}
+<!-- ```{r monthTabPrepare, include=FALSE, eval=TRUE} -->
 
-timeTableMonth <- data.frame(
-  monthDato = seq(periode_data$forste_dato, 
-                  periode_data$siste_dato,
-                  by = "month")) %>% 
-  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
-                                             format = "%Y-%m"))) %>% 
-  dplyr::mutate(maaned = as.ordered(maaned))
-
-
-timeTableMonth_fjor <- data.frame(
-  monthDato = seq(periode_data$forste_dato, 
-                  as.Date(paste("30-12-", periode_data$sisteHeleYear), 
-                          format = "%d-%m-%Y"),
-                  by = "month")) %>% 
-  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
-                                             format = "%Y-%m"))) %>% 
-  dplyr::transmute(
-    maaned = as.ordered(maaned))
-
-timeTableMonth_aar <- data.frame(
-  monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear), 
-                          format = "%d-%m-%Y"),
-                  periode_data$siste_dato,
-                  by = "month")) %>% 
-  dplyr::transmute(maaned = as.factor(format(x = monthDato, 
-                                             format = "%Y-%m"))) %>% 
-  dplyr::transmute(
-    maaned = as.ordered(maaned))
+<!-- timeTableMonth <- data.frame( -->
+<!--   monthDato = seq(periode_data$forste_dato,  -->
+<!--                   periode_data$siste_dato, -->
+<!--                   by = "month")) %>%  -->
+<!--   dplyr::transmute(maaned = as.factor(format(x = monthDato,  -->
+<!--                                              format = "%Y-%m"))) %>%  -->
+<!--   dplyr::mutate(maaned = as.ordered(maaned)) -->
 
 
+<!-- timeTableMonth_fjor <- data.frame( -->
+<!--   monthDato = seq(periode_data$forste_dato,  -->
+<!--                   as.Date(paste("30-12-", periode_data$sisteHeleYear),  -->
+<!--                           format = "%d-%m-%Y"), -->
+<!--                   by = "month")) %>%  -->
+<!--   dplyr::transmute(maaned = as.factor(format(x = monthDato,  -->
+<!--                                              format = "%Y-%m"))) %>%  -->
+<!--   dplyr::transmute( -->
+<!--     maaned = as.ordered(maaned)) -->
 
-rangeProsDato <- paste(format(periode_data$forste_dato, 
-                              "%d/%m-%Y"), 
-                       "til", 
-                       format(periode_data$siste_dato, 
-                              "%d/%m-%Y"))
+<!-- timeTableMonth_aar <- data.frame( -->
+<!--   monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear),  -->
+<!--                           format = "%d-%m-%Y"), -->
+<!--                   periode_data$siste_dato, -->
+<!--                   by = "month")) %>%  -->
+<!--   dplyr::transmute(maaned = as.factor(format(x = monthDato,  -->
+<!--                                              format = "%Y-%m"))) %>%  -->
+<!--   dplyr::transmute( -->
+<!--     maaned = as.ordered(maaned)) -->
 
-siste_dato_txt <- format(x = periode_data$siste_dato,
-                         format = "%d/%m-%Y")
-```
+
+
+<!-- rangeProsDato <- paste(format(periode_data$forste_dato,  -->
+<!--                               "%d/%m-%Y"),  -->
+<!--                        "til",  -->
+<!--                        format(periode_data$siste_dato,  -->
+<!--                               "%d/%m-%Y")) -->
+
+<!-- siste_dato_txt <- format(x = periode_data$siste_dato, -->
+<!--                          format = "%d/%m-%Y") -->
+<!-- ``` -->
 
 
 ```{r GetData, include=FALSE, warning=FALSE, cache=FALSE}
@@ -326,6 +326,7 @@ d_ablanor_nasjonalt %<>%
     maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
   )
 
+
 d_ablanor_hendelse_nasjonalt %<>%
   dplyr::mutate(
     aar = as.ordered(lubridate::year(.data$dato_pros)),
@@ -341,7 +342,22 @@ d_ablanor %<>%
 
 d_ablanor_nasjonalt %<>%
   dplyr::mutate(forlopstype = factor(x = forlopstype,
-                                     levels = 1:4))
+                                     levels = 1:4),
+                
+                forlopstype_med_AVknute = factor(
+                  x = dplyr::case_when(
+                    (abla_strat_av_his %in% 0 & forlopstype %in% 1) ~ "AFLI (uten AV-knute)",
+                    forlopstype %in% 2 ~ "VT",
+                    (abla_strat_av_his %in% 0 & forlopstype %in% 3) ~ "SVT (uten AV-knute)",
+                    forlopstype %in% 4 ~ "EFU",
+                    (abla_strat_av_his %in% 1 & forlopstype %in% c(1,3)) ~ "AV-knute (AFLI eller SVT)",
+                    TRUE ~ NA_character_),
+                  levels = c("AFLI (uten AV-knute)",
+                             "VT",
+                             "SVT (uten AV-knute)",
+                             "EFU",
+                             "AV-knute (AFLI eller SVT)")
+                ))
 
 ```
 
@@ -365,73 +381,83 @@ henholdsvis `r format(periode_data$forste_dato_shus, "%d/%m-%Y") ` og
 # Forløpstype
 Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
 (AFLI), Ventrikkeltakykardi (VT), Supraventrikulær takykardi (SVT) eller 
-Elektrofysiologisk undersøkelse (EFU). Dersom forløpstype ikke er registrert
-blir verdien NA (not available), dette gjelder forløp der prosedyreskjema ikke
-er ferdigstilte. 
+Elektrofysiologisk undersøkelse (EFU).
 
 Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
 registrert i AblaNor for siste hele år samt alle fullførte måneder 
 hittil i år fra `r hospitalNameShort` og nasjonalt, for hver forløpstype og sammenlagt. 
+Opptelling av typene AFLI og SVT er uten AV-knuter. Typene med AV-knute for 
+forløpene AFLI og SVT vises samlet i egen rad.
  
 
 ```{r typeForlopAar, echo = FALSE, results = "asis"}
 cap <- paste("Totalt antall forløp fra ", 
              hospitalNameShort, " sammenlignet med nasjonale tall. ", 
              "Tabellen viser forløp fra det siste hele året samt alle ", 
-             "fullførte måneder hittil i år for hver av de 4 forløpstypene: ",
-             "Atrieflimmer/atypisk flutter (AFLI), Ventrikkeltakykardi (VT), ", 
-             "Supraventrikulær takykardi (SVT) eller ", 
-             "Elektrofysiologisk undersøkelse (EFU).")
+             "fullførte måneder hittil i år for hver av de 4 forløpstypene ",
+             " samt AV-knuter: ",
+             "Atrieflimmer/atypisk flutter (AFLI uten AV-knuter), Ventrikkeltakykardi (VT), ", 
+             "Supraventrikulær takykardi (SVT uten AV-knuter), ", 
+             "Elektrofysiologisk undersøkelse (EFU) eller ",
+             "AV-knuter for typene AFLI eller SVT.")
+
+tab_forlopstype_AVknute <- data.frame(
+  Forlopstype = c("AFLI (uten AV-knute)",
+                  "VT",
+                  "SVT (uten AV-knute)",
+                  "EFU",
+                  "AV-knute (AFLI eller SVT)"))
+
 
 forlopstype_lokalt_fjor <- d_ablanor_nasjonalt %>%
   dplyr::filter(centreid %in% params$reshId,
                 aar %in% periode_data$sisteHeleYear) %>% 
-  dplyr::count(forlopstype) %>% 
+  dplyr::count(forlopstype_med_AVknute) %>% 
   janitor::adorn_totals() %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
-  dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+  dplyr::select("forlopstype_med_AVknute", "n") %>% 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
                 "Antall_fjor" = n)
 
 forlopstype_lokalt_aar <- d_ablanor_nasjonalt %>%
   dplyr::filter(centreid %in% params$reshId,
                 aar %in% periode_data$nyesteRegYear) %>% 
-  dplyr::count(forlopstype) %>% 
+  dplyr::count(forlopstype_med_AVknute) %>% 
   janitor::adorn_totals() %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
-  dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+  dplyr::select("forlopstype_med_AVknute", "n") %>% 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
                 "Antall_aar" = n)
 
 forlopstype_nasjonalt_fjor <- d_ablanor_nasjonalt %>%
   dplyr::filter(aar %in% periode_data$sisteHeleYear) %>%
-  dplyr::count(forlopstype) %>% 
+  dplyr::count(forlopstype_med_AVknute) %>% 
   janitor::adorn_totals() %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
-  dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+  dplyr::select("forlopstype_med_AVknute", "n") %>% 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
                 "Nasjonalt_fjor" = n)
 
 forlopstype_nasjonalt_aar <- d_ablanor_nasjonalt %>%
   dplyr::filter(aar %in% periode_data$nyesteRegYear) %>%
-  dplyr::count(forlopstype) %>% 
+  dplyr::count(forlopstype_med_AVknute) %>% 
   janitor::adorn_totals() %>% 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = TRUE) %>%
-  dplyr::select("forlopstype_tekst", "n") %>% 
-  dplyr::rename("Forlopstype" = forlopstype_tekst, 
+  dplyr::select("forlopstype_med_AVknute", "n") %>% 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
                 "Nasjonalt_aar" = n)
 
 
-tabForlopstype <- forlopstype_lokalt_fjor %>% 
+tabForlopstype <-  tab_forlopstype_AVknute %>%
   dplyr::left_join(.,
-            forlopstype_nasjonalt_fjor,
-            by = "Forlopstype") %>% 
+                   forlopstype_lokalt_fjor,
+                   by = "Forlopstype") %>% 
   dplyr::left_join(.,
-            forlopstype_lokalt_aar,
-            by = "Forlopstype") %>% 
+                   forlopstype_nasjonalt_fjor,
+                   by = "Forlopstype") %>% 
   dplyr::left_join(.,
-            forlopstype_nasjonalt_aar,
-            by = "Forlopstype")
+                   forlopstype_lokalt_aar,
+                   by = "Forlopstype") %>% 
+  dplyr::left_join(.,
+                   forlopstype_nasjonalt_aar,
+                   by = "Forlopstype") %>% 
+  janitor::adorn_totals(where = "row", name = "Totalt")
 
 tabForlopstype[tabForlopstype == 0] <- " - "
 tabForlopstype[is.na(tabForlopstype)] <- " - "
@@ -446,7 +472,7 @@ align <- c("l", rep("r", ncol(tabForlopstype)-1))
 
 
 if(params$tableFormat %in% "html") {
-  tabForlopstype %>%   
+  tabForlopstype %>% rename(" " = "Forlopstype") %>%   
   rapbase::mst(.,
                type = params$tableFormat,
                cap = cap,
@@ -463,7 +489,7 @@ if(params$tableFormat %in% "html") {
   
   
 } else if (params$tableFormat %in% "pdf") {
-  tabForlopstype %>%   
+  tabForlopstype %>% rename(" " = "Forlopstype") %>%
   rapbase::mst(.,
                type = params$tableFormat,
                cap = cap,
