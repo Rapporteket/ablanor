@@ -477,7 +477,8 @@ getBaseregProsData <- function(singleRow = FALSE,
                       .,
                       by = "PATIENT_ID",
                       multiple = "all") %>%
-    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID")
+    dplyr::relocate(c("MCEID", "CENTREID"), .before = "PATIENT_ID") %>%
+    dplyr::relocate("DATO_PROS", .after = "CENTREID")
 
 
   names(d_ablanor) <- tolower(names(d_ablanor))
@@ -490,6 +491,7 @@ getBaseregProsData <- function(singleRow = FALSE,
   d_ablanor %<>%
     ablanor::utlede_alder(.) %>%
     ablanor::utlede_alder_75(.) %>%
+    ablanor::utlede_alder_65_75(.) %>%
     ablanor::utlede_aldersklasse(.)
 
   # BMI klasse
@@ -497,8 +499,6 @@ getBaseregProsData <- function(singleRow = FALSE,
   d_ablanor %<>%
     ablanor::utlede_bmi(.) %>%
     ablanor::utlede_bmi_klasse(.)
-
-
 
   # AFLI : ICD
   d_ablanor %<>% ablanor::utlede_kateg_afli_aryt_i48(.)
@@ -511,8 +511,9 @@ getBaseregProsData <- function(singleRow = FALSE,
   # HJERTESVIKT OG REDUSERT EF
   d_ablanor %<>% ablanor::utlede_hjertesvikt_redusert_ef(.)
 
-  # CHA2DS2VASc
+  # CHA2DS2VASc og CHA2DS2VA
   d_ablanor %<>% ablanor::utlede_CHA2DS2VASc(.)
+  d_ablanor %<>% ablanor::utlede_CHA2DS2VA(.)
 
   # Indikator tamponade, indikator for avbrudd
   d_ablanor %<>%
@@ -523,15 +524,7 @@ getBaseregProsData <- function(singleRow = FALSE,
     ablanor::indik_avbrudd(.)
 
   d_ablanor %>%
-    dplyr::mutate(
-
-      # Tidsvariabler for prosedyre
-      aar_prosedyre = as.ordered(lubridate::year(.data$dato_pros)),
-      maaned_nr_prosedyre = as.ordered(sprintf(fmt = "%02d",
-                                               lubridate::month(.data$dato_pros))),
-      maaned_prosedyre = ifelse(test = is.na(.data$aar_prosedyre) | is.na(.data$maaned_nr_prosedyre),
-                                yes = NA,
-                                no = paste0(.data$aar_prosedyre, "-", .data$maaned_nr_prosedyre))) %>%
+    ablanor::utlede_tidsvariabler() %>%
     dplyr::arrange(.data$mceid)
 }
 
