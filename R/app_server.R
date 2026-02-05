@@ -361,16 +361,16 @@ app_server <- function(input, output, session) {
   output$downloadReport <- shiny::downloadHandler(
     filename = function() {
       basename(tempfile(pattern = "AblaNor_local_monthly",
-                        fileext = paste0(".", input$formatReport)))
+                        fileext = paste0(".", "pdf")))
     },
     content = function(file) {
       fn <- rapbase::renderRmd(
         system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
-        outputType = input$formatReport,
+        outputType = "pdf",
         params = list(
           author = user$fullName(),
           hospitalName = getHospitalName(user$org()),
-          tableFormat = input$formatReport,
+          tableFormat = "pdf",
           reshId = user$org(),
           registryName = registryName,
           userFullName = user$fullName(),
