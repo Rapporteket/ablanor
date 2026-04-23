@@ -8,9 +8,9 @@ app_ui <- function() {
 
   ui <- shiny::tagList(
     shiny::navbarPage(
-      title = rapbase::title(reg_title),
+      title = rapbase::regTitle(reg_title),
       windowTitle = reg_title,
-      theme = rapbase::theme(),
+      theme = rapbase::rapTheme(),
       id = "tabs",
 
       shiny::tabPanel(
