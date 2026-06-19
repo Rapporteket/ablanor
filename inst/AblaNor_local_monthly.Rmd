@@ -141,59 +141,8 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 
 ```
 
-<!-- ```{r monthTabPrepare, include=FALSE, eval=TRUE} -->
-
-<!-- timeTableMonth <- data.frame( -->
-<!--   monthDato = seq(periode_data$forste_dato,  -->
-<!--                   periode_data$siste_dato, -->
-<!--                   by = "month")) %>%  -->
-<!--   dplyr::transmute(maaned = as.factor(format(x = monthDato,  -->
-<!--                                              format = "%Y-%m"))) %>%  -->
-<!--   dplyr::mutate(maaned = as.ordered(maaned)) -->
-
-
-<!-- timeTableMonth_fjor <- data.frame( -->
-<!--   monthDato = seq(periode_data$forste_dato,  -->
-<!--                   as.Date(paste("30-12-", periode_data$sisteHeleYear),  -->
-<!--                           format = "%d-%m-%Y"), -->
-<!--                   by = "month")) %>%  -->
-<!--   dplyr::transmute(maaned = as.factor(format(x = monthDato,  -->
-<!--                                              format = "%Y-%m"))) %>%  -->
-<!--   dplyr::transmute( -->
-<!--     maaned = as.ordered(maaned)) -->
-
-<!-- timeTableMonth_aar <- data.frame( -->
-<!--   monthDato = seq(as.Date(paste("01-01-", periode_data$nyesteRegYear),  -->
-<!--                           format = "%d-%m-%Y"), -->
-<!--                   periode_data$siste_dato, -->
-<!--                   by = "month")) %>%  -->
-<!--   dplyr::transmute(maaned = as.factor(format(x = monthDato,  -->
-<!--                                              format = "%Y-%m"))) %>%  -->
-<!--   dplyr::transmute( -->
-<!--     maaned = as.ordered(maaned)) -->
-
-
-
-<!-- rangeProsDato <- paste(format(periode_data$forste_dato,  -->
-<!--                               "%d/%m-%Y"),  -->
-<!--                        "til",  -->
-<!--                        format(periode_data$siste_dato,  -->
-<!--                               "%d/%m-%Y")) -->
-
-<!-- siste_dato_txt <- format(x = periode_data$siste_dato, -->
-<!--                          format = "%d/%m-%Y") -->
-<!-- ``` -->
-
 
 ```{r GetData, include=FALSE, warning=FALSE, cache=FALSE}
-# Fjernes når alle fig og tab bruker nasjonal database
-d_ablanor <- ablanor::getBaseregProsData(singleRow = FALSE, 
-                                         reshId = params$reshId,
-                                         userRole = params$userRole, 
-                                         fromDate = periode_data$forste_dato, 
-                                         toDate = periode_data$siste_dato)
-
-
 
 d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE, 
                                                    reshId = params$reshId,
@@ -285,18 +234,6 @@ d_ablanor_hendelse_nasjonalt %<>% filter(
 
 ```{r forste_siste_registrering_SHUS}
 
-# Fjernes når alle fig og tab bruker nasjonal database
-periode_data$forste_dato_shus <- d_ablanor %>% 
-  dplyr::summarise(min(.data$dato_pros)) %>% 
-  dplyr::pull()
-
-periode_data$nyeste_dato_shus <- d_ablanor %>% 
-  dplyr::summarise(max(.data$dato_pros)) %>% 
-  dplyr::pull()
-
-
-
-
 periode_data$forste_dato_shus <- d_ablanor_nasjonalt %>% 
   dplyr::summarise(min(.data$dato_pros)) %>% 
   dplyr::pull()
@@ -313,13 +250,6 @@ periode_data$nyeste_dato_shus <- d_ablanor_nasjonalt %>%
 # OPPDATERE : UKE, MÅNED, ÅR for å få riktig levels i faktorer, også dersom 
 # ingen registreringer i løpet av en måned
 
-# Fjernes når alle fig og tab bruker nasjonal database
-d_ablanor %<>%
-  dplyr::mutate(
-    aar = as.ordered(lubridate::year(.data$dato_pros)),
-    maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
-  )
-
 d_ablanor_nasjonalt %<>%
   dplyr::mutate(
     aar = as.ordered(lubridate::year(.data$dato_pros)),
@@ -334,15 +264,10 @@ d_ablanor_hendelse_nasjonalt %<>%
 
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
 
-# Fjernes når alle fig og tab bruker nasjonal database
-d_ablanor %<>%
-  dplyr::mutate(forlopstype = factor(x = forlopstype,
-                                     levels = 1:4))
 
 d_ablanor_nasjonalt %<>%
   dplyr::mutate(forlopstype = factor(x = forlopstype,
                                      levels = 1:4),
-                
                 forlopstype_med_AVknute = factor(
                   x = dplyr::case_when(
                     (abla_strat_av_his %in% 0 & forlopstype %in% 1) ~ "AFLI (uten AV-knute)",
@@ -373,9 +298,9 @@ henholdsvis `r format(periode_data$forste_dato_shus, "%d/%m-%Y") ` og
 
 
 
-`r if(params$tableFormat !="pdf") {"<!--"}`
-\newpage
-`r if(params$tableFormat !="pdf") {"-->"}`
+```{r pagebreak_forlopstype, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
 
 # Forløpstype
 Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
@@ -514,9 +439,9 @@ if(params$tableFormat %in% "html") {
 
 
 
-`r if(params$tableFormat !="pdf") {"<!--"}`
-\newpage
-`r if(params$tableFormat !="pdf") {"-->"}`
+```{r pagebreak_komplik, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
 
 
 # Komplikasjoner
@@ -858,7 +783,7 @@ if(params$tableFormat %in% "html") {
 <br>
 
 
-```{r pagebreak3, results = "asis", eval = (params$tableFormat == "pdf")}
+```{r pagebreak_prosedyretid, results = "asis", eval = (params$tableFormat == "pdf")}
 cat("\n\n\\pagebreak\n")
 ```
 
@@ -866,8 +791,7 @@ cat("\n\n\\pagebreak\n")
 
 # Prosedyrevarighet
 Forløp med manglende prosedyrevarighet (n = 
-`r d_ablanor %>%  dplyr::filter(is.na(pros_varighet)) %>%  nrow()`) er fjernet
-fra datagrunnlaget. 
+`r d_ablanor_nasjonalt %>% filter(centreid %in% params$reshId) %>%  dplyr::filter(is.na(pros_varighet)) %>%  nrow()`) er fjernet fra datagrunnlaget. 
 
 Figur \@ref(fig:figProsedyreVarighetMin) viser et boxplot med fordeling av 
 prosedyrevarighet per forløpstype for siste hele år samt alle fullførte måneder 
@@ -953,7 +877,7 @@ prosedyreVarighet %>%
   ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
   ggplot2::labs(title  = "",
                 x = "",
-                y = "Prosedyrevarighet i minutter") +
+                y = "") +
   scale_x_discrete(position = "top") +
   theme(
     # Legend format
@@ -971,18 +895,18 @@ prosedyreVarighet %>%
 ```
 
 
+<br>
 
 
 
-```{r pagebreak9, results = "asis", eval = (params$tableFormat == "pdf")}
+```{r pagebreak_rontgentid, results = "asis", eval = (params$tableFormat == "pdf")}
 cat("\n\n\\pagebreak\n")
 ```
 
 # Røntgentid
 
 Forløp med manglende røntgenvarighet (n = 
-`r d_ablanor %>%  dplyr::filter(is.na(rtg_tid)) %>%  nrow()`) er fjernet
-fra datagrunnlaget. 
+`r d_ablanor_nasjonalt %>% filter(centreid %in% params$reshId) %>%  dplyr::filter(is.na(rtg_tid)) %>%  nrow()`) er fjernet fra datagrunnlaget. 
 
 
 Figur \@ref(fig:figRontgenVarighetMin) viser et boxplot med fordeling av 
@@ -1072,7 +996,7 @@ rontgenVarighetMin %>%
   ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
   ggplot2::labs(title  = "",
                 x = "",
-                y = "Røntgenvarighet i minutter") +
+                y = "") +
   scale_x_discrete(position = "top") +
   theme(
     # Legend format
@@ -1089,10 +1013,28 @@ rontgenVarighetMin %>%
 
 ```
 
-# Klinisk effekt 1 år etter prosedyren
-Den viktigste effekten av behandlingen er symptom-bedring. Dette måles ved elektronisk oppfølgings-skjema som beskriver symptomer sammenlignet med før behandlingen.
+<br>
 
+
+```{r pagebreak_kl_eff_1aar, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+
+# Klinisk effekt 1 år etter prosedyren
+
+Følgende spørsmål stillet et år etter prosedyren:
+Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gjelder arytmien er tilstanden din nå, sammenlignet med for 1 år siden”. Svaralternativene er: Helt bra, Mye bedre, Bedre, Uforandret og Verre.
+
+<br>
+
+
+```{r pagebreak_kl_eff_5aar, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
 
 
 # Klinisk effekt 5 år etter prosedyren
 
+Følgende spørsmål stillet fem år etter prosedyren:
+Du har vært til behandling av en rytmeforstyrrelse for 5 år siden. Når det gjelder arytmien er tilstanden din nå, sammenlignet med for 5 år siden”. Svaralternativene er: Helt bra, Mye bedre, Bedre, Uforandret og Verre.
