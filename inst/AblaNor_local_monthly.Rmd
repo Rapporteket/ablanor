@@ -880,7 +880,7 @@ under nedre kvartil).
 
 
 
-```{r figProsedyreVarighetMin, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "80%", fig.asp = 0.8}
+```{r figProsedyreVarighetMin, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "100%", fig.asp = 0.8}
 
 fig.cap <-  paste0("Prosedyrevarighet i minutter for ", 
                    hospitalNameShort, " og nasjonalt for siste hele år samt ",
@@ -932,8 +932,8 @@ prosedyreVarighet <- rbind(prosedyreVarighet_lokalt_fjor,
   mutate(forlopstype_tekst = factor(x = forlopstype_tekst,
                                      levels = c("AFLI", "VT", "SVT", "EFU")),
          sykehusnavn = factor(x = sykehusnavn,
-                              levels = c(hospitalNameShort,
-                                         "Nasjonalt")),
+                              levels = c("Nasjonalt",
+                                         hospitalNameShort)),
          aar = factor(x = aar,
                       labels = c(paste0("Totalt i ", periode_data$sisteHeleYear),
                                  paste0("Hittil i ", periode_data$nyesteRegYear))))
@@ -950,10 +950,10 @@ prosedyreVarighet %>%
              switch = "y",
              scale = "free_y") +
   ggplot2::theme_minimal() +
-  ggplot2::scale_fill_manual(values= c(colPrimary[4], colPrimary[6])) +
+  ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
   ggplot2::labs(title  = "",
                 x = "",
-                y = "Prosedyretid i minutter") +
+                y = "Prosedyrevarighet i minutter") +
   scale_x_discrete(position = "top") +
   theme(
     # Legend format
@@ -965,7 +965,8 @@ prosedyreVarighet %>%
     #Axis format    
     axis.text.x = element_text(size = 10,
                                color = "#222222"),
-    axis.text.y = element_blank())
+    axis.text.y = element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE))
 
 ```
 
@@ -985,7 +986,8 @@ fra datagrunnlaget.
 
 
 Figur \@ref(fig:figRontgenVarighetMin) viser et boxplot med fordeling av 
-røntgenvarighet per måned. Den blå boksen markerer nedre og øvre
+røntgenvarighet per forløpstype for siste hele år samt alle fullførte måneder 
+hittil i år fra `r hospitalNameShort` og nasjonalt. Den blå boksen markerer nedre og øvre
 kvartil, medianen er markert av den tykke linjen.
 Punktene utenfor greinene viser uteliggere, det vil si 
 forløp med usedvanlig kort eller lang prosedyrevarighet 
@@ -993,99 +995,106 @@ forløp med usedvanlig kort eller lang prosedyrevarighet
 under nedre kvartil).
 
 
-Tabell \@ref(tab:tabellRontgenvarighet1) viser gjennomsnittlig røntgenvarighet
-per måned, totalt og for hver av de fire forløpstypene.
+```{r figRontgenVarighetMin, fig.cap = cap, fig.pos = "H", fig.align = 'center',   out.width = "100%", fig.asp = 0.8}
+
+cap <- paste0("Røntgentid i minutter for ", 
+              hospitalNameShort, " og nasjonalt for siste hele år samt ",
+              "alle fullførte måneder hittil i år")
+
+d_ablanor_nasjonalt %<>% dplyr::mutate(
+  rtg_tid = as.numeric(.data$rtg_tid),
+  rtg_tid_min = .data$rtg_tid / 60)
+
+# Lokalt
+rontgenVarighetMin_lokalt_fjor <-d_ablanor_nasjonalt %>%
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, rtg_tid_min, aar) %>% 
+  mutate(sykehusnavn = hospitalNameShort)
+
+rontgenVarighetMin_lokalt_aar <-d_ablanor_nasjonalt %>%
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, rtg_tid_min, aar) %>% 
+  mutate(sykehusnavn = hospitalNameShort)
 
 
+# Nasjonalt
+rontgenVarighetMin_nasj_fjor <-d_ablanor_nasjonalt %>%
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, rtg_tid_min, aar) %>% 
+  mutate(sykehusnavn = "Nasjonalt")
 
-```{r figRontgenVarighetMin, fig.cap = cap, fig.pos = "H", fig.align = 'center',  out.width = "100%", fig.asp = 0.8}
-cap <- "Røntgentid i minutter per måned."
+rontgenVarighetMin_nasj_aar <-d_ablanor_nasjonalt %>%
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, rtg_tid_min, aar) %>% 
+  mutate(sykehusnavn = "Nasjonalt")
 
-d_varighet_tot_maaned <- d_ablanor %>%
-  dplyr::filter(!is.na(.data$rtg_tid)) %>% 
-  dplyr::select("maaned", "rtg_tid") %>%
-  dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
-  dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60)
 
-d_varighet_tot_maaned %>% 
-  ggplot2::ggplot(ggplot2::aes(y = maaned, x = rtg_tid_min)) +
-  ggplot2::geom_boxplot(fill = colPrimary[4]) +
-  ablanor::ablanor_plot_theme() +
-  ggplot2::scale_y_discrete(drop = FALSE) + 
-  ggplot2::labs(title = paste0("Røntgenvarighet (minutter) de ",
-                               showN, " siste månedene"), 
-                subtitle = hospitalNameShort) 
+# Samlet
+rontgenVarighetMin <- rbind(rontgenVarighetMin_lokalt_fjor,
+                           rontgenVarighetMin_lokalt_aar,
+                           rontgenVarighetMin_nasj_fjor,
+                           rontgenVarighetMin_nasj_aar) %>% 
+  mutate(forlopstype_tekst = factor(x = forlopstype_tekst,
+                                     levels = c("AFLI", "VT", "SVT", "EFU")),
+         sykehusnavn = factor(x = sykehusnavn,
+                              levels = c("Nasjonalt",
+                                         hospitalNameShort)),
+         aar = factor(x = aar,
+                      labels = c(paste0("Totalt i ", periode_data$sisteHeleYear),
+                                 paste0("Hittil i ", periode_data$nyesteRegYear))))
+
+# Figur
+rontgenVarighetMin %>% 
+  ggplot2::ggplot(ggplot2::aes(y = rtg_tid_min,
+                               x = forlopstype_tekst,
+                               fill = forlopstype_tekst)) +
+  ggplot2::geom_boxplot(aes(fill = sykehusnavn)) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar,
+             switch = "y",
+             scale = "free_y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "Røntgenvarighet i minutter") +
+  scale_x_discrete(position = "top") +
+  theme(
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "top",
+    legend.text = ggplot2::element_text(size = 12,
+                                        color = "#222222"),
+    
+    #Axis format    
+    axis.text.x = element_text(size = 10,
+                               color = "#222222"),
+    axis.text.y = element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+
 
 ```
 
-
-```{r tabellRontgenvarighetForberede}
-# VARIGHET røntgen per måned TOTALT:
-d_varighetRtg_mnd <- d_ablanor %>%
-  dplyr::filter(!is.na(.data$rtg_tid)) %>% 
-  dplyr::select("rtg_tid", "maaned") %>%
-  dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
-  dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60) %>%
-  dplyr::group_by(.data$maaned, .drop = FALSE) %>%
-  dplyr::summarise(rtg_meanN = paste0(sprintf("%0.0f",
-                                              mean(.data$rtg_tid_min)), 
-                                      " [", sprintf("%0.0f", dplyr::n()), "]"),
-                   .groups = 'drop') %>%
-  dplyr::transmute(maaned = .data$maaned, Totalt = .data$rtg_meanN) 
+# Klinisk effekt 1 år etter prosedyren
+Den viktigste effekten av behandlingen er symptom-bedring. Dette måles ved elektronisk oppfølgings-skjema som beskriver symptomer sammenlignet med før behandlingen.
 
 
-# FORLØPSTYPE
-d_varighetRtg_forlop <- d_ablanor %>%
-  dplyr::filter(!is.na(.data$rtg_tid)) %>%
-  dplyr::select("forlopstype", "rtg_tid", "maaned") %>%
-  dplyr::group_by(.data$forlopstype, .data$maaned, .drop = FALSE) %>%
-  dplyr::mutate(rtg_tid = as.numeric(.data$rtg_tid)) %>%
-  dplyr::mutate(rtg_tid_min = .data$rtg_tid / 60) %>%
-  dplyr::summarise(rtg_meanN = paste0(sprintf("%0.0f",
-                                              mean(.data$rtg_tid_min)),
-                                      " [",
-                                      sprintf("%0.0f", dplyr::n()), "]"),
-                   .groups = 'drop') %>%
-  dplyr::mutate(rtg_meanN = dplyr::recode(.data$rtg_meanN, 
-                                          "NaN [0]" = " -- ")) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::rename(legend = .data$forlopstype, value = .data$rtg_meanN) %>%
-  ablanor::leggTilTomme_PivotWide(., remove_NAcols = TRUE) %>% 
-  dplyr::rename("AFLI"="1",
-                "VT"="2", 
-                "SVT"="3", 
-                "EFU"="4")
 
-
-d_varighetRtg_TOTAL<- dplyr::full_join(d_varighetRtg_mnd,
-                                       d_varighetRtg_forlop,
-                                       by = "maaned") %>% 
-  dplyr::arrange(desc(.data$maaned))
-```
-
-
-```{r tabellRontgenvarighet1}
-cap <- paste0("Gjennomsnittlig røntgenvarighet i minutter de ", 
-              showN, " siste månedene. ",
-              "Totalt og for hver forløpstype. ", 
-              "Gjennomsnitt [antall].")
-
-knitr::kable(
-  x = d_varighetRtg_TOTAL,
-  format = switch(params$tableFormat,
-                  pdf = "latex",
-                  html = "html"),
-  align = c("l", rep("c", 5)),
-  caption = cap,
-  booktabs = TRUE) %>%
-  kableExtra::add_header_above(c(" " = 1,
-                                 " " = 1,
-                                 "Forløpstype" = 4)) %>%
-  gsub("maaned", "Måned", .) %>%
-  ablanor::mst_short(., type = params$tableFormat,
-                     lsd = FALSE, 
-                     fs = 8, 
-                     full_width = FALSE)
-```
-
+# Klinisk effekt 5 år etter prosedyren
 
