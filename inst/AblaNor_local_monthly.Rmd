@@ -1087,8 +1087,6 @@ rontgenVarighetMin %>%
     axis.text.y = element_blank()) +
   guides(fill = guide_legend(reverse = TRUE))
 
-
-
 ```
 
 # Klinisk effekt 1 år etter prosedyren
