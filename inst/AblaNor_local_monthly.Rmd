@@ -323,8 +323,7 @@ d_ablanor %<>%
 d_ablanor_nasjonalt %<>%
   dplyr::mutate(
     aar = as.ordered(lubridate::year(.data$dato_pros)),
-    maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
-  )
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m")))
 
 
 d_ablanor_hendelse_nasjonalt %<>%
@@ -887,17 +886,86 @@ fig.cap <-  paste0("Prosedyrevarighet i minutter for ",
                    hospitalNameShort, " og nasjonalt for siste hele år samt ",
                    "alle fullførte måneder hittil i år")
 
-# Lokal boxplot
-
-d_ablanor_nasjonalt %>% 
+# Lokalt
+prosedyreVarighet_lokalt_fjor <-d_ablanor_nasjonalt %>%
   dplyr::filter(centreid %in% params$reshId,
-                !is.na(.data$pros_varighet)) %>% 
-  ggplot2::ggplot(ggplot2::aes(y = forlopstype, x = pros_varighet)) +
-  ggplot2::geom_boxplot(fill = colPrimary[4]) +
-  ablanor::ablanor_plot_theme() +
-  ggplot2::scale_y_discrete(drop = FALSE) + 
-  ggplot2::labs(title = "Prosedyrevarighet (minutter)", 
-                subtitle = hospitalNameShort) 
+                aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, pros_varighet, aar) %>% 
+  mutate(sykehusnavn = hospitalNameShort)
+
+prosedyreVarighet_lokalt_aar <-d_ablanor_nasjonalt %>%
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, pros_varighet, aar) %>% 
+  mutate(sykehusnavn = hospitalNameShort)
+
+
+# Nasjonalt
+prosedyreVarighet_nasj_fjor <-d_ablanor_nasjonalt %>%
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, pros_varighet, aar) %>% 
+  mutate(sykehusnavn = "Nasjonalt")
+
+prosedyreVarighet_nasj_aar <-d_ablanor_nasjonalt %>%
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) %>%
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  select(forlopstype_tekst, pros_varighet, aar) %>% 
+  mutate(sykehusnavn = "Nasjonalt")
+
+
+# Samlet
+prosedyreVarighet <- rbind(prosedyreVarighet_lokalt_fjor,
+                           prosedyreVarighet_lokalt_aar,
+                           prosedyreVarighet_nasj_fjor,
+                           prosedyreVarighet_nasj_aar) %>% 
+  mutate(forlopstype_tekst = factor(x = forlopstype_tekst,
+                                     levels = c("AFLI", "VT", "SVT", "EFU")),
+         sykehusnavn = factor(x = sykehusnavn,
+                              levels = c(hospitalNameShort,
+                                         "Nasjonalt")),
+         aar = factor(x = aar,
+                      labels = c(paste0("Totalt i ", periode_data$sisteHeleYear),
+                                 paste0("Hittil i ", periode_data$nyesteRegYear))))
+
+# Figur
+prosedyreVarighet %>% 
+  ggplot2::ggplot(ggplot2::aes(y = pros_varighet,
+                               x = forlopstype_tekst,
+                               fill = forlopstype_tekst)) +
+  ggplot2::geom_boxplot(aes(fill = sykehusnavn)) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar,
+             switch = "y",
+             scale = "free_y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values= c(colPrimary[4], colPrimary[6])) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "Prosedyretid i minutter") +
+  scale_x_discrete(position = "top") +
+  theme(
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "top",
+    legend.text = ggplot2::element_text(size = 12,
+                                        color = "#222222"),
+    
+    #Axis format    
+    axis.text.x = element_text(size = 10,
+                               color = "#222222"),
+    axis.text.y = element_blank())
 
 ```
 
