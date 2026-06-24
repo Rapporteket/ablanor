@@ -704,11 +704,13 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
     dplyr::rename("proms_status" = "status",
                   "mceid_followupbasis" = "mceid",
                   "proms_tssendt" = "tssendt",
-                  "proms_expiry_date" = "expiry_date") %>%
+                  "proms_expiry_date" = "expiry_date",
+                  "proms_form_order_status_error_code" = "form_order_status_error_code" ) %>%
     dplyr::mutate(eprom_sendt_basis = "ja") %>%
     dplyr::select(mceid_followupbasis,
                   proms_tssendt,
                   proms_status,
+                  proms_form_order_status_error_code,
                   proms_expiry_date,
                   eprom_sendt_basis)
 
@@ -791,6 +793,7 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
                     .before = "dato_followup") %>%
     dplyr::relocate("proms_tssendt",
                     "proms_status",
+                    "proms_form_order_status_error_code",
                     "proms_expiry_date",
                     .before ="dato_followup"  )
 
@@ -799,7 +802,7 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
 
 
 
-  # PROCESS PATIENT - BASEREG AND PROCEDURE DATA ----
+
   d_pros %<>%
     dplyr::select(
       mceid:dato_pros,
@@ -1071,6 +1074,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
   d_proms %<>%
     dplyr::filter(registration_type == "Followup") %>%
     dplyr::rename("proms_status" = "status",
+                  "proms_form_order_status_error_code" = "form_order_status_error_code" ,
                   "mceid_followup" = "mceid",
                   "proms_tssendt" = "tssendt",
                   "proms_expiry_date" = "expiry_date") %>%
@@ -1078,6 +1082,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
     dplyr::select(mceid_followup,
                   proms_tssendt,
                   proms_status,
+                  proms_form_order_status_error_code,
                   proms_expiry_date,
                   eprom_sendt_1aar)
 
@@ -1123,6 +1128,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
                     .before = "dato_followup") %>%
     dplyr::relocate("proms_tssendt",
                     "proms_status",
+                    "proms_form_order_status_error_code",
                     "proms_expiry_date",
                     .before ="dato_followup"  )
 
@@ -1515,6 +1521,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
   d_proms %<>%
     dplyr::filter(registration_type == "Fiveyearfollowup") %>%
     dplyr::rename("proms_status" = "status",
+                  "proms_form_order_status_error_code" = "form_order_status_error_code",
                   "mceid_followup" = "mceid",
                   "proms_tssendt" = "tssendt",
                   "proms_expiry_date" = "expiry_date") %>%
@@ -1522,6 +1529,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
     dplyr::select(mceid_followup,
                   proms_tssendt,
                   proms_status,
+                  proms_form_order_status_error_code,
                   proms_expiry_date,
                   eprom_sendt_5aar)
 
@@ -1567,6 +1575,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
                     .before = "dato_followup") %>%
     dplyr::relocate("proms_tssendt",
                     "proms_status",
+                    "proms_form_order_status_error_code",
                     "proms_expiry_date",
                     .before ="dato_followup"  )
 
