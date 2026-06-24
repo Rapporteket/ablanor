@@ -872,7 +872,7 @@ getBaseregProsFollowup0Data <- function(singleRow = FALSE,
 
     # KRITERIE 2. Norsk f<U+00F8>dselsnummer
     dplyr::mutate(kriterie_norsk = ifelse(
-      test = (ssn_type %in% 1 & ssnsubtype %in% c(1, 3)),
+      test = (ssn_type %in% 1 ),
       yes = "ja",
       no = "nei")) %>%
 
@@ -1215,7 +1215,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
 
     # KRITERIE 2. Norsk fødselsnummer
     dplyr::mutate(kriterie_norsk = ifelse(
-      test = (ssn_type %in% 1 & ssnsubtype %in% c(1, 3)),
+      test = (ssn_type %in% 1),
       yes = "ja",
       no = "nei")) %>%
 
@@ -1655,7 +1655,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
 
     # KRITERIE 2. Norsk fødselsnummer
     dplyr::mutate(kriterie_norsk = ifelse(
-      test = (ssn_type %in% 1 & ssnsubtype %in% c(1, 3)),
+      test = (ssn_type %in% 1),
       yes = "ja",
       no = "nei")) %>%
 
