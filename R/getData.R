@@ -37,6 +37,7 @@
 #' getMce
 #' getRand12
 #' getFollowupBasis
+#' getFollowupOneYr
 #' getFollowupFiveYr
 #' getGkv
 #' getProms
