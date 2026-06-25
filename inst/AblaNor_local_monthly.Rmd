@@ -144,24 +144,26 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 
 ```{r GetData, include=FALSE, warning=FALSE, cache=FALSE}
 
+# Prosedyre
 d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE, 
                                                    reshId = params$reshId,
                                                    userRole = "SC", 
                                                    fromDate = periode_data$forste_dato, 
                                                    toDate = periode_data$siste_dato)
 
-tab_list_hendelse_nasjonalt <- ablanor::getHendelse(singleRow = FALSE, 
-                                                     reshId = params$reshId,
-                                                     userRole = "SC", 
-                                                     fromDate = NULL, 
-                                                     toDate = NULL)
 
+# Hendelse
 
-d_hendelse_nasjonalt <- tab_list_hendelse_nasjonalt$d_hendelse %>% 
-      dplyr::rename_at(dplyr::vars(KOMP_JANEI:STATUS),
-                       function(x) {
-                         paste0("adhoc_", x)
-                       }) %>%
+d_hendelse_nasjonalt <- ablanor::getHendelse(
+  singleRow = FALSE, 
+  reshId = params$reshId,
+  userRole = "SC", 
+  fromDate = NULL, 
+  toDate = NULL)$d_hendelse %>% 
+  dplyr::rename_at(dplyr::vars(KOMP_JANEI:STATUS),
+                   function(x) {
+                     paste0("adhoc_", x)
+                   }) %>%
       dplyr::rename("MCEID_adhoc" = "MCEID") %>%
       dplyr::select(MCEID_adhoc,
                     CENTREID,
@@ -169,32 +171,30 @@ d_hendelse_nasjonalt <- tab_list_hendelse_nasjonalt$d_hendelse %>%
                     adhoc_KOMP_JANEI:adhoc_STATUS)
 
 
-tab_list_basereg_nasjonalt <- ablanor::getBasereg(singleRow = FALSE, 
-                                           reshId = params$reshId,
-                                           userRole = "SC", 
-                                           fromDate = periode_data$forste_dato, 
-                                           toDate = periode_data$siste_dato)
-
-d_basereg_nasjonalt <- tab_list_basereg_nasjonalt$d_basereg %>% 
+d_basereg_nasjonalt <- ablanor::getBasereg(
+  singleRow = FALSE, 
+  reshId = params$reshId,
+  userRole = "SC", 
+  fromDate = periode_data$forste_dato, 
+  toDate = periode_data$siste_dato)$d_basereg %>% 
   dplyr::select(MCEID, CENTREID, HOYDE, VEKT)
 
-tab_list_pros_nasjonalt <- ablanor::getPros(singleRow = FALSE, 
-                                            reshId = params$reshId,
-                                            userRole = "SC", 
-                                            fromDate = periode_data$forste_dato, 
-                                            toDate = periode_data$siste_dato)
 
-d_pros_nasjonalt <- tab_list_pros_nasjonalt$d_pros %>% 
+d_pros_nasjonalt <- ablanor::getPros(
+  singleRow = FALSE, 
+  reshId = params$reshId,
+  userRole = "SC", 
+  fromDate = periode_data$forste_dato, 
+  toDate = periode_data$siste_dato)$d_pros %>% 
   dplyr::select(MCEID, CENTREID, FORLOPSTYPE, DATO_PROS)
 
 
-tab_list_mce_nasjonalt <- ablanor::getMce(singleRow = FALSE, 
-                                          reshId = params$reshId,
-                                          userRole = "SC", 
-                                          fromDate = periode_data$forste_dato, 
-                                          toDate = periode_data$siste_dato)
-
-d_mce_nasjonalt <- tab_list_mce_nasjonalt$d_mce %>% 
+d_mce_nasjonalt <- ablanor::getMce(
+  singleRow = FALSE, 
+  reshId = params$reshId,
+  userRole = "SC", 
+  fromDate = periode_data$forste_dato, 
+  toDate = periode_data$siste_dato)$d_mce %>% 
   dplyr::select(MCEID, CENTREID, MCETYPE, PARENTMCEID)
 
 
@@ -229,6 +229,11 @@ d_ablanor_hendelse_nasjonalt %<>% filter(
   dato_pros >= periode_data$forste_dato,
   dato_pros <= periode_data$siste_dato)
 
+
+# 1-års oppfølging
+
+
+# 5-års oppfølging
 
 ```
 
