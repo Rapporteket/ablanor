@@ -153,81 +153,12 @@ d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE,
 
 
 # Hendelse
+d_ablanor_hendelse_nasjonalt <- getBaseregProsHendelseData(singleRow = FALSE,
+                                                   reshId = params$reshId,
+                                                   userRole = "SC",
+                                                   fromDate = periode_data$forste_dato,
+                                                   toDate = periode_data$siste_dato)
 
-d_hendelse_nasjonalt <- ablanor::getHendelse(
-  singleRow = FALSE, 
-  reshId = params$reshId,
-  userRole = "SC", 
-  fromDate = NULL, 
-  toDate = NULL)$d_hendelse %>% 
-  dplyr::rename_at(dplyr::vars(KOMP_JANEI:STATUS),
-                   function(x) {
-                     paste0("adhoc_", x)
-                   }) %>%
-      dplyr::rename("MCEID_adhoc" = "MCEID") %>%
-      dplyr::select(MCEID_adhoc,
-                    CENTREID,
-                    DATO_ADHOC,
-                    adhoc_KOMP_JANEI:adhoc_STATUS)
-
-
-d_basereg_nasjonalt <- ablanor::getBasereg(
-  singleRow = FALSE, 
-  reshId = params$reshId,
-  userRole = "SC", 
-  fromDate = periode_data$forste_dato, 
-  toDate = periode_data$siste_dato)$d_basereg %>% 
-  dplyr::select(MCEID, CENTREID, HOYDE, VEKT)
-
-
-d_pros_nasjonalt <- ablanor::getPros(
-  singleRow = FALSE, 
-  reshId = params$reshId,
-  userRole = "SC", 
-  fromDate = periode_data$forste_dato, 
-  toDate = periode_data$siste_dato)$d_pros %>% 
-  dplyr::select(MCEID, CENTREID, FORLOPSTYPE, DATO_PROS)
-
-
-d_mce_nasjonalt <- ablanor::getMce(
-  singleRow = FALSE, 
-  reshId = params$reshId,
-  userRole = "SC", 
-  fromDate = periode_data$forste_dato, 
-  toDate = periode_data$siste_dato)$d_mce %>% 
-  dplyr::select(MCEID, CENTREID, MCETYPE, PARENTMCEID)
-
-
-names(d_hendelse_nasjonalt) <- tolower(names(d_hendelse_nasjonalt))
-names(d_basereg_nasjonalt) <- tolower(names(d_basereg_nasjonalt))
-names(d_pros_nasjonalt) <- tolower(names(d_pros_nasjonalt))
-names(d_mce_nasjonalt) <- tolower(names(d_mce_nasjonalt))
-
-d_hendelse_nasjonalt %<>% dplyr::left_join(.,
-                                     d_mce_nasjonalt %>% 
-                                       dplyr::filter(mcetype == 8) %>%
-                                       dplyr::select(mceid, parentmceid) %>%
-                                       dplyr::rename(mceid_adhoc = mceid,
-                                                     mceid = parentmceid),
-                                     by = "mceid_adhoc")
-
-# Legg til hendelse i pasient - prosedyre - data
-d_ablanor_hendelse_nasjonalt <-  dplyr::right_join(
-  x = dplyr::left_join(d_basereg_nasjonalt, d_pros_nasjonalt, by = c("mceid", "centreid")),
-  y = d_hendelse_nasjonalt,
-  by = c("mceid", "centreid")) %>%
-  
-  # Antall dager fra prosedyre til hendelse
-  dplyr::mutate(dager_pros_hendelse = as.numeric(difftime(
-    dato_adhoc,
-    dato_pros,
-    units = "days"
-  )))
-
-
-d_ablanor_hendelse_nasjonalt %<>% filter(
-  dato_pros >= periode_data$forste_dato,
-  dato_pros <= periode_data$siste_dato)
 
 
 # 1-års oppfølging
