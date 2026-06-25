@@ -877,12 +877,12 @@ prosedyreVarighet %>%
   ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
   ggplot2::labs(title  = "",
                 x = "",
-                y = "") +
+                y = "\nProsedyrevarighet i minutter") +
   scale_x_discrete(position = "top") +
   theme(
     # Legend format
     legend.title = element_blank(),
-    legend.position = "top",
+    legend.position = "bottom",
     legend.text = ggplot2::element_text(size = 12,
                                         color = "#222222"),
     
@@ -996,12 +996,12 @@ rontgenVarighetMin %>%
   ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
   ggplot2::labs(title  = "",
                 x = "",
-                y = "") +
+                y = "\nRøntgentid i minutter") +
   scale_x_discrete(position = "top") +
   theme(
     # Legend format
     legend.title = element_blank(),
-    legend.position = "top",
+    legend.position = "bottom",
     legend.text = ggplot2::element_text(size = 12,
                                         color = "#222222"),
     
