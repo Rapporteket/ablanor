@@ -18,6 +18,7 @@
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
+\alias{getBasisProm}
 \alias{getFollowupOneYr}
 \title{Ablanor SQL}
 \usage{
@@ -131,6 +132,8 @@ getLatestEntry()
 getNameReshId(asNamedList = FALSE, shortNames = FALSE, newNames = FALSE)
 
 getHospitalName(reshId, shortName = FALSE, newNames = FALSE)
+
+getBasisProm(...)
 }
 \arguments{
 \item{singleRow}{bools. TRUE only one row, for variable names. FALSE all
