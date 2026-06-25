@@ -48,6 +48,7 @@
 #' getLatestEntry
 #' getNameReshId
 #' getHospitalName
+#' getBasisProm
 NULL
 
 
@@ -858,4 +859,35 @@ WHERE
   name
 }
 
+
+
+
+
+
+#' @rdname getDataAblanor
+#' @export
+getBasisProm <- function(...) {
+
+
+  query_basisprom <- paste0(ablanor::queryProm0(), ";")
+  query_basisrand <- paste0(ablanor::queryRand12_0(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = "msg")
+    d_basisprom <- rapbase::loadRegData("data", query_basisprom)
+    d_basisrand <- rapbase::loadRegData("data", query_basisrand)
+    # nocov end
+  } else {
+    d_basisprom <- rapbase::loadRegData("data", query_basisprom)
+    d_basisrand <- rapbase::loadRegData("data", query_basisrand)
+  }
+
+
+  list(d_basisprom = d_basisprom,
+       d_basisrand = d_basisrand)
+
+}
 

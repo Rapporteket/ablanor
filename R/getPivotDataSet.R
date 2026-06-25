@@ -169,7 +169,7 @@ getPivotDataSet <- function(setId = "",
     }
 
     if (setId == "pros_pat_followup0") {
-      dat <- ablanor::getBaseregProsFollowup0Data(singleRow = singleRow,
+      dat <- ablanor::getBaseregProsFollowup0Data_v2(singleRow = singleRow,
                                                   session = session,
                                                   reshId = reshId,
                                                   userRole = userRole,
