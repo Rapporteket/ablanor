@@ -145,26 +145,39 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
 ```{r GetData, include=FALSE, warning=FALSE, cache=FALSE}
 
 # Prosedyre
-d_ablanor_nasjonalt <- ablanor::getBaseregProsData(singleRow = FALSE, 
-                                                   reshId = params$reshId,
-                                                   userRole = "SC", 
-                                                   fromDate = periode_data$forste_dato, 
-                                                   toDate = periode_data$siste_dato)
+d_ablanor_nasjonalt <- ablanor::getBaseregProsData(
+  singleRow = FALSE, 
+  reshId = params$reshId,
+  userRole = "SC", 
+  fromDate = periode_data$forste_dato, 
+  toDate = periode_data$siste_dato)
 
 
 # Hendelse
-d_ablanor_hendelse_nasjonalt <- getBaseregProsHendelseData(singleRow = FALSE,
-                                                   reshId = params$reshId,
-                                                   userRole = "SC",
-                                                   fromDate = periode_data$forste_dato,
-                                                   toDate = periode_data$siste_dato)
-
+d_ablanor_hendelse_nasjonalt <- ablanor::getBaseregProsHendelseData(
+  singleRow = FALSE,
+  reshId = params$reshId,
+  userRole = "SC",
+  fromDate = periode_data$forste_dato,
+  toDate = periode_data$siste_dato)
 
 
 # 1-års oppfølging
+d_ablanor_prom1aar <- ablanor::getBaseregProsFollowup1Data(
+  singleRow = FALSE,
+  reshId = params$reshId,
+  userRole = "SC",
+  fromDate = periode_data$forste_dato,
+  toDate = periode_data$siste_dato)
 
 
 # 5-års oppfølging
+d_ablanor_prom5aar <- ablanor::getBaseregProsFollowup5Data(
+  singleRow = FALSE,
+  reshId = params$reshId,
+  userRole = "SC",
+  fromDate = periode_data$forste_dato,
+  toDate = periode_data$siste_dato)
 
 ```
 
@@ -206,11 +219,14 @@ d_ablanor_nasjonalt %<>%
                                      levels = 1:4),
                 forlopstype_med_AVknute = factor(
                   x = dplyr::case_when(
-                    (abla_strat_av_his %in% 0 & forlopstype %in% 1) ~ "AFLI (uten AV-knute)",
+                    (abla_strat_av_his %in% 0 & 
+                       forlopstype %in% 1) ~ "AFLI (uten AV-knute)",
                     forlopstype %in% 2 ~ "VT",
-                    (abla_strat_av_his %in% 0 & forlopstype %in% 3) ~ "SVT (uten AV-knute)",
+                    (abla_strat_av_his %in% 0 & 
+                       forlopstype %in% 3) ~ "SVT (uten AV-knute)",
                     forlopstype %in% 4 ~ "EFU",
-                    (abla_strat_av_his %in% 1 & forlopstype %in% c(1,3)) ~ "AV-knute (AFLI eller SVT)",
+                    (abla_strat_av_his %in% 1 & 
+                       forlopstype %in% c(1,3)) ~ "AV-knute (AFLI eller SVT)",
                     TRUE ~ NA_character_),
                   levels = c("AFLI (uten AV-knute)",
                              "VT",
@@ -256,10 +272,10 @@ cap <- paste("Totalt antall forløp fra ",
              "Tabellen viser forløp fra det siste hele året samt alle ", 
              "fullførte måneder hittil i år for hver av de 4 forløpstypene ",
              " samt AV-knuter: ",
-             "Atrieflimmer/atypisk flutter (AFLI uten AV-knuter), Ventrikkeltakykardi (VT), ", 
-             "Supraventrikulær takykardi (SVT uten AV-knuter), ", 
-             "Elektrofysiologisk undersøkelse (EFU) eller ",
-             "AV-knuter for typene AFLI eller SVT.")
+             "Atrieflimmer/atypisk flutter (AFLI uten AV-knuter), ", 
+             "Ventrikkeltakykardi (VT), Supraventrikulær takykardi ", 
+             "(SVT uten AV-knuter), Elektrofysiologisk undersøkelse (EFU) ",
+             "eller AV-knuter for typene AFLI eller SVT.")
 
 tab_forlopstype_AVknute <- data.frame(
   Forlopstype = c("AFLI (uten AV-knute)",
@@ -391,7 +407,8 @@ operasjonen (hendelser innen 4 dager).
 
 ```{r komplikasjonerTab, echo = FALSE, results = "asis"}
 caption <- paste0("Antall komplikasjoner registrert ved ", hospitalNameShort, 
-                   " det siste hele året samt hittil i år sammenlignet med nasjonale tall. ")
+                  " det siste hele året samt hittil i år ", 
+                  "sammenlignet med nasjonale tall. ")
 
 d_ablanor_hendelse_innen4dager_nasjonalt <- d_ablanor_hendelse_nasjonalt %>% 
   filter(dager_pros_hendelse <= 4)
@@ -952,12 +969,117 @@ rontgenVarighetMin %>%
 <br>
 
 
-```{r pagebreak_kl_eff_1aar, results = "asis", eval = (params$tableFormat == "pdf")}
+```{r pagebreak_oppf1aar, results = "asis", eval = (params$tableFormat == "pdf")}
 cat("\n\n\\pagebreak\n")
 ```
 
+# Oppfølging 1 år etter prosedyren
 
-# Klinisk effekt 1 år etter prosedyren
+## Responsrate
+Responsraten beregnes blant de pasientene
+som oppfyller kravene til ePROM (over 16 år ved prosedyretidspunktet, levende ved bestilling av
+ePROM, norsk fødselsnummertype, varighet for prosedyren/røntgen er registrert), og der skjema har
+blitt bestilt og sendt. 
+
+
+```{r respontrate_toAarSiden, echo = FALSE, results = "asis"}
+
+caption <- paste0(
+  "Tabellen viser responsrate for prosedyrene som ble utført i ",
+  (periode_data$sisteHeleYear-1), ", og der oppfølging ble besvart i ",
+  periode_data$sisteHeleYear, ".")
+
+
+# Lokalt - prosedyrer fra to år siden
+
+proms_1aar_antPros_fjor <- d_ablanor_prom1aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% periode_data$sisteHeleYear,
+         !is.na(.data$forlopstype)) %>% 
+  nrow()
+
+proms_1aar_datagrunnlag_fjor <- d_ablanor_prom1aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% periode_data$sisteHeleYear,
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") %>% 
+  nrow()
+
+proms_1aar_besvart_fjor <- d_ablanor_prom1aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% periode_data$sisteHeleYear,
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") %>% 
+  nrow()
+
+
+responsrate_1aar_lokalt_fjor <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_antPros_toAarSiden,
+  datagrunnlag = proms_datagrunnlag_toAarSiden,
+  besvart = proms_besvart_toAarSiden) %>% 
+  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+
+
+# Nasjonalt - prosedyrer fra to år siden
+
+proms_1aar_antPros_nasj_fjor <- d_ablanor_prom1aar %>% 
+  filter(aar_prosedyre %in% periode_data$sisteHeleYear,
+         !is.na(.data$forlopstype)) %>% 
+  nrow()
+
+proms_1aar_datagrunnlag_nasj_fjor <- d_ablanor_prom1aar %>% 
+  filter(aar_prosedyre %in% periode_data$sisteHeleYear,
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") %>% 
+  nrow()
+
+proms_1aar_besvart_nasj_fjor <- d_ablanor_prom1aar %>% 
+  filter(aar_prosedyre %in% periode_data$sisteHeleYear,
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") %>% 
+  nrow()
+
+
+responsrate_1aar_nasj_fjor <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_1aar_antPros_nasj_fjor,
+  datagrunnlag = proms_1aar_datagrunnlag_nasj_fjor,
+  besvart = proms_1aar_besvart_nasj_fjor) %>% 
+  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+
+# Samlet
+responsrate_1aar_fjor <- rbind(
+  responsrate_1aar_lokalt_fjor,
+  responsrate_1aar_nasj_fjor)
+
+
+if(params$tableFormat %in% "html") {
+  responsrate_1aar_fjor %>% rename(" " = "sykehus") %>%   
+  rapbase::mst(.,
+               type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE)
+  
+} else if (params$tableFormat %in% "pdf") {
+  tabForlopstype %>% rename(" " = "sykehus") %>%
+  rapbase::mst(.,
+               type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE)
+}
+
+```
+
+## Klinisk effekt etter 1 år
 
 Følgende spørsmål stillet et år etter prosedyren:
 Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gjelder arytmien er tilstanden din nå, sammenlignet med for 1 år siden”. Svaralternativene er: Helt bra, Mye bedre, Bedre, Uforandret og Verre.
@@ -965,7 +1087,9 @@ Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gj
 <br>
 
 
-```{r pagebreak_kl_eff_5aar, results = "asis", eval = (params$tableFormat == "pdf")}
+
+
+```{r pagebreak_oppf5aar, results = "asis", eval = (params$tableFormat == "pdf")}
 cat("\n\n\\pagebreak\n")
 ```
 
