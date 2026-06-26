@@ -32,23 +32,7 @@
 #' also be returned as a named list of values (see Details).
 #'
 #' @name getDataAblanor
-#' @aliases getBasereg
-#' getPros
-#' getMce
-#' getRand12
-#' getFollowupBasis
-#' getFollowupOneYr
-#' getFollowupFiveYr
-#' getGkv
-#' getProms
-#' getHendelse
-#' getPatientlist
-#' getFriendlycentre
-#' getMcepatientdata
-#' getBaseregPros
-#' getLatestEntry
-#' getNameReshId
-#' getHospitalName
+#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName
 NULL
 
 

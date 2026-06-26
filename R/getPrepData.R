@@ -19,20 +19,7 @@
 #' @return data.frame med rad per forløp og kolonner for variabler
 #'
 #' @name getPrepDataAblanor
-#' @aliases getBaseregData
-#' getProsData
-#' getMceData
-#' getRand12Data
-#' getFollowupBasisData
-#' getFollowupOneYrData
-#' getFollowupFiveYrData
-#' getGkvData
-#' getPromsData
-#' getBaseregProsData
-#' getBaseregProsHendelseData
-#' getBaseregProsFollowup1Data
-#' getBaseregProsFollowup0Data
-#' getBaseregProsFollowup5Data
+#' @aliases getBaseregData getProsData getMceData getRand12Data getFollowupBasisData getFollowupOneYrData getFollowupFiveYrData getGkvData getPromsData getBaseregProsData getBaseregProsHendelseData getBaseregProsFollowup1Data getBaseregProsFollowup0Data getBaseregProsFollowup5Data
 NULL
 
 #' @rdname getPrepDataAblanor
