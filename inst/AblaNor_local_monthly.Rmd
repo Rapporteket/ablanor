@@ -123,7 +123,10 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
         lubridate::days(1), 
       
       TRUE ~ as.Date(NA_character_)),
-
+    
+    # Siste dato for 1 års oppfølging
+    siste_dato_1aarOppf = siste_dato - lubridate::years(1),
+    
     # Inneværende år: 
     nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
     
@@ -135,7 +138,10 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) %>%
     
     # Første dato for SQL -spørring : 01. januar fjoråret
     forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
-                           format = "%Y-%m-%d")
+                           format = "%Y-%m-%d"),
+    
+    # Første dato for 1 års oppfølging
+    forste_dato_1aarOppf = forste_dato - lubridate::years(1),
   ) %>% 
   dplyr::select(-siste_dato_innevarende_mnd)
 
@@ -167,8 +173,8 @@ d_ablanor_prom1aar <- ablanor::getBaseregProsFollowup1Data(
   singleRow = FALSE,
   reshId = params$reshId,
   userRole = "SC",
-  fromDate = periode_data$forste_dato,
-  toDate = periode_data$siste_dato)
+  fromDate = periode_data$forste_dato_1aarOppf,
+  toDate = periode_data$siste_dato_1aarOppf)
 
 
 # 5-års oppfølging
@@ -695,7 +701,7 @@ if(params$tableFormat %in% "html") {
   tab_komp_samlet %>%   
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = cap,
+               cap = caption,
                digs = 1,
                align = align,
                fs = 9,
@@ -711,7 +717,7 @@ if(params$tableFormat %in% "html") {
   tab_komp_samlet %>%
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = cap,
+               cap = caption,
                digs = 1,
                align = align,
                fs = 9,
@@ -994,20 +1000,20 @@ caption <- paste0(
 
 proms_1aar_antPros_fjor <- d_ablanor_prom1aar %>% 
   filter(centreid %in% params$reshId,
-         aar_prosedyre %in% periode_data$sisteHeleYear,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype)) %>% 
   nrow()
 
 proms_1aar_datagrunnlag_fjor <- d_ablanor_prom1aar %>% 
   filter(centreid %in% params$reshId,
-         aar_prosedyre %in% periode_data$sisteHeleYear,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja") %>% 
   nrow()
 
 proms_1aar_besvart_fjor <- d_ablanor_prom1aar %>% 
   filter(centreid %in% params$reshId,
-         aar_prosedyre %in% periode_data$sisteHeleYear,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja",
          eprom_besvart_1aar %in% "datagrunnlag og besvart") %>% 
@@ -1016,27 +1022,27 @@ proms_1aar_besvart_fjor <- d_ablanor_prom1aar %>%
 
 responsrate_1aar_lokalt_fjor <- data.frame(
   sykehus = hospitalNameShort,
-  ant_pros = proms_antPros_toAarSiden,
-  datagrunnlag = proms_datagrunnlag_toAarSiden,
-  besvart = proms_besvart_toAarSiden) %>% 
+  ant_pros = proms_1aar_antPros_fjor,
+  datagrunnlag = proms_1aar_datagrunnlag_fjor,
+  besvart = proms_1aar_besvart_fjor) %>% 
   mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
 
 
 # Nasjonalt - prosedyrer fra to år siden
 
 proms_1aar_antPros_nasj_fjor <- d_ablanor_prom1aar %>% 
-  filter(aar_prosedyre %in% periode_data$sisteHeleYear,
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype)) %>% 
   nrow()
 
 proms_1aar_datagrunnlag_nasj_fjor <- d_ablanor_prom1aar %>% 
-  filter(aar_prosedyre %in% periode_data$sisteHeleYear,
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja") %>% 
   nrow()
 
 proms_1aar_besvart_nasj_fjor <- d_ablanor_prom1aar %>% 
-  filter(aar_prosedyre %in% periode_data$sisteHeleYear,
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja",
          eprom_besvart_1aar %in% "datagrunnlag og besvart") %>% 
@@ -1044,33 +1050,129 @@ proms_1aar_besvart_nasj_fjor <- d_ablanor_prom1aar %>%
 
 
 responsrate_1aar_nasj_fjor <- data.frame(
-  sykehus = hospitalNameShort,
+  sykehus = "Nasjonalt",
   ant_pros = proms_1aar_antPros_nasj_fjor,
   datagrunnlag = proms_1aar_datagrunnlag_nasj_fjor,
   besvart = proms_1aar_besvart_nasj_fjor) %>% 
   mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
 
-# Samlet
+# Samlet for to år siden
 responsrate_1aar_fjor <- rbind(
   responsrate_1aar_lokalt_fjor,
   responsrate_1aar_nasj_fjor)
 
 
+# Lokalt - prosedyrer fra i fjor
+
+proms_1aar_antPros_aar <- d_ablanor_prom1aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype)) %>% 
+  nrow()
+
+proms_1aar_datagrunnlag_aar <- d_ablanor_prom1aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") %>% 
+  nrow()
+
+proms_1aar_besvart_aar <- d_ablanor_prom1aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") %>% 
+  nrow()
+
+
+responsrate_1aar_lokalt_aar <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_1aar_antPros_aar,
+  datagrunnlag = proms_1aar_datagrunnlag_aar,
+  besvart = proms_1aar_besvart_aar) %>% 
+  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+
+
+# Nasjonalt - prosedyrer fra i fjor
+
+proms_1aar_antPros_nasj_aar <- d_ablanor_prom1aar %>% 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype)) %>% 
+  nrow()
+
+proms_1aar_datagrunnlag_nasj_aar <- d_ablanor_prom1aar %>% 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") %>% 
+  nrow()
+
+proms_1aar_besvart_nasj_aar <- d_ablanor_prom1aar %>% 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") %>% 
+  nrow()
+
+
+responsrate_1aar_nasj_aar <- data.frame(
+  sykehus = "Nasjonalt",
+  ant_pros = proms_1aar_antPros_nasj_aar,
+  datagrunnlag = proms_1aar_datagrunnlag_nasj_aar,
+  besvart = proms_1aar_besvart_nasj_aar) %>% 
+  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+
+# Samlet i fjor
+responsrate_1aar_aar <- rbind(
+  responsrate_1aar_lokalt_aar,
+  responsrate_1aar_nasj_aar)
+
+
+# Samlet prom hele siste år og hittil i år
+responsrate <- rbind(
+  responsrate_1aar_fjor,
+  responsrate_1aar_aar)
+
+
+responsrate[responsrate == 0] <- " - "
+responsrate[is.na(responsrate)] <- " - "
+
+colnames(responsrate)[2] <- "Antall prosedyrer"
+colnames(responsrate)[3] <- "Kriterier for ePROM oppfylt og ePROM bestilt"
+colnames(responsrate)[4] <- "ePROM besvart"
+colnames(responsrate)[5] <- "Andel besvart"
+
+align <- c("l", rep("c", dim(responsrate)[2] - 1))
+
 if(params$tableFormat %in% "html") {
-  responsrate_1aar_fjor %>% rename(" " = "sykehus") %>%   
+  responsrate %>% rename(" " = "sykehus") %>%   
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = cap,
+               cap = caption,
                digs = 1,
                align = align,
                fs = 9,
-               lsd = FALSE)
+               lsd = FALSE) %>% 
+    kableExtra::row_spec(row=dim(responsrate)[1]-1, hline_after =  TRUE) %>% 
+    kableExtra::column_spec(column = 1, width = "20em") %>%
+    kableExtra::pack_rows(group_label = paste0("Totalt ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$sisteHeleYear)-1)),
+                          start_row = 1,
+                          end_row = 2) %>%
+    kableExtra::pack_rows(group_label = paste0("Hittil i år ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$nyesteRegYear)-1)),
+                          start_row = 3,
+                          end_row = 4)
+    
+    
   
 } else if (params$tableFormat %in% "pdf") {
-  tabForlopstype %>% rename(" " = "sykehus") %>%
+  responsrate %>% rename(" " = "sykehus") %>%
   rapbase::mst(.,
                type = params$tableFormat,
-               cap = cap,
+               cap = caption,
                digs = 1,
                align = align,
                fs = 9,
