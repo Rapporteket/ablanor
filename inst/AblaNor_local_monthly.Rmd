@@ -1006,9 +1006,9 @@ blitt bestilt og sendt.
 ```{r respontrate1aarsOppf, echo = FALSE, results = "asis"}
 
 caption <- paste0(
-  "Tabellen viser responsrate for prosedyrene som ble utført i perioden ",
-  (periode_data$forste_dato_1aarOppf), " og " ,
-  (periode_data$siste_dato_1aarOppf),
+  "Tabellen viser responsrate for prosedyrene som ble utført i ",
+  (periode_data$sisteHeleYear-1), " og " ,
+  (periode_data$nyesteRegYear-1),
   ", og der oppfølging ble besvart henholdsvis i ",
   periode_data$sisteHeleYear,
   " samt alle fullførte måneder hittil i ",
@@ -1044,7 +1044,10 @@ responsrate_1aar_lokalt_fjor <- data.frame(
   ant_pros = proms_1aar_antPros_fjor,
   datagrunnlag = proms_1aar_datagrunnlag_fjor,
   besvart = proms_1aar_besvart_fjor) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 
 # Nasjonalt - prosedyrer fra to år siden
@@ -1073,7 +1076,10 @@ responsrate_1aar_nasj_fjor <- data.frame(
   ant_pros = proms_1aar_antPros_nasj_fjor,
   datagrunnlag = proms_1aar_datagrunnlag_nasj_fjor,
   besvart = proms_1aar_besvart_nasj_fjor) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 # Samlet for to år siden
 responsrate_1aar_fjor <- rbind(
@@ -1110,7 +1116,10 @@ responsrate_1aar_lokalt_aar <- data.frame(
   ant_pros = proms_1aar_antPros_aar,
   datagrunnlag = proms_1aar_datagrunnlag_aar,
   besvart = proms_1aar_besvart_aar) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 
 # Nasjonalt - prosedyrer fra i fjor
@@ -1139,7 +1148,10 @@ responsrate_1aar_nasj_aar <- data.frame(
   ant_pros = proms_1aar_antPros_nasj_aar,
   datagrunnlag = proms_1aar_datagrunnlag_nasj_aar,
   besvart = proms_1aar_besvart_nasj_aar) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 # Samlet i fjor
 responsrate_1aar_aar <- rbind(
@@ -1174,7 +1186,7 @@ if(params$tableFormat %in% "html") {
                lsd = FALSE) %>% 
     kableExtra::row_spec(row=dim(responsrate_prom1aar)[1]-1, hline_after =  TRUE) %>% 
     kableExtra::column_spec(column = 1, width = "20em") %>%
-    kableExtra::pack_rows(group_label = paste0("Totalt ",
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
                                                "for prosedyrer utført i ",
                                                as.character((periode_data$sisteHeleYear)-1)),
                           start_row = 1,
@@ -1198,7 +1210,7 @@ if(params$tableFormat %in% "html") {
                lsd = FALSE) %>%
     kableExtra::kable_styling(latex_options = "scale_down") %>%
     kableExtra::row_spec(row=2, hline_after =  TRUE) %>%
-    kableExtra::pack_rows(group_label = paste0("Totalt ",
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
                                                "for prosedyrer utført i ",
                                                as.character((periode_data$sisteHeleYear)-1)),
                           start_row = 1,
@@ -1220,16 +1232,15 @@ Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gj
 <br>
 
 
+```{r figKliniskEffekt1aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
 
-```{r figKliniskEffekt1aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "80%", fig.asp = 0.8}
-
-fig.cap <-  paste0("Figurene under viser pasientraportert klinisk effekt 1 år ",
-                   " etter prosedyren utført i perioden ", 
-                   (periode_data$forste_dato_1aarOppf), " og " ,
-                   (periode_data$siste_dato_1aarOppf), ", ",
+fig.cap <-  paste0("Figuren viser pasientraportert klinisk effekt 1 år ",
+                   " etter prosedyren utført i ", 
+                   (periode_data$sisteHeleYear-1), " og " ,
+                   (periode_data$nyesteRegYear-1), ", ",
                    "i prosent for ",
                    hospitalNameShort, " og nasjonalt der oppfølgingen ble ",
-                   "besvart i ", periode_data$sisteHeleYear,
+                   "besvart henholdsvis i ", periode_data$sisteHeleYear,
                    " samt alle fullførte måneder hittil i ",
                    periode_data$nyesteRegYear, ".")
 
@@ -1298,107 +1309,69 @@ klinisk_effekt_1aar_nasj <- rbind(
 
 
 # Samlet klinisk effekt 1 år
-klinisk_effekt_1ar <- rbind(
+klinisk_effekt_1aar <- rbind(
   klinisk_effekt_1aar_lokalt,
   klinisk_effekt_1aar_nasj) %>% 
   mutate(aar_prosedyre = factor(
     x = aar_prosedyre,
     levels = c((periode_data$sisteHeleYear-1):(periode_data$nyesteRegYear-1)),
-    labels = c(paste0("Totalt for prosedyrer utført i ", (periode_data$sisteHeleYear-1)),
-               paste0("Hittil i år for prosedyrer utført i ", (periode_data$nyesteRegYear-1)))
-    ))
+    labels = c(paste0("Besvart i fjor for prosedyrer utført i ",
+                      (periode_data$sisteHeleYear-1)),
+               paste0("Besvart hittil i år for prosedyrer utført i ",
+                      (periode_data$nyesteRegYear-1)))),
+    
+    sykehusnavn = factor(x = sykehusnavn,
+                         levels = c("Nasjonalt",
+                                    hospitalNameShort)))
 
 # Figur
-# klinisk_effekt_1ar %>% 
-#   ggplot2::ggplot(ggplot2::aes(y = n,
-#                                x = forlopstype_tekst,
-#                                fill = factor(sykehusnavn)))+
-#   ggplot2::geom_bar(position = "fill",
-#                     stat = "identity",
-#                     width = 0.6) +
-#   ggplot2::coord_flip() +
-#   geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
-#   facet_grid(forlopstype_tekst ~ aar_prosedyre,
-#              switch = "y",
-#              scale = "free_y") +
-#   ggplot2::theme_minimal() +
-#   ggplot2::scale_fill_manual(values = colPrimary) +
-#   # ggplot2::labs(title  = "",
-#   #               x = "",
-#   #               y = "\n ") +
-#   scale_x_discrete(position = "top") +
-#   ggplot2::scale_y_continuous(name = "",
-#                               breaks = seq(from=0,
-#                                            to =1,
-#                                            length.out = 6),
-#                               labels = paste0(seq(from=0,
-#                                                   to =1,
-#                                                   length.out = 6)*100, "%"))+
-#   theme(
-#     # Legend format
-#     legend.title = element_blank(),
-#     legend.position = "bottom",
-#     legend.text = ggplot2::element_text(size = 12,
-#                                         color = "#222222"),
-#     
-#     #Axis format    
-#     axis.text.x = element_text(size = 10,
-#                                color = "#222222"),
-#     axis.text.y = element_blank()) +
-#   guides(fill = guide_legend(reverse = TRUE))
-
-
-
-
-# klinisk_effekt_1ar %>% 
-  ggplot2::ggplot(
-    mapping = aes(fill = followup1_q2_tekst,
-                  y = n,
-                  x = factor(sykehusnavn))) +
+klinisk_effekt_1aar %>%
+  ggplot2::ggplot(ggplot2::aes(y = n,
+                               x = sykehusnavn,
+                               fill = followup1_q2_tekst))+
   ggplot2::geom_bar(position = "fill",
                     stat = "identity",
                     width = 0.6) +
-  ggplot2::guides(fill = guide_legend(reverse = TRUE)) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar_prosedyre,
+             switch = "y") +
+  ggplot2::theme_minimal() +
   ggplot2::scale_fill_manual(values = colPrimary) +
-  ggplot2::facet_wrap(~ aar_prosedyre, ncol = 5, strip.position = "top") +
-  xlab("") +
-  # ggplot2::ggtitle("Klinisk effekt", subtitle = "1 år etter prosedyren") +
-
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "") +
+  # scale_x_discrete(position = "top") +
   ggplot2::scale_y_continuous(name = "",
                               breaks = seq(from=0,
                                            to =1,
-                                           length.out = 6),
+                                           length.out = 5),
                               labels = paste0(seq(from=0,
                                                   to =1,
-                                                  length.out = 6)*100, "%")) +
-  ggplot2::theme(
+                                                  length.out = 5)*100, "%")) +
+  theme(
+    # Group format
+    strip.placement = "outside",
+    strip.background = element_rect(color = "black", linewidth = 1),
+      
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = ggplot2::element_text(size = 10,
+                                        color = "#222222"),
 
     #Axis format
-    axis.text = ggplot2::element_text(family = "sans",
-                                      color = "#222222"),
-    # axis.text.x = element_text(angle=45, vjust =1, hjust=1),
-    axis.ticks = ggplot2::element_blank(),
-
-    #  Legend format
-    legend.background = ggplot2::element_blank(),
-    legend.title = ggplot2::element_blank(),
-    legend.key = element_blank(),
-    legend.position = "bottom",
-    legend.margin=margin(t=-20),
-
-    # Layout bacgroupd,
-    panel.background = ggplot2::element_blank(),
-    strip.placement = "outside",
-    strip.background = element_blank(),
-    #This removes all minor gridlines and adds major y gridlines.
-    panel.grid.minor = ggplot2::element_blank(),
-    panel.grid.major.y = ggplot2::element_line(color = "#cbcbcb"),
-    panel.grid.major.x = ggplot2::element_blank())
+    axis.text.y = element_text(size = 8,
+                               color = "#222222"),
+    axis.text.x = element_text(size = 8,
+                               color = "#222222")
+    ) +
+  guides(fill = guide_legend(reverse = TRUE))
 
 ```
 
 
-
+<br>
 
 
 
@@ -1420,12 +1393,12 @@ blitt bestilt og sendt.
 ```{r respontrate5aarsOppf, echo = FALSE, results = "asis"}
 
 caption <- paste0(
-  "Tabellen viser responsrate for prosedyrene som ble utført i perioden ",
-  (periode_data$forste_dato_5aarOppf), " og " ,
-  (periode_data$siste_dato_5aarOppf),
+  "Tabellen viser responsrate for prosedyrene som ble utført i ",
+  (periode_data$sisteHeleYear-5), " og " ,
+  (periode_data$nyesteRegYear-5),
   ", og der oppfølging ble besvart henholdsvis i ",
   periode_data$sisteHeleYear,
-  " og hittil i ",
+  " samt alle fullførte måneder hittil i ",
   periode_data$nyesteRegYear, "." )
 
 
@@ -1458,7 +1431,10 @@ responsrate_5aar_lokalt_fjor <- data.frame(
   ant_pros = proms_5aar_antPros_fjor,
   datagrunnlag = proms_5aar_datagrunnlag_fjor,
   besvart = proms_5aar_besvart_fjor) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 
 # Nasjonalt - prosedyrer fra seks år siden
@@ -1487,7 +1463,10 @@ responsrate_5aar_nasj_fjor <- data.frame(
   ant_pros = proms_5aar_antPros_nasj_fjor,
   datagrunnlag = proms_5aar_datagrunnlag_nasj_fjor,
   besvart = proms_5aar_besvart_nasj_fjor) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 # Samlet for seks år siden
 responsrate_5aar_fjor <- rbind(
@@ -1524,7 +1503,10 @@ responsrate_5aar_lokalt_aar <- data.frame(
   ant_pros = proms_5aar_antPros_aar,
   datagrunnlag = proms_5aar_datagrunnlag_aar,
   besvart = proms_5aar_besvart_aar) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 
 # Nasjonalt - prosedyrer fra fem år siden
@@ -1552,7 +1534,10 @@ responsrate_5aar_nasj_aar <- data.frame(
   ant_pros = proms_5aar_antPros_nasj_aar,
   datagrunnlag = proms_5aar_datagrunnlag_nasj_aar,
   besvart = proms_5aar_besvart_nasj_aar) %>% 
-  mutate(andel_besvart = paste0(round(100*(besvart/datagrunnlag), 1), "%"))
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
 
 # Samlet i fjor
 responsrate_5aar_aar <- rbind(
@@ -1587,7 +1572,7 @@ if(params$tableFormat %in% "html") {
                lsd = FALSE) %>% 
     kableExtra::row_spec(row=dim(responsrate_prom5aar)[1]-1, hline_after =  TRUE) %>% 
     kableExtra::column_spec(column = 1, width = "20em") %>%
-    kableExtra::pack_rows(group_label = paste0("Totalt ",
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
                                                "for prosedyrer utført i ",
                                                as.character((periode_data$sisteHeleYear)-5)),
                           start_row = 1,
@@ -1611,7 +1596,7 @@ if(params$tableFormat %in% "html") {
                lsd = FALSE) %>%
     kableExtra::kable_styling(latex_options = "scale_down") %>%
     kableExtra::row_spec(row=2, hline_after =  TRUE) %>%
-    kableExtra::pack_rows(group_label = paste0("Totalt ",
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
                                                "for prosedyrer utført i ",
                                                as.character((periode_data$sisteHeleYear)-5)),
                           start_row = 1,
@@ -1631,3 +1616,143 @@ if(params$tableFormat %in% "html") {
 
 Følgende spørsmål stillet fem år etter prosedyren:
 Du har vært til behandling av en rytmeforstyrrelse for 5 år siden. Når det gjelder arytmien er tilstanden din nå, sammenlignet med for 5 år siden”. Svaralternativene er: Helt bra, Mye bedre, Bedre, Uforandret og Verre.
+
+<br>
+
+```{r figKliniskEffekt5aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
+
+fig.cap <-  paste0("Figuren viser pasientraportert klinisk effekt 5 år ",
+                   " etter prosedyren utført i ", 
+                   (periode_data$sisteHeleYear-5), " og " ,
+                   (periode_data$nyesteRegYear-5), ", ",
+                   "i prosent for ",
+                   hospitalNameShort, " og nasjonalt der oppfølgingen ble ",
+                   "besvart henholdsvis i ", periode_data$sisteHeleYear,
+                   " samt alle fullførte måneder hittil i ",
+                   periode_data$nyesteRegYear, ".")
+
+
+# Lokalt proms 5 år fra i fjor
+klinisk_effekt_5aar_lokalt_fjor <- d_ablanor_prom5aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") %>% 
+  select(aar_prosedyre, followup5_q2, forlopstype) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) %>%
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) %>% 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+  
+# Lokalt proms 5 år fra i år
+klinisk_effekt_5aar_lokalt_aar <- d_ablanor_prom5aar %>% 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") %>% 
+  select(aar_prosedyre, followup5_q2, forlopstype) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) %>%
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) %>% 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+
+
+# Lokalt samlet
+klinisk_effekt_5aar_lokalt <- rbind(
+  klinisk_effekt_5aar_lokalt_fjor,
+  klinisk_effekt_5aar_lokalt_aar) %>% 
+  mutate(sykehusnavn = hospitalNameShort)
+  
+
+# Nasjonalt proms 5 år fra i fjor
+klinisk_effekt_5aar_nasj_fjor <- d_ablanor_prom5aar %>% 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") %>% 
+  select(aar_prosedyre, followup5_q2, forlopstype) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) %>%
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) %>% 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst)
+  
+# Nasjonalt proms 5 år fra i år
+klinisk_effekt_5aar_nasj_aar <- d_ablanor_prom5aar %>% 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") %>%
+  select(aar_prosedyre, followup5_q2, forlopstype) %>% 
+  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) %>%
+  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) %>%
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) %>% 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+
+
+
+# Nasjonalt samlet
+klinisk_effekt_5aar_nasj <- rbind(
+  klinisk_effekt_5aar_nasj_fjor,
+  klinisk_effekt_5aar_nasj_aar) %>% 
+  mutate(sykehusnavn = "Nasjonalt")
+
+
+# Samlet klinisk effekt 5 år
+klinisk_effekt_5aar <- rbind(
+  klinisk_effekt_5aar_lokalt,
+  klinisk_effekt_5aar_nasj) %>% 
+  mutate(aar_prosedyre = factor(
+    x = aar_prosedyre,
+    levels = c((periode_data$sisteHeleYear-5):(periode_data$nyesteRegYear-5)),
+    labels = c(paste0("Besvart i fjor for prosedyrer utført i ",
+                      (periode_data$sisteHeleYear-5)),
+               paste0("Besvart hittil i år for prosedyrer utført i ",
+                      (periode_data$nyesteRegYear-5)))),
+    
+    sykehusnavn = factor(x = sykehusnavn,
+                         levels = c("Nasjonalt",
+                                    hospitalNameShort)))
+
+# Figur
+klinisk_effekt_5aar %>%
+  ggplot2::ggplot(ggplot2::aes(y = n,
+                               x = sykehusnavn,
+                               fill = followup5_q2_tekst))+
+  ggplot2::geom_bar(position = "fill",
+                    stat = "identity",
+                    width = 0.6) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar_prosedyre,
+             switch = "y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values = colPrimary) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "") +
+  # scale_x_discrete(position = "top") +
+  ggplot2::scale_y_continuous(name = "",
+                              breaks = seq(from=0,
+                                           to =1,
+                                           length.out = 5),
+                              labels = paste0(seq(from=0,
+                                                  to =1,
+                                                  length.out = 5)*100, "%")) +
+  theme(
+    # Group format
+    strip.placement = "outside",
+    strip.background = element_rect(color = "black", linewidth = 1),
+      
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = ggplot2::element_text(size = 10,
+                                        color = "#222222"),
+
+    #Axis format
+    axis.text.y = element_text(size = 8,
+                               color = "#222222"),
+    axis.text.x = element_text(size = 8,
+                               color = "#222222")
+    ) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+```
