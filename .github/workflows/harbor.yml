@@ -50,6 +50,7 @@ jobs:
           file: ./Dockerfile
           tags: ${{ secrets.HARBOR_REGISTRY }}/${{ steps.docker_meta.outputs.tags }}
           push: ${{ github.event_name == 'release' }}
+          pull: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           secrets: "github_pat=${{ secrets.GITHUB_TOKEN }}"
