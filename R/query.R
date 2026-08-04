@@ -71,6 +71,8 @@ queryProm0 <- function(){
       LEFT JOIN mce MCE ON MCE.MCEID = BF.MCEID AND MCE.MCETYPE = 7
       LEFT JOIN proms PROMS ON PROMS.MCEID = BF.MCEID AND PROMS.REGISTRATION_TYPE = 'Basisfollowup'
       LEFT JOIN gkv GKV ON GKV.MCEID = BF.MCEID
+
+    WHERE MCE.PARENTMCEID IS NOT NULL
   ")
 }
 
@@ -92,7 +94,7 @@ queryRand12_0 <- function(){
       FROM
         rand12 relectonic
       LEFT JOIN mce MCE ON MCE.MCEID = relectonic.MCEID
-      WHERE relectonic.FOLLOWUP_PARENT_TYPE = 7 AND relectonic.COMPLETE =1)
+      WHERE relectonic.FOLLOWUP_PARENT_TYPE = 7 AND relectonic.COMPLETE =1 AND MCE.PARENTMCEID IS NOT NULL)
 
       UNION ALL
 
