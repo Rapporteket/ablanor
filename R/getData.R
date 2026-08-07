@@ -875,3 +875,40 @@ getBasisProm <- function(...) {
 
 }
 
+#' @rdname getDataAblanor
+#' @export
+getProm1yr <- function(singleRow,
+                             reshId = NULL,
+                             userRole,
+                             fromDate = NULL,
+                             toDate = NULL, ...) {
+
+  query <- paste0(ablanor::queryProm1(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for 1yr followup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 1yr followup"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_prom1 <- rapbase::loadRegData("data", query)
+    # nocov end
+  } else {
+    d_prom1 <- rapbase::loadRegData("data", query)
+  }
+
+  list(d_prom1 = d_prom1)
+}
+
+
+

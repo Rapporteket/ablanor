@@ -5,11 +5,10 @@
 #'
 
 #' @return Data frame or (when multiple data sets are returned) a list of data
-#' frames containing registry data. In case of \code{getNameReshId()} data may
-#' also be returned as a named list of values (see Details).
+#' frames containing registry data.
 #'
 #' @name queryDataAblanor
-#' @aliases queryProm0 queryRand12_0
+#' @aliases queryProm0 queryRand12_0 queryProm1
 NULL
 
 #' @rdname queryDataAblanor
@@ -139,4 +138,70 @@ queryRand12_0 <- function(){
     ")
 }
 
+
+#' @rdname queryDataAblanor
+#' @export
+queryProm1 <- function(){
+  paste0("
+         SELECT
+            MCE.CENTREID,
+            MCE.MCEID AS mceid_followup1,
+            MCE.PARENTMCEID AS parentmceid,
+
+            PROMS.TSSENDT AS proms_tssendt,
+            PROMS.STATUS AS proms_status,
+            PROMS.FORM_ORDER_STATUS_ERROR_CODE AS proms_form_order_status_error_code,
+            PROMS.EXPIRY_DATE AS proms_expiry_date,
+
+            F.DATO_FOLLOWUP AS dato_followup1,
+            F.COMPLETE AS followup1_complete,
+            F.INCOMPLETE_REASON AS followup1_incomplete_reason,
+            F.Q1 AS followup1_q1,
+            F.Q2 AS followup1_q2,
+            F.Q3 AS followup1_q3,
+            F.Q4 AS followup1_q4,
+            F.Q5 AS followup1_q5,
+            F.Q5_BURN_FREEZE AS followup1_q5_burn_freeze,
+            F.Q5_PACEMAKER AS followup1_q5_pacemaker,
+            F.Q5_ELECTROCONVERSION AS followup1_q5_electroconversion,
+            F.Q5_OTHER AS followup1_q5_other,
+            F.Q5_OTHER_SPECIFY AS followup1_q5_other_specify,
+            F.Q6 AS followup1_q6,
+            F.Q6_REGULAR_EKG AS followup1_q6_regular_ekg,
+            F.Q6_24_HOUR_EKG AS followup1_q6_24_hour_ekg,
+            F.Q6_PACEMAKER AS followup1_q6_pacemaker,
+            F.Q6_PULSE_WATCH AS followup1_q6_pulse_watch,
+            F.Q6_OTHER AS followup1_q6_other,
+            F.Q6_OTHER_SPECIFY AS followup1_q6_other_specify,
+            F.Q7_STROKE AS followup1_q7_stroke,
+            F.Q7_BLOCK AS followup1_q7_block,
+            F.Q7_OPERATION AS followup1_q7_operation,
+            F.Q7_PACEMAKER AS followup1_q7_pacemaker,
+            F.Q7_OTHER AS followup1_q7_other,
+            F.Q7_OTHER_SPECIFY AS followup1_q7_other_specify,
+            F.USERCOMMENT AS followup1_usercomment,
+            F.STATUS AS followup1_status,
+            F.TSCREATED AS followup1_tscreated,
+            R.DATO_RAND12,
+            R.RAND_1 AS followup1_rand_1,
+            R.RAND_2A AS followup1_rand_2a,
+            R.RAND_2B AS followup1_rand_2b,
+            R.RAND_3A AS followup1_rand_3a,
+            R.RAND_3B AS followup1_rand_3b,
+            R.RAND_4A AS followup1_rand_4a,
+            R.RAND_4B AS followup1_rand_4b,
+            R.RAND_5 AS followup1_rand_5,
+            R.RAND_6A AS followup1_rand_6a,
+            R.RAND_6B AS followup1_rand_6b,
+            R.RAND_6C AS followup1_rand_6c,
+            R.RAND_7 AS followup1_rand_7
+
+     FROM
+      followup F
+      LEFT JOIN mce MCE ON MCE.MCEID = F.MCEID AND MCE.MCETYPE = 9
+      LEFT JOIN proms PROMS ON PROMS.MCEID = F.MCEID AND PROMS.REGISTRATION_TYPE = 'Followup'
+      LEFT JOIN rand12 R on MCE.MCEID = R.MCEID AND R.FOLLOWUP_PARENT_TYPE = 9
+    WHERE MCE.PARENTMCEID IS NOT NULL
+  ")
+}
 
