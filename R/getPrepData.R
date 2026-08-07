@@ -1173,33 +1173,39 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
         x = dplyr::case_when(
 
           dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
-            "nei, foer innfoering av eproms basis",
+            "nei, foer innfoering av basisprom",
 
           proms_status %in% 4 & proms_form_order_status_error_code %in% 1 ~
             "nei, digitalt inaktiv",
 
           kriterie_alle_basis %in% "nei" & is.na(has_basisfollowup) ~
-            "nei, kriterie mangler og har ikke eprom",
+            "nei, kriterie mangler og har ikke basisprom",
 
-          kriterie_alle_basis %in% "nei" & has_basisfollowup %in% 1 ~
-            "error, kriterie mangler - har eprom",
+          kriterie_alle_basis %in% "nei" & has_basisfollowup %in% 1 & is.na(proms_status) ~
+            "nei, kriterie mangler og har ikke basisprom",
+
+          kriterie_alle_basis %in% "nei" & has_basisfollowup %in% 1 & ! is.na(proms_status)~
+            "error, kriterie mangler - har basisprom",
 
           kriterie_alle_basis %in% "ja" & is.na(has_basisfollowup) ~
-            "error, kriterier ok - mangler eprom",
+            "error, burde hatt basisprom",
+
+          kriterie_alle_basis %in% "ja" & has_basisfollowup %in% 1  & proms_status %in% 4 & is.na(proms_form_order_status_error_code) ~
+            "error",
 
           kriterie_alle_basis %in% "ja" & has_basisfollowup %in% 1 ~
             "ja",
 
-          TRUE ~"toto"
+          TRUE ~ NA_character_
 
         ),
         levels = c("ja",
-                   "nei, foer innfoering av eproms basis",
+                   "nei, foer innfoering av basisprom",
                    "nei, digitalt inaktiv",
-                   "nei, kriterie mangler og har ikke eprom",
-                   "error, kriterie mangler - har eprom",
-                   "error, kriterier ok - mangler eprom",
-                   "toto"),
+                   "nei, kriterie mangler og har ikke basisprom",
+                   "error, kriterie mangler - har basisprom",
+                   "error, burde hatt basisprom",
+                   "error"),
         ordered  = TRUE
       ))
 
