@@ -16,7 +16,8 @@ jobs:
   test-coverage:
     runs-on: ubuntu-24.04
     env:
-      GITHUB_PAT: ${{ secrets.GH_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_COMPILE_AND_INSTALL_PACKAGES: never
       GITHUB_ACTIONS_RUN_DB_UNIT_TESTS: true
       MYSQL_HOST: "localhost"
       MYSQL_USER: "root"
@@ -26,6 +27,8 @@ jobs:
       - uses: actions/checkout@v7
 
       - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
 
       - uses: r-lib/actions/setup-pandoc@v2
 
