@@ -23,34 +23,127 @@ app_server <- function(input, output, session) {
   )
 
   shiny::observeEvent(user$role(), {
-    if (user$role() == "LU") {
-      shiny::showTab(inputId = "tabs", target = "Start")
-      shiny::hideTab(inputId = "tabs", target = "Utforsker")
-      shiny::hideTab(inputId = "tabs", target = "Datadump")
-      shiny::hideTab(inputId = "tabs", target = "Kodebok")
-      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-      shiny::showTab(inputId = "tabs", target = "Abonnement")
-      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+    shiny::removeTab(inputId = "tabs", target = "Utforsker")
+    shiny::removeTab(inputId = "tabs", target = "Datadump")
+    shiny::removeTab(inputId = "tabs", target = "Kodebok")
+    shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
+    shiny::removeTab(inputId = "tabs", target = "Verktøy")
+    if (user$role() == "LC" || user$role() == "SC") {
+      # Legg til faner for Utforsker, Kodebok og Datadump for LC og SC brukere
+      shiny::insertTab(inputId = "tabs",
+        shiny::tabPanel(
+          "Utforsker",
+          shiny::fluidRow(
+            shiny::column(6, shiny::uiOutput("selectDataSet")),
+            shiny::column(6, shiny::uiOutput("selectVars"))
+          ),
+          shiny::fluidRow(
+            shiny::column(12, shiny::uiOutput("togglePivotSurvey"))
+          ),
+          shiny::fluidRow(
+            shiny::column(12, rpivotTable::rpivotTableOutput("pivotSurvey"))
+          )
+        ),
+        target = "Start",
+        position = "after"
+      )
+      shiny::insertTab(inputId = "tabs",
+        shiny::tabPanel(
+          "Kodebok",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(shiny::uiOutput("kbControl")),
+            shiny::mainPanel(shiny::htmlOutput("kbdData"))
+          )
+        ),
+        target = "Utforsker",
+        position = "after"
+      )
+      shiny::insertTab(inputId = "tabs",
+        shiny::tabPanel(
+          title = "Datadump",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              width = 4,
+              shiny::uiOutput(outputId = "selectDumpSet"),
+              shiny::dateRangeInput(
+                "dumpDateRange", "Velg periode:",
+                start = lubridate::ymd(Sys.Date()) - lubridate::years(1),
+                end = Sys.Date(), separator = "-",
+                weekstart = 1
+              ),
+              shiny::radioButtons("dumpFormat", "Velg filformat:",
+                choices = c("csv", "xlsx-csv")),
+              shiny::downloadButton("dumpDownload", "Hent!")
+            ),
+            shiny::mainPanel(
+              shiny::htmlOutput("dataDumpInfo")
+            )
+          )
+        ),
+        target = "Kodebok",
+        position = "after")
     }
     if (user$role() == "LC") {
-      shiny::showTab(inputId = "tabs", target = "Start")
-      shiny::showTab(inputId = "tabs", target = "Utforsker")
-      shiny::showTab(inputId = "tabs", target = "Datadump")
-      shiny::showTab(inputId = "tabs", target = "Kodebok")
-      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
-      shiny::showTab(inputId = "tabs", target = "Abonnement")
-      shiny::hideTab(inputId = "tabs", target = "Verktøy")
+      # Legg til fane for månedlige rapporter for LC-brukere
+      shiny::insertTab(inputId = "tabs",
+        shiny::tabPanel(
+          "Månedsrapporter",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(
+              shiny::radioButtons("formatReport",
+                "Format for nedlasting",
+                list(PDF = "pdf", HTML = "html"),
+                inline = FALSE),
+              shiny::downloadButton("downloadReport", "Last ned!"),
+              width = 2
+            ),
+            shiny::mainPanel(
+              shiny::htmlOutput("maanedligRapport", inline = TRUE)
+            )
+          )
+        ),
+        target = "Datadump",
+        position = "after"
+      )
     }
-
-    # Hide tabs when role 'SC'
     if (user$role() == "SC") {
-      shiny::showTab(inputId = "tabs", target = "Start")
-      shiny::showTab(inputId = "tabs", target = "Utforsker")
-      shiny::showTab(inputId = "tabs", target = "Datadump")
-      shiny::showTab(inputId = "tabs", target = "Kodebok")
-      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
-      shiny::showTab(inputId = "tabs", target = "Abonnement")
-      shiny::showTab(inputId = "tabs", target = "Verktøy")
+      # Legg til fane for verktøy for SC-brukere
+      shiny::appendTab(inputId = "tabs",
+        shiny::navbarMenu(
+          "Verktøy",
+          shiny::tabPanel(
+            "Utsending",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::autoReportFormatInput("ablanorDispatchment"),
+                rapbase::autoReportOrgInput("ablanorDispatchment"),
+                rapbase::autoReportInput("ablanorDispatchment")
+              ),
+              shiny::mainPanel(
+                rapbase::autoReportUI("ablanorDispatchment")
+              )
+            )
+          ),
+          shiny::tabPanel(
+            "Eksport",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(
+                rapbase::exportUCInput("ablanorExport")
+              ),
+              shiny::mainPanel(
+                rapbase::exportGuideUI("ablanorExportGuide")
+              )
+            )
+          ),
+          shiny::tabPanel(
+            "Bruksstatistikk",
+            shiny::sidebarLayout(
+              shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
+              shiny::mainPanel(rapbase::statsUI("ablanorStats"))
+            )
+          )
+        )
+      )
     }
   })
 
