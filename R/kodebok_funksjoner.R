@@ -42,10 +42,7 @@
 #'
 #' @name kodebok_funksjoner
 #' @aliases
-#' kodebok_sjekk_foer_leggtil
-#' kodebok_sjekk_foer_fjerning
-#' kodebok_fyll_listetekstvar
-#' kodebok_beholde_bare_listetekstvar
+#' kodebok_sjekk_foer_leggtil kodebok_sjekk_foer_fjerning kodebok_fyll_listetekstvar kodebok_beholde_bare_listetekstvar
 #'
 #' @examples
 #'  df <- data.frame(var1 = c(1:5, 1:5),

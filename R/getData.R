@@ -32,22 +32,7 @@
 #' also be returned as a named list of values (see Details).
 #'
 #' @name getDataAblanor
-#' @aliases getBasereg
-#' getPros
-#' getMce
-#' getRand12
-#' getFollowupBasis
-#' getFollowupFiveYr
-#' getGkv
-#' getProms
-#' getHendelse
-#' getPatientlist
-#' getFriendlycentre
-#' getMcepatientdata
-#' getBaseregPros
-#' getLatestEntry
-#' getNameReshId
-#' getHospitalName
+#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName getBasisProm
 NULL
 
 
@@ -857,5 +842,73 @@ WHERE
 
   name
 }
+
+
+
+
+
+
+#' @rdname getDataAblanor
+#' @export
+getBasisProm <- function(...) {
+
+
+  query_basisprom <- paste0(ablanor::queryProm0(), ";")
+  query_basisrand <- paste0(ablanor::queryRand12_0(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = "msg")
+    d_basisprom <- rapbase::loadRegData("data", query_basisprom)
+    d_basisrand <- rapbase::loadRegData("data", query_basisrand)
+    # nocov end
+  } else {
+    d_basisprom <- rapbase::loadRegData("data", query_basisprom)
+    d_basisrand <- rapbase::loadRegData("data", query_basisrand)
+  }
+
+
+  list(d_basisprom = d_basisprom,
+       d_basisrand = d_basisrand)
+
+}
+
+#' @rdname getDataAblanor
+#' @export
+getProm1yr <- function(singleRow,
+                             reshId = NULL,
+                             userRole,
+                             fromDate = NULL,
+                             toDate = NULL, ...) {
+
+  query <- paste0(ablanor::queryProm1(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for 1yr followup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 1yr followup"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_prom1 <- rapbase::loadRegData("data", query)
+    # nocov end
+  } else {
+    d_prom1 <- rapbase::loadRegData("data", query)
+  }
+
+  list(d_prom1 = d_prom1)
+}
+
 
 

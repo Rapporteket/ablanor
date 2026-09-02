@@ -1,3 +1,8 @@
+# ablanor 2.2.0
+Oppdaterte kriterier for utsending av basis prom (ikke allerede bassisprom siste året). 
+Flyttet noe av spørringen/koblingen til SQL
+
+
 # ablanor 2.1.1
 Legg til funksjon for å utlede scoren CHA2DS2VA (uten kjønn). 
 Bruke denne i utforsker for "basereg, prosedyre, kvalitetsindikator". 
