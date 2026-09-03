@@ -90,11 +90,9 @@ app_server <- function(input, output, session) {
           "Månedsrapporter",
           shiny::sidebarLayout(
             shiny::sidebarPanel(
-              shiny::radioButtons("formatReport",
-                "Format for nedlasting",
-                list(PDF = "pdf", HTML = "html"),
-                inline = FALSE),
-              shiny::downloadButton("downloadReport", "Last ned!"),
+              style = "position:fixed;width:130px;",
+              h5("Last ned rapporten (pdf)"),
+              shiny::downloadButton("downloadReport", "Hent!"),
               width = 2
             ),
             shiny::mainPanel(
