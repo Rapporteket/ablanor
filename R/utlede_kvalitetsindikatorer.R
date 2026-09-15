@@ -134,15 +134,7 @@
 #' folkeregisteret.
 #'
 #' @name utlede_kvalitetsindikatorer
-#' @aliases
-#' utlede_dager_sensur
-#' indik_overlevelse30dg
-#' indik_tamponade
-#' indik_prom_klineff
-#' indik_ferdig_komplik
-#' indik_akuttsuksess
-#' indik_pacemaker
-#' indik_avbrudd
+#' @aliases utlede_dager_sensur indik_overlevelse30dg indik_tamponade indik_prom_klineff indik_ferdig_komplik indik_akuttsuksess indik_pacemaker indik_avbrudd
 #'
 #' @examples
 #' # OVERLEVELSE
