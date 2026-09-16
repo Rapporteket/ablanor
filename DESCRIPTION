@@ -41,7 +41,8 @@ Imports:
     shinyalert,
     stringr,
     tidyr,
-    tidyselect
+    tidyselect,
+    forcats
 Remotes:
     Rapporteket/rapbase,
     smartinsightsfromdata/rpivotTable
