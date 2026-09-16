@@ -1,3 +1,6 @@
+# ablanor 2.2.1
+Lagt til pakken forcats i Description
+
 # ablanor 2.2.0
 * Oppdaterer månedsrapporten for LC-rollen som skal vise data for sitt sykehus
 sammenlignet med nasjonale tall
