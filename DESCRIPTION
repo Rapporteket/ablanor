@@ -1,6 +1,6 @@
 Package: ablanor
 Title: AblaNor- Rapporteket
-Version: 2.2.0
+Version: 2.2.2
 Authors@R: c(
   person(given = "Kristina",
          family = "Skaare",

@@ -156,7 +156,11 @@ getKodebokData <- function() {
                                      "pulsklokke",
                                      "residiv_annet",
                                      "usercomment",
-                                     "status") &
+                                     "status",
+                                     "komp_tamp_sub",
+                                     "komp_blodning_sub",
+                                     "komp_pseudoan_sub",
+                                     "komp_av_fistel_sub") &
           .data$skjemanavn == "Hendelse" ~
           paste0("adhoc_", .data$fysisk_feltnavn),
 
