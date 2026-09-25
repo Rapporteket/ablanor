@@ -72,7 +72,6 @@ colKontrast <- "#FF7260"
 ```
 
 ```{r parametre}
-showN <- 12
 
 #Egendefinerte kortnavn:
 hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId, 
@@ -100,11 +99,6 @@ nyeste_reg <- min(
   (as.Date(Sys.time()-1)),
   ablanor::getLatestEntry())
 
-# periode_data <- data.frame(
-#   siste_dato = min((as.Date(Sys.time()) - 1), 
-#                    nyeste_reg)) %>% 
-#   dplyr::mutate(forste_dato  = lubridate::floor_date(.data$siste_dato, 
-#                                                      "month") - months(showN))
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) %>% 
   dplyr::mutate(
@@ -230,8 +224,7 @@ d_ablanor_nasjonalt %<>%
 d_ablanor_hendelse_nasjonalt %<>%
   dplyr::mutate(
     aar = as.ordered(lubridate::year(.data$dato_pros)),
-    maaned = as.ordered(format(.data$dato_pros, "%Y-%m"))
-  )
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m")))
 
 # OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
 
@@ -440,7 +433,10 @@ tab_komp <- data.frame(
                  "Pseudoaneurisme",
                  "Blødning",
                  "Infeksjon",
-                 "Tamponade",
+                 "Tamponade - Perikardiosentese",
+                 "Tamponade - Kirurgisk, sternotomi",
+                 "Tamponade - Observasjon",
+                 "Tamponade - Ukjent",
                  "N. frenicus parese",
                  "Apoplexi/TIA",
                  "AV-blokk/PM",
@@ -463,7 +459,14 @@ tab_kompl_pros_lokalt_fjor <- d_ablanor_nasjonalt %>%
     komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     komp_blodning %in% 1 ~ "Blødning",
     komp_infek %in% 1 ~ "Infeksjon",
-    komp_tamp %in% 1 ~ "Tamponade",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     komp_nfren %in% 1 ~ "N. frenicus parese",
     komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -490,7 +493,14 @@ tab_kompl_hendelse_lokalt_fjor <- d_ablanor_hendelse_innen4dager_nasjonalt %>%
     adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     adhoc_komp_blodning %in% 1 ~ "Blødning",
     adhoc_komp_infek %in% 1 ~ "Infeksjon",
-    adhoc_komp_tamp %in% 1 ~ "Tamponade",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     adhoc_komp_nfren %in% 1 ~ "N. frenicus parese",
     adhoc_komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     adhoc_komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -525,7 +535,14 @@ tab_kompl_pros_lokalt_aar <- d_ablanor_nasjonalt %>%
     komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     komp_blodning %in% 1 ~ "Blødning",
     komp_infek %in% 1 ~ "Infeksjon",
-    komp_tamp %in% 1 ~ "Tamponade",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     komp_nfren %in% 1 ~ "N. frenicus parese",
     komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -552,7 +569,14 @@ tab_kompl_hendelse_lokalt_aar <- d_ablanor_hendelse_innen4dager_nasjonalt %>%
     adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     adhoc_komp_blodning %in% 1 ~ "Blødning",
     adhoc_komp_infek %in% 1 ~ "Infeksjon",
-    adhoc_komp_tamp %in% 1 ~ "Tamponade",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     adhoc_komp_nfren %in% 1 ~ "N. frenicus parese",
     adhoc_komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     adhoc_komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -587,7 +611,14 @@ tab_kompl_pros_nasjonalt_fjor <- d_ablanor_nasjonalt %>%
     komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     komp_blodning %in% 1 ~ "Blødning",
     komp_infek %in% 1 ~ "Infeksjon",
-    komp_tamp %in% 1 ~ "Tamponade",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     komp_nfren %in% 1 ~ "N. frenicus parese",
     komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -613,7 +644,14 @@ tab_kompl_hendelse_nasjonalt_fjor <- d_ablanor_hendelse_innen4dager_nasjonalt %>
     adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     adhoc_komp_blodning %in% 1 ~ "Blødning",
     adhoc_komp_infek %in% 1 ~ "Infeksjon",
-    adhoc_komp_tamp %in% 1 ~ "Tamponade",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     adhoc_komp_nfren %in% 1 ~ "N. frenicus parese",
     adhoc_komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     adhoc_komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -648,7 +686,14 @@ tab_kompl_pros_nasjonalt_aar <- d_ablanor_nasjonalt %>%
     komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     komp_blodning %in% 1 ~ "Blødning",
     komp_infek %in% 1 ~ "Infeksjon",
-    komp_tamp %in% 1 ~ "Tamponade",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (komp_tamp %in% 1 & 
+       komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     komp_nfren %in% 1 ~ "N. frenicus parese",
     komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -674,7 +719,14 @@ tab_kompl_hendelse_nasjonalt_aar <- d_ablanor_hendelse_innen4dager_nasjonalt %>%
     adhoc_komp_pseudoan %in% 1 ~ "Pseudoaneurisme",
     adhoc_komp_blodning %in% 1 ~ "Blødning",
     adhoc_komp_infek %in% 1 ~ "Infeksjon",
-    adhoc_komp_tamp %in% 1 ~ "Tamponade",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 1) ~ "Tamponade - Perikardiosentese",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 2) ~ "Tamponade - Kirurgisk, sternotomi",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 3) ~ "Tamponade - Observasjon",
+    (adhoc_komp_tamp %in% 1 & 
+       adhoc_komp_tamp_sub %in% 9) ~ "Tamponade - Ukjent",
     adhoc_komp_nfren %in% 1 ~ "N. frenicus parese",
     adhoc_komp_apoplexi %in% 1 ~ "Apoplexi/TIA",
     adhoc_komp_avblokk_pm %in% 1 ~ "AV-blokk/PM",
@@ -710,6 +762,9 @@ colnames(tab_komp_samlet)[3] <- paste0("Nasjonalt i ", periode_data$sisteHeleYea
 colnames(tab_komp_samlet)[4] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
 colnames(tab_komp_samlet)[5] <- paste0("Nasjonalt hittil i ",
                                       periode_data$nyesteRegYear)
+
+tab_komp_samlet[tab_komp_samlet == 0] <- " - "
+tab_komp_samlet[is.na(tab_komp_samlet)] <- " - "
 
 align <- c("l", rep("r", ncol(tab_komp_samlet)-1))
 
