@@ -602,7 +602,9 @@ getBaseregProsHendelseData <- function(singleRow = FALSE,
       dato_adhoc,
       dato_pros,
       units = "days"
-    )))
+    ))) %>%
+    ablanor::utlede_tidsvariabler(.) %>%
+    dplyr::arrange(.data$mceid)
 
   d_ut
 }
