@@ -1,3 +1,11 @@
+# ablanor 2.2.1
+Lagt til pakken forcats i Description
+
+# ablanor 2.2.0
+* Oppdaterer månedsrapporten for LC-rollen som skal vise data for sitt sykehus
+sammenlignet med nasjonale tall
+* Kun nedlasting av månedsrapport i pdf-format
+
 # ablanor 2.1.1
 Legg til funksjon for å utlede scoren CHA2DS2VA (uten kjønn). 
 Bruke denne i utforsker for "basereg, prosedyre, kvalitetsindikator". 

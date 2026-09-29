@@ -10,7 +10,6 @@
 #' @param reshId from session information
 #' @param userRole "SC" gets National data, "LC" get local hospital's data.
 #' Some tables are only available for SC users.
-#' @param ...
 #'
 #' @return data.frame
 #' @export

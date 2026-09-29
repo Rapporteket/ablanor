@@ -32,22 +32,7 @@
 #' also be returned as a named list of values (see Details).
 #'
 #' @name getDataAblanor
-#' @aliases getBasereg
-#' getPros
-#' getMce
-#' getRand12
-#' getFollowupBasis
-#' getFollowupFiveYr
-#' getGkv
-#' getProms
-#' getHendelse
-#' getPatientlist
-#' getFriendlycentre
-#' getMcepatientdata
-#' getBaseregPros
-#' getLatestEntry
-#' getNameReshId
-#' getHospitalName
+#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName
 NULL
 
 
@@ -512,8 +497,19 @@ getHendelse <- function(singleRow,
                         fromDate = NULL,
                         toDate = NULL, ...) {
 
+  # SQL possible for defined time-interval:
+  if (is.null(fromDate)) {
+    fromDate <- as.Date("1900-01-01")
+  }
+  if (is.null(toDate)) {
+    toDate <- ablanor::getLatestEntry()
+  }
 
-  condition <- ""
+  # SQL only in defined interval, with non-missing dates.
+  condition <- paste0(" WHERE DATO_ADHOC >= '", fromDate,
+                      "' AND DATO_ADHOC <= '", toDate, "'",
+                      "AND DATO_ADHOC IS NOT NULL")
+
   if (userRole != "SC") {
     condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
   }

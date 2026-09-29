@@ -19,8 +19,6 @@ if tableName is pros or basereg, argument ignored for other tableNames.}
 
 \item{userRole}{"SC" gets National data, "LC" get local hospital's data.
 Some tables are only available for SC users.}
-
-\item{...}{}
 }
 \value{
 data.frame
