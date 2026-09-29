@@ -190,7 +190,7 @@ app_server <- function(input, output, session) {
         outputType = "html_fragment",
         params = list(title = "empty title",
                       author = user$fullName(),
-                      hospitalName = getHospitalName(user$org()),
+                      hospitalName = getHospitalName(reshId = user$org(), newNames = TRUE),
                       tableFormat = "html",
                       reshId = user$org())
       )
