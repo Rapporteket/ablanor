@@ -4,16 +4,18 @@
 \alias{queryDataAblanor}
 \alias{queryProm0}
 \alias{queryRand12_0}
+\alias{queryProm1}
 \title{Ablanor SQL}
 \usage{
 queryProm0()
 
 queryRand12_0()
+
+queryProm1()
 }
 \value{
 Data frame or (when multiple data sets are returned) a list of data
-frames containing registry data. In case of \code{getNameReshId()} data may
-also be returned as a named list of values (see Details).
+frames containing registry data.
 }
 \description{
 Get tables from database usig SQL. Notice, only tables when a

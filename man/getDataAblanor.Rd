@@ -21,6 +21,7 @@
 \alias{getHospitalName}
 \alias{getBasisProm}
 \alias{getFollowupOneYr}
+\alias{getProm1yr}
 \title{Ablanor SQL}
 \usage{
 getBasereg(
@@ -135,6 +136,15 @@ getNameReshId(asNamedList = FALSE, shortNames = FALSE, newNames = FALSE)
 getHospitalName(reshId, shortName = FALSE, newNames = FALSE)
 
 getBasisProm(...)
+
+getProm1yr(
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
 }
 \arguments{
 \item{singleRow}{bools. TRUE only one row, for variable names. FALSE all

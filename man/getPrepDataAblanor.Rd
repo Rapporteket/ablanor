@@ -17,6 +17,7 @@
 \alias{getBaseregProsFollowup0Data_v2}
 \alias{getBaseregData}
 \alias{getProsData}
+\alias{getBaseregProsFollowup1Data_v2}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -107,6 +108,15 @@ getBaseregProsFollowup0Data_v2(
 )
 
 getBaseregProsFollowup1Data(
+  singleRow = FALSE,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getBaseregProsFollowup1Data_v2(
   singleRow = FALSE,
   reshId = NULL,
   userRole,
