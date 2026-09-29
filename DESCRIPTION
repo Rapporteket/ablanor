@@ -44,8 +44,7 @@ Imports:
     tidyselect,
     forcats
 Remotes:
-    Rapporteket/rapbase,
-    smartinsightsfromdata/rpivotTable
+    Rapporteket/rapbase
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
 Depends: 
