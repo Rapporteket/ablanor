@@ -41,12 +41,12 @@ Imports:
     shinyalert,
     stringr,
     tidyr,
-    tidyselect
+    tidyselect,
+    forcats
 Remotes:
-    Rapporteket/rapbase,
-    smartinsightsfromdata/rpivotTable
+    Rapporteket/rapbase
 URL: https://github.com/rapporteket/ablanor
 BugReports: https://github.com/rapporteket/ablanor/issues
 Depends: 
     R (>= 3.5.0)
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

@@ -7,6 +7,7 @@
 \alias{getMce}
 \alias{getRand12}
 \alias{getFollowupBasis}
+\alias{getFollowupOneYr}
 \alias{getFollowupFiveYr}
 \alias{getGkv}
 \alias{getProms}
