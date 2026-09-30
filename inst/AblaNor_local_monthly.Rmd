@@ -544,6 +544,69 @@ tab_komp <- d_ablanor_komp_prosOgHendelse4dager %>%
         (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% c(9, NA)),
       true = "ja",
       false = "nei",
+      missing = NA_character_),
+    
+    # N. frenicus parese
+    ant_komp_nfren = dplyr::if_else(
+      condition = (komp_nfren %in% 1 | adhoc_komp_nfren %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Apoplexi/TIA
+    ant_komp_apoplexi = dplyr::if_else(
+      condition = (komp_apoplexi %in% 1 | adhoc_komp_apoplexi %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # AV-blokk/PM
+    ant_komp_avblokk_pm = dplyr::if_else(
+      condition = (komp_avblokk_pm %in% 1 | adhoc_komp_avblokk_pm %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Pulmonalvenestenose
+    ant_komp_pulm = dplyr::if_else(
+      condition = (komp_pulm %in% 1 | adhoc_komp_pulm %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Øsofagusfistel
+    ant_komp_osofag = dplyr::if_else(
+      condition = (komp_osofag %in% 1 | adhoc_komp_osofag %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Hjerteinfarkt eller iskemi
+    ant_komp_koronar = dplyr::if_else(
+      condition = (komp_koronar %in% 1 | adhoc_komp_koronar %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Perikarditt/perikardvæske
+    ant_komp_perikard = dplyr::if_else(
+      condition = (komp_perikard %in% 1 | adhoc_komp_perikard %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Død
+    ant_komp_dod = dplyr::if_else(
+      condition = (komp_dod %in% 1 | adhoc_komp_dod %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Annen
+    ant_komp_annen = dplyr::if_else(
+      condition = (komp_annen %in% 1 | adhoc_komp_annen %in% 1),
+      true = "ja",
+      false = "nei",
       missing = NA_character_)
     )
 
