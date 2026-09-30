@@ -423,30 +423,159 @@ operasjonen (hendelser innen 4 dager).
 ```{r komplikasjonerTab, echo = FALSE, results = "asis"}
 caption <- paste0("Antall komplikasjoner registrert ved ", hospitalNameShort, 
                   " det siste hele året samt hittil i år ", 
-                  "sammenlignet med nasjonale tall. ")
+                  "sammenlignet med nasjonale tall. ",
+                  "Hvis det er registrert flere komplikasjoner på samme ",
+                  "pasient, er disse talt opp hver for seg. ",
+                  "Dersom samme komplikasjon er registrert i både ",
+                  "prosedyreskjemaet og hendelseskjemaet, hvor hendelsen ",
+                  "skjedde innen fire dager, ",
+                  "telles dette kun som én komplikasjon.")
 
 d_ablanor_hendelse_innen4dager_nasjonalt <- d_ablanor_hendelse_nasjonalt %>% 
   filter(dager_pros_hendelse <= 4)
 
-tab_komp <- data.frame(
-  Komplikasjoner = c("AV-fistel",
-                 "Pseudoaneurisme",
-                 "Blødning",
-                 "Infeksjon",
-                 "Tamponade - Perikardiosentese",
-                 "Tamponade - Kirurgisk, sternotomi",
-                 "Tamponade - Observasjon",
-                 "Tamponade - Ukjent",
-                 "N. frenicus parese",
-                 "Apoplexi/TIA",
-                 "AV-blokk/PM",
-                 "Pulmonalvenestenose",
-                 "Øsofagusfistel",
-                 "Hjerteinfarkt eller iskemi",
-                 "Perikarditt/perikardvæske",
-                 "Død",
-                 "Annen komplikasjon",
-                 "Totalt"))
+# Samler komplikasjoner fra prosedyre og hendelse innen 4 dager
+d_ablanor_komp_prosOgHendelse4dager <- dplyr::left_join(
+  d_ablanor_nasjonalt %>% select(mceid, dato_pros, centreid, aar, 
+                                 komp_janei:komp_annen_spes),
+  d_ablanor_hendelse_innen4dager_nasjonalt %>%
+    select(mceid, dato_adhoc, adhoc_komp_janei:adhoc_komp_annet_spes),
+  by = "mceid")
+
+
+
+tab_komp <- d_ablanor_komp_prosOgHendelse4dager %>% 
+  dplyr::filter(komp_janei %in% 1 | adhoc_komp_janei %in% 1) %>%
+  mutate(
+    # AV_fistel
+    ant_komp_av_fistel_observasjon = dplyr::if_else(
+      condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 1)) |
+        (adhoc_komp_av_fistel %in% 1 & adhoc_komp_av_fistel_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_av_fistel_operasjon = dplyr::if_else(
+      condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 2)) |
+        (adhoc_komp_av_fistel %in% 1 & adhoc_komp_av_fistel_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_av_fistel_ukjent = dplyr::if_else(
+      condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 9)) |
+        (adhoc_komp_av_fistel %in% 1 & adhoc_komp_av_fistel_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Pseudoaneurisme
+    ant_komp_pseudoan_liming = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 1)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_pseudoan_operasjon = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 2)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_pseudoan_observasjon = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 3)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% 3),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_pseudoan_ukjent = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 9)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Blødning
+    ant_komp_blodning_transfusjon = dplyr::if_else(
+      condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 1)) |
+        (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_blodning_observasjon = dplyr::if_else(
+      condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 2)) |
+        (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_blodning_ukjent = dplyr::if_else(
+      condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 9)) |
+        (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Infeksjon
+    ant_komp_infeksjon =dplyr::if_else(
+      condition = (komp_infek %in% 1 | adhoc_komp_infek %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Tamponade
+    ant_komp_tamponade_perikardiosentese = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 1)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_tamponade_kirurgisk_sternotomi = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 2)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_tamponade_observasjon = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 3)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% 3),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_tamponade_ukjent = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 9)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_)
+    )
+
+
+
+tab_komp_tekst <- data.frame(
+  Komplikasjoner = c(
+    "AV-fistel - Observasjon",
+    "AV-fistel - Operasjon",
+    "AV-fistel - Ukjent",
+    "Pseudoaneurisme - Liming",
+    "Pseudoaneurisme - Operasjon",
+    "Pseudoaneurisme - Observasjon",
+    "Pseudoaneurisme - Ukjent",
+    "Blødning - Transfusjon",
+    "Blødning - Observasjon",
+    "Blødning - Ukjent",
+    "Infeksjon",
+    "Tamponade - Perikardiosentese",
+    "Tamponade - Kirurgisk, sternotomi",
+    "Tamponade - Observasjon",
+    "Tamponade - Ukjent",
+    "N. frenicus parese",
+    "Apoplexi/TIA",
+    "AV-blokk/PM",
+    "Pulmonalvenestenose",
+    "Øsofagusfistel",
+    "Hjerteinfarkt eller iskemi",
+    "Perikarditt/perikardvæske",
+    "Død",
+    "Annen komplikasjon",
+    "Totalt"))
 
 # Lokalt i fjor
 
