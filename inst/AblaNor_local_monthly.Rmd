@@ -10,17 +10,17 @@ params:
   userRole: ukjent rolle
   userOperator: ukjent operatør
 header-includes:
-- \usepackage[english, norsk]{babel}
-- \usepackage{booktabs}
-- \usepackage{rotating}
-- \usepackage{float}
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+  - \usepackage{float}
 title: |  
   | Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
   |
   | __`r paste0("Månedsrapport for ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, " for hele fjorårets registreringer samt alle fullførte måndeder hittil i år.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$hospitalName, ", sammenlignet med nasjonale tall. Nøkkeltallene er basert på hele fjorårets registreringer samt alle fullførte måndeder hittil i år.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
@@ -197,18 +197,6 @@ kb <- ablanor::getKodebokData() %>%
 
 ```
 
-```{r forste_siste_registrering_SHUS}
-
-periode_data$forste_dato_shus <- d_ablanor_nasjonalt %>% 
-  dplyr::summarise(min(.data$dato_pros)) %>% 
-  dplyr::pull()
-
-periode_data$nyeste_dato_shus <- d_ablanor_nasjonalt %>% 
-  dplyr::summarise(max(.data$dato_pros)) %>% 
-  dplyr::pull()
-
-```
-
 
 ```{r Oppdatere_levels}
 
@@ -254,14 +242,11 @@ d_ablanor_nasjonalt %<>%
 
 
 # Datagrunnlag 
-Datagrunnlaget for denne rapporten er hele fjorårets registreringer samt alle fullførte måndeder hittil i år i AblaNor, det vil si i perioden 
+Datagrunnlaget for denne rapporten, hvor det presenteres månedlige resultater, 
+er hele fjorårets registreringer samt alle fullførte måndeder hittil i år 
+i AblaNor, det vil si i perioden 
 `r format(periode_data$forste_dato , "%d/%m-%Y")` til
 `r format(periode_data$siste_dato, "%d/%m-%Y")`. 
-
-
-Første og siste registrering fra `r hospitalNameShort` i tidsperioden er
-henholdsvis `r format(periode_data$forste_dato_shus, "%d/%m-%Y") ` og
-`r format(periode_data$nyeste_dato_shus, "%d/%m-%Y") `. 
 
 <br>
 <br>
@@ -432,7 +417,7 @@ caption <- paste0("Antall komplikasjoner registrert ved ", hospitalNameShort,
                   "Dersom samme komplikasjon er registrert i både ",
                   "prosedyreskjemaet og hendelseskjemaet, hvor hendelsen ",
                   "skjedde innen fire dager, ",
-                  "telles dette kun som én komplikasjon. ")
+                  "telles dette kun som én komplikasjon.")
 
 d_ablanor_hendelse_innen4dager_nasjonalt <- d_ablanor_hendelse_nasjonalt %>% 
   filter(dager_pros_hendelse <= 4)
