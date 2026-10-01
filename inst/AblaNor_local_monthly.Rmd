@@ -606,6 +606,20 @@ forberedelse_komp <- d_ablanor_komp_prosOgHendelse4dager %>%
       false = "nei",
       missing = NA_character_),
     
+    # Hemolyse
+    ant_komp_hemolyse = dplyr::if_else(
+      condition = (komp_hemolyse %in% 1 | adhoc_komp_hemolyse %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Kontrastallergi
+    ant_komp_kontrastallergi = dplyr::if_else(
+      condition = (komp_kontrastallergi %in% 1 | adhoc_komp_kontrastallergi %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
     # Død
     ant_komp_dod = dplyr::if_else(
       condition = (komp_dod %in% 1 | adhoc_komp_dod %in% 1),
@@ -647,6 +661,8 @@ tab_kompl_tekst <- data.frame(
     "ant_komp_osofag",
     "ant_komp_koronar",
     "ant_komp_perikard",
+    "ant_komp_hemolyse",
+    "ant_komp_kontrastallergi",
     "ant_komp_dod",
     "ant_komp_annen"),
   Komplikasjoner_tekst = c(
@@ -673,6 +689,8 @@ tab_kompl_tekst <- data.frame(
     "Øsofagusfistel",
     "Hjerteinfarkt eller iskemi",
     "Perikarditt/perikardvæske",
+    "Hemolyse",
+    "Kontrastallergi",
     "Død",
     "Annen komplikasjon"))
 
