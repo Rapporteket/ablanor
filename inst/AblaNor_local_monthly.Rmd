@@ -450,6 +450,7 @@ d_ablanor_komp_prosOgHendelse4dager <- dplyr::left_join(
 forberedelse_komp <- d_ablanor_komp_prosOgHendelse4dager %>% 
   dplyr::filter(komp_janei %in% 1 | adhoc_komp_janei %in% 1) %>%
   mutate(
+    
     # AV_fistel
     ant_komp_av_fistel_observasjon = dplyr::if_else(
       condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 1)) |
@@ -512,6 +513,13 @@ forberedelse_komp <- d_ablanor_komp_prosOgHendelse4dager %>%
     ant_komp_blodning_ukjent = dplyr::if_else(
       condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 9)) |
         (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Lyskekomplikasjon - annet
+    ant_komp_lyske_annet =dplyr::if_else(
+      condition = (komp_annet %in% 1 | adhoc_komp_annet %in% 1),
       true = "ja",
       false = "nei",
       missing = NA_character_),
@@ -626,6 +634,7 @@ tab_kompl_tekst <- data.frame(
     "ant_komp_blodning_transfusjon",
     "ant_komp_blodning_observasjon",
     "ant_komp_blodning_ukjent",
+    "ant_komp_lyske_annet",
     "ant_komp_infeksjon",
     "ant_komp_tamponade_perikardiosentese",
     "ant_komp_tamponade_kirurgisk_sternotomi",
@@ -651,6 +660,7 @@ tab_kompl_tekst <- data.frame(
     "Blødning - Transfusjon",
     "Blødning - Observasjon",
     "Blødning - Ukjent",
+    "Lyskekomplikasjon - annet",
     "Infeksjon",
     "Tamponade - Perikardiosentese",
     "Tamponade - Kirurgisk, sternotomi",
@@ -1022,6 +1032,8 @@ cat("\n\n\\pagebreak\n")
 
 # Oppfølging 1 år etter prosedyren
 
+<br>
+
 ## Responsrate
 Responsraten beregnes blant de pasientene
 som oppfyller kravene til ePROM (over 16 år ved prosedyretidspunktet, levende ved bestilling av
@@ -1250,6 +1262,8 @@ if(params$tableFormat %in% "html") {
 
 ```
 
+<br>
+
 ## Klinisk effekt etter 1 år
 
 Følgende spørsmål stillet et år etter prosedyren:
@@ -1408,6 +1422,7 @@ cat("\n\n\\pagebreak\n")
 
 # Oppfølging  5 år etter prosedyren
 
+<br>
 
 ## Responsrate
 Responsraten beregnes blant de pasientene
@@ -1636,7 +1651,7 @@ if(params$tableFormat %in% "html") {
 
 ```
 
-
+<br>
 
 ## Klinisk effekt etter 5 år
 
