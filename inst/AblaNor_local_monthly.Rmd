@@ -47,8 +47,7 @@ library(forcats)
 # https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
 # Also make sure we use tempdir() as working directory so we do not clutter
 # the package of the hosting shiny app
-# workDir <- tempdir()
-# knitr::opts_knit$set(base.dir=workDir, base.url=file.path(paste0(tempdir(), "/")), root.dir = workDir)
+
 
 # Handle both html and latex (pdf) output. Actually to avoid setting 'format'
 # for each kable call
@@ -66,15 +65,17 @@ Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
 
 
 ```{r SKDEcol, include=FALSE}
-colPrimary <- c("#000059", "#084594", "#2171b5", "#4292c6", "#6baed6", "#c6dbef")
-colNeutral <- c("#4D4D4D", "#737373", "#A6A6A6", "#DADADA")
+colPrimary <- c("#000059", "#084594", "#2171b5",
+                "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373",
+                "#A6A6A6", "#DADADA")
 colKontrast <- "#FF7260"
 ```
 
 ```{r parametre}
 
 #Egendefinerte kortnavn:
-hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId, 
+hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId,
                                               shortName = TRUE,
                                               newNames = TRUE)
 ```
@@ -84,14 +85,14 @@ hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId,
 
 # DATAGRUNNLAG: PERIODE
 
-# NYESTE DATO: 
-# Finne nyeste prosedyredato i prosedyre-tabellen. Vi ønsker ikke at 
+# NYESTE DATO:
+# Finne nyeste prosedyredato i prosedyre-tabellen. Vi ønsker ikke at
 # forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
-# gårsdagens dato som referanse, ingen forløp etter denne kommer med .  
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .
 # Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
 # overføringer har stoppet opp
 
-# ELDSTE DATO: 
+# ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
 
 # nyeste_reg <- ablanor::getLatestEntry()
