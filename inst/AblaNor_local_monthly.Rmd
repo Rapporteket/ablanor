@@ -273,7 +273,7 @@ cap <- paste("Totalt antall forløp fra ",
              hospitalNameShort, " sammenlignet med nasjonale tall. ",
              "Tabellen viser forløp fra det siste hele året samt alle ",
              "fullførte måneder hittil i år for hver av de 4 forløpstypene ",
-             " samt AV-knuter: ",
+             "samt AV-knuter: ",
              "Atrieflimmer/atypisk flutter (AFLI uten AV-knuter), ",
              "Ventrikkeltakykardi (VT), Supraventrikulær takykardi ",
              "(SVT uten AV-knuter), Elektrofysiologisk undersøkelse (EFU) ",
@@ -323,17 +323,13 @@ forlopstype_nasjonalt_aar <- d_ablanor_nasjonalt |>
 
 
 tabForlopstype <-  tab_forlopstype_AVknute |>
-  dplyr::left_join(.,
-                   forlopstype_lokalt_fjor,
+  dplyr::left_join(forlopstype_lokalt_fjor,
                    by = "Forlopstype") |> 
-  dplyr::left_join(.,
-                   forlopstype_nasjonalt_fjor,
+  dplyr::left_join(forlopstype_nasjonalt_fjor,
                    by = "Forlopstype") |> 
-  dplyr::left_join(.,
-                   forlopstype_lokalt_aar,
+  dplyr::left_join(forlopstype_lokalt_aar,
                    by = "Forlopstype") |> 
-  dplyr::left_join(.,
-                   forlopstype_nasjonalt_aar,
+  dplyr::left_join(forlopstype_nasjonalt_aar,
                    by = "Forlopstype") |> 
   janitor::adorn_totals(where = "row", name = "Totalt")
 
@@ -351,8 +347,7 @@ align <- c("l", rep("r", ncol(tabForlopstype)-1))
 
 if(params$tableFormat %in% "html") {
   tabForlopstype |> rename(" " = "Forlopstype") |>   
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = cap,
                digs = 1,
                align = align,
@@ -368,8 +363,7 @@ if(params$tableFormat %in% "html") {
   
 } else if (params$tableFormat %in% "pdf") {
   tabForlopstype |> rename(" " = "Forlopstype") |>
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = cap,
                digs = 1,
                align = align,
@@ -379,7 +373,6 @@ if(params$tableFormat %in% "html") {
                               font_size = 8) |>
     kableExtra::row_spec(row = nrow(tabForlopstype)-1, hline_after = TRUE) |>
     kableExtra::add_header_above(
-      .,
       header = c("",
                  setNames(2,
                           periode_data$sisteHeleYear),
@@ -730,10 +723,10 @@ tab_kompl_nasj_aar <- forberedelse_komp |>
                       values_to = "Antall_nasj_aar")
 
 tab_kompl_samlet <- tab_kompl_tekst |> 
-  dplyr::left_join(., tab_kompl_lokalt_fjor, by = "Komplikasjoner") |> 
-  dplyr::left_join(., tab_kompl_nasj_fjor, by = "Komplikasjoner") |> 
-  dplyr::left_join(., tab_kompl_lokalt_aar, by = "Komplikasjoner") |> 
-  dplyr::left_join(., tab_kompl_nasj_aar, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_lokalt_fjor, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_nasj_fjor, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_lokalt_aar, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_nasj_aar, by = "Komplikasjoner") |> 
   select(-Komplikasjoner) |>
   janitor::adorn_totals(where = "row", name = "Totalt")
 
@@ -750,8 +743,7 @@ align <- c("l", rep("r", ncol(tab_kompl_samlet)-1))
 
 if(params$tableFormat %in% "html") {
   tab_kompl_samlet |>  dplyr::rename(" " = "Komplikasjoner_tekst") |>
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
                align = align,
@@ -766,8 +758,7 @@ if(params$tableFormat %in% "html") {
   
   } else if (params$tableFormat %in% "pdf") {
   tab_kompl_samlet |>  dplyr::rename(" " = "Komplikasjoner_tekst") |>
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
                align = align,
@@ -777,7 +768,6 @@ if(params$tableFormat %in% "html") {
                               font_size = 8) |>
     kableExtra::row_spec(row = nrow(tab_kompl_samlet)-1, hline_after = TRUE) |>
     kableExtra::add_header_above(
-      .,
       header = c("",
                  setNames(2,
                           periode_data$sisteHeleYear),
@@ -827,7 +817,7 @@ prosedyreVarighet_lokalt_fjor <-d_ablanor_nasjonalt |>
                 aar %in% periode_data$sisteHeleYear,
                 !is.na(.data$pros_varighet),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, pros_varighet, aar) |> 
   mutate(sykehusnavn = hospitalNameShort)
 
@@ -836,7 +826,7 @@ prosedyreVarighet_lokalt_aar <-d_ablanor_nasjonalt |>
                 aar %in% periode_data$nyesteRegYear,
                 !is.na(.data$pros_varighet),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, pros_varighet, aar) |> 
   mutate(sykehusnavn = hospitalNameShort)
 
@@ -846,7 +836,7 @@ prosedyreVarighet_nasj_fjor <-d_ablanor_nasjonalt |>
   dplyr::filter(aar %in% periode_data$sisteHeleYear,
                 !is.na(.data$pros_varighet),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, pros_varighet, aar) |> 
   mutate(sykehusnavn = "Nasjonalt")
 
@@ -854,7 +844,7 @@ prosedyreVarighet_nasj_aar <-d_ablanor_nasjonalt |>
   dplyr::filter(aar %in% periode_data$nyesteRegYear,
                 !is.na(.data$pros_varighet),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, pros_varighet, aar) |> 
   mutate(sykehusnavn = "Nasjonalt")
 
@@ -948,7 +938,7 @@ rontgenVarighetMin_lokalt_fjor <- d_ablanor_nasjonalt |>
                 aar %in% periode_data$sisteHeleYear,
                 !is.na(.data$rtg_tid),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, rtg_tid_min, aar) |> 
   mutate(sykehusnavn = hospitalNameShort)
 
@@ -957,7 +947,7 @@ rontgenVarighetMin_lokalt_aar <-d_ablanor_nasjonalt |>
                 aar %in% periode_data$nyesteRegYear,
                 !is.na(.data$rtg_tid),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, rtg_tid_min, aar) |> 
   mutate(sykehusnavn = hospitalNameShort)
 
@@ -967,7 +957,7 @@ rontgenVarighetMin_nasj_fjor <-d_ablanor_nasjonalt |>
   dplyr::filter(aar %in% periode_data$sisteHeleYear,
                 !is.na(.data$rtg_tid),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, rtg_tid_min, aar) |> 
   mutate(sykehusnavn = "Nasjonalt")
 
@@ -975,7 +965,7 @@ rontgenVarighetMin_nasj_aar <-d_ablanor_nasjonalt |>
   dplyr::filter(aar %in% periode_data$nyesteRegYear,
                 !is.na(.data$rtg_tid),
                 !is.na(.data$forlopstype)) |>
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   select(forlopstype_tekst, rtg_tid_min, aar) |> 
   mutate(sykehusnavn = "Nasjonalt")
 
@@ -1220,8 +1210,7 @@ align <- c("l", rep("c", dim(responsrate_prom1aar)[2] - 1))
 
 if(params$tableFormat %in% "html") {
   responsrate_prom1aar |> rename(" " = "sykehus") |>   
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
                align = align,
@@ -1244,8 +1233,7 @@ if(params$tableFormat %in% "html") {
   
 } else if (params$tableFormat %in% "pdf") {
   responsrate_prom1aar |> rename(" " = "sykehus") |>
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
                align = align,
@@ -1297,8 +1285,8 @@ klinisk_effekt_1aar_lokalt_fjor <- d_ablanor_prom1aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |> 
   select(aar_prosedyre, followup1_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
   count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
   
@@ -1309,8 +1297,8 @@ klinisk_effekt_1aar_lokalt_aar <- d_ablanor_prom1aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |> 
   select(aar_prosedyre, followup1_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
   count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
 
@@ -1328,8 +1316,8 @@ klinisk_effekt_1aar_nasj_fjor <- d_ablanor_prom1aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |> 
   select(aar_prosedyre, followup1_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
   count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
   
@@ -1339,8 +1327,8 @@ klinisk_effekt_1aar_nasj_aar <- d_ablanor_prom1aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |>
   select(aar_prosedyre, followup1_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
   count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
 
@@ -1609,8 +1597,7 @@ align <- c("l", rep("c", dim(responsrate_prom5aar)[2] - 1))
 
 if(params$tableFormat %in% "html") {
   responsrate_prom5aar |> rename(" " = "sykehus") |>   
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
                align = align,
@@ -1633,8 +1620,7 @@ if(params$tableFormat %in% "html") {
   
 } else if (params$tableFormat %in% "pdf") {
   responsrate_prom5aar |> rename(" " = "sykehus") |>
-  rapbase::mst(.,
-               type = params$tableFormat,
+  rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
                align = align,
@@ -1685,8 +1671,8 @@ klinisk_effekt_5aar_lokalt_fjor <- d_ablanor_prom5aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |> 
   select(aar_prosedyre, followup5_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
   dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
   count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
   
@@ -1697,8 +1683,8 @@ klinisk_effekt_5aar_lokalt_aar <- d_ablanor_prom5aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |> 
   select(aar_prosedyre, followup5_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
   dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
   count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
 
@@ -1716,8 +1702,8 @@ klinisk_effekt_5aar_nasj_fjor <- d_ablanor_prom5aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |> 
   select(aar_prosedyre, followup5_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
   dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
   count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst)
   
@@ -1727,8 +1713,8 @@ klinisk_effekt_5aar_nasj_aar <- d_ablanor_prom5aar |>
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |>
   select(aar_prosedyre, followup5_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(., total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(df = ., kb= kb) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
   dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
   count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
 
