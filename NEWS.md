@@ -1,3 +1,8 @@
+# ablanor 2.2.2
+* Fjerner av fanen Abonnement for SC
+* Riktig versjon av klokeboken
+* Oppdatert komplikasjonstabell med underkategorier
+
 # ablanor 2.2.1
 Lagt til pakken forcats i Description
 

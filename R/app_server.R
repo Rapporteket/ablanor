@@ -142,6 +142,7 @@ app_server <- function(input, output, session) {
           )
         )
       )
+      shiny::hideTab(inputId = "tabs", target = "Abonnement")
     }
   })
 
