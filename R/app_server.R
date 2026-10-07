@@ -104,6 +104,9 @@ app_server <- function(input, output, session) {
         position = "after"
       )
     }
+    if (user$role() %in% c("LU", "LC")) {
+      shiny::showTab(inputId = "tabs", target = "Abonnement")
+    }
     if (user$role() == "SC") {
       # Legg til fane for verktøy for SC-brukere
       shiny::appendTab(inputId = "tabs",

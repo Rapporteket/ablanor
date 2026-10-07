@@ -1,3 +1,6 @@
+# ablanor 2.2.3
+Abonnement-fanen vises igjen etter aå ha vært i SC
+
 # ablanor 2.2.2
 * Fjerner av fanen Abonnement for SC
 * Riktig versjon av klokeboken
