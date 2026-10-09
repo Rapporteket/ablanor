@@ -202,6 +202,7 @@ d_ablanor_prom5aar <- ablanor::getBaseregProsFollowup5Data(
   fromDate = periode_data$forste_dato_5aarOppf,
   toDate = periode_data$siste_dato_5aarOppf)
 
+evaluate_prom5aar <- nrow(d_ablanor_prom5aar) > 0 # for conditional running of prom5aar-related chunks
 
 # Kodebok
 kb <- ablanor::getKodebokData() |>
@@ -1115,8 +1116,7 @@ caption <- paste0(
   periode_data$sisteHeleYear,
   " samt alle fullførte måneder hittil i ",
   periode_data$nyesteRegYear, ". ",
-  "Færre enn 5 besvarelser vises ",
-  "som stjerne i tabellen.")
+  "Færre enn 5 besvarelser vises som stjerne.")
 
 
 # Operatør - prosedyrer fra to år siden
@@ -1192,7 +1192,7 @@ responsrate_1aar_sykehus_fjor <- data.frame(
   mutate(
     andel_besvart = dplyr::case_when(
     (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_1aar_besvart_fjor < 5) ~ "*",
+    (proms_1aar_besvart_sykehus_fjor < 5) ~ "*",
     .default = paste0(
       round(100*(proms_1aar_besvart_sykehus_fjor/datagrunnlag), 1), "%")))
 
@@ -1202,23 +1202,23 @@ responsrate_1aar_fjor <- rbind(
   responsrate_1aar_sykehus_fjor)
 
 
-# Lokalt - prosedyrer fra i fjor
+# Operatør - prosedyrer fra i fjor
 
 proms_1aar_antPros_aar <- d_ablanor_prom1aar |> 
-  filter(centreid %in% params$reshId,
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype)) |> 
   nrow()
 
 proms_1aar_datagrunnlag_aar <- d_ablanor_prom1aar |> 
-  filter(centreid %in% params$reshId,
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja") |> 
   nrow()
 
 proms_1aar_besvart_aar <- d_ablanor_prom1aar |> 
-  filter(centreid %in% params$reshId,
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja",
@@ -1226,31 +1226,36 @@ proms_1aar_besvart_aar <- d_ablanor_prom1aar |>
   nrow()
 
 
-responsrate_1aar_lokalt_aar <- data.frame(
-  sykehus = hospitalNameShort,
+responsrate_1aar_operator_aar <- data.frame(
+  registrert_av = kort_navn,
   ant_pros = proms_1aar_antPros_aar,
   datagrunnlag = proms_1aar_datagrunnlag_aar,
-  besvart = proms_1aar_besvart_aar) |> 
-  mutate(andel_besvart = ifelse(
-    test = (is.na(datagrunnlag) | datagrunnlag == 0),
-    yes = "-",
-    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+  besvart = dplyr::case_when(
+    (is.na(proms_1aar_besvart_aar) | proms_1aar_besvart_aar == 0) ~ "-",
+    (proms_1aar_besvart_aar < 5) ~ "*",
+    .default = paste0(proms_1aar_besvart_aar))) |> 
+  mutate(
+    andel_besvart = dplyr::case_when(
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
+    (proms_1aar_besvart_aar < 5) ~ "*",
+    .default = paste0(round(100*(proms_1aar_besvart_aar/datagrunnlag), 1),
+                      "%")))
 
 
-# Nasjonalt - prosedyrer fra i fjor
+# Sykehus - prosedyrer fra i fjor
 
-proms_1aar_antPros_nasj_aar <- d_ablanor_prom1aar |> 
+proms_1aar_antPros_sykehus_aar <- d_ablanor_prom1aar |> 
   filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype)) |> 
   nrow()
 
-proms_1aar_datagrunnlag_nasj_aar <- d_ablanor_prom1aar |> 
+proms_1aar_datagrunnlag_sykehus_aar <- d_ablanor_prom1aar |> 
   filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja") |> 
   nrow()
 
-proms_1aar_besvart_nasj_aar <- d_ablanor_prom1aar |> 
+proms_1aar_besvart_sykehus_aar <- d_ablanor_prom1aar |> 
   filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_1aar %in% "ja",
@@ -1258,20 +1263,26 @@ proms_1aar_besvart_nasj_aar <- d_ablanor_prom1aar |>
   nrow()
 
 
-responsrate_1aar_nasj_aar <- data.frame(
-  sykehus = "Nasjonalt",
-  ant_pros = proms_1aar_antPros_nasj_aar,
-  datagrunnlag = proms_1aar_datagrunnlag_nasj_aar,
-  besvart = proms_1aar_besvart_nasj_aar) |> 
-  mutate(andel_besvart = ifelse(
-    test = (is.na(datagrunnlag) | datagrunnlag == 0),
-    yes = "-",
-    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+responsrate_1aar_sykehus_aar <- data.frame(
+  registrert_av = hospitalNameShort,
+  ant_pros = proms_1aar_antPros_sykehus_aar,
+  datagrunnlag = proms_1aar_datagrunnlag_sykehus_aar,
+  besvart = dplyr::case_when(
+    (is.na(proms_1aar_besvart_sykehus_aar) |
+       proms_1aar_besvart_sykehus_aar == 0) ~ "-",
+    (proms_1aar_besvart_sykehus_aar < 5) ~ "*",
+    .default = paste0(proms_1aar_besvart_sykehus_aar))) |> 
+  mutate(
+    andel_besvart = dplyr::case_when(
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
+    (proms_1aar_besvart_sykehus_aar < 5) ~ "*",
+    .default = paste0(
+      round(100*(proms_1aar_besvart_sykehus_aar/datagrunnlag), 1), "%")))
 
 # Samlet i fjor
 responsrate_1aar_aar <- rbind(
-  responsrate_1aar_lokalt_aar,
-  responsrate_1aar_nasj_aar)
+  responsrate_1aar_operator_aar,
+  responsrate_1aar_sykehus_aar)
 
 
 # Samlet prom hele siste år og hittil i år
@@ -1291,7 +1302,7 @@ colnames(responsrate_prom1aar)[5] <- "Andel besvart"
 align <- c("l", rep("c", dim(responsrate_prom1aar)[2] - 1))
 
 if(params$tableFormat %in% "html") {
-  responsrate_prom1aar |> rename(" " = "sykehus") |>   
+  responsrate_prom1aar |> rename(" " = "registrert_av") |>   
   rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
@@ -1314,7 +1325,7 @@ if(params$tableFormat %in% "html") {
     
   
 } else if (params$tableFormat %in% "pdf") {
-  responsrate_prom1aar |> rename(" " = "sykehus") |>
+  responsrate_prom1aar |> rename(" " = "registrert_av") |>
   rapbase::mst(type = params$tableFormat,
                cap = caption,
                digs = 1,
@@ -1349,21 +1360,23 @@ Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gj
 
 ```{r figKliniskEffekt1aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
 
-fig.cap <-  paste0("Figuren viser pasientraportert klinisk effekt 1 år ",
-                   " etter prosedyren utført i ", 
+fig.cap <-  paste0("Figuren viser pasientrapportert klinisk effekt 1 år ",
+                   "etter prosedyren, registrert i ", 
                    (periode_data$sisteHeleYear-1), " og " ,
                    (periode_data$nyesteRegYear-1), ", ",
-                   "i prosent registrert av ",
-                   kort_navn, " sammenlignet med registreringer ved ",
+                   "i prosent, og sammenligner prosedyrer utført av ",
+                   kort_navn, " med registreringer gjort ved ",
                    hospitalNameShort, " der oppfølgingen ble ",
                    "besvart henholdsvis i ", periode_data$sisteHeleYear,
                    " samt alle fullførte måneder hittil i ",
-                   periode_data$nyesteRegYear, ".")
+                   periode_data$nyesteRegYear, ". ",
+                   "Søyler med færre enn 10 besvarelser er fjernet fra ",
+                   "figuren.")
 
 
-# Lokalt proms 1 år fra i fjor
-klinisk_effekt_1aar_lokalt_fjor <- d_ablanor_prom1aar |> 
-  filter(centreid %in% params$reshId,
+# Operatør - proms 1 år fra i fjor
+klinisk_effekt_1aar_operator_fjor <- d_ablanor_prom1aar |> 
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |> 
@@ -1373,9 +1386,9 @@ klinisk_effekt_1aar_lokalt_fjor <- d_ablanor_prom1aar |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
   count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
   
-# Lokalt proms 1 år fra i år
-klinisk_effekt_1aar_lokalt_aar <- d_ablanor_prom1aar |> 
-  filter(centreid %in% params$reshId,
+# Operatør - proms 1 år fra i år
+klinisk_effekt_1aar_operator_aar <- d_ablanor_prom1aar |> 
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |> 
@@ -1383,18 +1396,23 @@ klinisk_effekt_1aar_lokalt_aar <- d_ablanor_prom1aar |>
   ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
-  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
+  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
 
 
 # Lokalt samlet
-klinisk_effekt_1aar_lokalt <- rbind(
-  klinisk_effekt_1aar_lokalt_fjor,
-  klinisk_effekt_1aar_lokalt_aar) |> 
-  mutate(sykehusnavn = hospitalNameShort)
+klinisk_effekt_1aar_operator <- rbind(
+  klinisk_effekt_1aar_operator_fjor,
+  klinisk_effekt_1aar_operator_aar) |> 
+  mutate(registrert_av = kort_navn) |> 
+  dplyr::group_by(aar_prosedyre, forlopstype_tekst) |> 
+  mutate(antall_pr_aar_forlop = sum(n)) |> 
+  ungroup() |> 
+  # Fjerner rader er antall er mindre enn 10 pr år og forløpstype
+  filter(antall_pr_aar_forlop >= 10)
   
 
-# Nasjonalt proms 1 år fra i fjor
-klinisk_effekt_1aar_nasj_fjor <- d_ablanor_prom1aar |> 
+# Sykehus - proms 1 år fra i fjor
+klinisk_effekt_1aar_sykehus_fjor <- d_ablanor_prom1aar |> 
   filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |> 
@@ -1404,8 +1422,8 @@ klinisk_effekt_1aar_nasj_fjor <- d_ablanor_prom1aar |>
   dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
   count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
   
-# Nasjonalt proms 1 år fra i år
-klinisk_effekt_1aar_nasj_aar <- d_ablanor_prom1aar |> 
+# Sykehus - proms 1 år fra i år
+klinisk_effekt_1aar_sykehus_aar <- d_ablanor_prom1aar |> 
   filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
          !is.na(.data$forlopstype),
          eprom_besvart_1aar == "datagrunnlag og besvart") |>
@@ -1417,17 +1435,22 @@ klinisk_effekt_1aar_nasj_aar <- d_ablanor_prom1aar |>
 
 
 
-# Nasjonalt samlet
-klinisk_effekt_1aar_nasj <- rbind(
-  klinisk_effekt_1aar_nasj_fjor,
-  klinisk_effekt_1aar_nasj_aar) |> 
-  mutate(sykehusnavn = "Nasjonalt")
+# Sykehus samlet
+klinisk_effekt_1aar_sykehus <- rbind(
+  klinisk_effekt_1aar_sykehus_fjor,
+  klinisk_effekt_1aar_sykehus_aar) |> 
+  mutate(registrert_av = hospitalNameShort) |> 
+  dplyr::group_by(aar_prosedyre, forlopstype_tekst) |> 
+  mutate(antall_pr_aar_forlop = sum(n)) |> 
+  ungroup() |> 
+  # Fjerner rader er antall er mindre enn 10 pr år og forløpstype
+  filter(antall_pr_aar_forlop >= 10)
 
 
 # Samlet klinisk effekt 1 år
 klinisk_effekt_1aar <- rbind(
-  klinisk_effekt_1aar_lokalt,
-  klinisk_effekt_1aar_nasj) |> 
+  klinisk_effekt_1aar_operator,
+  klinisk_effekt_1aar_sykehus) |> 
   mutate(aar_prosedyre = factor(
     x = aar_prosedyre,
     levels = c((periode_data$sisteHeleYear-1):(periode_data$nyesteRegYear-1)),
@@ -1436,14 +1459,14 @@ klinisk_effekt_1aar <- rbind(
                paste0("Besvart hittil i år for prosedyrer utført i ",
                       (periode_data$nyesteRegYear-1)))),
     
-    sykehusnavn = factor(x = sykehusnavn,
-                         levels = c("Nasjonalt",
-                                    hospitalNameShort)))
+    sykehusnavn = factor(x = registrert_av,
+                         levels = c(hospitalNameShort,
+                                    kort_navn)))
 
 # Figur
 klinisk_effekt_1aar |>
   ggplot2::ggplot(ggplot2::aes(y = n,
-                               x = sykehusnavn,
+                               x = registrert_av,
                                fill = followup1_q2_tekst))+
   ggplot2::geom_bar(position = "fill",
                     stat = "identity",
@@ -1521,23 +1544,23 @@ caption <- paste0(
   "som stjerne i tabellen.")
 
 
-# Lokalt - prosedyrer fra seks år siden
+# Operatør - prosedyrer fra seks år siden
 
 proms_5aar_antPros_fjor <- d_ablanor_prom5aar |> 
-  filter(centreid %in% params$reshId,
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype)) |> 
   nrow()
 
 proms_5aar_datagrunnlag_fjor <- d_ablanor_prom5aar |> 
-  filter(centreid %in% params$reshId,
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_5aar %in% "ja") |> 
   nrow()
 
 proms_5aar_besvart_fjor <- d_ablanor_prom5aar |> 
-  filter(centreid %in% params$reshId,
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_5aar %in% "ja",
@@ -1545,31 +1568,36 @@ proms_5aar_besvart_fjor <- d_ablanor_prom5aar |>
   nrow()
 
 
-responsrate_5aar_lokalt_fjor <- data.frame(
-  sykehus = hospitalNameShort,
+responsrate_5aar_operator_fjor <- data.frame(
+  registrert_av = kort_navn,
   ant_pros = proms_5aar_antPros_fjor,
   datagrunnlag = proms_5aar_datagrunnlag_fjor,
-  besvart = proms_5aar_besvart_fjor) |> 
-  mutate(andel_besvart = ifelse(
-    test = (is.na(datagrunnlag) | datagrunnlag == 0),
-    yes = "-",
-    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+  besvart = dplyr::case_when(
+    (is.na(proms_5aar_besvart_fjor) | proms_5aar_besvart_fjor == 0) ~ "-",
+    (proms_5aar_besvart_fjor < 5) ~ "*",
+    .default = paste0(proms_5aar_besvart_fjor))) |> 
+  mutate(
+    andel_besvart = dplyr::case_when(
+      (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
+      (proms_5aar_besvart_fjor < 5) ~ "*",
+      .default = paste0(round(100*(proms_5aar_besvart_fjor/datagrunnlag), 1),
+                        "%")))
 
 
-# Nasjonalt - prosedyrer fra seks år siden
+# Sykehus - prosedyrer fra seks år siden
 
-proms_5aar_antPros_nasj_fjor <- d_ablanor_prom5aar |> 
+proms_5aar_antPros_sykehus_fjor <- d_ablanor_prom5aar |> 
   filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype)) |> 
   nrow()
 
-proms_5aar_datagrunnlag_nasj_fjor <- d_ablanor_prom5aar |> 
+proms_5aar_datagrunnlag_sykehus_fjor <- d_ablanor_prom5aar |> 
   filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_5aar %in% "ja") |> 
   nrow()
 
-proms_5aar_besvart_nasj_fjor <- d_ablanor_prom5aar |> 
+proms_5aar_besvart_sykehus_fjor <- d_ablanor_prom5aar |> 
   filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype),
          eprom_datagrunnlag_5aar %in% "ja",
@@ -1577,20 +1605,26 @@ proms_5aar_besvart_nasj_fjor <- d_ablanor_prom5aar |>
   nrow()
 
 
-responsrate_5aar_nasj_fjor <- data.frame(
-  sykehus = "Nasjonalt",
-  ant_pros = proms_5aar_antPros_nasj_fjor,
-  datagrunnlag = proms_5aar_datagrunnlag_nasj_fjor,
-  besvart = proms_5aar_besvart_nasj_fjor) |> 
-  mutate(andel_besvart = ifelse(
-    test = (is.na(datagrunnlag) | datagrunnlag == 0),
-    yes = "-",
-    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+responsrate_5aar_sykehus_fjor <- data.frame(
+  registrert_av = hospitalNameShort,
+  ant_pros = proms_5aar_antPros_sykehus_fjor,
+  datagrunnlag = proms_5aar_datagrunnlag_sykehus_fjor,
+  besvart = dplyr::case_when(
+    (is.na(proms_5aar_besvart_sykehus_fjor) |
+       proms_5aar_besvart_sykehus_fjor == 0) ~ "-",
+    (proms_5aar_besvart_sykehus_fjor < 5) ~ "*",
+    .default = paste0(proms_5aar_besvart_sykehus_fjor))) |> 
+  mutate(
+    andel_besvart = dplyr::case_when(
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
+    (proms_5aar_besvart_sykehus_fjor < 5) ~ "*",
+    .default = paste0(
+      round(100*(proms_5aar_besvart_sykehus_fjor/datagrunnlag), 1), "%")))
 
 # Samlet for seks år siden
 responsrate_5aar_fjor <- rbind(
-  responsrate_5aar_lokalt_fjor,
-  responsrate_5aar_nasj_fjor)
+  responsrate_5aar_operator_fjor,
+  responsrate_5aar_sykehus_fjor)
 
 
 # Lokalt - prosedyrer fra fem års siden
@@ -1738,18 +1772,18 @@ Du har vært til behandling av en rytmeforstyrrelse for 5 år siden. Når det gj
 
 ```{r figKliniskEffekt5aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
 
-fig.cap <-  paste0("Figuren viser pasientraportert klinisk effekt 5 år ",
-                   " etter prosedyren utført i ", 
+fig.cap <-  paste0("Figuren viser pasientrapportert klinisk effekt 5 år ",
+                   "etter prosedyren, registrert i ", 
                    (periode_data$sisteHeleYear-5), " og " ,
                    (periode_data$nyesteRegYear-5), ", ",
-                   "i prosent registrert av ",
-                   kort_navn, " sammenlignet med registreringer ved ",
+                   "i prosent, og sammenligner prosedyrer utført av ",
+                   kort_navn, " med registreringer gjort ved ",
                    hospitalNameShort, " der oppfølgingen ble ",
                    "besvart henholdsvis i ", periode_data$sisteHeleYear,
                    " samt alle fullførte måneder hittil i ",
                    periode_data$nyesteRegYear, ". ",
-                   "Registreringer gruppert med færre enn 5 forløp vises ",
-                   "som stjerne i tabellen.")
+                   "Søyler med færre enn 10 besvarelser er fjernet fra ",
+                   "figuren.")
 
 
 # Lokalt proms 5 år fra i fjor
