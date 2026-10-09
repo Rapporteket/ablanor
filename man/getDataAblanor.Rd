@@ -19,7 +19,6 @@
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
-\alias{getOperator}
 \alias{getOperatorliste}
 \title{Ablanor SQL}
 \usage{
