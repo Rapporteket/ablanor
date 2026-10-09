@@ -1,0 +1,1839 @@
+---
+params:
+  title: tom tittel
+  author: ukjent forfatter
+  hospitalName: ukjent sykehus
+  tableFormat: html
+  reshId: 999999
+  registryName: rapbase
+  userFullName: Tore Tester
+  userRole: ukjent rolle
+  userOperator: ukjent operatør
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
+  - \usepackage{float}
+title: |  
+  | Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
+  |
+  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  |
+  |
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$userFullName, ", sammenlignet med ", params$registryName ". Nøkkeltallene er basert på hele fjorårets registreringer samt alle fullførte måndeder hittil i år.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
+date: '`r format(Sys.time(), "%d. %B, %Y")`'
+registryName: '`r params$registryName`'
+reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
+regtext: '`r readLines(system.file("registryShortDescription.txt", package = "ablanor"))`'
+userFullName: '`r params$userFullName`'
+linkcolor: darkblue
+output:
+  fig_caption: yes
+---
+
+
+```{r knitrOptions, include=FALSE}
+library(ablanor)
+library(magrittr)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(forcats)
+
+# make sure to use a temporary directory AND absolute paths, e.g. that figs
+# can be found also when deployed at a server. See below link for explanation
+# https://rgriff23.github.io/2017/04/25/how-to-knit-for-mysite.html
+# Also make sure we use tempdir() as working directory so we do not clutter
+# the package of the hosting shiny app
+
+
+# Handle both html and latex (pdf) output. Actually to avoid setting 'format'
+# for each kable call
+# inspired by https://stackoverflow.com/questions/46080853
+#/why-does-rendering-a-pdf-from-rmarkdown-require-closing-rstudio
+#-between-renders
+options(knitr.table.format = params$tableFormat)
+knitr::opts_chunk$set(warnings = FALSE, echo = FALSE)
+options(stringsAsFactors = FALSE)
+
+# For some reason Shiny Server does not get the server locale settings right.
+# To display dates correct, enforce locale here:
+Sys.setlocale("LC_TIME", "nb_NO.UTF-8")
+``` 
+
+
+
+
+```{r SKDEcol, include=FALSE}
+colPrimary <- c("#000059", "#084594", "#2171b5",
+                "#4292c6", "#6baed6", "#c6dbef")
+colNeutral <- c("#4D4D4D", "#737373",
+                "#A6A6A6", "#DADADA")
+colKontrast <- "#FF7260"
+```
+
+```{r parametre}
+
+#Egendefinerte kortnavn:
+hospitalNameShort <- ablanor::getHospitalName(reshId = params$reshId,
+                                              shortName = TRUE,
+                                              newNames = TRUE)
+
+# Operatørnavn: Kun første fornavn og etternavn
+fullt_navn_FALK <- params$userFullName
+
+del_opp_navnet <- strsplit(fullt_navn_FALK, " ")[[1]]
+fornavnOperator <- del_opp_navnet[1]
+etternavnOperator <- del_opp_navnet[length(del_opp_navnet)]
+
+fullt_navn <- toupper(paste0(fornavnOperator, " ", etternavnOperator))
+kort_navn <- paste0(substr(fornavnOperator, 1, 1), ". ", etternavnOperator)
+
+```
+
+
+```{r latest_entry, include=FALSE, eval=TRUE}
+
+# DATAGRUNNLAG: PERIODE
+
+# NYESTE DATO:
+# Finne nyeste prosedyredato i prosedyre-tabellen. Vi ønsker ikke at
+# forhåndsregisrerte planlagte forløp kommer med i rapporten. Derfor brukes
+# gårsdagens dato som referanse, ingen forløp etter denne kommer med .
+# Vi vil dermed også kunne se dersom ingen nye registreringer gjøres eller om
+# overføringer har stoppet opp
+
+# ELDSTE DATO:
+# Januar fra i fjor (hele foregående år skal vise i rapporten)
+
+nyeste_reg <- min(
+  (as.Date(Sys.time() - 1)),
+  ablanor::getLatestEntry())
+
+
+periode_data <- data.frame(nyeste_reg = nyeste_reg) |>
+  dplyr::mutate(
+    # SISTE DATO AVGJØR SISTE MÅNED:
+    siste_dato_innevarende_mnd = lubridate::ceiling_date(
+      x = nyeste_reg, unit =  "month") - lubridate::days(1),
+    
+    siste_dato = dplyr::case_when(
+      # siste dato er nyeste dato --> nyeste mnd er komlett
+      siste_dato_innevarende_mnd == nyeste_reg ~ 
+        nyeste_reg, 
+      
+      # siste dato er ikke nyeste --> nyest mnd er ikke komplett, ta forrige
+      siste_dato_innevarende_mnd != nyeste_reg ~ 
+        lubridate::floor_date(nyeste_reg, "month") - 
+        lubridate::days(1), 
+      
+      TRUE ~ as.Date(NA_character_)),
+    
+    # Siste dato for 1 års oppfølging
+    siste_dato_1aarOppf = siste_dato - lubridate::years(1),
+    
+    # Siste dato for 5 års oppfølging
+    siste_dato_5aarOppf = siste_dato - lubridate::years(5),
+    
+    
+    # Inneværende år: 
+    nyesteRegYear = as.numeric(format(siste_dato, format = "%Y")),
+    
+    # Fjoråret
+    sisteHeleYear = nyesteRegYear - 1, 
+    
+    # Inneværende måned i år: 
+    nyesteRegMnd = as.numeric(format(siste_dato, format = "%m")),
+    
+    # Første dato for SQL -spørring : 01. januar fjoråret
+    forste_dato  = as.Date(paste0(sisteHeleYear, "-01-01"),
+                           format = "%Y-%m-%d"),
+    
+    # Første dato for 1 års oppfølging
+    forste_dato_1aarOppf = forste_dato - lubridate::years(1),
+    
+    # Første dato for 5 års oppfølging
+    forste_dato_5aarOppf = forste_dato - lubridate::years(5)
+  ) |> 
+  dplyr::select(-siste_dato_innevarende_mnd)
+
+```
+
+
+```{r GetData, include=FALSE, warning=FALSE, cache=FALSE}
+
+# Prosedyre
+d_ablanor <- ablanor::getBaseregProsData(
+  singleRow = FALSE, 
+  reshId = params$reshId,
+  userRole = "LU", 
+  fromDate = periode_data$forste_dato, 
+  toDate = periode_data$siste_dato)
+
+
+# Hendelse
+d_ablanor_hendelse <- ablanor::getBaseregProsHendelseData(
+  singleRow = FALSE,
+  reshId = params$reshId,
+  userRole = "LU",
+  fromDate = periode_data$forste_dato,
+  toDate = periode_data$siste_dato)
+
+
+# 1-års oppfølging
+d_ablanor_prom1aar <- ablanor::getBaseregProsFollowup1Data(
+  singleRow = FALSE,
+  reshId = params$reshId,
+  userRole = "LU",
+  fromDate = periode_data$forste_dato_1aarOppf,
+  toDate = periode_data$siste_dato_1aarOppf)
+
+
+# 5-års oppfølging
+d_ablanor_prom5aar <- ablanor::getBaseregProsFollowup5Data(
+  singleRow = FALSE,
+  reshId = params$reshId,
+  userRole = "LU",
+  fromDate = periode_data$forste_dato_5aarOppf,
+  toDate = periode_data$siste_dato_5aarOppf)
+
+
+# Kodebok
+kb <- ablanor::getKodebokData() |>
+        dplyr::select("fysisk_feltnavn",
+                      "listeverdier",
+                      "listetekst",
+                      "type")
+
+# Operatørliste
+d_operatorer <- ablanor::getOperatorliste(
+  singleRow = FALSE,
+  reshId = params$reshId)$d_operator
+
+names(d_operatorer) <- tolower(names(d_operatorer))
+
+```
+
+
+```{r Oppdatere_levels}
+
+# OPPDATERE : UKE, MÅNED, ÅR for å få riktig levels i faktorer, også dersom 
+# ingen registreringer i løpet av en måned
+
+d_ablanor <- d_ablanor |>
+  dplyr::mutate(
+    aar = as.ordered(lubridate::year(.data$dato_pros)),
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m")))
+
+
+d_ablanor_hendelse <- d_ablanor_hendelse |>
+  dplyr::mutate(
+    aar = as.ordered(lubridate::year(.data$dato_pros)),
+    maaned = as.ordered(format(.data$dato_pros, "%Y-%m")))
+
+# OPPDATERE ALLE ANDRE FAKTOR variabler, for å få med alle mulige nivåer
+
+
+d_ablanor <- d_ablanor |> 
+  dplyr::mutate(forlopstype = factor(x = forlopstype,
+                                     levels = 1:4),
+                forlopstype_med_AVknute = factor(
+                  x = dplyr::case_when(
+                    (abla_strat_av_his %in% 0 & 
+                       forlopstype %in% 1) ~ "AFLI (uten AV-knute)",
+                    forlopstype %in% 2 ~ "VT",
+                    (abla_strat_av_his %in% 0 & 
+                       forlopstype %in% 3) ~ "SVT (uten AV-knute)",
+                    forlopstype %in% 4 ~ "EFU",
+                    (abla_strat_av_his %in% 1 & 
+                       forlopstype %in% c(1,3)) ~ "AV-knute (AFLI eller SVT)",
+                    TRUE ~ NA_character_),
+                  levels = c("AFLI (uten AV-knute)",
+                             "VT",
+                             "SVT (uten AV-knute)",
+                             "EFU",
+                             "AV-knute (AFLI eller SVT)")
+                ))
+
+
+d_operatorer <- d_operatorer |> 
+  mutate(
+    fulltNavnOperatoer = toupper(paste0(sub(" .*", "", firstname),
+                                        " ",
+                                        lastname)),
+    kortNavnOperator = paste0(substr(firstname, 1, 1), ". ", lastname))
+
+# Legger til navn på operatør
+
+d_ablanor <- d_ablanor |> 
+  dplyr::left_join(d_operatorer |> dplyr::select(id, fulltNavnOperatoer, kortNavnOperator),
+            by = c("operator" = "id"))
+
+```
+
+
+# Datagrunnlag 
+Datagrunnlaget for denne rapporten, hvor det presenteres månedlige resultater, 
+er hele fjorårets registreringer samt alle fullførte måndeder hittil i år 
+i AblaNor, det vil si i perioden 
+`r format(periode_data$forste_dato , "%d/%m-%Y")` til
+`r format(periode_data$siste_dato, "%d/%m-%Y")`. 
+
+Denne rapporten er laget for `r params$userFullName`. 
+Dersom den innloggede personen er registrert som operatør hos 
+`r hospitalNameShort`, blir operatørens nøkkeltall sammenlignet med 
+sykhusets nøkkeltall.
+
+Merk at fornavn og etternavn må være skrevet likt både hos FALK og 
+i AblaNor sin operatørliste ved dette sykehuset. Dersom personen som er logget 
+inn ikke er en registrert i operatørlisten, vil operatør-delen av tabellene og 
+figurene være tomme.
+
+
+<br>
+<br>
+
+```{r pagebreak_forlopstype, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+# Forløpstype
+Forløpene i registrert i AblaNor er en av typene : Atrieflimmer/atypisk flutter
+(AFLI), Ventrikkeltakykardi (VT), Supraventrikulær takykardi (SVT) eller 
+Elektrofysiologisk undersøkelse (EFU).
+
+Tabellen under (Tabell \@ref(tab:typeForlopAar)) viser antall forløp
+registrert i AblaNor for siste hele år samt alle fullførte måneder 
+hittil i år for `r kort_navn`  sammenlignet med 
+`r hospitalNameShort`, for hver forløpstype og sammenlagt. 
+Opptelling av typene AFLI og SVT er uten AV-knuter. Typene med AV-knute for 
+forløpene AFLI og SVT vises samlet i egen rad.
+ 
+
+```{r typeForlopAar, echo = FALSE, results = "asis"}
+cap <- paste("Totalt antall forløp av ",
+             kort_navn, " sammenlignet med ", hospitalNameShort,". ",
+             "Tabellen viser forløp fra det siste hele året samt alle ",
+             "fullførte måneder hittil i år for hver av de 4 forløpstypene ",
+             "samt AV-knuter: ",
+             "Atrieflimmer/atypisk flutter (AFLI uten AV-knuter), ",
+             "Ventrikkeltakykardi (VT), Supraventrikulær takykardi ",
+             "(SVT uten AV-knuter), Elektrofysiologisk undersøkelse (EFU) ",
+             "eller AV-knuter for typene AFLI eller SVT.")
+
+tab_forlopstype_AVknute <- data.frame(
+  Forlopstype = c("AFLI (uten AV-knute)",
+                  "VT",
+                  "SVT (uten AV-knute)",
+                  "EFU",
+                  "AV-knute (AFLI eller SVT)"))
+
+
+forlopstype_lokalt_fjor <- d_ablanor |>
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$sisteHeleYear) |> 
+  dplyr::count(forlopstype_med_AVknute) |> 
+  janitor::adorn_totals() |> 
+  dplyr::select("forlopstype_med_AVknute", "n") |> 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
+                "Antall_fjor" = n)
+
+forlopstype_lokalt_aar <- d_ablanor |>
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$nyesteRegYear) |> 
+  dplyr::count(forlopstype_med_AVknute) |> 
+  janitor::adorn_totals() |> 
+  dplyr::select("forlopstype_med_AVknute", "n") |> 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
+                "Antall_aar" = n)
+
+forlopstype_nasjonalt_fjor <- d_ablanor |>
+  dplyr::filter(aar %in% periode_data$sisteHeleYear) |>
+  dplyr::count(forlopstype_med_AVknute) |> 
+  janitor::adorn_totals() |> 
+  dplyr::select("forlopstype_med_AVknute", "n") |> 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
+                "Nasjonalt_fjor" = n)
+
+forlopstype_nasjonalt_aar <- d_ablanor |>
+  dplyr::filter(aar %in% periode_data$nyesteRegYear) |>
+  dplyr::count(forlopstype_med_AVknute) |> 
+  janitor::adorn_totals() |> 
+  dplyr::select("forlopstype_med_AVknute", "n") |> 
+  dplyr::rename("Forlopstype" = forlopstype_med_AVknute, 
+                "Nasjonalt_aar" = n)
+
+
+tabForlopstype <-  tab_forlopstype_AVknute |>
+  dplyr::left_join(forlopstype_lokalt_fjor,
+                   by = "Forlopstype") |> 
+  dplyr::left_join(forlopstype_nasjonalt_fjor,
+                   by = "Forlopstype") |> 
+  dplyr::left_join(forlopstype_lokalt_aar,
+                   by = "Forlopstype") |> 
+  dplyr::left_join(forlopstype_nasjonalt_aar,
+                   by = "Forlopstype") |> 
+  janitor::adorn_totals(where = "row", name = "Totalt")
+
+tabForlopstype[tabForlopstype == 0] <- " - "
+tabForlopstype[is.na(tabForlopstype)] <- " - "
+
+colnames(tabForlopstype)[2] <- paste0("Totalt i ", periode_data$sisteHeleYear)
+colnames(tabForlopstype)[3] <- paste0("Nasjonalt i ", periode_data$sisteHeleYear)
+colnames(tabForlopstype)[4] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
+colnames(tabForlopstype)[5] <- paste0("Nasjonalt hittil i ",
+                                      periode_data$nyesteRegYear)
+
+align <- c("l", rep("r", ncol(tabForlopstype)-1))
+
+
+if(params$tableFormat %in% "html") {
+  tabForlopstype |> rename(" " = "Forlopstype") |>   
+  rapbase::mst(type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |> 
+    kableExtra::column_spec(column = 3,
+                            background = "#EBEBEB") |> 
+    kableExtra::column_spec(column = ncol(tabForlopstype),
+                            background = "#EBEBEB") |> 
+    kableExtra::row_spec(row = nrow(tabForlopstype),
+                         background = "#EBEBEB")
+  
+  
+} else if (params$tableFormat %in% "pdf") {
+  tabForlopstype |> rename(" " = "Forlopstype") |>
+  rapbase::mst(type = params$tableFormat,
+               cap = cap,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |>
+    kableExtra::kable_styling(latex_options = c("scale_down"),
+                              font_size = 8) |>
+    kableExtra::row_spec(row = nrow(tabForlopstype)-1, hline_after = TRUE) |>
+    kableExtra::add_header_above(
+      header = c("",
+                 setNames(2,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(tabForlopstype)-3),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 10)
+}
+
+```
+
+
+<br>
+<br>
+
+```{r pagebreak_komplik, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+
+# Komplikasjoner
+I Ablanor registreres følgende: "Skjedde det komplikasjoner som følge av 
+operasjonen?". Dette kan enten være komplikasjoner som oppstod umiddelbart 
+etter operasjonen eller som var senkomplikasjoner som (sannsynligvis) skyldtes 
+operasjonen (hendelser innen 4 dager).
+
+
+
+
+```{r komplikasjonerTab, echo = FALSE, results = "asis"}
+caption <- paste0("Antall komplikasjoner registrert av ",
+                  kort_navn, " sammenlignet med ", hospitalNameShort,
+                  " det siste hele året samt hittil i år ", 
+                  "sammenlignet med nasjonale tall. ",
+                  "Hvis det er registrert flere komplikasjoner på samme ",
+                  "pasient, er disse talt opp hver for seg. ",
+                  "Dersom samme komplikasjon er registrert i både ",
+                  "prosedyreskjemaet og hendelseskjemaet, hvor hendelsen ",
+                  "skjedde innen fire dager, ",
+                  "telles dette kun som én komplikasjon.")
+
+d_ablanor_hendelse_innen4dager <- d_ablanor_hendelse |> 
+  filter(dager_pros_hendelse <= 4)
+
+# Samler komplikasjoner fra prosedyre og hendelse innen 4 dager
+d_ablanor_komp_prosOgHendelse4dager <- dplyr::left_join(
+  d_ablanor |> select(mceid, dato_pros, centreid, aar, 
+                                 komp_janei:komp_annen_spes),
+  d_ablanor_hendelse_innen4dager |>
+    select(mceid, dato_adhoc, adhoc_komp_janei:adhoc_komp_annet_spes),
+  by = "mceid")
+
+
+# Forberede komplikasjon
+forberedelse_komp <- d_ablanor_komp_prosOgHendelse4dager |> 
+  dplyr::filter(komp_janei %in% 1 | adhoc_komp_janei %in% 1) |>
+  mutate(
+    
+    # AV_fistel
+    ant_komp_av_fistel_observasjon = dplyr::if_else(
+      condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 1)) |
+        (adhoc_komp_av_fistel %in% 1 & adhoc_komp_av_fistel_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_av_fistel_operasjon = dplyr::if_else(
+      condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 2)) |
+        (adhoc_komp_av_fistel %in% 1 & adhoc_komp_av_fistel_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_av_fistel_ukjent = dplyr::if_else(
+      condition = ((komp_av_fistel %in% 1 & komp_av_fistel_sub %in% 9)) |
+        (adhoc_komp_av_fistel %in% 1 & adhoc_komp_av_fistel_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Pseudoaneurisme
+    ant_komp_pseudoan_liming = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 1)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_pseudoan_operasjon = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 2)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_pseudoan_observasjon = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 3)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% 3),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_pseudoan_ukjent = dplyr::if_else(
+      condition = ((komp_pseudoan %in% 1 & komp_pseudoan_sub %in% 9)) |
+        (adhoc_komp_pseudoan %in% 1 & adhoc_komp_pseudoan_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Blødning
+    ant_komp_blodning_transfusjon = dplyr::if_else(
+      condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 1)) |
+        (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_blodning_observasjon = dplyr::if_else(
+      condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 2)) |
+        (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    ant_komp_blodning_ukjent = dplyr::if_else(
+      condition = ((komp_blodning %in% 1 & komp_blodning_sub %in% 9)) |
+        (adhoc_komp_blodning %in% 1 & adhoc_komp_blodning_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Lyskekomplikasjon - annet
+    ant_komp_lyske_annet =dplyr::if_else(
+      condition = (komp_annet %in% 1 | adhoc_komp_annet %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Infeksjon
+    ant_komp_infeksjon =dplyr::if_else(
+      condition = (komp_infek %in% 1 | adhoc_komp_infek %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Tamponade
+    ant_komp_tamponade_perikardiosentese = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 1)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_tamponade_kirurgisk_sternotomi = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 2)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% 2),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_tamponade_observasjon = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 3)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% 3),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+     ant_komp_tamponade_ukjent = dplyr::if_else(
+      condition = ((komp_tamp %in% 1 & komp_tamp_sub %in% 9)) |
+        (adhoc_komp_tamp %in% 1 & adhoc_komp_tamp_sub %in% c(9, NA)),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # N. frenicus parese
+    ant_komp_nfren = dplyr::if_else(
+      condition = (komp_nfren %in% 1 | adhoc_komp_nfren %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Apoplexi/TIA
+    ant_komp_apoplexi = dplyr::if_else(
+      condition = (komp_apoplexi %in% 1 | adhoc_komp_apoplexi %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # AV-blokk/PM
+    ant_komp_avblokk_pm = dplyr::if_else(
+      condition = (komp_avblokk_pm %in% 1 | adhoc_komp_avblokk_pm %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Pulmonalvenestenose
+    ant_komp_pulm = dplyr::if_else(
+      condition = (komp_pulm %in% 1 | adhoc_komp_pulm %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Øsofagusfistel
+    ant_komp_osofag = dplyr::if_else(
+      condition = (komp_osofag %in% 1 | adhoc_komp_osofag %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Hjerteinfarkt eller iskemi
+    ant_komp_koronar = dplyr::if_else(
+      condition = (komp_koronar %in% 1 | adhoc_komp_koronar %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Perikarditt/perikardvæske
+    ant_komp_perikard = dplyr::if_else(
+      condition = (komp_perikard %in% 1 | adhoc_komp_perikard %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Hemolyse
+    ant_komp_hemolyse = dplyr::if_else(
+      condition = (komp_hemolyse %in% 1 | adhoc_komp_hemolyse %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Kontrastallergi
+    ant_komp_kontrastallergi = dplyr::if_else(
+      condition = (komp_kontrastallergi %in% 1 | adhoc_komp_kontrastallergi %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Død
+    ant_komp_dod = dplyr::if_else(
+      condition = (komp_dod %in% 1 | adhoc_komp_dod %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_),
+    
+    # Annen
+    ant_komp_annen = dplyr::if_else(
+      condition = (komp_annen %in% 1 | adhoc_komp_annen %in% 1),
+      true = "ja",
+      false = "nei",
+      missing = NA_character_)
+    )
+
+# Tabell - komplikasjon
+tab_kompl_tekst <- data.frame(
+  Komplikasjoner = c(
+    "ant_komp_av_fistel_observasjon",
+    "ant_komp_av_fistel_operasjon",
+    "ant_komp_av_fistel_ukjent",
+    "ant_komp_pseudoan_liming",
+    "ant_komp_pseudoan_operasjon",
+    "ant_komp_pseudoan_observasjon",
+    "ant_komp_pseudoan_ukjent",
+    "ant_komp_blodning_transfusjon",
+    "ant_komp_blodning_observasjon",
+    "ant_komp_blodning_ukjent",
+    "ant_komp_lyske_annet",
+    "ant_komp_infeksjon",
+    "ant_komp_tamponade_perikardiosentese",
+    "ant_komp_tamponade_kirurgisk_sternotomi",
+    "ant_komp_tamponade_observasjon",
+    "ant_komp_tamponade_ukjent",
+    "ant_komp_nfren",
+    "ant_komp_apoplexi",
+    "ant_komp_avblokk_pm",
+    "ant_komp_pulm",
+    "ant_komp_osofag",
+    "ant_komp_koronar",
+    "ant_komp_perikard",
+    "ant_komp_hemolyse",
+    "ant_komp_kontrastallergi",
+    "ant_komp_dod",
+    "ant_komp_annen"),
+  Komplikasjoner_tekst = c(
+    "AV-fistel - Observasjon",
+    "AV-fistel - Operasjon",
+    "AV-fistel - Ukjent",
+    "Pseudoaneurisme - Liming",
+    "Pseudoaneurisme - Operasjon",
+    "Pseudoaneurisme - Observasjon",
+    "Pseudoaneurisme - Ukjent",
+    "Blødning - Transfusjon",
+    "Blødning - Observasjon",
+    "Blødning - Ukjent",
+    "Lyskekomplikasjon - annet",
+    "Infeksjon",
+    "Tamponade - Perikardiosentese",
+    "Tamponade - Kirurgisk, sternotomi",
+    "Tamponade - Observasjon",
+    "Tamponade - Ukjent",
+    "N. frenicus parese",
+    "Apoplexi/TIA",
+    "AV-blokk/PM",
+    "Pulmonalvenestenose",
+    "Øsofagusfistel",
+    "Hjerteinfarkt eller iskemi",
+    "Perikarditt/perikardvæske",
+    "Hemolyse",
+    "Kontrastallergi",
+    "Død",
+    "Annen komplikasjon"))
+
+
+# Lokalt i fjor
+tab_kompl_lokalt_fjor <- forberedelse_komp |> 
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                centreid %in% params$reshId)  |> 
+  dplyr::summarise(
+    across(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+           ~ sum(tolower(.) == "ja",
+                 na.rm = TRUE))) |>
+  tidyr::pivot_longer(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+                      names_to = "Komplikasjoner",
+                      values_to = "Antall_lokalt_fjor")
+
+
+# Nasjonalt i fjor
+tab_kompl_nasj_fjor <- forberedelse_komp |> 
+  dplyr::filter(aar %in% periode_data$sisteHeleYear)  |> 
+  dplyr::summarise(
+    across(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+           ~ sum(tolower(.) == "ja",
+                 na.rm = TRUE))) |>
+  tidyr::pivot_longer(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+                      names_to = "Komplikasjoner",
+                      values_to = "Antall_nasj_fjor")
+
+
+# Lokalt i år
+tab_kompl_lokalt_aar <- forberedelse_komp |> 
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                centreid %in% params$reshId)  |> 
+  dplyr::summarise(
+    across(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+           ~ sum(tolower(.) == "ja",
+                 na.rm = TRUE))) |>
+  tidyr::pivot_longer(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+                      names_to = "Komplikasjoner",
+                      values_to = "Antall_lokalt_aar")
+
+# Nasjonalt i år
+tab_kompl_nasj_aar <- forberedelse_komp |> 
+  dplyr::filter(aar %in% periode_data$nyesteRegYear)  |> 
+  dplyr::summarise(
+    across(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+           ~ sum(tolower(.) == "ja",
+                 na.rm = TRUE))) |>
+  tidyr::pivot_longer(c(ant_komp_av_fistel_observasjon:ant_komp_annen),
+                      names_to = "Komplikasjoner",
+                      values_to = "Antall_nasj_aar")
+
+tab_kompl_samlet <- tab_kompl_tekst |> 
+  dplyr::left_join(tab_kompl_lokalt_fjor, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_nasj_fjor, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_lokalt_aar, by = "Komplikasjoner") |> 
+  dplyr::left_join(tab_kompl_nasj_aar, by = "Komplikasjoner") |> 
+  select(-Komplikasjoner) |>
+  janitor::adorn_totals(where = "row", name = "Totalt")
+
+colnames(tab_kompl_samlet)[2] <- paste0("Totalt i ", periode_data$sisteHeleYear)
+colnames(tab_kompl_samlet)[3] <- paste0("Nasjonalt i ", periode_data$sisteHeleYear)
+colnames(tab_kompl_samlet)[4] <- paste0("Totalt hittil i ", periode_data$nyesteRegYear)
+colnames(tab_kompl_samlet)[5] <- paste0("Nasjonalt hittil i ",
+                                      periode_data$nyesteRegYear)
+
+tab_kompl_samlet[tab_kompl_samlet == 0] <- " - "
+tab_kompl_samlet[is.na(tab_kompl_samlet)] <- " - "
+
+align <- c("l", rep("r", ncol(tab_kompl_samlet)-1))
+
+if(params$tableFormat %in% "html") {
+  tab_kompl_samlet |>  dplyr::rename(" " = "Komplikasjoner_tekst") |>
+  rapbase::mst(type = params$tableFormat,
+               cap = caption,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |> 
+    kableExtra::column_spec(column = 3,
+                            background = "#EBEBEB") |> 
+    kableExtra::column_spec(column = ncol(tab_kompl_samlet),
+                            background = "#EBEBEB") |> 
+    kableExtra::row_spec(row = nrow(tab_kompl_samlet),
+                         background = "#EBEBEB")
+  
+  } else if (params$tableFormat %in% "pdf") {
+  tab_kompl_samlet |> dplyr::rename(" " = "Komplikasjoner_tekst") |>
+  rapbase::mst(type = params$tableFormat,
+               cap = caption,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |>
+    kableExtra::kable_styling(latex_options = c("scale_down"),
+                              font_size = 8) |>
+    kableExtra::row_spec(row = nrow(tab_kompl_samlet)-1, hline_after = TRUE) |>
+    kableExtra::add_header_above(
+      header = c("",
+                 setNames(2,
+                          periode_data$sisteHeleYear),
+                 setNames((ncol(tab_kompl_samlet)-3),
+                          periode_data$nyesteRegYear)),
+      bold = TRUE,
+      font_size = 10)
+  }
+
+```
+
+
+<br>
+<br>
+
+
+```{r pagebreak_prosedyretid, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+
+
+# Prosedyrevarighet
+Forløp med manglende prosedyrevarighet registrert kort_navn `r kort_navn` (n = 
+`r d_ablanor |> filter(centreid %in% params$reshId) |>  dplyr::filter(is.na(pros_varighet)) |>  nrow()`) er fjernet fra datagrunnlaget. 
+
+Figur \@ref(fig:figProsedyreVarighetMin) viser et boxplot med fordeling av 
+prosedyrevarighet per forløpstype for siste hele år samt alle fullførte måneder 
+hittil i år registrert av  `r kort_navn` sammenlignet med 
+registreringer ved `r hospitalNameShort`. Den blå boksen markerer nedre og øvre
+kvartil, medianen er markert av den tykke linjen.
+Punktene utenfor greinene viser uteliggere, det vil si 
+forløp med usedvanlig kort eller lang prosedyrevarighet 
+(prosedyrevarighet lengre enn 1,5 ganger interkvartil bredde over øvre kvartil/
+under nedre kvartil).
+
+
+
+```{r figProsedyreVarighetMin, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "100%", fig.asp = 0.8}
+
+fig.cap <-  paste0("Prosedyrevarighet i minutter registrert av ",
+                   kort_navn, " sammenlignet med registreringer ved ",
+                   hospitalNameShort, " for siste hele år samt alle fullførte ",
+                   "måneder hittil i år")
+
+# Lokalt
+prosedyreVarighet_lokalt_fjor <- d_ablanor |>
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, pros_varighet, aar) |> 
+  mutate(sykehusnavn = hospitalNameShort)
+
+prosedyreVarighet_lokalt_aar <- d_ablanor |>
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, pros_varighet, aar) |> 
+  mutate(sykehusnavn = hospitalNameShort)
+
+
+# Nasjonalt
+prosedyreVarighet_nasj_fjor <- d_ablanor |>
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, pros_varighet, aar) |> 
+  mutate(sykehusnavn = "Nasjonalt")
+
+prosedyreVarighet_nasj_aar <- d_ablanor |>
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$pros_varighet),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, pros_varighet, aar) |> 
+  mutate(sykehusnavn = "Nasjonalt")
+
+
+# Samlet
+prosedyreVarighet <- rbind(prosedyreVarighet_lokalt_fjor,
+                           prosedyreVarighet_lokalt_aar,
+                           prosedyreVarighet_nasj_fjor,
+                           prosedyreVarighet_nasj_aar) |> 
+  mutate(forlopstype_tekst = factor(x = forlopstype_tekst,
+                                     levels = c("AFLI", "VT", "SVT", "EFU")),
+         sykehusnavn = factor(x = sykehusnavn,
+                              levels = c("Nasjonalt",
+                                         hospitalNameShort)),
+         aar = factor(x = aar,
+                      labels = c(paste0("Totalt i ", periode_data$sisteHeleYear),
+                                 paste0("Hittil i ", periode_data$nyesteRegYear))))
+
+# Figur
+prosedyreVarighet |> 
+  ggplot2::ggplot(ggplot2::aes(y = pros_varighet,
+                               x = forlopstype_tekst,
+                               fill = forlopstype_tekst)) +
+  ggplot2::geom_boxplot(aes(fill = sykehusnavn)) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar,
+             switch = "y",
+             scale = "free_y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "\nProsedyrevarighet i minutter") +
+  scale_x_discrete(position = "top") +
+  theme(
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = ggplot2::element_text(size = 12,
+                                        color = "#222222"),
+    
+    #Axis format    
+    axis.text.x = element_text(size = 10,
+                               color = "#222222"),
+    axis.text.y = element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+```
+
+
+<br>
+<br>
+
+
+
+```{r pagebreak_rontgentid, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+# Røntgentid
+
+Forløp med manglende røntgenvarighet registrert av `r kort_navn` (n = 
+`r d_ablanor |> filter(centreid %in% params$reshId) |>  dplyr::filter(is.na(rtg_tid)) |>  nrow()`) er fjernet fra datagrunnlaget. 
+
+
+Figur \@ref(fig:figRontgenVarighetMin) viser et boxplot med fordeling av 
+røntgenvarighet per forløpstype for siste hele år samt alle fullførte måneder 
+hittil i år registrert av `r kort_navn` sammenlignet med 
+registreringer ved `r hospitalNameShort`. Den blå boksen markerer nedre og øvre
+kvartil, medianen er markert av den tykke linjen.
+Punktene utenfor greinene viser uteliggere, det vil si 
+forløp med usedvanlig kort eller lang prosedyrevarighet 
+(prosedyrevarighet lengre enn 1,5 ganger interkvartil bredde over øvre kvartil/
+under nedre kvartil).
+
+
+```{r figRontgenVarighetMin, fig.cap = cap, fig.pos = "H", fig.align = 'center',   out.width = "100%", fig.asp = 0.8}
+
+cap <- paste0("Røntgentid i minutter registrert av ",
+              kort_navn, " sammenlignet med registreringer ved ",
+              hospitalNameShort, " for siste hele år samt ",
+              "alle fullførte måneder hittil i år")
+
+d_ablanor <- d_ablanor |> 
+  dplyr::mutate(
+    rtg_tid = as.numeric(.data$rtg_tid),
+    rtg_tid_min = .data$rtg_tid / 60)
+
+# Lokalt
+rontgenVarighetMin_lokalt_fjor <- d_ablanor |>
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, rtg_tid_min, aar) |> 
+  mutate(sykehusnavn = hospitalNameShort)
+
+rontgenVarighetMin_lokalt_aar <-d_ablanor |>
+  dplyr::filter(centreid %in% params$reshId,
+                aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, rtg_tid_min, aar) |> 
+  mutate(sykehusnavn = hospitalNameShort)
+
+
+# Nasjonalt
+rontgenVarighetMin_nasj_fjor <-d_ablanor |>
+  dplyr::filter(aar %in% periode_data$sisteHeleYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, rtg_tid_min, aar) |> 
+  mutate(sykehusnavn = "Nasjonalt")
+
+rontgenVarighetMin_nasj_aar <-d_ablanor |>
+  dplyr::filter(aar %in% periode_data$nyesteRegYear,
+                !is.na(.data$rtg_tid),
+                !is.na(.data$forlopstype)) |>
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  select(forlopstype_tekst, rtg_tid_min, aar) |> 
+  mutate(sykehusnavn = "Nasjonalt")
+
+
+# Samlet
+rontgenVarighetMin <- rbind(rontgenVarighetMin_lokalt_fjor,
+                           rontgenVarighetMin_lokalt_aar,
+                           rontgenVarighetMin_nasj_fjor,
+                           rontgenVarighetMin_nasj_aar) |> 
+  mutate(forlopstype_tekst = factor(x = forlopstype_tekst,
+                                     levels = c("AFLI", "VT", "SVT", "EFU")),
+         sykehusnavn = factor(x = sykehusnavn,
+                              levels = c("Nasjonalt",
+                                         hospitalNameShort)),
+         aar = factor(x = aar,
+                      labels = c(paste0("Totalt i ", periode_data$sisteHeleYear),
+                                 paste0("Hittil i ", periode_data$nyesteRegYear))))
+
+# Figur
+rontgenVarighetMin |> 
+  ggplot2::ggplot(ggplot2::aes(y = rtg_tid_min,
+                               x = forlopstype_tekst,
+                               fill = forlopstype_tekst)) +
+  ggplot2::geom_boxplot(aes(fill = sykehusnavn)) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar,
+             switch = "y",
+             scale = "free_y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values= c(colPrimary[6], colPrimary[4])) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "\nRøntgentid i minutter") +
+  scale_x_discrete(position = "top") +
+  theme(
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = ggplot2::element_text(size = 12,
+                                        color = "#222222"),
+    
+    #Axis format    
+    axis.text.x = element_text(size = 10,
+                               color = "#222222"),
+    axis.text.y = element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+```
+
+
+<br>
+<br>
+
+
+```{r pagebreak_oppf1aar, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+# Oppfølging 1 år etter prosedyren
+
+<br>
+
+## Responsrate
+Responsraten beregnes blant de pasientene
+som oppfyller kravene til ePROM (over 16 år ved prosedyretidspunktet, levende ved bestilling av
+ePROM, norsk fødselsnummertype, varighet for prosedyren/røntgen er registrert), og der skjema har
+blitt bestilt og sendt. 
+
+
+```{r respontrate1aarsOppf, echo = FALSE, results = "asis"}
+
+caption <- paste0(
+  "Tabellen viser responsrate for prosedyrene som ble utført i ",
+  (periode_data$sisteHeleYear-1), " og " ,
+  (periode_data$nyesteRegYear-1),
+  ", og der oppfølging ble besvart henholdsvis i ",
+  periode_data$sisteHeleYear,
+  " samt alle fullførte måneder hittil i ",
+  periode_data$nyesteRegYear, "." )
+
+
+# Lokalt - prosedyrer fra to år siden
+
+proms_1aar_antPros_fjor <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_1aar_datagrunnlag_fjor <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") |> 
+  nrow()
+
+proms_1aar_besvart_fjor <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_1aar_lokalt_fjor <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_1aar_antPros_fjor,
+  datagrunnlag = proms_1aar_datagrunnlag_fjor,
+  besvart = proms_1aar_besvart_fjor) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+
+# Nasjonalt - prosedyrer fra to år siden
+
+proms_1aar_antPros_nasj_fjor <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_1aar_datagrunnlag_nasj_fjor <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") |> 
+  nrow()
+
+proms_1aar_besvart_nasj_fjor <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_1aar_nasj_fjor <- data.frame(
+  sykehus = "Nasjonalt",
+  ant_pros = proms_1aar_antPros_nasj_fjor,
+  datagrunnlag = proms_1aar_datagrunnlag_nasj_fjor,
+  besvart = proms_1aar_besvart_nasj_fjor) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+# Samlet for to år siden
+responsrate_1aar_fjor <- rbind(
+  responsrate_1aar_lokalt_fjor,
+  responsrate_1aar_nasj_fjor)
+
+
+# Lokalt - prosedyrer fra i fjor
+
+proms_1aar_antPros_aar <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_1aar_datagrunnlag_aar <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") |> 
+  nrow()
+
+proms_1aar_besvart_aar <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_1aar_lokalt_aar <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_1aar_antPros_aar,
+  datagrunnlag = proms_1aar_datagrunnlag_aar,
+  besvart = proms_1aar_besvart_aar) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+
+# Nasjonalt - prosedyrer fra i fjor
+
+proms_1aar_antPros_nasj_aar <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_1aar_datagrunnlag_nasj_aar <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja") |> 
+  nrow()
+
+proms_1aar_besvart_nasj_aar <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_1aar %in% "ja",
+         eprom_besvart_1aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_1aar_nasj_aar <- data.frame(
+  sykehus = "Nasjonalt",
+  ant_pros = proms_1aar_antPros_nasj_aar,
+  datagrunnlag = proms_1aar_datagrunnlag_nasj_aar,
+  besvart = proms_1aar_besvart_nasj_aar) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+# Samlet i fjor
+responsrate_1aar_aar <- rbind(
+  responsrate_1aar_lokalt_aar,
+  responsrate_1aar_nasj_aar)
+
+
+# Samlet prom hele siste år og hittil i år
+responsrate_prom1aar <- rbind(
+  responsrate_1aar_fjor,
+  responsrate_1aar_aar)
+
+
+responsrate_prom1aar[responsrate_prom1aar == 0] <- " - "
+responsrate_prom1aar[is.na(responsrate_prom1aar)] <- " - "
+
+colnames(responsrate_prom1aar)[2] <- "Antall prosedyrer"
+colnames(responsrate_prom1aar)[3] <- "Kriterier for ePROM oppfylt og bestilt"
+colnames(responsrate_prom1aar)[4] <- "ePROM besvart"
+colnames(responsrate_prom1aar)[5] <- "Andel besvart"
+
+align <- c("l", rep("c", dim(responsrate_prom1aar)[2] - 1))
+
+if(params$tableFormat %in% "html") {
+  responsrate_prom1aar |> rename(" " = "sykehus") |>   
+  rapbase::mst(type = params$tableFormat,
+               cap = caption,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |> 
+    kableExtra::row_spec(row=dim(responsrate_prom1aar)[1]-1, hline_after =  TRUE) |> 
+    kableExtra::column_spec(column = 1, width = "20em") |>
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$sisteHeleYear)-1)),
+                          start_row = 1,
+                          end_row = 2) |>
+    kableExtra::pack_rows(group_label = paste0("Hittil i år ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$nyesteRegYear)-1)),
+                          start_row = 3,
+                          end_row = dim(responsrate_prom1aar)[1])
+    
+    
+  
+} else if (params$tableFormat %in% "pdf") {
+  responsrate_prom1aar |> rename(" " = "sykehus") |>
+  rapbase::mst(type = params$tableFormat,
+               cap = caption,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |>
+    kableExtra::kable_styling(latex_options = "scale_down") |>
+    kableExtra::row_spec(row=2, hline_after =  TRUE) |>
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$sisteHeleYear)-1)),
+                          start_row = 1,
+                          end_row = 2) |> 
+    kableExtra::pack_rows(group_label = paste0("Hittil i år ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$nyesteRegYear)-1)),
+                          start_row = 3, 
+                          end_row = dim(responsrate_prom1aar)[1])
+}
+
+```
+
+<br>
+
+## Klinisk effekt etter 1 år
+
+Følgende spørsmål stillet et år etter prosedyren:
+Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gjelder arytmien er tilstanden din nå, sammenlignet med for 1 år siden”. Svaralternativene er: Helt bra, Mye bedre, Bedre, Uforandret og Verre.
+
+<br>
+
+
+```{r figKliniskEffekt1aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
+
+fig.cap <-  paste0("Figuren viser pasientraportert klinisk effekt 1 år ",
+                   " etter prosedyren utført i ", 
+                   (periode_data$sisteHeleYear-1), " og " ,
+                   (periode_data$nyesteRegYear-1), ", ",
+                   "i prosent registrert av ",
+                   kort_navn, " sammenlignet med registreringer ved ",
+                   hospitalNameShort, " der oppfølgingen ble ",
+                   "besvart henholdsvis i ", periode_data$sisteHeleYear,
+                   " samt alle fullførte måneder hittil i ",
+                   periode_data$nyesteRegYear, ".")
+
+
+# Lokalt proms 1 år fra i fjor
+klinisk_effekt_1aar_lokalt_fjor <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype),
+         eprom_besvart_1aar == "datagrunnlag og besvart") |> 
+  select(aar_prosedyre, followup1_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
+  dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
+  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
+  
+# Lokalt proms 1 år fra i år
+klinisk_effekt_1aar_lokalt_aar <- d_ablanor_prom1aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_besvart_1aar == "datagrunnlag og besvart") |> 
+  select(aar_prosedyre, followup1_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
+  dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
+  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
+
+
+# Lokalt samlet
+klinisk_effekt_1aar_lokalt <- rbind(
+  klinisk_effekt_1aar_lokalt_fjor,
+  klinisk_effekt_1aar_lokalt_aar) |> 
+  mutate(sykehusnavn = hospitalNameShort)
+  
+
+# Nasjonalt proms 1 år fra i fjor
+klinisk_effekt_1aar_nasj_fjor <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+         !is.na(.data$forlopstype),
+         eprom_besvart_1aar == "datagrunnlag og besvart") |> 
+  select(aar_prosedyre, followup1_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
+  dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
+  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
+  
+# Nasjonalt proms 1 år fra i år
+klinisk_effekt_1aar_nasj_aar <- d_ablanor_prom1aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+         !is.na(.data$forlopstype),
+         eprom_besvart_1aar == "datagrunnlag og besvart") |>
+  select(aar_prosedyre, followup1_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
+  dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
+  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
+
+
+
+# Nasjonalt samlet
+klinisk_effekt_1aar_nasj <- rbind(
+  klinisk_effekt_1aar_nasj_fjor,
+  klinisk_effekt_1aar_nasj_aar) |> 
+  mutate(sykehusnavn = "Nasjonalt")
+
+
+# Samlet klinisk effekt 1 år
+klinisk_effekt_1aar <- rbind(
+  klinisk_effekt_1aar_lokalt,
+  klinisk_effekt_1aar_nasj) |> 
+  mutate(aar_prosedyre = factor(
+    x = aar_prosedyre,
+    levels = c((periode_data$sisteHeleYear-1):(periode_data$nyesteRegYear-1)),
+    labels = c(paste0("Besvart i fjor for prosedyrer utført i ",
+                      (periode_data$sisteHeleYear-1)),
+               paste0("Besvart hittil i år for prosedyrer utført i ",
+                      (periode_data$nyesteRegYear-1)))),
+    
+    sykehusnavn = factor(x = sykehusnavn,
+                         levels = c("Nasjonalt",
+                                    hospitalNameShort)))
+
+# Figur
+klinisk_effekt_1aar |>
+  ggplot2::ggplot(ggplot2::aes(y = n,
+                               x = sykehusnavn,
+                               fill = followup1_q2_tekst))+
+  ggplot2::geom_bar(position = "fill",
+                    stat = "identity",
+                    width = 0.6) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar_prosedyre,
+             switch = "y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values = colPrimary) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "") +
+  # scale_x_discrete(position = "top") +
+  ggplot2::scale_y_continuous(name = "",
+                              breaks = seq(from=0,
+                                           to =1,
+                                           length.out = 5),
+                              labels = paste0(seq(from=0,
+                                                  to =1,
+                                                  length.out = 5)*100, "%")) +
+  theme(
+    # Group format
+    strip.placement = "outside",
+    strip.background = element_rect(color = "black", linewidth = 1),
+      
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = ggplot2::element_text(size = 10,
+                                        color = "#222222"),
+
+    #Axis format
+    axis.text.y = element_text(size = 8,
+                               color = "#222222"),
+    axis.text.x = element_text(size = 8,
+                               color = "#222222")
+    ) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+```
+
+
+<br>
+<br>
+
+
+```{r pagebreak_oppf5aar, results = "asis", eval = (params$tableFormat == "pdf")}
+cat("\n\n\\pagebreak\n")
+```
+
+
+# Oppfølging  5 år etter prosedyren
+
+<br>
+
+## Responsrate
+Responsraten beregnes blant de pasientene
+som oppfyller kravene til ePROM (over 16 år ved prosedyretidspunktet, levende ved bestilling av
+ePROM, norsk fødselsnummertype, varighet for prosedyren/røntgen er registrert), og der skjema har
+blitt bestilt og sendt. 
+
+
+```{r respontrate5aarsOppf, echo = FALSE, results = "asis"}
+
+caption <- paste0(
+  "Tabellen viser responsrate for prosedyrene som ble utført i ",
+  (periode_data$sisteHeleYear-5), " og " ,
+  (periode_data$nyesteRegYear-5),
+  ", og der oppfølging ble besvart henholdsvis i ",
+  periode_data$sisteHeleYear,
+  " samt alle fullførte måneder hittil i ",
+  periode_data$nyesteRegYear, "." )
+
+
+# Lokalt - prosedyrer fra seks år siden
+
+proms_5aar_antPros_fjor <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_5aar_datagrunnlag_fjor <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja") |> 
+  nrow()
+
+proms_5aar_besvart_fjor <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja",
+         eprom_besvart_5aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_5aar_lokalt_fjor <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_5aar_antPros_fjor,
+  datagrunnlag = proms_5aar_datagrunnlag_fjor,
+  besvart = proms_5aar_besvart_fjor) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+
+# Nasjonalt - prosedyrer fra seks år siden
+
+proms_5aar_antPros_nasj_fjor <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_5aar_datagrunnlag_nasj_fjor <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja") |> 
+  nrow()
+
+proms_5aar_besvart_nasj_fjor <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja",
+         eprom_besvart_5aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_5aar_nasj_fjor <- data.frame(
+  sykehus = "Nasjonalt",
+  ant_pros = proms_5aar_antPros_nasj_fjor,
+  datagrunnlag = proms_5aar_datagrunnlag_nasj_fjor,
+  besvart = proms_5aar_besvart_nasj_fjor) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+# Samlet for seks år siden
+responsrate_5aar_fjor <- rbind(
+  responsrate_5aar_lokalt_fjor,
+  responsrate_5aar_nasj_fjor)
+
+
+# Lokalt - prosedyrer fra fem års siden
+
+proms_5aar_antPros_aar <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_5aar_datagrunnlag_aar <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja") |> 
+  nrow()
+
+proms_5aar_besvart_aar <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja",
+         eprom_besvart_5aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_5aar_lokalt_aar <- data.frame(
+  sykehus = hospitalNameShort,
+  ant_pros = proms_5aar_antPros_aar,
+  datagrunnlag = proms_5aar_datagrunnlag_aar,
+  besvart = proms_5aar_besvart_aar) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+
+# Nasjonalt - prosedyrer fra fem år siden
+proms_5aar_antPros_nasj_aar <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype)) |> 
+  nrow()
+
+proms_5aar_datagrunnlag_nasj_aar <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja") |> 
+  nrow()
+
+proms_5aar_besvart_nasj_aar <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_datagrunnlag_5aar %in% "ja",
+         eprom_besvart_5aar %in% "datagrunnlag og besvart") |> 
+  nrow()
+
+
+responsrate_5aar_nasj_aar <- data.frame(
+  sykehus = "Nasjonalt",
+  ant_pros = proms_5aar_antPros_nasj_aar,
+  datagrunnlag = proms_5aar_datagrunnlag_nasj_aar,
+  besvart = proms_5aar_besvart_nasj_aar) |> 
+  mutate(andel_besvart = ifelse(
+    test = (is.na(datagrunnlag) | datagrunnlag == 0),
+    yes = "-",
+    no = paste0(round(100*(besvart/datagrunnlag), 1), "%")))
+
+# Samlet i fjor
+responsrate_5aar_aar <- rbind(
+  responsrate_5aar_lokalt_aar,
+  responsrate_5aar_nasj_aar)
+
+
+# Samlet prom hele siste år og hittil i år
+responsrate_prom5aar <- rbind(
+  responsrate_5aar_fjor,
+  responsrate_5aar_aar)
+
+
+responsrate_prom5aar[responsrate_prom5aar == 0] <- " - "
+responsrate_prom5aar[is.na(responsrate_prom5aar)] <- " - "
+
+colnames(responsrate_prom5aar)[2] <- "Antall prosedyrer"
+colnames(responsrate_prom5aar)[3] <- "Kriterier for ePROM oppfylt og bestilt"
+colnames(responsrate_prom5aar)[4] <- "ePROM besvart"
+colnames(responsrate_prom5aar)[5] <- "Andel besvart"
+
+align <- c("l", rep("c", dim(responsrate_prom5aar)[2] - 1))
+
+if(params$tableFormat %in% "html") {
+  responsrate_prom5aar |> rename(" " = "sykehus") |>   
+  rapbase::mst(type = params$tableFormat,
+               cap = caption,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |> 
+    kableExtra::row_spec(row=dim(responsrate_prom5aar)[1]-1, hline_after =  TRUE) |> 
+    kableExtra::column_spec(column = 1, width = "20em") |>
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$sisteHeleYear)-5)),
+                          start_row = 1,
+                          end_row = 2) |>
+    kableExtra::pack_rows(group_label = paste0("Hittil i år ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$nyesteRegYear)-5)),
+                          start_row = 3,
+                          end_row = dim(responsrate_prom5aar)[1])
+    
+    
+  
+} else if (params$tableFormat %in% "pdf") {
+  responsrate_prom5aar |> rename(" " = "sykehus") |>
+  rapbase::mst(type = params$tableFormat,
+               cap = caption,
+               digs = 1,
+               align = align,
+               fs = 9,
+               lsd = FALSE) |>
+    kableExtra::kable_styling(latex_options = "scale_down") |>
+    kableExtra::row_spec(row=2, hline_after =  TRUE) |>
+    kableExtra::pack_rows(group_label = paste0("Totalt i fjor ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$sisteHeleYear)-5)),
+                          start_row = 1,
+                          end_row = 2) |> 
+    kableExtra::pack_rows(group_label = paste0("Hittil i år ",
+                                               "for prosedyrer utført i ",
+                                               as.character((periode_data$nyesteRegYear)-5)),
+                          start_row = 3, 
+                          end_row = dim(responsrate_prom5aar)[1])
+}
+
+```
+
+<br>
+
+## Klinisk effekt etter 5 år
+
+Følgende spørsmål stillet fem år etter prosedyren:
+Du har vært til behandling av en rytmeforstyrrelse for 5 år siden. Når det gjelder arytmien er tilstanden din nå, sammenlignet med for 5 år siden”. Svaralternativene er: Helt bra, Mye bedre, Bedre, Uforandret og Verre.
+
+<br>
+
+```{r figKliniskEffekt5aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
+
+fig.cap <-  paste0("Figuren viser pasientraportert klinisk effekt 5 år ",
+                   " etter prosedyren utført i ", 
+                   (periode_data$sisteHeleYear-5), " og " ,
+                   (periode_data$nyesteRegYear-5), ", ",
+                   "i prosent registrert av ",
+                   kort_navn, " sammenlignet med registreringer ved ",
+                   hospitalNameShort, " der oppfølgingen ble ",
+                   "besvart henholdsvis i ", periode_data$sisteHeleYear,
+                   " samt alle fullførte måneder hittil i ",
+                   periode_data$nyesteRegYear, ".")
+
+
+# Lokalt proms 5 år fra i fjor
+klinisk_effekt_5aar_lokalt_fjor <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") |> 
+  select(aar_prosedyre, followup5_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+  
+# Lokalt proms 5 år fra i år
+klinisk_effekt_5aar_lokalt_aar <- d_ablanor_prom5aar |> 
+  filter(centreid %in% params$reshId,
+         aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") |> 
+  select(aar_prosedyre, followup5_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+
+
+# Lokalt samlet
+klinisk_effekt_5aar_lokalt <- rbind(
+  klinisk_effekt_5aar_lokalt_fjor,
+  klinisk_effekt_5aar_lokalt_aar) |> 
+  mutate(sykehusnavn = hospitalNameShort)
+  
+
+# Nasjonalt proms 5 år fra i fjor
+klinisk_effekt_5aar_nasj_fjor <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") |> 
+  select(aar_prosedyre, followup5_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst)
+  
+# Nasjonalt proms 5 år fra i år
+klinisk_effekt_5aar_nasj_aar <- d_ablanor_prom5aar |> 
+  filter(aar_prosedyre %in% (periode_data$nyesteRegYear-5),
+         !is.na(.data$forlopstype),
+         eprom_besvart_5aar == "datagrunnlag og besvart") |>
+  select(aar_prosedyre, followup5_q2, forlopstype) |> 
+  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+  ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
+  dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+
+
+
+# Nasjonalt samlet
+klinisk_effekt_5aar_nasj <- rbind(
+  klinisk_effekt_5aar_nasj_fjor,
+  klinisk_effekt_5aar_nasj_aar) |> 
+  mutate(sykehusnavn = "Nasjonalt")
+
+
+# Samlet klinisk effekt 5 år
+klinisk_effekt_5aar <- rbind(
+  klinisk_effekt_5aar_lokalt,
+  klinisk_effekt_5aar_nasj) |> 
+  mutate(aar_prosedyre = factor(
+    x = aar_prosedyre,
+    levels = c((periode_data$sisteHeleYear-5):(periode_data$nyesteRegYear-5)),
+    labels = c(paste0("Besvart i fjor for prosedyrer utført i ",
+                      (periode_data$sisteHeleYear-5)),
+               paste0("Besvart hittil i år for prosedyrer utført i ",
+                      (periode_data$nyesteRegYear-5)))),
+    
+    sykehusnavn = factor(x = sykehusnavn,
+                         levels = c("Nasjonalt",
+                                    hospitalNameShort)))
+
+# Figur
+klinisk_effekt_5aar |>
+  ggplot2::ggplot(ggplot2::aes(y = n,
+                               x = sykehusnavn,
+                               fill = followup5_q2_tekst))+
+  ggplot2::geom_bar(position = "fill",
+                    stat = "identity",
+                    width = 0.6) +
+  ggplot2::coord_flip() +
+  geom_hline(yintercept = 0, linewidth = 0.7, color = "darkgray") +
+  facet_grid(forlopstype_tekst ~ aar_prosedyre,
+             switch = "y") +
+  ggplot2::theme_minimal() +
+  ggplot2::scale_fill_manual(values = colPrimary) +
+  ggplot2::labs(title  = "",
+                x = "",
+                y = "") +
+  # scale_x_discrete(position = "top") +
+  ggplot2::scale_y_continuous(name = "",
+                              breaks = seq(from=0,
+                                           to =1,
+                                           length.out = 5),
+                              labels = paste0(seq(from=0,
+                                                  to =1,
+                                                  length.out = 5)*100, "%")) +
+  theme(
+    # Group format
+    strip.placement = "outside",
+    strip.background = element_rect(color = "black", linewidth = 1),
+    
+    # Legend format
+    legend.title = element_blank(),
+    legend.position = "bottom",
+    legend.text = ggplot2::element_text(size = 10,
+                                        color = "#222222"),
+
+    #Axis format
+    axis.text.y = element_text(size = 8,
+                               color = "#222222"),
+    axis.text.x = element_text(size = 8,
+                               color = "#222222")) +
+  guides(fill = guide_legend(reverse = TRUE))
+```
