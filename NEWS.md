@@ -1,3 +1,7 @@
+# ablanor 2.3.0
+Månesrapport for LU-rolle som viser data som sammenligner egne registreringer
+mot sykehusets registreringer, hele siste år samt hittil i år
+
 # ablanor 2.2.3
 Abonnement-fanen vises igjen etter aå ha vært i SC
 
