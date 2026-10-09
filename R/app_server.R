@@ -520,7 +520,7 @@ app_server <- function(input, output, session) {
                        "orgname")
       ),
       "Månedlige resultater" = list(
-        synopsis = paste0("AblaNor-resultater: ",
+        synopsis = paste0("AblaNor-rapport: ",
                           "Eget sykehus sammenlignet med resten av landet"),
         fun = "reportProcessor",
         paramNames = c("report",
