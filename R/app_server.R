@@ -26,7 +26,6 @@ app_server <- function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Utforsker")
     shiny::removeTab(inputId = "tabs", target = "Datadump")
     shiny::removeTab(inputId = "tabs", target = "Kodebok")
-    shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::removeTab(inputId = "tabs", target = "Verktøy")
     if (user$role() == "LC" || user$role() == "SC") {
       # Legg til faner for Utforsker, Kodebok og Datadump for LC og SC brukere
@@ -83,30 +82,33 @@ app_server <- function(input, output, session) {
         target = "Kodebok",
         position = "after")
     }
-    if (user$role() == "LC") {
-      # Legg til fane for månedlige rapporter for LC-brukere
-      shiny::insertTab(inputId = "tabs",
-        shiny::tabPanel(
-          "Månedsrapporter",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              style = "position:fixed;width:130px;",
-              h5("Last ned rapporten (pdf)"),
-              shiny::downloadButton("downloadReport", "Hent!"),
-              width = 2
-            ),
-            shiny::mainPanel(
-              shiny::htmlOutput("maanedligRapport", inline = TRUE)
-            )
-          )
-        ),
-        target = "Datadump",
-        position = "after"
-      )
-    }
     if (user$role() %in% c("LU", "LC")) {
       shiny::showTab(inputId = "tabs", target = "Abonnement")
+      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
+      # # Legg til fane for månedlige rapporter for LC-brukere
+      # shiny::insertTab(inputId = "tabs",
+      #   shiny::tabPanel(
+      #     "Månedsrapporter",
+      #     shiny::sidebarLayout(
+      #       shiny::sidebarPanel(
+      #         style = "position:fixed;width:130px;",
+      #         h5("Last ned rapporten (pdf)"),
+      #         shiny::downloadButton("downloadReport", "Hent!"),
+      #         width = 2
+      #       ),
+      #       shiny::mainPanel(
+      #         shiny::htmlOutput("maanedligRapport", inline = TRUE)
+      #       )
+      #     )
+      #   ),
+      #   target = "Datadump",
+      #   position = "after"
+      # )
     }
+
+    # if (user$role == "LU") {
+    #   shiny::hideTab(inputId = "tabs", target = "Sykehus vs Nasjonal")
+    # }
     if (user$role() == "SC") {
       # Legg til fane for verktøy for SC-brukere
       shiny::appendTab(inputId = "tabs",
@@ -146,6 +148,7 @@ app_server <- function(input, output, session) {
         )
       )
       shiny::hideTab(inputId = "tabs", target = "Abonnement")
+      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     }
   })
 
@@ -436,8 +439,64 @@ app_server <- function(input, output, session) {
     }
   )
 
-  # Månedlig rapport
-  output$maanedligRapport <- shiny::renderUI({
+  # Månedlige rapport
+
+  # output$maanedligRapport <- shiny::renderUI({
+  #   rapbase::renderRmd(
+  #     system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
+  #     outputType = "html_fragment",
+  #     params = list(
+  #       author = user$fullName,
+  #       hospitalName = ablanor::getHospitalName(user$org()),
+  #       tableFormat = "html",
+  #       reshId = user$org(),
+  #       registryName = registryName,
+  #       userRole = user$role(),
+  #       userOperator = userOperator
+  #     )
+  #   )
+  # })
+
+  # # Legg til fane for månedlige rapporter for LC-brukere
+  # shiny::insertTab(inputId = "tabs",
+  #   shiny::tabPanel(
+  #     "Månedsrapporter",
+  #     shiny::sidebarLayout(
+  #       shiny::sidebarPanel(
+  #         style = "position:fixed;width:130px;",
+  #         h5("Last ned rapporten (pdf)"),
+  #         shiny::downloadButton("downloadReport", "Hent!"),
+  #         width = 2
+  #       ),
+  #       shiny::mainPanel(
+  #         shiny::htmlOutput("maanedligRapport", inline = TRUE)
+  #       )
+  #     )
+  #   ),
+  #   target = "Datadump",
+  #   position = "after"
+  # )
+
+  output$hospitalReport <- shiny::renderUI({
+    # Prosedyrer report not for national user (SC).
+    if (user$role() == "SC") {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          style = "position:fixed;width:130px;",
+          h5("Last ned rapporten (pdf)"),
+          shiny::downloadButton("downloadReportSykehus", "Hent!"),
+          width = 2
+        ),
+        shiny:: mainPanel(
+          shiny:: htmlOutput("prosedyrerSykehus", inline = TRUE)
+        )
+      )
+    }
+  })
+
+  output$prosedyrerSykehus <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
       outputType = "html_fragment",
@@ -453,7 +512,7 @@ app_server <- function(input, output, session) {
     )
   })
 
-  output$downloadReport <- shiny::downloadHandler(
+  output$downloadReportSykehus <- shiny::downloadHandler(
     filename = function() {
       basename(tempfile(pattern = "AblaNor_local_monthly",
                         fileext = paste0(".", "pdf")))
