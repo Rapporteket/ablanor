@@ -738,33 +738,35 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
                                                    units = "days")),
       kriterie_registreringsdato = ifelse(test = (dager_pros_til_created <= 14),
                                           yes = "ja",
-                                          no = "nei"))%>%  #Prosedyren må registreres innen 14 dager (frist for utsending)
+                                          no = "nei"),  #Prosedyren må registreres innen 14 dager (frist for utsending)
 
-    dplyr::arrange(dato_pros) %>%
-    dplyr::group_by(patient_id, forlopstype) %>%
-    dplyr::mutate(
-      # Dersom pasienten har tidligere prosedyre av samme type, hvor mange dager er det siden ? og hadde den prosedyren tilknyttet basisprom?
-      dg_fra_forrige = as.numeric(difftime(dato_pros,
-                                           dplyr::lag(dato_pros),
-                                           units = "days")),
-      forrige_hasBasis = lag(has_basisfollowup)) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-      kriterie_ingen_tidl_basisprom = dplyr::case_when(
-        (is.na(dg_fra_forrige)) |    # ingen tidl pros av denne typen
-          (dg_fra_forrige > 364) |   # eller, tidl pros er mer en 1 år gammel
-          (dg_fra_forrige <=364 & is.na(forrige_hasBasis) # eller forrige pros hadde ikke basis prom
-          ) ~"ja",
-        TRUE ~ "nei"),
 
       # KRITERIE ALLE
-      kriterie_alle_basis = ifelse(
-        test = (kriterie_alder %in% "ja" & kriterie_norsk %in% "ja" &
-                  kriterie_levende %in% "ja" & kriterie_tid %in% "ja" &
-                  kriterie_registreringsdato %in% "ja" &
-                  kriterie_ingen_tidl_basisprom %in% "ja"),
+      kriterie_alle_midlertidig = ifelse(
+        test = (kriterie_alder %in% "ja" &
+                  kriterie_norsk %in% "ja" &
+                  kriterie_levende %in% "ja" &
+                  kriterie_tid %in% "ja" &
+                  kriterie_registreringsdato %in% "ja"),
+        # & kriterie_ingen_tidl_basisprom %in% "ja"),
         yes = "ja",
         no = "nei"))
+      # dplyr::arrange(dato_pros) %>%
+      #   dplyr::group_by(patient_id, forlopstype) %>%
+      #   dplyr::mutate(
+      #     # Dersom pasienten har tidligere prosedyre av samme type, hvor mange dager er det siden ? og hadde den prosedyren tilknyttet basisprom?
+      #     dg_fra_forrige = as.numeric(difftime(dato_pros,
+      #                                          dplyr::lag(dato_pros),
+      #                                          units = "days")),
+      #     forrige_hasBasis = lag(has_basisfollowup)) %>%
+      #   dplyr::ungroup() %>%
+      #   dplyr::mutate(
+      #     kriterie_ingen_tidl_basisprom = dplyr::case_when(
+      #       (is.na(dg_fra_forrige)) |    # ingen tidl pros av denne typen
+      #         (dg_fra_forrige > 364) |   # eller, tidl pros er mer en 1 år gammel
+      #         (dg_fra_forrige <=364 & is.na(forrige_hasBasis) # eller forrige pros hadde ikke basis prom
+      #         ) ~"ja",
+      #       TRUE ~ "nei")
 
 
   # UTLEDE TIDSVARIABLER
