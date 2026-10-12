@@ -85,30 +85,11 @@ app_server <- function(input, output, session) {
     if (user$role() %in% c("LU", "LC")) {
       shiny::showTab(inputId = "tabs", target = "Abonnement")
       shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
-      # # Legg til fane for månedlige rapporter for LC-brukere
-      # shiny::insertTab(inputId = "tabs",
-      #   shiny::tabPanel(
-      #     "Månedsrapporter",
-      #     shiny::sidebarLayout(
-      #       shiny::sidebarPanel(
-      #         style = "position:fixed;width:130px;",
-      #         h5("Last ned rapporten (pdf)"),
-      #         shiny::downloadButton("downloadReport", "Hent!"),
-      #         width = 2
-      #       ),
-      #       shiny::mainPanel(
-      #         shiny::htmlOutput("maanedligRapport", inline = TRUE)
-      #       )
-      #     )
-      #   ),
-      #   target = "Datadump",
-      #   position = "after"
-      # )
     }
 
-    # if (user$role == "LU") {
-    #   shiny::hideTab(inputId = "tabs", target = "Sykehus vs Nasjonal")
-    # }
+    if (user$role() == "LU") {
+      shiny::hideTab(inputId = "tabs", target = "Sykehus vs Nasjonal")
+    }
     if (user$role() == "SC") {
       # Legg til fane for verktøy for SC-brukere
       shiny::appendTab(inputId = "tabs",
@@ -441,45 +422,9 @@ app_server <- function(input, output, session) {
 
   # Månedlige rapport
 
-  # output$maanedligRapport <- shiny::renderUI({
-  #   rapbase::renderRmd(
-  #     system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
-  #     outputType = "html_fragment",
-  #     params = list(
-  #       author = user$fullName,
-  #       hospitalName = ablanor::getHospitalName(user$org()),
-  #       tableFormat = "html",
-  #       reshId = user$org(),
-  #       registryName = registryName,
-  #       userRole = user$role(),
-  #       userOperator = userOperator
-  #     )
-  #   )
-  # })
-
-  # # Legg til fane for månedlige rapporter for LC-brukere
-  # shiny::insertTab(inputId = "tabs",
-  #   shiny::tabPanel(
-  #     "Månedsrapporter",
-  #     shiny::sidebarLayout(
-  #       shiny::sidebarPanel(
-  #         style = "position:fixed;width:130px;",
-  #         h5("Last ned rapporten (pdf)"),
-  #         shiny::downloadButton("downloadReport", "Hent!"),
-  #         width = 2
-  #       ),
-  #       shiny::mainPanel(
-  #         shiny::htmlOutput("maanedligRapport", inline = TRUE)
-  #       )
-  #     )
-  #   ),
-  #   target = "Datadump",
-  #   position = "after"
-  # )
-
   output$hospitalReport <- shiny::renderUI({
-    # Prosedyrer report not for national user (SC).
-    if (user$role() == "SC") {
+    # Prosedyrer report not for LU or national user (SC).
+    if (user$role() %in% c("LU", "SC")) {
       NULL
     } else {
       shiny::sidebarLayout(
@@ -496,6 +441,26 @@ app_server <- function(input, output, session) {
     }
   })
 
+  output$operatorReport <- shiny::renderUI({
+    # Prosedyrer report not for national user (SC).
+    if (user$role() == "SC") {
+      NULL
+    } else {
+      shiny::sidebarLayout(
+        shiny::sidebarPanel(
+          style = "position:fixed;width:130px;",
+          h5("Last ned rapporten (pdf)"),
+          shiny::downloadButton("downloadReportOperator", "Hent!"),
+          width = 2
+        ),
+        shiny:: mainPanel(
+          shiny:: htmlOutput("prosedyrerOperator", inline = TRUE)
+        )
+      )
+    }
+  })
+
+
   output$prosedyrerSykehus <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
@@ -507,10 +472,30 @@ app_server <- function(input, output, session) {
         reshId = user$org(),
         registryName = registryName,
         userRole = user$role(),
+        userFullName = user$fullName,
         userOperator = userOperator
       )
     )
   })
+
+  output$prosedyrerOperator <- shiny::renderUI({
+    rapbase::renderRmd(
+      system.file("AblaNor_operator_vs_local_monthly.Rmd",
+                  package = "ablanor"),
+      outputType = "html_fragment",
+      params = list(
+        author = user$fullName(),
+        hospitalName = ablanor::getHospitalName(user$org()),
+        tableFormat = "html",
+        reshId = user$org(),
+        registryName = registryName,
+        userRole = user$role(),
+        userFullName = user$fullName,
+        userOperator = userOperator
+      )
+    )
+  })
+
 
   output$downloadReportSykehus <- shiny::downloadHandler(
     filename = function() {
@@ -522,12 +507,12 @@ app_server <- function(input, output, session) {
         system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
         outputType = "pdf",
         params = list(
-          author = user$fullName(),
+          author = user$fullName,
           hospitalName = getHospitalName(user$org()),
           tableFormat = "pdf",
           reshId = user$org(),
           registryName = registryName,
-          userFullName = user$fullName(),
+          userFullName = user$fullName,
           userRole = user$role(),
           userOperator = userOperator
         )
@@ -536,6 +521,31 @@ app_server <- function(input, output, session) {
     }
   )
 
+
+  output$downloadReportOperator <- shiny::downloadHandler(
+    filename = function() {
+      basename(tempfile(pattern = "AblaNor_operator_vs_local_monthly",
+                        fileext = paste0(".", "pdf")))
+    },
+    content = function(file) {
+      fn <- rapbase::renderRmd(
+        system.file("AblaNor_operator_vs_local_monthly.Rmd",
+                    package = "ablanor"),
+        outputType = "pdf",
+        params = list(
+          author = user$fullName(),
+          hospitalName = getHospitalName(user$org()),
+          tableFormat = "pdf",
+          reshId = user$org(),
+          registryName = registryName,
+          userFullName = user$fullName,
+          userRole = user$role(),
+          userOperator = userOperator
+        )
+      )
+      file.rename(fn, file)
+    }
+  )
 
   # Values shared among subscriptions and dispatchment
   orgs <- ablanor::getNameReshId(asNamedList = TRUE,

@@ -26,11 +26,11 @@ app_ui <- function() {
         shiny::tabPanel(
           title = "Sykehus vs Nasjonal",
           shiny::uiOutput("hospitalReport")
-        # ),
-        #
-        # shiny::tabPanel(
-        #   title = "Operatør vs Sykehus",
-        #   shiny::uiOutput("operatorReport")
+        ),
+
+        shiny::tabPanel(
+          title = "Operatør vs Sykehus",
+          shiny::uiOutput("operatorReport")
         )
       ),
 
