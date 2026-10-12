@@ -96,7 +96,7 @@ kriterie_basisprom_siste_aar <- function(df,
       dplyr::filter(dato_pros >= as.Date("2022-11-08", format = "%Y-%m-%d")) |>  # 1-år før innføring av basis prom
       dplyr::mutate(
         teoretisk_prom_lower = dato_pros %m-% months(12),
-        teoretisk_prom_upper = dato_pros %d-% days(1),
+        teoretisk_prom_upper = days(1),
         kriterie_ingen_afli = ifelse(
           eprom_bestilt_dato > teoretisk_prom_lower &
             eprom_bestilt_dato <= teoretisk_prom_upper,
@@ -108,7 +108,7 @@ kriterie_basisprom_siste_aar <- function(df,
     fullmatch <- inner_join(
       x = df_sub %>%
         dplyr::filter(dato_pros >= as.Date("2023-11-08", format = "%Y-%m-%d")) |>
-        dplyr::select(forlopstype, - kriterie_basis_midlertidig),
+        dplyr::select(- kriterie_basis_midlertidig),
 
       y = proms_basis,
       by = c("patient_id", "forlopstype" = "parent_mcetype"),
@@ -119,7 +119,7 @@ kriterie_basisprom_siste_aar <- function(df,
       dplyr::filter(dato_pros >= as.Date("2022-11-08", format = "%Y-%m-%d")) |>  # 1-år før innføring av basis prom
       dplyr::mutate(
         teoretisk_prom_lower = dato_pros %m-% months(12),
-        teoretisk_prom_upper = dato_pros %d-% days(1),
+        teoretisk_prom_upper = days(1),
         kriterie_ingen_basisprom_siste12mnd = ifelse(
           eprom_bestilt_dato > teoretisk_prom_lower &
             eprom_bestilt_dato <= teoretisk_prom_upper,
