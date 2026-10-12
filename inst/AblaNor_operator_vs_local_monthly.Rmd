@@ -171,7 +171,7 @@ periode_data <- data.frame(nyeste_reg = nyeste_reg) |>
 d_ablanor <- ablanor::getBaseregProsData(
   singleRow = FALSE, 
   reshId = params$reshId,
-  userRole = "LU", 
+  userRole = params$userRole, 
   fromDate = periode_data$forste_dato, 
   toDate = periode_data$siste_dato)
 
@@ -180,7 +180,7 @@ d_ablanor <- ablanor::getBaseregProsData(
 d_ablanor_hendelse <- ablanor::getBaseregProsHendelseData(
   singleRow = FALSE,
   reshId = params$reshId,
-  userRole = "LU",
+  userRole = params$userRole,
   fromDate = periode_data$forste_dato,
   toDate = periode_data$siste_dato)
 
@@ -189,7 +189,7 @@ d_ablanor_hendelse <- ablanor::getBaseregProsHendelseData(
 d_ablanor_prom1aar <- ablanor::getBaseregProsFollowup1Data(
   singleRow = FALSE,
   reshId = params$reshId,
-  userRole = "LU",
+  userRole = params$userRole,
   fromDate = periode_data$forste_dato_1aarOppf,
   toDate = periode_data$siste_dato_1aarOppf)
 
@@ -198,7 +198,7 @@ d_ablanor_prom1aar <- ablanor::getBaseregProsFollowup1Data(
 d_ablanor_prom5aar <- ablanor::getBaseregProsFollowup5Data(
   singleRow = FALSE,
   reshId = params$reshId,
-  userRole = "LU",
+  userRole = params$userRole,
   fromDate = periode_data$forste_dato_5aarOppf,
   toDate = periode_data$siste_dato_5aarOppf)
 
@@ -1745,9 +1745,7 @@ if(params$tableFormat %in% "html") {
                                                as.character((periode_data$nyesteRegYear)-5)),
                           start_row = 3,
                           end_row = dim(responsrate_prom5aar)[1])
-    
-    
-  
+
 } else if (params$tableFormat %in% "pdf") {
   responsrate_prom5aar |> rename(" " = "registrert_av") |>
   rapbase::mst(type = params$tableFormat,
@@ -1797,9 +1795,9 @@ fig.cap <-  paste0("Figuren viser pasientrapportert klinisk effekt 5 år ",
                    "figuren.")
 
 
-# Lokalt proms 5 år fra i fjor
-klinisk_effekt_5aar_lokalt_fjor <- d_ablanor_prom5aar |> 
-  filter(centreid %in% params$reshId,
+# Operatør proms 5 år fra i fjor
+klinisk_effekt_5aar_operator_fjor <- d_ablanor_prom5aar |> 
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |> 
@@ -1807,11 +1805,11 @@ klinisk_effekt_5aar_lokalt_fjor <- d_ablanor_prom5aar |>
   ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
   ablanor::kodebok_fyll_listetekstvar(kb = kb) |>
   dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
-  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
+  count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst)
   
-# Lokalt proms 5 år fra i år
-klinisk_effekt_5aar_lokalt_aar <- d_ablanor_prom5aar |> 
-  filter(centreid %in% params$reshId,
+# Operatør proms 5 år fra i år
+klinisk_effekt_5aar_operator_aar <- d_ablanor_prom5aar |> 
+  filter(fulltNavnOperatoer %in% fullt_navn,
          aar_prosedyre %in% (periode_data$nyesteRegYear-5),
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |> 
@@ -1822,15 +1820,20 @@ klinisk_effekt_5aar_lokalt_aar <- d_ablanor_prom5aar |>
   count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst) 
 
 
-# Lokalt samlet
-klinisk_effekt_5aar_lokalt <- rbind(
-  klinisk_effekt_5aar_lokalt_fjor,
-  klinisk_effekt_5aar_lokalt_aar) |> 
-  mutate(sykehusnavn = hospitalNameShort)
+# Operator samlet
+klinisk_effekt_5aar_operator <- rbind(
+  klinisk_effekt_5aar_operator_fjor,
+  klinisk_effekt_5aar_operator_aar) |> 
+  mutate(registrert_av = kort_navn) |> 
+  dplyr::group_by(aar_prosedyre, forlopstype_tekst) |> 
+  mutate(antall_pr_aar_forlop = sum(n)) |> 
+  ungroup() |> 
+  # Fjerner rader er antall er mindre enn 10 pr år og forløpstype
+  filter(antall_pr_aar_forlop >= 10)
   
 
-# Nasjonalt proms 5 år fra i fjor
-klinisk_effekt_5aar_nasj_fjor <- d_ablanor_prom5aar |> 
+# Sykehus proms 5 år fra i fjor
+klinisk_effekt_5aar_sykehus_fjor <- d_ablanor_prom5aar |> 
   filter(aar_prosedyre %in% (periode_data$sisteHeleYear-5),
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |> 
@@ -1840,8 +1843,8 @@ klinisk_effekt_5aar_nasj_fjor <- d_ablanor_prom5aar |>
   dplyr::mutate(followup5_q2_tekst = forcats::fct_rev(followup5_q2_tekst)) |> 
   count(aar_prosedyre, followup5_q2_tekst, forlopstype_tekst)
   
-# Nasjonalt proms 5 år fra i år
-klinisk_effekt_5aar_nasj_aar <- d_ablanor_prom5aar |> 
+# Sykehus proms 5 år fra i år
+klinisk_effekt_5aar_sykehus_aar <- d_ablanor_prom5aar |> 
   filter(aar_prosedyre %in% (periode_data$nyesteRegYear-5),
          !is.na(.data$forlopstype),
          eprom_besvart_5aar == "datagrunnlag og besvart") |>
@@ -1853,17 +1856,22 @@ klinisk_effekt_5aar_nasj_aar <- d_ablanor_prom5aar |>
 
 
 
-# Nasjonalt samlet
-klinisk_effekt_5aar_nasj <- rbind(
-  klinisk_effekt_5aar_nasj_fjor,
-  klinisk_effekt_5aar_nasj_aar) |> 
-  mutate(sykehusnavn = "Nasjonalt")
+# Sykehus samlet
+klinisk_effekt_5aar_sykehus <- rbind(
+  klinisk_effekt_5aar_sykehus_fjor,
+  klinisk_effekt_5aar_sykehus_aar) |> 
+  mutate(registrert_av = hospitalNameShort) |> 
+  dplyr::group_by(aar_prosedyre, forlopstype_tekst) |> 
+  mutate(antall_pr_aar_forlop = sum(n)) |> 
+  ungroup() |> 
+  # Fjerner rader er antall er mindre enn 10 pr år og forløpstype
+  filter(antall_pr_aar_forlop >= 10)
 
 
 # Samlet klinisk effekt 5 år
 klinisk_effekt_5aar <- rbind(
-  klinisk_effekt_5aar_lokalt,
-  klinisk_effekt_5aar_nasj) |> 
+  klinisk_effekt_5aar_operator,
+  klinisk_effekt_5aar_sykehus) |> 
   mutate(aar_prosedyre = factor(
     x = aar_prosedyre,
     levels = c((periode_data$sisteHeleYear-5):(periode_data$nyesteRegYear-5)),
@@ -1872,14 +1880,14 @@ klinisk_effekt_5aar <- rbind(
                paste0("Besvart hittil i år for prosedyrer utført i ",
                       (periode_data$nyesteRegYear-5)))),
     
-    sykehusnavn = factor(x = sykehusnavn,
-                         levels = c("Nasjonalt",
-                                    hospitalNameShort)))
+    registrert_av = factor(x = registrert_av,
+                           levels = c(hospitalNameShort,
+                                      kort_navn)))
 
 # Figur
 klinisk_effekt_5aar |>
   ggplot2::ggplot(ggplot2::aes(y = n,
-                               x = sykehusnavn,
+                               x = registrert_av,
                                fill = followup5_q2_tekst))+
   ggplot2::geom_bar(position = "fill",
                     stat = "identity",
