@@ -6,7 +6,7 @@
 #' @param registryName for SQL queries
 #'
 #' @name prom_funksjoner
-#' @aliases kriterie_basisprom_siste_aar  kriterie_1yr_prom_siste_aar
+#' @aliases kriterie_basisprom_siste_aar  kriterie_1yr_prom_siste_aar kriterie_ingen_ny_pros_neste_aar
 #'
 #'
 #' @rdname prom_funksjoner
@@ -133,10 +133,10 @@ kriterie_basisprom_siste_aar <- function(df,
 #' @rdname prom_funksjoner
 #' @export
 kriterie_1yr_prom_siste_aar <- function(df,
-                                         reshId = reshId,
-                                         userRole = userRole,
-                                         fromDate = NULL,
-                                         toDate = NULL){
+                                        reshId = reshId,
+                                        userRole = userRole,
+                                        fromDate = NULL,
+                                        toDate = NULL){
 
   stopifnot(c("kriterie_1yr_midlertidig") %in% names(df))
 
@@ -244,4 +244,85 @@ kriterie_1yr_prom_siste_aar <- function(df,
     return(df  %>%  dplyr::mutate(kriterie_ingen_1yr_prom_siste_aar = NA_character_))
   }
 }
+#' @rdname prom_funksjoner
+#' @export
+kriterie_ingen_ny_pros_neste_aar <- function(df,
+                                             reshId = reshId,
+                                             userRole = userRole,
+                                             fromDate = NULL,
+                                             toDate = NULL){
 
+  stopifnot(c("kriterie_1yr_midlertidig") %in% names(df))
+
+  # alle PID for pasienter som har de øvrige kriteriene for 1-års-prom
+  df_sub <- df  %>%
+    dplyr::filter(kriterie_1yr_midlertidig %in% "ja") %>%
+    dplyr::select(patient_id, dato_pros, mceid, forlopstype)
+
+  if(nrow(df_sub)>0){
+
+    list_patients <- df_sub  %>%
+      dplyr::distinct(patient_id)  %>%
+      dplyr::pull(patient_id)  %>%
+      stringr::str_flatten_comma(last = ", ")
+
+    # Alle prosedyrer for disse pasientene
+    query <- paste0("
+       SELECT
+         pros.CENTREID,
+         pros.MCEID AS mceid_ny,
+         pros.FORLOPSTYPE AS forlopstype,
+         pros.DATO_PROS AS dato_pros_ny,
+         mce.PATIENT_ID AS patient_id
+      FROM pros
+      LEFT JOIN mce ON mce.MCEID = pros.MCEID
+      WHERE pros.FORLOPSTYPE IN ('1', '2', '3', '4')
+      AND mce.PATIENT_ID IN ",
+                    "(", list_patients, ")",
+                    " ;")
+
+    nye_pros <- rapbase::loadRegData(
+      registryName = "data",
+      query = query)
+
+    fullmatch <- dplyr::inner_join(
+      x = df_sub,
+      y = nye_pros,
+      by = c("patient_id", "forlopstype"),
+      relationship = "many-to-many") %>%
+      dplyr::filter(dato_pros <= dato_pros_ny,
+                    mceid != mceid_ny)%>%
+      dplyr::mutate(
+        teoretisk_prom_lower = dato_pros,
+        teoretisk_prom_upper = dato_pros + lubridate::weeks(50),
+        kriterie_ingen_ny_pros = ifelse(
+          dato_pros_ny > teoretisk_prom_lower &
+            dato_pros_ny <= teoretisk_prom_upper,
+          "nei", NA_character_))
+
+
+
+    return(
+      dplyr::left_join(
+        df,
+        fullmatch %>%
+          dplyr::group_by(mceid)  %>%
+          dplyr::mutate(
+
+            kriterie_ingen_ny_pros = ifelse(
+              any(kriterie_ingen_ny_pros == "nei"),
+              "nei",
+              NA_character_),
+
+            n = 1:dplyr::n())  %>%
+          dplyr::ungroup() %>%
+
+          dplyr::filter(n == 1) %>%
+          dplyr::select(patient_id , mceid, kriterie_ingen_ny_pros),
+        by = c("patient_id", "mceid"))
+    )
+  }
+  if(nrow(df_sub) == 0) {
+    return(df  %>%  dplyr::mutate(kriterie_ingen_ny_pros = NA_character_))
+  }
+}
