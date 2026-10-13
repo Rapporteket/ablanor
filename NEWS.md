@@ -1,3 +1,15 @@
+# ablanor 2.3.0
+
+oppdatert om flyt og datagrunnlag for basis prom 
+* egen funksjon for å sjekke kriterie 'ingen tidl basis prom siste 12mnd'
+* flytte noe databehandling til SQL
+
+oppdatert om flyt og datagrunnlag for 1-års
+* egen funksjon for å sjekke kriterie 'ingen tidl 1-års prom siste 12mnd' 
+* egen funksjon for å sjekke kriterie 'ingen nye prosedyrer av samme type neste år' 
+* flytte noe databehandling til SQL
+
+
 # ablanor 2.2.1
 Lagt til pakken forcats i Description
 
