@@ -111,10 +111,9 @@ kort_navn <- stringr::str_to_title(paste0(substr(fornavnOperator, 1, 1),
 # ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
 
-# nyeste_reg <- min(
-#   (as.Date(Sys.time() - 1)),
-#   ablanor::getLatestEntry())
-nyeste_reg <- as.Date("2026-02-02")
+nyeste_reg <- min(
+  (as.Date(Sys.time() - 1)),
+  ablanor::getLatestEntry())
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) |>
   dplyr::mutate(
@@ -1781,7 +1780,10 @@ Du har vært til behandling av en rytmeforstyrrelse for 5 år siden. Når det gj
 
 <br>
 
-```{r figKliniskEffekt5aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
+`r if(evaluate_prom5aar == FALSE){"Dette sykehuset har ingen registrerte forløp med 5 års-oppfølging fra denne perioden på nåværende tidspunkt."}`
+
+
+```{r figKliniskEffekt5aar, eval = evaluate_prom5aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
 
 fig.cap <-  paste0("Figuren viser pasientrapportert klinisk effekt 5 år ",
                    "etter prosedyren, registrert i ", 
