@@ -160,21 +160,21 @@ getPivotDataSet <- function(setId = "",
 
 
     if (setId == "pros_pat_followup1") {
-      dat <- ablanor::getBaseregProsFollowup1Data(singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+      dat <- ablanor::getBaseregProsFollowup1Data_v2(singleRow = singleRow,
+                                                     session = session,
+                                                     reshId = reshId,
+                                                     userRole = userRole,
+                                                     fromDate = fromDate,
+                                                     toDate = toDate)
     }
 
     if (setId == "pros_pat_followup0") {
       dat <- ablanor::getBaseregProsFollowup0Data_v2(singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+                                                     session = session,
+                                                     reshId = reshId,
+                                                     userRole = userRole,
+                                                     fromDate = fromDate,
+                                                     toDate = toDate)
     }
 
 

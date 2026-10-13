@@ -6,7 +6,7 @@
 #' @param registryName for SQL queries
 #'
 #' @name prom_funksjoner
-#' @aliases kriterie_taviprom_siste_aar  kriterie_pciprom_siste_aar kriterie_ingen_tavi_neste3mnd
+#' @aliases kriterie_basisprom_siste_aar  kriterie_1yr_prom_siste_aar
 #'
 #'
 #' @rdname prom_funksjoner
@@ -19,8 +19,8 @@ kriterie_basisprom_siste_aar <- function(df,
 
   stopifnot(c("kriterie_basis_midlertidig") %in% names(df))
 
-  # alle PID for pasienter med pci som har de øvrige kriteriene for pci-prom
-  # og som har prosedyredato etter prodsetting av pci-prom
+  # alle PID for pasienter  som har de øvrige kriteriene for prom
+  # og som har prosedyredato etter prodsetting av basis-prom
   df_sub <- df  %>%
     dplyr::filter(
       kriterie_basis_midlertidig %in% "ja",
@@ -118,8 +118,8 @@ kriterie_basisprom_siste_aar <- function(df,
               "nei",
               NA_character_),
 
-            n = 1:n())  %>%
-
+            n = 1:dplyr::n()) %>%
+          dplyr::ungroup() %>%
           dplyr::filter(n == 1) %>%
           dplyr::select(patient_id , mceid, kriterie_ingen_basisprom_siste12mnd),
         by = c("patient_id", "mceid"))
@@ -127,6 +127,121 @@ kriterie_basisprom_siste_aar <- function(df,
   }
   if(nrow(df_sub) == 0) {
     return(df  %>%  dplyr::mutate(kriterie_ingen_basisprom_siste12mnd = NA_character_))
+  }
+}
+
+#' @rdname prom_funksjoner
+#' @export
+kriterie_1yr_prom_siste_aar <- function(df,
+                                         reshId = reshId,
+                                         userRole = userRole,
+                                         fromDate = NULL,
+                                         toDate = NULL){
+
+  stopifnot(c("kriterie_1yr_midlertidig") %in% names(df))
+
+  # alle PID for pasienter som har de øvrige kriteriene for 1-års-prom
+  # og som har prosedyredato etter prodsetting av  1-års-prom
+  df_sub <- df  %>%
+    dplyr::filter(kriterie_1yr_midlertidig %in% "ja") %>%
+    dplyr::select(patient_id, dato_pros, mceid, mceid_followup1,
+                  forlopstype)
+
+  if(nrow(df_sub)>0){
+
+    list_patients <- df_sub  %>%
+      dplyr::distinct(patient_id)  %>%
+      dplyr::pull(patient_id)  %>%
+      stringr::str_flatten_comma(last = ", ")
+
+    # Finne alle 1års-prom for de utvalgte pasientene,
+    # Legg til FORLOPSTYPE for prosedyren
+    query = paste0("
+       WITH
+       prom1yr AS (
+           SELECT
+              followup.`MCEID` as mceid_followup1yr_oppf,
+              mce.`PATIENT_ID` AS patient_id,
+              proms.`TSSENDT` as eprom_bestilt_dato,
+              mce.`PARENTMCEID` as parentmceid_oppf
+           FROM `followup`
+           LEFT JOIN mce ON mce.MCEID = followup.MCEID AND MCETYPE = 9
+           LEFT JOIN proms ON proms.`MCEID` = followup.MCEID and proms.REGISTRATION_TYPE = 'Followup'
+           ),
+       main AS (
+           SELECT
+               mce.MCEID as parentmceid_oppf,
+               mce.MCETYPE as parent_mcetype
+           FROM mce
+           WHERE mce.MCETYPE IN (1, 2, 3, 4)
+       )
+
+       SELECT
+          prom1yr.mceid_followup1yr_oppf,
+          prom1yr.patient_id,
+          prom1yr.eprom_bestilt_dato,
+          prom1yr.parentmceid_oppf,
+          main.parent_mcetype
+       FROM
+         prom1yr
+       LEFT JOIN
+         main ON main.parentmceid_oppf = prom1yr.parentmceid_oppf
+       WHERE
+         prom1yr.patient_id IN ",
+                   "(", list_patients, ")",
+                   " ;")
+    proms_1yr <- rapbase::loadRegData(
+      registryName = "data",
+      query = query)
+
+    # finne ALLE oppfølginer av samme forløptype som prosedyren,
+    #  som har bestillingsdato for eprom FØR prosedyre og som ikke hører
+    #  direkte til denne prosedyren
+    # Dersom eprom var bestilt (av samme prosedyretype) det siste året, så
+    # blir kriterie_ingen_1yr_prom_siste_aar = "nei".
+    # NB - husk å gruppere på mceid (én prosedyre kan ha flere tidligere prom)
+    fullmatch <- dplyr::inner_join(
+      x = df_sub,
+      y = proms_1yr,
+
+      by = c("patient_id", "forlopstype" = "parent_mcetype"),
+
+      relationship = "many-to-many") |>
+
+      dplyr::filter(mceid_followup1 != mceid_followup1yr_oppf |
+                      !mceid_followup1 %in% mceid_followup1yr_oppf) |>
+      dplyr::mutate(
+        teoretisk_prom_lower = dato_pros,
+        teoretisk_prom_upper = dato_pros + lubridate::weeks(50),
+        kriterie_ingen_1yr_prom_siste_aar = ifelse(
+          eprom_bestilt_dato > teoretisk_prom_lower &
+            eprom_bestilt_dato <= teoretisk_prom_upper,
+          "nei", NA_character_))
+
+
+
+    return(
+      dplyr::left_join(
+        df,
+        fullmatch %>%
+          dplyr::group_by(mceid)  %>%
+          dplyr::mutate(
+
+            kriterie_ingen_1yr_prom_siste_aar = ifelse(
+              any(kriterie_ingen_1yr_prom_siste_aar == "nei"),
+              "nei",
+              NA_character_),
+
+            n = 1:dplyr::n())  %>%
+          dplyr::ungroup() %>%
+
+          dplyr::filter(n == 1) %>%
+          dplyr::select(patient_id , mceid, kriterie_ingen_1yr_prom_siste_aar),
+        by = c("patient_id", "mceid"))
+    )
+  }
+  if(nrow(df_sub) == 0) {
+    return(df  %>%  dplyr::mutate(kriterie_ingen_1yr_prom_siste_aar = NA_character_))
   }
 }
 
