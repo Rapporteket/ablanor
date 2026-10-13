@@ -17,10 +17,10 @@ header-includes:
 title: |  
   | Nasjonalt register for ablasjonsbehandling og elektrofysiologi i Norge (AblaNor)
   |
-  | __`r paste0("Månedsrapport for ", params$hospitalName)`__
+  | __`r paste0("Månedsrapport for ", stringr::str_to_title(params$userFullName), " sammenlignet med ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  params$userFullName, ", sammenlignet med ", params$registryName ". Nøkkeltallene er basert på hele fjorårets registreringer samt alle fullførte måndeder hittil i år.  Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  stringr::str_to_title(params$userFullName), ", sammenlignet med ", params$registryName, ". Nøkkeltallene er basert på hele fjorårets registreringer samt alle fullførte måndeder hittil i år. Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
@@ -111,10 +111,10 @@ kort_navn <- stringr::str_to_title(paste0(substr(fornavnOperator, 1, 1),
 # ELDSTE DATO:
 # Januar fra i fjor (hele foregående år skal vise i rapporten)
 
-nyeste_reg <- min(
-  (as.Date(Sys.time() - 1)),
-  ablanor::getLatestEntry())
-
+# nyeste_reg <- min(
+#   (as.Date(Sys.time() - 1)),
+#   ablanor::getLatestEntry())
+nyeste_reg <- as.Date("2026-02-02")
 
 periode_data <- data.frame(nyeste_reg = nyeste_reg) |>
   dplyr::mutate(
@@ -296,14 +296,14 @@ i AblaNor, det vil si i perioden
 `r format(periode_data$forste_dato , "%d/%m-%Y")` til
 `r format(periode_data$siste_dato, "%d/%m-%Y")`. 
 
-Denne rapporten er laget for `r params$userFullName`. 
+Denne rapporten er laget for `r stringr::str_to_title(params$userFullName)`. 
 Dersom den innloggede personen er registrert som operatør hos 
 `r hospitalNameShort`, blir operatørens nøkkeltall sammenlignet med 
-sykhusets nøkkeltall.
+sykehusets/avdelingens nøkkeltall.
 
 Merk at fornavn og etternavn må være skrevet likt både hos FALK og 
 i AblaNor sin operatørliste ved dette sykehuset. Dersom personen som er logget 
-inn ikke er en registrert i operatørlisten, vil operatør-delen av tabellene og 
+inn ikke er registrert i operatørlisten, vil operatør-delen av tabellene og 
 figurene være tomme.
 
 
@@ -1148,13 +1148,13 @@ responsrate_1aar_operator_fjor <- data.frame(
   ant_pros = proms_1aar_antPros_fjor,
   datagrunnlag = proms_1aar_datagrunnlag_fjor,
   besvart = dplyr::case_when(
-    (is.na(proms_1aar_besvart_fjor) | proms_1aar_besvart_fjor == 0) ~ "-",
-    (proms_1aar_besvart_fjor < 10) ~ "*",
+    (is.na(proms_1aar_besvart_fjor) | proms_1aar_besvart_fjor == 0) ~ " - ",
+    (proms_1aar_besvart_fjor < 10) ~ " * ",
     .default = paste0(proms_1aar_besvart_fjor))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_1aar_besvart_fjor < 10) ~ "*",
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+    (proms_1aar_besvart_fjor < 10) ~ " * ",
     .default = paste0(round(100*(proms_1aar_besvart_fjor/datagrunnlag), 1),
                       "%")))
 
@@ -1186,13 +1186,13 @@ responsrate_1aar_sykehus_fjor <- data.frame(
   datagrunnlag = proms_1aar_datagrunnlag_sykehus_fjor,
   besvart = dplyr::case_when(
     (is.na(proms_1aar_besvart_sykehus_fjor) |
-       proms_1aar_besvart_sykehus_fjor == 0) ~ "-",
-    (proms_1aar_besvart_sykehus_fjor < 10) ~ "*",
+       proms_1aar_besvart_sykehus_fjor == 0) ~ " - ",
+    (proms_1aar_besvart_sykehus_fjor < 10) ~ " * ",
     .default = paste0(proms_1aar_besvart_sykehus_fjor))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_1aar_besvart_sykehus_fjor < 10) ~ "*",
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+    (proms_1aar_besvart_sykehus_fjor < 10) ~ " * ",
     .default = paste0(
       round(100*(proms_1aar_besvart_sykehus_fjor/datagrunnlag), 1), "%")))
 
@@ -1231,13 +1231,13 @@ responsrate_1aar_operator_aar <- data.frame(
   ant_pros = proms_1aar_antPros_aar,
   datagrunnlag = proms_1aar_datagrunnlag_aar,
   besvart = dplyr::case_when(
-    (is.na(proms_1aar_besvart_aar) | proms_1aar_besvart_aar == 0) ~ "-",
-    (proms_1aar_besvart_aar < 10) ~ "*",
+    (is.na(proms_1aar_besvart_aar) | proms_1aar_besvart_aar == 0) ~ " - ",
+    (proms_1aar_besvart_aar < 10) ~ " * ",
     .default = paste0(proms_1aar_besvart_aar))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_1aar_besvart_aar < 10) ~ "*",
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+    (proms_1aar_besvart_aar < 10) ~ " * ",
     .default = paste0(round(100*(proms_1aar_besvart_aar/datagrunnlag), 1),
                       "%")))
 
@@ -1269,13 +1269,13 @@ responsrate_1aar_sykehus_aar <- data.frame(
   datagrunnlag = proms_1aar_datagrunnlag_sykehus_aar,
   besvart = dplyr::case_when(
     (is.na(proms_1aar_besvart_sykehus_aar) |
-       proms_1aar_besvart_sykehus_aar == 0) ~ "-",
-    (proms_1aar_besvart_sykehus_aar < 10) ~ "*",
+       proms_1aar_besvart_sykehus_aar == 0) ~ " - ",
+    (proms_1aar_besvart_sykehus_aar < 10) ~ " * ",
     .default = paste0(proms_1aar_besvart_sykehus_aar))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_1aar_besvart_sykehus_aar < 10) ~ "*",
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+    (proms_1aar_besvart_sykehus_aar < 10) ~ " * ",
     .default = paste0(
       round(100*(proms_1aar_besvart_sykehus_aar/datagrunnlag), 1), "%")))
 
@@ -1376,27 +1376,29 @@ fig.cap <-  paste0("Figuren viser pasientrapportert klinisk effekt 1 år ",
 
 # Operatør - proms 1 år fra i fjor
 klinisk_effekt_1aar_operator_fjor <- d_ablanor_prom1aar |> 
-  filter(fulltNavnOperatoer %in% fullt_navn,
-         aar_prosedyre %in% (periode_data$sisteHeleYear-1),
-         !is.na(.data$forlopstype),
-         eprom_besvart_1aar == "datagrunnlag og besvart") |> 
-  select(aar_prosedyre, followup1_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
-  dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
-  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst) 
-  
+    filter(fulltNavnOperatoer %in% fullt_navn,
+           aar_prosedyre %in% (periode_data$sisteHeleYear-1),
+           !is.na(.data$forlopstype),
+           eprom_besvart_1aar == "datagrunnlag og besvart") |> 
+    select(aar_prosedyre, followup1_q2, forlopstype) |> 
+    ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+    ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
+    dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
+    count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
+
 # Operatør - proms 1 år fra i år
 klinisk_effekt_1aar_operator_aar <- d_ablanor_prom1aar |> 
-  filter(fulltNavnOperatoer %in% fullt_navn,
-         aar_prosedyre %in% (periode_data$nyesteRegYear-1),
-         !is.na(.data$forlopstype),
-         eprom_besvart_1aar == "datagrunnlag og besvart") |> 
-  select(aar_prosedyre, followup1_q2, forlopstype) |> 
-  ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
-  ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
-  dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
-  count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
+    filter(fulltNavnOperatoer %in% fullt_navn,
+           aar_prosedyre %in% (periode_data$nyesteRegYear-1),
+           !is.na(.data$forlopstype),
+           eprom_besvart_1aar == "datagrunnlag og besvart") |> 
+    select(aar_prosedyre, followup1_q2, forlopstype) |> 
+    ablanor::legg_til_forlopstype_kortnavn(total = TRUE, langtnavn = FALSE) |>
+    ablanor::kodebok_fyll_listetekstvar(kb= kb) |>
+    dplyr::mutate(followup1_q2_tekst = forcats::fct_rev(followup1_q2_tekst)) |> 
+    count(aar_prosedyre, followup1_q2_tekst, forlopstype_tekst)
+
+  
 
 
 # Lokalt samlet
@@ -1459,7 +1461,7 @@ klinisk_effekt_1aar <- rbind(
                paste0("Besvart hittil i år for prosedyrer utført i ",
                       (periode_data$nyesteRegYear-1)))),
     
-    sykehusnavn = factor(x = registrert_av,
+    registrert_av = factor(x = registrert_av,
                          levels = c(hospitalNameShort,
                                     kort_navn)))
 
@@ -1572,13 +1574,13 @@ responsrate_5aar_operator_fjor <- data.frame(
   ant_pros = proms_5aar_antPros_fjor,
   datagrunnlag = proms_5aar_datagrunnlag_fjor,
   besvart = dplyr::case_when(
-    (is.na(proms_5aar_besvart_fjor) | proms_5aar_besvart_fjor == 0) ~ "-",
-    (proms_5aar_besvart_fjor < 10) ~ "*",
+    (is.na(proms_5aar_besvart_fjor) | proms_5aar_besvart_fjor == 0) ~ " - ",
+    (proms_5aar_besvart_fjor < 10) ~ " * ",
     .default = paste0(proms_5aar_besvart_fjor))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-      (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-      (proms_5aar_besvart_fjor < 10) ~ "*",
+      (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+      (proms_5aar_besvart_fjor < 10) ~ " * ",
       .default = paste0(round(100*(proms_5aar_besvart_fjor/datagrunnlag), 1),
                         "%")))
 
@@ -1610,13 +1612,13 @@ responsrate_5aar_sykehus_fjor <- data.frame(
   datagrunnlag = proms_5aar_datagrunnlag_sykehus_fjor,
   besvart = dplyr::case_when(
     (is.na(proms_5aar_besvart_sykehus_fjor) |
-       proms_5aar_besvart_sykehus_fjor == 0) ~ "-",
-    (proms_5aar_besvart_sykehus_fjor < 10) ~ "*",
+       proms_5aar_besvart_sykehus_fjor == 0) ~ " - ",
+    (proms_5aar_besvart_sykehus_fjor < 10) ~ " * ",
     .default = paste0(proms_5aar_besvart_sykehus_fjor))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_5aar_besvart_sykehus_fjor < 10) ~ "*",
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+    (proms_5aar_besvart_sykehus_fjor < 10) ~ " * ",
     .default = paste0(
       round(100*(proms_5aar_besvart_sykehus_fjor/datagrunnlag), 1), "%")))
 
@@ -1655,13 +1657,13 @@ responsrate_5aar_operator_aar <- data.frame(
   ant_pros = proms_5aar_antPros_aar,
   datagrunnlag = proms_5aar_datagrunnlag_aar,
   besvart = dplyr::case_when(
-    (is.na(proms_5aar_besvart_aar) | proms_5aar_besvart_aar == 0) ~ "-",
-    (proms_5aar_besvart_aar < 10) ~ "*",
+    (is.na(proms_5aar_besvart_aar) | proms_5aar_besvart_aar == 0) ~ " - ",
+    (proms_5aar_besvart_aar < 10) ~ " * ",
     .default = paste0(proms_5aar_besvart_aar))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-      (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-      (proms_5aar_besvart_aar < 10) ~ "*",
+      (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+      (proms_5aar_besvart_aar < 10) ~ " * ",
       .default = paste0(round(100*(proms_5aar_besvart_aar/datagrunnlag), 1),
                         "%")))
 
@@ -1692,13 +1694,13 @@ responsrate_5aar_sykehus_aar <- data.frame(
   datagrunnlag = proms_5aar_datagrunnlag_sykehus_aar,
   besvart = dplyr::case_when(
     (is.na(proms_5aar_besvart_sykehus_aar) |
-       proms_5aar_besvart_sykehus_aar == 0) ~ "-",
-    (proms_5aar_besvart_sykehus_aar < 10) ~ "*",
+       proms_5aar_besvart_sykehus_aar == 0) ~ " - ",
+    (proms_5aar_besvart_sykehus_aar < 10) ~ " * ",
     .default = paste0(proms_5aar_besvart_sykehus_aar))) |> 
   mutate(
     andel_besvart = dplyr::case_when(
-    (is.na(datagrunnlag) | datagrunnlag == 0) ~ "-",
-    (proms_5aar_besvart_sykehus_aar < 10) ~ "*",
+    (is.na(datagrunnlag) | datagrunnlag == 0) ~ " - ",
+    (proms_5aar_besvart_sykehus_aar < 10) ~ " * ",
     .default = paste0(
       round(100*(proms_5aar_besvart_sykehus_aar/datagrunnlag), 1), "%")))
 
