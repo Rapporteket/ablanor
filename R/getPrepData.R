@@ -741,36 +741,28 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
                                           no = "nei"),  #Prosedyren må registreres innen 14 dager (frist for utsending)
 
 
-      # KRITERIE ALLE
-      kriterie_alle_midlertidig = ifelse(
+      # KRITERIE ALLE ENKLE SJEKKER
+      kriterie_basis_midlertidig = ifelse(
         test = (kriterie_alder %in% "ja" &
                   kriterie_norsk %in% "ja" &
                   kriterie_levende %in% "ja" &
                   kriterie_tid %in% "ja" &
                   kriterie_registreringsdato %in% "ja"),
-        # & kriterie_ingen_tidl_basisprom %in% "ja"),
         yes = "ja",
-        no = "nei"))
-      # dplyr::arrange(dato_pros) %>%
-      #   dplyr::group_by(patient_id, forlopstype) %>%
-      #   dplyr::mutate(
-      #     # Dersom pasienten har tidligere prosedyre av samme type, hvor mange dager er det siden ? og hadde den prosedyren tilknyttet basisprom?
-      #     dg_fra_forrige = as.numeric(difftime(dato_pros,
-      #                                          dplyr::lag(dato_pros),
-      #                                          units = "days")),
-      #     forrige_hasBasis = lag(has_basisfollowup)) %>%
-      #   dplyr::ungroup() %>%
-      #   dplyr::mutate(
-      #     kriterie_ingen_tidl_basisprom = dplyr::case_when(
-      #       (is.na(dg_fra_forrige)) |    # ingen tidl pros av denne typen
-      #         (dg_fra_forrige > 364) |   # eller, tidl pros er mer en 1 år gammel
-      #         (dg_fra_forrige <=364 & is.na(forrige_hasBasis) # eller forrige pros hadde ikke basis prom
-      #         ) ~"ja",
-      #       TRUE ~ "nei")
-
-
-  # UTLEDE TIDSVARIABLER
-  df %<>%
+        no = "nei")) %>%
+    # KRITERIE - SJEKK INGEN TIDLIGERE PROM SISTE 12MND AV SAMME FORLOPSTYPE
+    ablanor::kriterie_basisprom_siste_aar(.,
+                                          reshId = reshId,
+                                          userRole = userRole,
+                                          fromDate = NULL,
+                                          toDate = toDate) %>%
+    dplyr::mutate(
+      kriterie_basis_alle = ifelse(
+        test = (kriterie_basis_midlertidig %in% "ja" &
+                  !kriterie_ingen_basisprom_siste12mnd %in% "nei"),
+        yes = "ja",
+        no = "nei"))  %>%
+    # UTLEDE TIDSVARIABLER
     ablanor::utlede_tidsvariabler() %>%
     dplyr::select(-maaned_nr_prosedyre) %>%
     dplyr::relocate(c("aar_prosedyre", "maaned_prosedyre"),
@@ -785,48 +777,48 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
       eprom_datagrunnlag_basis = factor(
         x = dplyr::case_when(
 
+          kriterie_basis_alle %in% "ja" &
+            has_basisfollowup %in% 1 ~
+            "Ja",
+
           dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
-            "nei, foer innfoering av basisprom",
+            "Nei: Før innføring av basisprom",
 
-          proms_status %in% 4 & proms_form_order_status_error_code %in% 1 ~
-            "nei, digitalt inaktiv",
+          kriterie_basis_alle %in% "nei" &
+            is.na(has_basisfollowup) ~
+            "Nei: Mangler kriterier",
 
-          kriterie_alle_basis %in% "nei" & is.na(has_basisfollowup) ~
-            "nei, kriterie mangler og har ikke basisprom",
+          kriterie_basis_alle %in% "nei" &
+            has_basisfollowup %in% 1 &
+            is.na(proms_status) ~
+            "Nei. Mangler kriterie (opprettet, ikke sendt)",
 
-          kriterie_alle_basis %in% "nei" & has_basisfollowup %in% 1 & is.na(proms_status) ~
-            "nei, kriterie mangler og har ikke basisprom",
+          kriterie_basis_alle %in% "nei" &
+            has_basisfollowup %in% 1 &
+            ! is.na(proms_status)~
+            "Nei: Mangler kriterier, feilaktig sendt",
 
-          kriterie_alle_basis %in% "nei" & has_basisfollowup %in% 1 & ! is.na(proms_status)~
-            "error, kriterie mangler - har basisprom",
-
-          kriterie_alle_basis %in% "ja" & is.na(has_basisfollowup) ~
-            "error, burde hatt basisprom",
-
-          kriterie_alle_basis %in% "ja" & has_basisfollowup %in% 1  & proms_status %in% 4 & is.na(proms_form_order_status_error_code) ~
-            "error",
-
-          kriterie_alle_basis %in% "ja" & has_basisfollowup %in% 1 ~
-            "ja",
+          kriterie_basis_alle %in% "ja" &
+            is.na(has_basisfollowup) ~
+            "Nei: Kriterier OK, mangler utsending (mulig etterreg.)",
 
           TRUE ~ NA_character_
-
         ),
-        levels = c("ja",
-                   "nei, foer innfoering av basisprom",
-                   "nei, digitalt inaktiv",
-                   "nei, kriterie mangler og har ikke basisprom",
-                   "error, kriterie mangler - har basisprom",
-                   "error, burde hatt basisprom",
-                   "error"),
+        levels = c("Ja",
+                   "Nei: Før innføring av basisprom",
+                   "Nei: Mangler kriterier",
+                   "Nei. Mangler kriterie (opprettet, ikke sendt)",
+                   "Nei: Mangler kriterier, feilaktig sendt",
+                   "Nei: Kriterier OK, mangler utsending (mulig etterreg.)",
+                   NA_character_),
         ordered  = TRUE
       ),
 
       eprom_besvart_basis =  dplyr::case_when(
-        eprom_datagrunnlag_basis %in% "ja" &
+        eprom_datagrunnlag_basis %in% "Ja" &
           proms_status %in% 3 ~ "datagrunnlag og besvart",
 
-        eprom_datagrunnlag_basis %in% "ja" &
+        eprom_datagrunnlag_basis %in% "Ja" &
           !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
 
     )
@@ -1296,10 +1288,10 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
 #' @rdname getPrepDataAblanor
 #' @export
 getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
-                                        reshId = NULL,
-                                        userRole,
-                                        fromDate = NULL,
-                                        toDate = NULL, ...){
+                                           reshId = NULL,
+                                           userRole,
+                                           fromDate = NULL,
+                                           toDate = NULL, ...){
 
 
 
@@ -1317,10 +1309,10 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
                              toDate = toDate)$d_pros
 
   d_prom1 <- ablanor::getProm1yr(singleRow = FALSE,
-                                           reshId = reshId,
-                                           userRole = userRole,
-                                           fromDate = NULL,
-                                           toDate = NULL)$d_prom1
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = NULL,
+                                 toDate = NULL)$d_prom1
 
   d_mce <- ablanor::getMce(singleRow = FALSE,
                            reshId = reshId,
@@ -1391,29 +1383,29 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
   #                 -first_time_closed,
   #                 -first_time_closed_by,
   #                 -createdby) %>%
-    # dplyr::left_join(.,
-    #                  d_mce %>%
-    #                    dplyr::filter(mcetype == 9) %>%
-    #                    dplyr::select(mceid, parentmceid) %>%
-    #                    dplyr::rename("mceid_followup" = mceid,
-    #                                  "mceid" = parentmceid),
-    #                  by = "mceid_followup") %>%
-    # dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
-    # dplyr::left_join(.,
-    #                  d_proms,
-    #                  by = "mceid_followup") %>%
-    # dplyr::left_join(.,
-    #                  d_rand12,
-    #                  by = c("mceid_followup", "centreid")) %>%
-    # dplyr::relocate("mceid", .before = "mceid_followup") %>%
-    # dplyr::relocate("eprom_opprettet_1aar",
-    #                 "eprom_sendt_1aar",
-    #                 .before = "dato_followup") %>%
-    # dplyr::relocate("proms_tssendt",
-    #                 "proms_status",
-    #                 "proms_form_order_status_error_code",
-    #                 "proms_expiry_date",
-    #                 .before ="dato_followup"  )
+  # dplyr::left_join(.,
+  #                  d_mce %>%
+  #                    dplyr::filter(mcetype == 9) %>%
+  #                    dplyr::select(mceid, parentmceid) %>%
+  #                    dplyr::rename("mceid_followup" = mceid,
+  #                                  "mceid" = parentmceid),
+  #                  by = "mceid_followup") %>%
+  # dplyr::mutate(eprom_opprettet_1aar = "ja") %>%
+  # dplyr::left_join(.,
+  #                  d_proms,
+  #                  by = "mceid_followup") %>%
+  # dplyr::left_join(.,
+  #                  d_rand12,
+  #                  by = c("mceid_followup", "centreid")) %>%
+  # dplyr::relocate("mceid", .before = "mceid_followup") %>%
+  # dplyr::relocate("eprom_opprettet_1aar",
+  #                 "eprom_sendt_1aar",
+  #                 .before = "dato_followup") %>%
+  # dplyr::relocate("proms_tssendt",
+  #                 "proms_status",
+  #                 "proms_form_order_status_error_code",
+  #                 "proms_expiry_date",
+  #                 .before ="dato_followup"  )
 
 
 

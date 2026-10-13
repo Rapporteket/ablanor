@@ -75,51 +75,30 @@ kriterie_basisprom_siste_aar <- function(df,
       registryName = "data",
       query = query)
 
-    # Dersom Proms basis er bestilt i vinduet
-    # [12mnd FØR prosedyren; prosedato+1dag]
-    # så blir kriterie_ingen_afli = nei
-    fullmatch_afli <- inner_join(
-      x = df_sub %>%
-        dplyr::filter(dato_pros >= as.Date("2023-11-08", format = "%Y-%m-%d"),
-                      forlopstype %in% 1) |>
-        dplyr::select(-forlopstype, - kriterie_basis_midlertidig),
-
-      y = proms_basis |>
-        dplyr::filter(parent_mcetype %in% 1) |>
-        dplyr::select(-parent_mcetype),
-
-      by = c("patient_id"),
-      relationship = "many-to-many") |>
-      dplyr::filter(mceid_followupbasis != mceid_followupbasis_oppf |
-                      !mceid_followupbasis %in% mceid_followupbasis_oppf,
-                    dato_pros >= eprom_bestilt_dato) |>
-      dplyr::filter(dato_pros >= as.Date("2022-11-08", format = "%Y-%m-%d")) |>  # 1-år før innføring av basis prom
-      dplyr::mutate(
-        teoretisk_prom_lower = dato_pros %m-% months(12),
-        teoretisk_prom_upper = days(1),
-        kriterie_ingen_afli = ifelse(
-          eprom_bestilt_dato > teoretisk_prom_lower &
-            eprom_bestilt_dato <= teoretisk_prom_upper,
-          "nei", NA_character_))
-
-    # Dersom Proms basis er bestilt i vinduet
-    # [12mnd FØR prosedyren; prosedato+1dag]
-    # så blir kriterie_ingen_afli = nei
-    fullmatch <- inner_join(
+    # finne ALLE oppfølginer av samme forløptype som prosedyren,
+    #  som har bestillingsdato for eprom FØR prosedyre og som ikke hører
+    #  direkte til denne prosedyren
+    # Dersom eprom var bestilt (av samme prosedyretype) det siste året, så
+    # blir kriterie_ingen_basisprom = "nei".
+    # NB - husk å gruppere på mceid (én prosedyre kan ha flere tidligere prom)
+    fullmatch <- dplyr::inner_join(
       x = df_sub %>%
         dplyr::filter(dato_pros >= as.Date("2023-11-08", format = "%Y-%m-%d")) |>
-        dplyr::select(- kriterie_basis_midlertidig),
+        dplyr::select(-kriterie_basis_midlertidig),
 
       y = proms_basis,
+
       by = c("patient_id", "forlopstype" = "parent_mcetype"),
+
       relationship = "many-to-many") |>
+
       dplyr::filter(mceid_followupbasis != mceid_followupbasis_oppf |
                       !mceid_followupbasis %in% mceid_followupbasis_oppf,
                     dato_pros >= eprom_bestilt_dato) |>
-      dplyr::filter(dato_pros >= as.Date("2022-11-08", format = "%Y-%m-%d")) |>  # 1-år før innføring av basis prom
+      dplyr::filter(dato_pros >= as.Date("2022-11-08", format = "%Y-%m-%d"))  %>% # 1-år før innføring av basis prom
       dplyr::mutate(
         teoretisk_prom_lower = dato_pros %m-% months(12),
-        teoretisk_prom_upper = days(1),
+        teoretisk_prom_upper = dato_pros + 1,
         kriterie_ingen_basisprom_siste12mnd = ifelse(
           eprom_bestilt_dato > teoretisk_prom_lower &
             eprom_bestilt_dato <= teoretisk_prom_upper,
@@ -130,12 +109,24 @@ kriterie_basisprom_siste_aar <- function(df,
     return(
       dplyr::left_join(
         df,
-        df_sub  %>%  dplyr::select(kriterie_ingen_taviprom, PasientID, ForlopsID),
-        by = c("PasientID", "ForlopsID"))
+        fullmatch %>%
+          dplyr::group_by(mceid)  %>%
+          dplyr::mutate(
+
+            kriterie_ingen_basisprom_siste12mnd = ifelse(
+              any(kriterie_ingen_basisprom_siste12mnd == "nei"),
+              "nei",
+              NA_character_),
+
+            n = 1:n())  %>%
+
+          dplyr::filter(n == 1) %>%
+          dplyr::select(patient_id , mceid, kriterie_ingen_basisprom_siste12mnd),
+        by = c("patient_id", "mceid"))
     )
   }
-  if(nrow(df_sub)== 0) {
-    return(df  %>%  dplyr::mutate(kriterie_ingen_taviprom = NA_character_))
+  if(nrow(df_sub) == 0) {
+    return(df  %>%  dplyr::mutate(kriterie_ingen_basisprom_siste12mnd = NA_character_))
   }
 }
 
