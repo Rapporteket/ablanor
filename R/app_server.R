@@ -14,6 +14,7 @@ app_server <- function(input, output, session) {
 
   # Parameters that will remain throughout the session
   registryName <- "ablanor"
+  userFullName <- Sys.getenv("FALK_USER_FULLNAME")
   mapOrgId <- ablanor::getNameReshId()
   userOperator <- "Test Operatoresen"
 
@@ -472,7 +473,7 @@ app_server <- function(input, output, session) {
         reshId = user$org(),
         registryName = registryName,
         userRole = user$role(),
-        userFullName = user$fullName,
+        userFullName = userFullName,
         userOperator = userOperator
       )
     )
@@ -490,7 +491,7 @@ app_server <- function(input, output, session) {
         reshId = user$org(),
         registryName = registryName,
         userRole = user$role(),
-        userFullName = user$fullName,
+        userFullName = userFullName,
         userOperator = userOperator
       )
     )
@@ -512,7 +513,7 @@ app_server <- function(input, output, session) {
           tableFormat = "pdf",
           reshId = user$org(),
           registryName = registryName,
-          userFullName = user$fullName,
+          userFullName = userFullName,
           userRole = user$role(),
           userOperator = userOperator
         )
@@ -538,7 +539,7 @@ app_server <- function(input, output, session) {
           tableFormat = "pdf",
           reshId = user$org(),
           registryName = registryName,
-          userFullName = user$fullName,
+          userFullName = userFullName,
           userRole = user$role(),
           userOperator = userOperator
         )
