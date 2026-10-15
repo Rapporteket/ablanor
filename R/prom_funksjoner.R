@@ -138,14 +138,15 @@ kriterie_1yr_prom_siste_aar <- function(df,
                                         fromDate = NULL,
                                         toDate = NULL){
 
-  stopifnot(c("kriterie_1yr_midlertidig") %in% names(df))
+  stopifnot(c("kriterie_1yr_midlertidig",
+              "dato_followup_teoretisk_1aar") %in% names(df))
 
   # alle PID for pasienter som har de øvrige kriteriene for 1-års-prom
   # og som har prosedyredato etter prodsetting av  1-års-prom
   df_sub <- df  %>%
     dplyr::filter(kriterie_1yr_midlertidig %in% "ja") %>%
     dplyr::select(patient_id, dato_pros, mceid, mceid_followup1,
-                  forlopstype)
+                  forlopstype, dato_followup_teoretisk_1aar)
 
   if(nrow(df_sub)>0){
 
@@ -212,7 +213,7 @@ kriterie_1yr_prom_siste_aar <- function(df,
                       !mceid_followup1 %in% mceid_followup1yr_oppf) |>
       dplyr::mutate(
         teoretisk_prom_lower = dato_pros,
-        teoretisk_prom_upper = dato_pros + lubridate::weeks(50),
+        teoretisk_prom_upper = dato_followup_teoretisk_1aar,
         kriterie_ingen_1yr_prom_siste_aar = ifelse(
           eprom_bestilt_dato > teoretisk_prom_lower &
             eprom_bestilt_dato <= teoretisk_prom_upper,
@@ -252,12 +253,13 @@ kriterie_ingen_ny_pros_neste_aar <- function(df,
                                              fromDate = NULL,
                                              toDate = NULL){
 
-  stopifnot(c("kriterie_1yr_midlertidig") %in% names(df))
+  stopifnot(c("kriterie_1yr_midlertidig",
+              "dato_followup_teoretisk_1aar") %in% names(df))
 
   # alle PID for pasienter som har de øvrige kriteriene for 1-års-prom
   df_sub <- df  %>%
     dplyr::filter(kriterie_1yr_midlertidig %in% "ja") %>%
-    dplyr::select(patient_id, dato_pros, mceid, forlopstype)
+    dplyr::select(patient_id, dato_pros, mceid, forlopstype, dato_followup_teoretisk_1aar)
 
   if(nrow(df_sub)>0){
 
@@ -294,7 +296,7 @@ kriterie_ingen_ny_pros_neste_aar <- function(df,
                     mceid != mceid_ny)%>%
       dplyr::mutate(
         teoretisk_prom_lower = dato_pros,
-        teoretisk_prom_upper = dato_pros + lubridate::weeks(50),
+        teoretisk_prom_upper = dato_followup_teoretisk_1aar,
         kriterie_ingen_ny_pros = ifelse(
           dato_pros_ny > teoretisk_prom_lower &
             dato_pros_ny <= teoretisk_prom_upper,

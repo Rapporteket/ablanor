@@ -903,7 +903,7 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
       dplyr::contains("abla_strat"),
       akutt_suksess,
       oppsummering,
-      dplyr::contains("komp_")
+      dplyr::contains("komp_"), pros_varighet
     )
 
   d_basereg %<>%
@@ -961,7 +961,7 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
         no = "nei"),
 
       # 50 uker etter prosedyredato blir e-proms opprettet
-      dato_followup_teoretisk_1aar = dato_pros + lubridate::weeks(50)) %>%
+      dato_followup_teoretisk_1aar = dato_pros + lubridate::weeks(51)) %>%
 
     # KRITERIER FOR ePROM
     ablanor::utlede_alder() %>%
