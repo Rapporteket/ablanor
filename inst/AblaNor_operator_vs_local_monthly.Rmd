@@ -115,6 +115,7 @@ nyeste_reg <- min(
   (as.Date(Sys.time() - 1)),
   ablanor::getLatestEntry())
 
+
 periode_data <- data.frame(nyeste_reg = nyeste_reg) |>
   dplyr::mutate(
     # SISTE DATO AVGJØR SISTE MÅNED:
@@ -191,6 +192,8 @@ d_ablanor_prom1aar <- ablanor::getBaseregProsFollowup1Data(
   userRole = params$userRole,
   fromDate = periode_data$forste_dato_1aarOppf,
   toDate = periode_data$siste_dato_1aarOppf)
+
+evaluate_prom1aar <- nrow(d_ablanor_prom1aar) > 0 # for conditional running of prom5aar-related chunks
 
 
 # 5-års oppfølging
@@ -474,7 +477,9 @@ caption <- paste0("Antall komplikasjoner registrert av ",
                   "Dersom samme komplikasjon er registrert i både ",
                   "prosedyreskjemaet og hendelseskjemaet, hvor hendelsen ",
                   "skjedde innen fire dager, ",
-                  "telles dette kun som én komplikasjon.")
+                  "telles dette kun som én komplikasjon. ",
+                  "Kun komplikasjoner registrert i denne perioden ",
+                  "vises i tabellen.")
 
 d_ablanor_hendelse_innen4dager <- d_ablanor_hendelse |> 
   filter(dager_pros_hendelse <= 4)
@@ -792,7 +797,9 @@ tab_kompl_samlet <- tab_kompl_tekst |>
   dplyr::left_join(tab_kompl_operator_aar, by = "Komplikasjoner") |> 
   dplyr::left_join(tab_kompl_sykehus_aar, by = "Komplikasjoner") |> 
   select(-Komplikasjoner) |>
-  janitor::adorn_totals(where = "row", name = "Totalt")
+  janitor::adorn_totals(where = "row", name = "Totalt") |> 
+  #Fjerner tomme rader
+  dplyr::filter(!if_all(c("Antall_lokalt_fjor":"Antall_nasj_aar"),  ~ . == 0))
 
 colnames(tab_kompl_samlet)[2] <- paste0(kort_navn, " - ", periode_data$sisteHeleYear)
 colnames(tab_kompl_samlet)[3] <- paste0(hospitalNameShort, " - ", periode_data$sisteHeleYear)
@@ -1356,8 +1363,9 @@ Du har vært til behandling av en rytmeforstyrrelse for 1 år siden. Når det gj
 
 <br>
 
+`r if(evaluate_prom1aar == FALSE){"Dette sykehuset har ingen registrerte forløp med 1 års-oppfølging fra denne perioden på nåværende tidspunkt."}`
 
-```{r figKliniskEffekt1aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
+```{r figKliniskEffekt1aar, eval = evaluate_prom1aar, fig.cap = fig.cap, fig.pos = "H", fig.align = 'center',  out.width = "85%", fig.asp = 0.8}
 
 fig.cap <-  paste0("Figuren viser pasientrapportert klinisk effekt 1 år ",
                    "etter prosedyren, registrert i ", 
@@ -1400,7 +1408,7 @@ klinisk_effekt_1aar_operator_aar <- d_ablanor_prom1aar |>
   
 
 
-# Lokalt samlet
+# Operatør samlet
 klinisk_effekt_1aar_operator <- rbind(
   klinisk_effekt_1aar_operator_fjor,
   klinisk_effekt_1aar_operator_aar) |> 
