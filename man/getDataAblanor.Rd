@@ -20,7 +20,6 @@
 \alias{getNameReshId}
 \alias{getHospitalName}
 \alias{getBasisProm}
-\alias{getFollowupOneYr}
 \alias{getProm1yr}
 \title{Ablanor SQL}
 \usage{

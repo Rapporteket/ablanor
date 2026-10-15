@@ -298,8 +298,10 @@ kriterie_ingen_ny_pros_neste_aar <- function(df,
         teoretisk_prom_lower = dato_pros,
         teoretisk_prom_upper = dato_followup_teoretisk_1aar,
         kriterie_ingen_ny_pros = ifelse(
-          dato_pros_ny > teoretisk_prom_lower &
-            dato_pros_ny <= teoretisk_prom_upper,
+          (dato_pros_ny > teoretisk_prom_lower &
+            dato_pros_ny <= teoretisk_prom_upper) |
+            (dato_pros_ny == dato_pros &
+               mceid < mceid_ny),
           "nei", NA_character_))
 
 
