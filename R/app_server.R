@@ -500,7 +500,7 @@ app_server <- function(input, output, session) {
 
   output$downloadReportSykehus <- shiny::downloadHandler(
     filename = function() {
-      basename(tempfile(pattern = "AblaNor_local_monthly",
+      basename(tempfile(pattern = "AblaNor_local_vs_national_monthly",
                         fileext = paste0(".", "pdf")))
     },
     content = function(file) {
@@ -548,70 +548,103 @@ app_server <- function(input, output, session) {
     }
   )
 
+
+  # Abonnement
+
   # Values shared among subscriptions and dispatchment
   orgs <- ablanor::getNameReshId(asNamedList = TRUE,
                                  shortName = FALSE,
                                  newNames = TRUE)
 
-  # Abonnement
+
+
+  pn <- shiny::reactive(c(
+    "outputType",
+    "title",
+    "author",
+    "orgId",
+    "orgName",
+    "userFullName",
+    "userRole",
+    "registryName",
+    "tableFormat"
+  ))
+  pv <- shiny::reactive(c(
+    "pdf",
+    "Månedsresultater",
+    "unknown author",
+    user$org(),
+    user$orgName(),
+    userFullName,
+    user$role(),
+    registryName,
+    "latex"
+  ))
+
+
+  subReports <- shiny::reactiveVal(
+    list()
+  )
+
+
+  shiny::observeEvent(list(user$org(), user$role()), {
+    subReports(list(
+      "Månedlige resultater: Operatør vs. Sykehus" = list(
+        synopsis = paste0("AblaNor - ",
+                          "Egne registreringer opp mot ",
+                          "sykehusets registreringer"),
+        fun = "reportProcessor",
+        paramNames = c("report", pn),
+        paramValues = c("AblaNor_operator_vs_local_monthly", pv)
+      )
+    ))
+
+    if (user$role() == "LC") {
+      subReportsSykehus <- list(
+        "Månedlige resultater: Sykehus vs. Nasjonal" = list(
+          synopsis = paste0("AblaNor - ",
+                            "Resultater for eget sykehus sammenlignet med ",
+                            "nasjonale resultater"),
+          fun = "reportProcessor",
+          paramNames = c("report", pn),
+          paramValues = c("AblaNor_local_monthly", pv)
+        )
+      )
+      subReports(c(subReports(), subReportsSykehus))
+    }
+  })
 
   subParamNames <- shiny::reactive(c(
     "orgId",
     "orgName",
     "userFullName",
-    "userRole"
+    "userRole",
+    "registryName",
+    "tableFormat"
   ))
   subParamValues <- shiny::reactive(c(
     user$org(),
     user$orgName(),
-    user$fullName(),
-    user$role()
+    userFullName,
+    user$role(),
+    registryName,
+    "latex"
   ))
 
+
+  ## serve subscriptions (Abonnement)
   rapbase::autoReportServer(
     id = "ablanorSubscription",
     registryName = "ablanor",
     type = "subscription",
     paramNames = subParamNames,
     paramValues = subParamValues,
-    reports = list(
-      "Veiledning" = list(
-        synopsis = "Veiledningsteksten for testformål",
-        fun = "reportProcessor",
-        paramNames = c("report",
-                       "outputType",
-                       "title",
-                       "orgId",
-                       "orgName"),
-        paramValues =c("veiledning",
-                       "pdf",
-                       "Veiledning",
-                       9999999,
-                       "orgname")
-      ),
-      "Månedlige resultater" = list(
-        synopsis = paste0("AblaNor-rapport: ",
-                          "Eget sykehus sammenlignet med resten av landet"),
-        fun = "reportProcessor",
-        paramNames = c("report",
-                       "outputType",
-                       "title",
-                       "orgId",
-                       "orgName",
-                       "userFullName",
-                       "userRole"),
-        paramValues = c("local_monthly",
-                        "pdf",
-                        "Månedsresultater",
-                        999999,
-                        "orgname",
-                        "user fullName",
-                        "userrole")
-      )
-    ),
+    reports = subReports,
     orgs = orgs,
     user = user
   )
+
+
 
   # Utsendelse
 
@@ -637,16 +670,17 @@ app_server <- function(input, output, session) {
     paramNames = disParamNames,
     paramValues = disParamValues,
     reports = list(
-      "Månedlige resultater" = list(
-        synopsis = paste0("AblaNor-resultater: ",
-                          "Eget sykehus sammenlignet med resten av landet"),
+      "Månedlige resultater: Sykehus vs. Nasjonal" = list(
+        synopsis = paste0("AblaNor - ",
+                          "Resultater for eget sykehus sammenlignet med ",
+                          "nasjonale resultater"),
         fun = "reportProcessor",
         paramNames = c("report",
                        "outputType",
                        "title",
                        "orgId",
                        "userFullName"),
-        paramValues = c("local_monthly",
+        paramValues = c("AblaNor_local_monthly",
                         "pdf",
                         "Månedsresultater",
                         999999,

@@ -24,13 +24,13 @@ app_ui <- function() {
         title = "Månedsrapporter",
 
         shiny::tabPanel(
-          title = "Sykehus vs Nasjonal",
-          shiny::uiOutput("hospitalReport")
+          title = "Operatør vs Sykehus",
+          shiny::uiOutput("operatorReport")
         ),
 
         shiny::tabPanel(
-          title = "Operatør vs Sykehus",
-          shiny::uiOutput("operatorReport")
+          title = "Sykehus vs Nasjonal",
+          shiny::uiOutput("hospitalReport")
         )
       ),
 
