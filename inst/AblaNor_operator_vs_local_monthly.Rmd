@@ -20,7 +20,7 @@ title: |
   | __`r paste0("Månedsrapport for ", stringr::str_to_title(params$userFullName), " sammenlignet med ", params$hospitalName)`__
   |
   |
-abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  stringr::str_to_title(params$userFullName), ", sammenlignet med ", params$registryName, ". Nøkkeltallene er basert på hele fjorårets registreringer samt alle fullførte måndeder hittil i år. Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
+abstract: '`r paste0("Denne rapporten oppsummerer nøkkeltall for registreringer i AblaNor utført av ",  stringr::str_to_title(params$userFullName), ", sammenlignet med ", params$hospitalName, ". Nøkkeltallene er basert på hele fjorårets registreringer samt alle fullførte måndeder hittil i år. Bare forløp som har resultert i en prosedyre, eventuelt en avbrutt en, teller med i datagrunnlaget. Opptellingene er gjort per forløp i perioden, det vil si at en pasient som har hatt mer enn et forløp vil telle flere ganger.") `'
 date: '`r format(Sys.time(), "%d. %B, %Y")`'
 registryName: '`r params$registryName`'
 reglogo: '`r system.file("logoAblanor.png", package = "ablanor")`'
