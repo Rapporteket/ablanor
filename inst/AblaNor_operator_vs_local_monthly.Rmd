@@ -1470,7 +1470,9 @@ klinisk_effekt_1aar <- rbind(
     
     registrert_av = factor(x = registrert_av,
                          levels = c(hospitalNameShort,
-                                    kort_navn)))
+                                    kort_navn)),
+    forlopstype_tekst = factor(x = forlopstype_tekst,
+                                     levels = c("AFLI", "VT", "SVT", "EFU")))
 
 # Figur
 klinisk_effekt_1aar |>
@@ -1884,17 +1886,20 @@ klinisk_effekt_5aar_sykehus <- rbind(
 klinisk_effekt_5aar <- rbind(
   klinisk_effekt_5aar_operator,
   klinisk_effekt_5aar_sykehus) |> 
-  mutate(aar_prosedyre = factor(
-    x = aar_prosedyre,
-    levels = c((periode_data$sisteHeleYear-5):(periode_data$nyesteRegYear-5)),
-    labels = c(paste0("Besvart i fjor for prosedyrer utført i ",
-                      (periode_data$sisteHeleYear-5)),
-               paste0("Besvart hittil i år for prosedyrer utført i ",
-                      (periode_data$nyesteRegYear-5)))),
+  mutate(
+    aar_prosedyre = factor(
+      x = aar_prosedyre,
+      levels = c((periode_data$sisteHeleYear-5):(periode_data$nyesteRegYear-5)),
+      labels = c(paste0("Besvart i fjor for prosedyrer utført i ",
+                        (periode_data$sisteHeleYear-5)),
+                 paste0("Besvart hittil i år for prosedyrer utført i ",
+                        (periode_data$nyesteRegYear-5)))),
     
     registrert_av = factor(x = registrert_av,
                            levels = c(hospitalNameShort,
-                                      kort_navn)))
+                                      kort_navn)),
+    forlopstype_tekst = factor(x = forlopstype_tekst,
+                                     levels = c("AFLI", "VT", "SVT", "EFU")))
 
 # Figur
 klinisk_effekt_5aar |>
