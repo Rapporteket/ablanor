@@ -20,6 +20,20 @@ app_ui <- function() {
             rapbase::navbarWidgetInput("ablanorWidget", selectOrganization = TRUE)
           )
       ),
+      shiny::navbarMenu(
+        title = "Månedsrapporter",
+
+        shiny::tabPanel(
+          title = "Operatør vs Sykehus",
+          shiny::uiOutput("operatorReport")
+        ),
+
+        shiny::tabPanel(
+          title = "Sykehus vs Nasjonal",
+          shiny::uiOutput("hospitalReport")
+        )
+      ),
+
       shiny::tabPanel(
         "Abonnement",
         shiny::sidebarPanel(

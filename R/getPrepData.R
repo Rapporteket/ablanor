@@ -1120,7 +1120,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
   # PROCESS PATIENT - BASEREG AND PROCEDURE DATA ----
   d_pros %<>%
     dplyr::select(
-      mceid:dato_pros,
+      mceid:dato_pros, operator,
       redo, redo_times, narkose,
       dplyr::contains("aryt_i"),
       dplyr::contains("sys_"),
@@ -1565,7 +1565,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
   # PROCESS PATIENT - BASEREG AND PROCEDURE DATA ----
   d_pros %<>%
     dplyr::select(
-      mceid:dato_pros,
+      mceid:dato_pros, operator,
       redo, redo_times, narkose,
       dplyr::contains("aryt_i"),
       dplyr::contains("sys_"),
