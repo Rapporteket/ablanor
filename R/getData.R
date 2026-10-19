@@ -32,7 +32,7 @@
 #' also be returned as a named list of values (see Details).
 #'
 #' @name getDataAblanor
-#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName
+#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName getOperatorliste
 NULL
 
 
@@ -852,6 +852,38 @@ WHERE
   }
 
   name
+}
+
+
+#' @rdname getDataAblanor
+#' @export
+getOperatorliste <- function(singleRow, reshId = NULL, ...){
+
+  query <- paste0(
+  "SELECT ID, CENTREID, FIRSTNAME, LASTNAME, ACTIVE ",
+  "FROM operator ",
+  "WHERE CENTREID = ", reshId)
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for friendlycentre"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for friendlycentre"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_operator <- rapbase::loadRegData("data", query)
+    # nocov end
+  } else {
+    d_operator <- rapbase::loadRegData("data", query)
+  }
+
+  list(d_operator = d_operator)
 }
 
 
