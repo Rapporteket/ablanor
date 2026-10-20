@@ -748,9 +748,7 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
         no = "nei")) %>%
     ablanor::kriterie_basisprom_siste_aar(.,        # KRITERIE - SJEKK INGEN TIDLIGERE PROM SISTE 12MND AV SAMME FORLOPSTYPE
                                           reshId = reshId,
-                                          userRole = userRole,
-                                          fromDate = NULL,
-                                          toDate = toDate) %>%
+                                          userRole = userRole) %>%
     dplyr::mutate(
       kriterie_basis_alle = ifelse(
         test = (kriterie_basis_midlertidig %in% "ja" &
@@ -952,18 +950,7 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
 
   df %<>%
     dplyr::mutate(
-
-      # I Versjon 1.5 ble opprettelse/bestilling av eproms skilt.
-      # I ny versjon så sjekkes alle kriterier før opprettelse av e-prom
-      versjon_1_5_eller_mer = ifelse(
-        test = (dato_pros >= as.Date("2022-11-22", format = "%Y-%m-%d")),
-        yes = "ja",
-        no = "nei"),
-
-      # 50 uker etter prosedyredato blir e-proms opprettet
       dato_followup_teoretisk_1aar = dato_pros + lubridate::weeks(51)) %>%
-
-    # KRITERIER FOR ePROM
     ablanor::utlede_alder() %>%
     ablanor::utlede_aldersklasse() %>%
     dplyr::mutate(
@@ -987,14 +974,9 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
         yes = "ja",
         no = "nei")) %>%
     ablanor::kriterie_1yr_prom_siste_aar(reshId = reshId,
-                                         userRole = userRole,
-                                         fromDate = NULL,
-                                         toDate = NULL)  %>%
+                                         userRole = userRole)  %>%
     ablanor::kriterie_ingen_ny_pros_neste_aar(reshId = reshId,
-                                              userRole = userRole,
-                                              fromDate = NULL,
-                                              toDate = NULL) %>%
-
+                                              userRole = userRole) %>%
     dplyr::mutate(
       kriterie_1yr_alle = ifelse(
         test = (kriterie_1yr_midlertidig %in% "ja" &
@@ -1004,7 +986,6 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
         no = "nei")) %>%
     ablanor::utlede_tidsvariabler() %>%
     dplyr::arrange(mceid) %>%
-
     dplyr::mutate(
       eprom_kjente_feil_1aar = dplyr::case_when(
 
@@ -1020,8 +1001,7 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
            kriterie_1yr_alle %in% "ja" &
            !is.na(followup1_tscreated) & # Eprom er opprettet
            is.na(proms_status)  # eprom er ikke sendt
-        ) ~
-          "teknisk problem",
+        ) ~ "teknisk problem",
 
         TRUE ~ "nei"),
 
@@ -1046,50 +1026,20 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
         eprom_kjente_feil_1aar %in% "teknisk problem"
           ~ "Nei: Teknisk feil",
 
-
         kriterie_1yr_alle %in% "nei" &
           eprom_kjente_feil_1aar %in% "nei" &
           !is.na(followup1_tscreated) &
           !is.na(proms_tssendt)
         ~ "Nei: Mangler kriterier, feilaktig sendt",
 
-
         kriterie_1yr_alle %in% "nei" &
           eprom_kjente_feil_1aar %in% "nei" &
           (is.na(followup1_tscreated) | is.na(proms_tssendt))
         ~ "Nei: Mangler kriterie",
 
-        TRUE ~ "kom til bunns"
-
+        TRUE ~ NA_character_
       )
-
-      #
-      #
-      # eprom_besvart_1aar =  dplyr::case_when(
-      #   eprom_datagrunnlag_1aar %in% "ja" &
-      #     proms_status %in% 3 ~ "datagrunnlag og besvart",
-      #
-      #   eprom_datagrunnlag_1aar %in% "ja" &
-      #     !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
     )
-
-
-
-
-  # RYDDE ENDELIG DATASETT ----
-  # df %<>%
-  #   dplyr::relocate("patient_id",
-  #                   "mceid",
-  #                   "mceid_followup",
-  #                   "centreid",
-  #                   "eprom_datagrunnlag_1aar",
-  #                   "eprom_besvart_1aar",
-  #                   .before = "birth_date") %>%
-  #   dplyr::select(-dato_bas) %>%
-  #   dplyr::relocate("has_followup", .after = "eprom_kjente_feil_1aar")
-  #
-
-
   if(singleRow == TRUE) {
     # Return first row only
     df %>% dplyr::filter(dplyr::row_number() == 1)

@@ -13,9 +13,7 @@
 #' @export
 kriterie_basisprom_siste_aar <- function(df,
                                          reshId = reshId,
-                                         userRole = userRole,
-                                         fromDate = NULL,
-                                         toDate = NULL){
+                                         userRole = userRole){
 
   stopifnot(c("kriterie_basis_midlertidig") %in% names(df))
 
@@ -134,9 +132,7 @@ kriterie_basisprom_siste_aar <- function(df,
 #' @export
 kriterie_1yr_prom_siste_aar <- function(df,
                                         reshId = reshId,
-                                        userRole = userRole,
-                                        fromDate = NULL,
-                                        toDate = NULL){
+                                        userRole = userRole){
 
   stopifnot(c("kriterie_1yr_midlertidig",
               "dato_followup_teoretisk_1aar") %in% names(df))
@@ -249,9 +245,7 @@ kriterie_1yr_prom_siste_aar <- function(df,
 #' @export
 kriterie_ingen_ny_pros_neste_aar <- function(df,
                                              reshId = reshId,
-                                             userRole = userRole,
-                                             fromDate = NULL,
-                                             toDate = NULL){
+                                             userRole = userRole){
 
   stopifnot(c("kriterie_1yr_midlertidig",
               "dato_followup_teoretisk_1aar") %in% names(df))
