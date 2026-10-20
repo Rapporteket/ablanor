@@ -2,7 +2,8 @@
 % Please edit documentation in R/getPrepData.R
 \name{getPrepDataAblanor}
 \alias{getPrepDataAblanor}
-\alias{getBaseregDatagetProsData}
+\alias{getBaseregData}
+\alias{getProsData}
 \alias{getMceData}
 \alias{getRand12Data}
 \alias{getFollowupBasisData}
@@ -13,11 +14,11 @@
 \alias{getBaseregProsData}
 \alias{getBaseregProsHendelseData}
 \alias{getBaseregProsFollowup1Data}
+\alias{getBaseregProsFollowup0Data}
 \alias{getBaseregProsFollowup5Data}
 \alias{getBaseregProsFollowup0Data_v2}
-\alias{getBaseregData}
-\alias{getProsData}
 \alias{getBaseregProsFollowup1Data_v2}
+\alias{getBaseregProsFollowup5Data_v2}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -107,15 +108,6 @@ getBaseregProsFollowup0Data_v2(
   ...
 )
 
-getBaseregProsFollowup1Data(
-  singleRow = FALSE,
-  reshId = NULL,
-  userRole,
-  fromDate = NULL,
-  toDate = NULL,
-  ...
-)
-
 getBaseregProsFollowup1Data_v2(
   singleRow = FALSE,
   reshId = NULL,
@@ -125,7 +117,7 @@ getBaseregProsFollowup1Data_v2(
   ...
 )
 
-getBaseregProsFollowup5Data(
+getBaseregProsFollowup5Data_v2(
   singleRow = FALSE,
   reshId = NULL,
   userRole,

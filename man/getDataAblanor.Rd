@@ -21,6 +21,7 @@
 \alias{getHospitalName}
 \alias{getBasisProm}
 \alias{getProm1yr}
+\alias{getProm5yr}
 \title{Ablanor SQL}
 \usage{
 getBasereg(
@@ -134,9 +135,25 @@ getNameReshId(asNamedList = FALSE, shortNames = FALSE, newNames = FALSE)
 
 getHospitalName(reshId, shortName = FALSE, newNames = FALSE)
 
-getBasisProm(...)
+getBasisProm(
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
 
 getProm1yr(
+  singleRow,
+  reshId = NULL,
+  userRole,
+  fromDate = NULL,
+  toDate = NULL,
+  ...
+)
+
+getProm5yr(
   singleRow,
   reshId = NULL,
   userRole,

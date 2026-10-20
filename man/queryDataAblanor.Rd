@@ -5,6 +5,7 @@
 \alias{queryProm0}
 \alias{queryRand12_0}
 \alias{queryProm1}
+\alias{queryProm5}
 \title{Ablanor SQL}
 \usage{
 queryProm0()
@@ -12,6 +13,8 @@ queryProm0()
 queryRand12_0()
 
 queryProm1()
+
+queryProm5()
 }
 \value{
 Data frame or (when multiple data sets are returned) a list of data
