@@ -179,12 +179,12 @@ getPivotDataSet <- function(setId = "",
 
 
     if (setId == "pros_pat_followup5") {
-      dat <- ablanor::getBaseregProsFollowup5Data(singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+      dat <- ablanor::getBaseregProsFollowup5Data_v2(singleRow = singleRow,
+                                                     session = session,
+                                                     reshId = reshId,
+                                                     userRole = userRole,
+                                                     fromDate = fromDate,
+                                                     toDate = toDate)
     }
 
 
