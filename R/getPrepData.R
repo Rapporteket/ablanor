@@ -1048,7 +1048,7 @@ getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
                                         fromDate = NULL,
                                         toDate = NULL, ...){
 
-  # 1 GET ALL TABELS NEEDED ----
+  # 1 GET ALL TABELS NEEDED
   d_basereg <- ablanor::getBasereg(singleRow = FALSE,
                                    reshId = reshId,
                                    userRole = userRole,
@@ -1191,25 +1191,7 @@ getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
         no = "nei")) %>%
     ablanor::utlede_tidsvariabler() %>%
     dplyr::arrange(mceid) %>%
-    # dplyr::mutate(
-    #   eprom_kjente_feil_1aar = dplyr::case_when(
-    #
-    #     dato_pros == as.Date("2021-09-01", format = "%Y-%m-%d") ~
-    #       "teknisk problem",
-    #
-    #     (dato_pros >= as.Date("2020-01-01", format = "%Y-%m-%d") &
-    #        dato_pros <= as.Date("2020-01-24", format = "%Y-%m-%d")) ~
-    #       "teknisk problem",
-    #
-    #     (dato_pros >= as.Date("2022-11-22", format = "%Y-%m-%d") &
-    #        dato_pros <= as.Date("2022-11-25", format = "%Y-%m-%d") &
-    #        kriterie_1yr_alle %in% "ja" &
-    #        !is.na(followup1_tscreated) & # Eprom er opprettet
-    #        is.na(proms_status)  # eprom er ikke sendt
-    #     ) ~ "teknisk problem",
-    #
-    #     TRUE ~ "nei"),
-    #
+
     dplyr::mutate(
       eprom_datagrunnlag_5aar =  dplyr::case_when(
 
