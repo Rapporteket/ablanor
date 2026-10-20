@@ -50,7 +50,8 @@ reportProcessor <- function(report,
                             userRole = "unknown role",
                             userOperator = "unknown operator") {
 
-  stopifnot(report %in% c("veiledning", "local_monthly"))
+  stopifnot(report %in% c("AblaNor_operator_vs_local_monthly",
+                          "AblaNor_local_monthly"))
 
   stopifnot(outputType %in% c("html", "pdf"))
 
@@ -60,21 +61,26 @@ reportProcessor <- function(report,
     warning("No title given! Reports should have a title...")
   }
 
-  if (report == "veiledning") {
+  if (report == "AblaNor_operator_vs_local_monthly") {
     filePath <- rapbase::renderRmd(
-      system.file("veiledning.Rmd", package = "ablanor"),
+      system.file("AblaNor_operator_vs_local_monthly.Rmd", package = "ablanor"),
       outputType = outputType,
       params = list(
-        title = title,
         author = author,
-        hospitalName = orgName,
+        hospitalName = ablanor::getHospitalName(reshId = orgId,
+                                                newNames = TRUE,
+                                                shortName = FALSE),
         tableFormat = outputType,
-        reshId = orgId
+        reshId = orgId,
+        registryName = registryName,
+        userRole = userRole,
+        userOperator = userOperator,
+        userFullName = userFullName
       )
     )
   }
 
-  if (report == "local_monthly") {
+  if (report == "AblaNor_local_monthly") {
     filePath <- rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
       outputType = outputType,

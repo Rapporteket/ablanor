@@ -1,3 +1,6 @@
+# ablanor 2.3.1
+Fiks av abonnement og utsending av rapporter
+
 # ablanor 2.3.0
 Månesrapport for LU-rolle som viser data som sammenligner egne registreringer
 mot sykehusets registreringer, hele siste år samt hittil i år
