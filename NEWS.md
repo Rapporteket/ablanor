@@ -1,3 +1,7 @@
+# ablanor 2.3.2
+Fiks av utsending fra "Abonnement"
+
+
 # ablanor 2.3.1
 Fiks av abonnement og utsending av rapporter
 
