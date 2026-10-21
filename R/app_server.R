@@ -557,31 +557,6 @@ app_server <- function(input, output, session) {
                                  newNames = TRUE)
 
 
-
-  pn <- shiny::reactive(c(
-    "outputType",
-    "title",
-    "author",
-    "orgId",
-    "orgName",
-    "userFullName",
-    "userRole",
-    "registryName",
-    "tableFormat"
-  ))
-  pv <- shiny::reactive(c(
-    "pdf",
-    "Månedsresultater",
-    "unknown author",
-    user$org(),
-    user$orgName(),
-    userFullName,
-    user$role(),
-    registryName,
-    "latex"
-  ))
-
-
   subReports <- shiny::reactiveVal(
     list()
   )
@@ -594,8 +569,16 @@ app_server <- function(input, output, session) {
                           "Egne registreringer opp mot ",
                           "sykehusets registreringer"),
         fun = "reportProcessor",
-        paramNames = c("report", pn),
-        paramValues = c("AblaNor_operator_vs_local_monthly", pv)
+        paramNames = c("report",
+                       "outputType",
+                       "title",
+                       "orgId",
+                       "userFullName"),
+        paramValues = c("AblaNor_operator_vs_local_monthly",
+                        "pdf",
+                        "Månedsresultater",
+                        999999,
+                        "userFullName")
       )
     ))
 
@@ -603,11 +586,18 @@ app_server <- function(input, output, session) {
       subReportsSykehus <- list(
         "Månedlige resultater: Sykehus vs. Nasjonal" = list(
           synopsis = paste0("AblaNor - ",
-                            "Resultater for eget sykehus sammenlignet med ",
-                            "nasjonale resultater"),
+                            "Eget sykehus mot nasjonale resultater"),
           fun = "reportProcessor",
-          paramNames = c("report", pn),
-          paramValues = c("AblaNor_local_monthly", pv)
+          paramNames = c("report",
+                         "outputType",
+                         "title",
+                         "orgId",
+                         "userFullName"),
+          paramValues = c("AblaNor_local_monthly",
+                          "pdf",
+                          "Månedsresultater",
+                          999999,
+                          "userFullName")
         )
       )
       subReports(c(subReports(), subReportsSykehus))
@@ -625,7 +615,7 @@ app_server <- function(input, output, session) {
   subParamValues <- shiny::reactive(c(
     user$org(),
     user$orgName(),
-    userFullName,
+    user$fullName(),
     user$role(),
     registryName,
     "latex"
@@ -637,14 +627,16 @@ app_server <- function(input, output, session) {
     id = "ablanorSubscription",
     registryName = "ablanor",
     type = "subscription",
+    org = org$value,
     paramNames = subParamNames,
     paramValues = subParamValues,
     reports = subReports,
     orgs = orgs,
-    user = user
+    user = user,
+    runAutoReportButton = (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC",
+                                                               "DEV",
+                                                               "TEST"))
   )
-
-
 
   # Utsendelse
 
@@ -672,8 +664,7 @@ app_server <- function(input, output, session) {
     reports = list(
       "Månedlige resultater: Sykehus vs. Nasjonal" = list(
         synopsis = paste0("AblaNor - ",
-                          "Resultater for eget sykehus sammenlignet med ",
-                          "nasjonale resultater"),
+                          "Eget sykehus mot nasjonale resultater"),
         fun = "reportProcessor",
         paramNames = c("report",
                        "outputType",
@@ -684,11 +675,14 @@ app_server <- function(input, output, session) {
                         "pdf",
                         "Månedsresultater",
                         999999,
-                        "Full Name")
+                        "userFullName")
       )
     ),
     orgs = orgs,
-    user = user
+    user = user,
+    runAutoReportButton = (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC",
+                                                               "DEV",
+                                                               "TEST"))
   )
 
 
