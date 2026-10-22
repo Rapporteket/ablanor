@@ -3,7 +3,7 @@
 # notepad, velg 'lagre som' og endre til UTF-8. Sende txt filen til
 # ssh mappen på docker
 
-def_utledete_var <- read.csv2(file = "data-raw/def_utledete_var.txt",
+def_utledete_var <- read.csv2(file = "data-raw/def_utledete_var_20261022.txt",
                              sep = ";",
                              header = TRUE,
                              encoding = "UTF-8")

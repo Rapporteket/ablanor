@@ -1218,7 +1218,8 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
           !is.na(proms_tssendt)  # Eprom sendt
         ~ "ja",
 
-        dato_pros > nyeste_eprom_bestilling ~  "Nei: Registreringen er for ny",
+        dato_pros > nyeste_eprom_bestilling ~
+          "Nei: Registreringen er for ny",
 
         kriterie_5yr_alle %in% "ja" &
           (is.na(followup5_tscreated)| is.na(proms_tssendt))
