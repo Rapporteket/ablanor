@@ -609,11 +609,11 @@ getBaseregProsHendelseData <- function(singleRow = FALSE,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
-                                           reshId = NULL,
-                                           userRole,
-                                           fromDate = NULL,
-                                           toDate = NULL, ...){
+getBaseregProsFollowup0Data <- function(singleRow = FALSE,
+                                        reshId = NULL,
+                                        userRole,
+                                        fromDate = NULL,
+                                        toDate = NULL, ...){
 
   # 1. HENTE DATA
   d_basereg <- ablanor::getBasereg(singleRow = FALSE,
@@ -771,40 +771,48 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
 
           kriterie_basis_alle %in% "ja" &
             has_basisfollowup %in% 1 ~
-            "Ja",
+            "ja",
 
           dato_pros < as.Date("2023-11-08", format = "%Y-%m-%d") ~
-            "Nei: Før innføring av basisprom",
+            "nei: Før innføring av basisprom",
 
           kriterie_basis_alle %in% "nei" &
             is.na(has_basisfollowup) ~
-            "Nei: Mangler kriterier",
+            "nei: Mangler kriterier",
 
           kriterie_basis_alle %in% "nei" &
             has_basisfollowup %in% 1 &
             is.na(proms_status) ~
-            "Nei. Mangler kriterie (opprettet, ikke sendt)",
+            "nei. Mangler kriterie (opprettet, ikke sendt)",
 
           kriterie_basis_alle %in% "nei" &
             has_basisfollowup %in% 1 &
             ! is.na(proms_status)~
-            "Nei: Mangler kriterier, feilaktig sendt",
+            "nei: Mangler kriterier, feilaktig sendt",
 
           kriterie_basis_alle %in% "ja" &
             is.na(has_basisfollowup) ~
-            "Nei: Kriterier OK, mangler utsending (mulig etterreg./manglende sjekk av prosedyretype v. tidl. prom)",
+            "nei: Kriterier OK, mangler utsending (mulig etterreg./manglende sjekk av prosedyretype v. tidl. prom)",
 
           TRUE ~ NA_character_
         ),
-        levels = c("Ja",
-                   "Nei: Før innføring av basisprom",
-                   "Nei: Mangler kriterier",
-                   "Nei. Mangler kriterie (opprettet, ikke sendt)",
-                   "Nei: Mangler kriterier, feilaktig sendt",
-                   "Nei: Kriterier OK, mangler utsending (mulig etterreg./manglende sjekk av prosedyretype v. tidl. prom)",
+        levels = c("ja",
+                   "nei: Før innføring av basisprom",
+                   "nei: Mangler kriterier",
+                   "nei. Mangler kriterie (opprettet, ikke sendt)",
+                   "nei: Mangler kriterier, feilaktig sendt",
+                   "nei: Kriterier OK, mangler utsending (mulig etterreg./manglende sjekk av prosedyretype v. tidl. prom)",
                    NA_character_),
-        ordered  = TRUE
-      )
+        ordered  = TRUE),
+
+      eprom_besvart_basis =  dplyr::case_when(
+        eprom_datagrunnlag_basis %in% "ja" &
+          proms_status %in% 3 ~ "datagrunnlag og besvart",
+
+        eprom_datagrunnlag_basis %in% "ja" &
+          !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
+
+
     )
   if(singleRow == TRUE) {
     # Return first row only
@@ -823,11 +831,11 @@ getBaseregProsFollowup0Data_v2 <- function(singleRow = FALSE,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
-                                           reshId = NULL,
-                                           userRole,
-                                           fromDate = NULL,
-                                           toDate = NULL, ...){
+getBaseregProsFollowup1Data <- function(singleRow = FALSE,
+                                        reshId = NULL,
+                                        userRole,
+                                        fromDate = NULL,
+                                        toDate = NULL, ...){
 
 
 
@@ -997,34 +1005,41 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
           eprom_kjente_feil_1aar %in% "nei" &
           !is.na(followup1_tscreated) & # Eprom er opprettet
           !is.na(proms_tssendt)  # Eprom sendt
-        ~ "Ja",
+        ~ "ja",
 
-        dato_pros > nyeste_eprom_bestilling ~  "Nei: Registreringen er for ny",
+        dato_pros > nyeste_eprom_bestilling ~
+          "nei: Registreringen er for ny",
 
         dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
-          "Nei: Før innføring av 1års oppfølging",
+          "nei: Før innføring av 1års oppfølging",
 
         kriterie_1yr_alle %in% "ja" &
           eprom_kjente_feil_1aar %in% "nei" &
           (is.na(followup1_tscreated)| is.na(proms_tssendt))
-        ~ "Nei: Kriterier OK, mangler opprettelse/utsendelse ",
+        ~ "nei: Kriterier OK, mangler opprettelse/utsendelse ",
 
         eprom_kjente_feil_1aar %in% "teknisk problem"
-        ~ "Nei: Teknisk feil",
+        ~ "nei: Teknisk feil",
 
         kriterie_1yr_alle %in% "nei" &
           eprom_kjente_feil_1aar %in% "nei" &
           !is.na(followup1_tscreated) &
           !is.na(proms_tssendt)
-        ~ "Nei: Mangler kriterier, feilaktig sendt",
+        ~ "nei: Mangler kriterier, feilaktig sendt",
 
         kriterie_1yr_alle %in% "nei" &
           eprom_kjente_feil_1aar %in% "nei" &
           (is.na(followup1_tscreated) | is.na(proms_tssendt))
-        ~ "Nei: Mangler kriterie",
+        ~ "nei: Mangler kriterie",
 
-        TRUE ~ NA_character_
-      )
+        TRUE ~ NA_character_),
+      eprom_besvart_1aar =  dplyr::case_when(
+        eprom_datagrunnlag_1aar %in% "ja" &
+          proms_status %in% 3 ~ "datagrunnlag og besvart",
+
+        eprom_datagrunnlag_1aar %in% "ja" &
+          !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
+
     )
   if(singleRow == TRUE) {
     # Return first row only
@@ -1042,7 +1057,7 @@ getBaseregProsFollowup1Data_v2 <- function(singleRow = FALSE,
 
 #' @rdname getPrepDataAblanor
 #' @export
-getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
+getBaseregProsFollowup5Data <- function(singleRow = FALSE,
                                         reshId = NULL,
                                         userRole,
                                         fromDate = NULL,
@@ -1062,10 +1077,10 @@ getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
                              toDate = toDate)$d_pros
 
   d_prom5 <- ablanor::getProm5yr(singleRow = FALSE,
-                                            reshId = reshId,
-                                            userRole = userRole,
-                                            fromDate = NULL,
-                                            toDate = NULL)$d_prom5
+                                 reshId = reshId,
+                                 userRole = userRole,
+                                 fromDate = NULL,
+                                 toDate = NULL)$d_prom5
 
 
   d_mce <- ablanor::getMce(singleRow = FALSE,
@@ -1155,7 +1170,7 @@ getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
 
   df %<>%
     dplyr::mutate(
-      dato_followup_teoretisk_5aar = dato_pros %m+% years(5)) %>%
+      dato_followup_teoretisk_5aar = dato_pros + lubridate::years(5)) %>%
     ablanor::utlede_alder() %>%
     ablanor::utlede_aldersklasse() %>%
     dplyr::mutate(
@@ -1179,9 +1194,9 @@ getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
         yes = "ja",
         no = "nei")) %>%
     ablanor::kriterie_5yr_prom_siste_5aar(reshId = reshId,
-                                         userRole = userRole)  %>%
+                                          userRole = userRole)  %>%
     ablanor::kriterie_ingen_ny_pros_neste_5aar(reshId = reshId,
-                                              userRole = userRole) %>%
+                                               userRole = userRole) %>%
     dplyr::mutate(
       kriterie_5yr_alle = ifelse(
         test = (kriterie_5yr_midlertidig %in% "ja" &
@@ -1196,30 +1211,35 @@ getBaseregProsFollowup5Data_v2 <- function(singleRow = FALSE,
       eprom_datagrunnlag_5aar =  dplyr::case_when(
 
         dato_pros < as.Date("2020-01-01", format = "%Y-%m-%d") ~
-          "Nei: Før innføring av 5års oppfølging",
+          "nei: Før innføring av 5års oppfølging",
 
         kriterie_5yr_alle %in% "ja" &
           !is.na(followup5_tscreated) & # Eprom er opprettet
           !is.na(proms_tssendt)  # Eprom sendt
-        ~ "Ja",
+        ~ "ja",
 
         dato_pros > nyeste_eprom_bestilling ~  "Nei: Registreringen er for ny",
 
         kriterie_5yr_alle %in% "ja" &
           (is.na(followup5_tscreated)| is.na(proms_tssendt))
-        ~ "Nei: Kriterier OK, mangler opprettelse/utsendelse ",
+        ~ "nei: Kriterier OK, mangler opprettelse/utsendelse ",
 
         kriterie_5yr_alle %in% "nei" &
           !is.na(followup5_tscreated) &
           !is.na(proms_tssendt)
-        ~ "Nei: Mangler kriterier, feilaktig sendt",
+        ~ "nei: Mangler kriterier, feilaktig sendt",
 
         kriterie_5yr_alle %in% "nei" &
           (is.na(followup5_tscreated) | is.na(proms_tssendt))
-        ~ "Nei: Mangler kriterie",
+        ~ "nei: Mangler kriterie",
 
-        TRUE ~ NA_character_
-      )
+        TRUE ~ NA_character_),
+      eprom_besvart_5aar =  dplyr::case_when(
+        eprom_datagrunnlag_5aar %in% "ja" &
+          proms_status %in% 3 ~ "datagrunnlag og besvart",
+
+        eprom_datagrunnlag_5aar %in% "ja" &
+          !proms_status %in% 3 ~ "datagrunnlag, men ikke besvart")
     )
   if(singleRow == TRUE) {
     # Return first row only

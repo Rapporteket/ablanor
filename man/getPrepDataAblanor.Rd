@@ -16,9 +16,6 @@
 \alias{getBaseregProsFollowup1Data}
 \alias{getBaseregProsFollowup0Data}
 \alias{getBaseregProsFollowup5Data}
-\alias{getBaseregProsFollowup0Data_v2}
-\alias{getBaseregProsFollowup1Data_v2}
-\alias{getBaseregProsFollowup5Data_v2}
 \title{Data managment on tables}
 \usage{
 getBaseregData(
@@ -99,7 +96,7 @@ getBaseregProsHendelseData(
   ...
 )
 
-getBaseregProsFollowup0Data_v2(
+getBaseregProsFollowup0Data(
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -108,7 +105,7 @@ getBaseregProsFollowup0Data_v2(
   ...
 )
 
-getBaseregProsFollowup1Data_v2(
+getBaseregProsFollowup1Data(
   singleRow = FALSE,
   reshId = NULL,
   userRole,
@@ -117,7 +114,7 @@ getBaseregProsFollowup1Data_v2(
   ...
 )
 
-getBaseregProsFollowup5Data_v2(
+getBaseregProsFollowup5Data(
   singleRow = FALSE,
   reshId = NULL,
   userRole,
