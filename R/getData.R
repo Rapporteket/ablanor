@@ -32,7 +32,7 @@
 #' also be returned as a named list of values (see Details).
 #'
 #' @name getDataAblanor
-#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName getOperatorliste
+#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName getOperatorliste getBasisProm getProm1yr getProm5yr
 NULL
 
 
@@ -449,7 +449,7 @@ getProms <- function(singleRow,
 
 
 
-   # NOTE TO MYSELF: CENTREID is EMPTY FOR OLD > 2023-11 REGISTRATIONS
+  # NOTE TO MYSELF: CENTREID is EMPTY FOR OLD > 2023-11 REGISTRATIONS
   # NOTE: DO NOT USE DATE
   # condition <- ""
   # # national or local hospital
@@ -638,7 +638,7 @@ getPatientlist <- function(singleRow,
   #                 condition)
 
 
-   query <- "SELECT * FROM patientlist"
+  query <- "SELECT * FROM patientlist"
 
   # En eller alle rader:
   if (singleRow) {
@@ -839,12 +839,12 @@ WHERE
 
   if(newNames) {
     name <- ablanor::legg_til_sykehusnavn(
-        df = data.frame(centreid = reshId),
-        short = shortName) %>%
+      df = data.frame(centreid = reshId),
+      short = shortName) %>%
       dplyr::pull(sykehusnavn)
-    } else {
-      name <- rapbase::loadRegData("data", query)[1, ]
-    }
+  } else {
+    name <- rapbase::loadRegData("data", query)[1, ]
+  }
 
 
   if (is.na(name)) {
@@ -852,6 +852,110 @@ WHERE
   }
 
   name
+}
+
+
+
+
+
+
+#' @rdname getDataAblanor
+#' @export
+getBasisProm <- function(singleRow,
+                         reshId = NULL,
+                         userRole,
+                         fromDate = NULL,
+                         toDate = NULL, ...) {
+
+  query_basisprom <- paste0(ablanor::queryProm0(), ";")
+  query_basisrand <- paste0(ablanor::queryRand12_0(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = "msg")
+    d_basisprom <- rapbase::loadRegData("data", query_basisprom)
+    d_basisrand <- rapbase::loadRegData("data", query_basisrand)
+    # nocov end
+  } else {
+    d_basisprom <- rapbase::loadRegData("data", query_basisprom)
+    d_basisrand <- rapbase::loadRegData("data", query_basisrand)
+  }
+  list(d_basisprom = d_basisprom,
+       d_basisrand = d_basisrand)
+
+}
+
+#' @rdname getDataAblanor
+#' @export
+getProm1yr <- function(singleRow,
+                       reshId = NULL,
+                       userRole,
+                       fromDate = NULL,
+                       toDate = NULL, ...) {
+
+  query <- paste0(ablanor::queryProm1(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for 1yr followup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 1yr followup"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_prom1 <- rapbase::loadRegData("data", query)
+    # nocov end
+  } else {
+    d_prom1 <- rapbase::loadRegData("data", query)
+  }
+
+  list(d_prom1 = d_prom1)
+}
+
+
+
+#' @rdname getDataAblanor
+#' @export
+getProm5yr <- function(singleRow,
+                       reshId = NULL,
+                       userRole,
+                       fromDate = NULL,
+                       toDate = NULL, ...) {
+
+  query <- paste0(ablanor::queryProm5(), ";")
+
+  # WHERE ID = ", TODATE, fROIM DATE, reshId, ";")
+
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for 5yr followup"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for 5yr followup"
+    query <- paste0(query, ";")
+  }
+
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_prom5 <- rapbase::loadRegData("data", query)
+    # nocov end
+  } else {
+    d_prom5 <- rapbase::loadRegData("data", query)
+  }
+  list(d_prom5 = d_prom5)
 }
 
 
@@ -878,12 +982,12 @@ getOperatorliste <- function(singleRow, reshId = NULL, ...){
     # nocov start
     rapbase::repLogger(session = list(...)[["session"]], msg = msg)
     d_operator <- rapbase::loadRegData("data", query)
+    d_operator <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
     d_operator <- rapbase::loadRegData("data", query)
   }
-
   list(d_operator = d_operator)
-}
+  }
 
 

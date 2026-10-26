@@ -161,30 +161,30 @@ getPivotDataSet <- function(setId = "",
 
     if (setId == "pros_pat_followup1") {
       dat <- ablanor::getBaseregProsFollowup1Data(singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+                                                     session = session,
+                                                     reshId = reshId,
+                                                     userRole = userRole,
+                                                     fromDate = fromDate,
+                                                     toDate = toDate)
     }
 
     if (setId == "pros_pat_followup0") {
       dat <- ablanor::getBaseregProsFollowup0Data(singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+                                                     session = session,
+                                                     reshId = reshId,
+                                                     userRole = userRole,
+                                                     fromDate = fromDate,
+                                                     toDate = toDate)
     }
 
 
     if (setId == "pros_pat_followup5") {
       dat <- ablanor::getBaseregProsFollowup5Data(singleRow = singleRow,
-                                                  session = session,
-                                                  reshId = reshId,
-                                                  userRole = userRole,
-                                                  fromDate = fromDate,
-                                                  toDate = toDate)
+                                                     session = session,
+                                                     reshId = reshId,
+                                                     userRole = userRole,
+                                                     fromDate = fromDate,
+                                                     toDate = toDate)
     }
 
 
