@@ -14,24 +14,24 @@ testthat::test_that("utlede_alder() works", {
 
   #  Forventer NA dersom minst en dato mangler
   testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(is.na(.data$birth_date) | is.na(dato_pros)) %>%
-      dplyr::pull(.data$alder) %>%
+    x_out |>
+      dplyr::filter(is.na(.data$birth_date) | is.na(dato_pros)) |>
+      dplyr::pull(.data$alder) |>
       is.na()))
 
 
   #  Forventer ingen NA dersom begge datoene finnes
   testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(!is.na(.data$birth_date) & !is.na(dato_pros)) %>%
-      dplyr::pull(.data$alder) %>%
+    x_out |>
+      dplyr::filter(!is.na(.data$birth_date) & !is.na(dato_pros)) |>
+      dplyr::pull(.data$alder) |>
       is.na()  == FALSE))
 
 
   #  Forventer disse verdiene dersom ingen dato mangler:
   testthat::expect_equal(
-    x_out %>%
-      dplyr::filter(!is.na(.data$birth_date) & !is.na(dato_pros)) %>%
+    x_out |>
+      dplyr::filter(!is.na(.data$birth_date) & !is.na(dato_pros)) |>
       dplyr::pull(.data$alder),
     c(69, 69, 70, -50))
 
@@ -56,23 +56,23 @@ testthat::test_that("utlede_alder_75() works", {
 
   # Forventer NA dersom alder manglende
   testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(is.na(alder)) %>%
-      dplyr::pull(alder_75) %>%
+    x_out |>
+      dplyr::filter(is.na(alder)) |>
+      dplyr::pull(alder_75) |>
       is.na()
   ))
 
   # Forventer "<75" dersom yngre enn 75 år
   testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(alder < 75) %>%
+    x_out |>
+      dplyr::filter(alder < 75) |>
       dplyr::pull(alder_75)  == "<75"
   ))
 
   # Forventer ">=75" dersom 75 år eller eldre
   testthat::expect_true(all(
-    x_out %>%
-      dplyr::filter(alder >= 75) %>%
+    x_out |>
+      dplyr::filter(alder >= 75) |>
       dplyr::pull(alder_75)  == ">=75"
   ))
 
@@ -96,25 +96,25 @@ testthat::test_that("Aldersklasse fungerer", {
 
   # sjekk at de som skal bli NA blir det:
   testthat::expect_true(all(
-    x_out %>%
+    x_out |>
       dplyr::filter(.data$alder < 18 |
                       .data$alder > 99 |
-                      is.na(.data$alder)) %>%
-      dplyr::pull(.data$aldersklasse) %>%
+                      is.na(.data$alder)) |>
+      dplyr::pull(.data$aldersklasse) |>
       is.na()))
 
   # Sjekk at øvre/nedre grense for aldersklasse er er riktig
   testthat::expect_equal(
-    x_out %>%
-      dplyr::filter(.data$aldersklasse == "60-69") %>%
-      dplyr::pull(.data$alder) %>%
+    x_out |>
+      dplyr::filter(.data$aldersklasse == "60-69") |>
+      dplyr::pull(.data$alder) |>
       min(),
     60)
 
   testthat::expect_equal(
-    x_out %>%
-      dplyr::filter(.data$aldersklasse == "60-69") %>%
-      dplyr::pull(.data$alder) %>%
+    x_out |>
+      dplyr::filter(.data$aldersklasse == "60-69") |>
+      dplyr::pull(.data$alder) |>
       max(),
     69)
 
@@ -145,8 +145,8 @@ testthat::test_that("Utlede BMI klasse fungerer", {
   ))
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(!is.na(.data$bmi_manual)) %>%
+    df_out |>
+      dplyr::filter(!is.na(.data$bmi_manual)) |>
       dplyr::pull(bmi_manual),
     c(35.56, 27.34, 34.60, 15.43, 24.93)
   )
@@ -169,58 +169,58 @@ testthat::test_that("Utlede BMI klasse fungerer", {
 
   #  Forventer min og maks for disse klassene:
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Undervekt") %>%
-      dplyr::pull(.data$bmi_manual) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_klasse == "Undervekt") |>
+      dplyr::pull(.data$bmi_manual) |>
       min(),
     15.0)
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Undervekt") %>%
-      dplyr::pull(.data$bmi_manual) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_klasse == "Undervekt") |>
+      dplyr::pull(.data$bmi_manual) |>
       max(),
     18.4)
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Fedme grad I") %>%
-      dplyr::pull(.data$bmi_manual) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_klasse == "Fedme grad I") |>
+      dplyr::pull(.data$bmi_manual) |>
       min(),
     30.0)
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(.data$bmi_klasse == "Fedme grad I") %>%
-      dplyr::pull(.data$bmi_manual) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_klasse == "Fedme grad I") |>
+      dplyr::pull(.data$bmi_manual) |>
       max(),
     34.9)
 
   # Forventer klasse ugyldig dersom BMI har svært høy verdi
   testthat::expect_true(all(
-    df_out %>%
-      dplyr::filter(.data$bmi_manual >= 100) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_manual >= 100) |>
       dplyr::pull(.data$bmi_klasse) == "ugyldig"))
 
   # Forventer klasse NA dersom BMI mangler
   testthat::expect_true(all(
-    df_out %>%
-      dplyr::filter(is.na(.data$bmi_manual)) %>%
-      dplyr::pull(.data$bmi_klasse) %>%
+    df_out |>
+      dplyr::filter(is.na(.data$bmi_manual)) |>
+      dplyr::pull(.data$bmi_klasse) |>
       is.na()))
 
   # forventer min og max verdi for bmi_over35
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(.data$bmi_over35 == "BMI >=35") %>%
-      dplyr::pull(.data$bmi_manual) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_over35 == "BMI >=35") |>
+      dplyr::pull(.data$bmi_manual) |>
       min(),
     35.0)
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(.data$bmi_over35 == "BMI <35") %>%
-      dplyr::pull(.data$bmi_manual) %>%
+    df_out |>
+      dplyr::filter(.data$bmi_over35 == "BMI <35") |>
+      dplyr::pull(.data$bmi_manual) |>
       max(),
     34.9)
 
@@ -253,20 +253,20 @@ testthat::test_that("Utlede tidsvariabler fungerer", {
   )
 
   testthat::expect_true(
-    df_out %>%
-      dplyr::filter(is.na(.data$dato_pros)) %>%
+    df_out |>
+      dplyr::filter(is.na(.data$dato_pros)) |>
       nrow() == 2)
 
   testthat::expect_true(all(
-    df_out %>%
-      dplyr::filter(is.na(.data$dato_pros)) %>%
-      dplyr::pull(.data$maaned_prosedyre) %>%
+    df_out |>
+      dplyr::filter(is.na(.data$dato_pros)) |>
+      dplyr::pull(.data$maaned_prosedyre) |>
       is.na()))
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(!is.na(.data$dato_pros)) %>%
-      dplyr::pull(.data$maaned_prosedyre) %>%
+    df_out |>
+      dplyr::filter(!is.na(.data$dato_pros)) |>
+      dplyr::pull(.data$maaned_prosedyre) |>
       as.character(),
     c("2021-10", "2020-11", "1998-01", "2020-07"))
 
@@ -300,28 +300,28 @@ testthat::test_that("utlede_kateg_afli_aryt_i48 fungerer", {
 
   # Forventede verdier:
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 1,
-                    .data$aryt_i48_0 == 1) %>%
+                    .data$aryt_i48_0 == 1) |>
       dplyr::pull(.data$kategori_afli_aryt_i48) ==
       "AFLI-ICD 48.0 Paroksymal atrieflimmer"
   ))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 1,
                     .data$aryt_i48_1 == 1,
-                    .data$aryt_i48_1_underkat == 1) %>%
+                    .data$aryt_i48_1_underkat == 1) |>
       dplyr::pull(.data$kategori_afli_aryt_i48) ==
       "AFLI-ICD 48.1 Persisterende atrieflimmer"
   ))
 
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 1,
                     .data$aryt_i48_1 == 1,
-                    .data$aryt_i48_1_underkat == 2) %>%
+                    .data$aryt_i48_1_underkat == 2) |>
       dplyr::pull(.data$kategori_afli_aryt_i48) ==
       "AFLI-ICD 48.1 Langtidspersisterende atrieflimmer"
   ))
@@ -329,27 +329,27 @@ testthat::test_that("utlede_kateg_afli_aryt_i48 fungerer", {
 
   # Forventer NA her:
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(is.na(.data$forlopstype == 1) |
-                      .data$forlopstype != 1) %>%
-      dplyr::pull(.data$kategori_afli_aryt_i48)  %>%
+                      .data$forlopstype != 1) |>
+      dplyr::pull(.data$kategori_afli_aryt_i48)  |>
       is.na()
   ))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(
         .data$forlopstype == 1 &
           (.data$aryt_i48_0 == 0 | is.na(.data$aryt_i48_0)) &
-          (.data$aryt_i48_1 == 0 | is.na(.data$aryt_i48_1))) %>%
-      dplyr::pull(.data$kategori_afli_aryt_i48)  %>%
+          (.data$aryt_i48_1 == 0 | is.na(.data$aryt_i48_1))) |>
+      dplyr::pull(.data$kategori_afli_aryt_i48)  |>
       is.na()
   ))
 
   # Forventer 5 som er NA
   testthat::expect_equal(
-    df_out %>%
-      dplyr::filter(is.na(.data$kategori_afli_aryt_i48)) %>%
+    df_out |>
+      dplyr::filter(is.na(.data$kategori_afli_aryt_i48)) |>
       nrow(),
     5)
 
@@ -388,55 +388,55 @@ testthat::test_that("utlede kardiomyopati fungerer", {
 
   # Forventer NA her
   testthat::expect_true(all(
-    df_out %>%
-      dplyr::filter(.data$forlopstype != 2 | is.na(.data$forlopstype)) %>%
-      dplyr::pull(.data$kategori_vt_kardiomyopati) %>%
+    df_out |>
+      dplyr::filter(.data$forlopstype != 2 | is.na(.data$forlopstype)) |>
+      dplyr::pull(.data$kategori_vt_kardiomyopati) |>
       is.na())
   )
 
   # Forventer verdier:
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 2,
-                    .data$kardiomyopati == 0) %>%
+                    .data$kardiomyopati == 0) |>
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Uten kardiomyopati"))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 1,
-                    .data$type_kardiomyopati == 1) %>%
+                    .data$type_kardiomyopati == 1) |>
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Iskemisk KM (ICM)"))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 1,
-                    .data$type_kardiomyopati == 2) %>%
+                    .data$type_kardiomyopati == 2) |>
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Dilatert KM (DCM)"))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 2,
                     .data$kardiomyopati == 1,
-                    !(.data$type_kardiomyopati %in% 1:2)) %>%
+                    !(.data$type_kardiomyopati %in% 1:2)) |>
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Annen KM"))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype == 2,
-                    .data$kardiomyopati == 9) %>%
+                    .data$kardiomyopati == 9) |>
       dplyr::pull(.data$kategori_vt_kardiomyopati) ==
       "Ukjent om kardiomyopati"))
 
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::pull(.data$kategori_vt_kardiomyopati) %>%
+    df_out |>
+      dplyr::pull(.data$kategori_vt_kardiomyopati) |>
       as.character(),
 
     c(NA_character_, NA_character_, "Ukjent om kardiomyopati",
@@ -464,37 +464,36 @@ testthat::test_that("AFLI hjertesvik redusert EF", {
 
   # Forventede verdier
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype ==  1 &
                       (.data$hjertesvikt %in% 1 |
-                         .data$ejekfrak %in% 2:3)) %>%
+                         .data$ejekfrak %in% 2:3)) |>
       dplyr::pull(.data$kategori_afli_hjsvikt_ef) ==
       "AFLI-Hjertesvikt og/eller redusert EF"))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype ==  1 &
                       !(.data$hjertesvikt %in% 1 |
-                          .data$ejekfrak %in% 2:3)) %>%
+                          .data$ejekfrak %in% 2:3)) |>
       dplyr::pull(.data$kategori_afli_hjsvikt_ef) ==
       "AFLI-Verken hjertesvikt eller redusert EF"))
 
   testthat::expect_true(all(
-    df_out %>%
+    df_out |>
       dplyr::filter(.data$forlopstype !=  1 |
-                      is.na(.data$forlopstype)) %>%
-      dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
-      as.character() %>%
+                      is.na(.data$forlopstype)) |>
+      dplyr::pull(.data$kategori_afli_hjsvikt_ef) |>
+      as.character() |>
       is.na()))
 
   testthat::expect_equal(
-    df_out %>%
-      dplyr::pull(.data$kategori_afli_hjsvikt_ef) %>%
+    df_out |>
+      dplyr::pull(.data$kategori_afli_hjsvikt_ef) |>
       as.character(),
 
     c(NA_character_, NA_character_,
       rep("AFLI-Verken hjertesvikt eller redusert EF", 4),
       rep("AFLI-Hjertesvikt og/eller redusert EF", 4)))
-
 
 })

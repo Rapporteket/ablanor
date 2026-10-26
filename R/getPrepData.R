@@ -602,7 +602,9 @@ getBaseregProsHendelseData <- function(singleRow = FALSE,
       dato_adhoc,
       dato_pros,
       units = "days"
-    )))
+    ))) %>%
+    ablanor::utlede_tidsvariabler(.) %>%
+    dplyr::arrange(.data$mceid)
 
   d_ut
 }
@@ -890,7 +892,7 @@ getBaseregProsFollowup1Data <- function(singleRow = FALSE,
   # 2. VELGE VARIABLER
   d_pros %<>%
     dplyr::select(
-      mceid:dato_pros,
+      mceid:dato_pros, operator,
       redo, redo_times, narkose,
       dplyr::contains("aryt_i"),
       dplyr::contains("sys_"),
@@ -1114,7 +1116,7 @@ getBaseregProsFollowup5Data <- function(singleRow = FALSE,
   # 2. VELGE VARIABLER
   d_pros %<>%
     dplyr::select(
-      mceid:dato_pros,
+      mceid:dato_pros, operator,
       redo, redo_times, narkose,
       dplyr::contains("aryt_i"),
       dplyr::contains("sys_"),

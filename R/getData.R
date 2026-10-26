@@ -32,7 +32,7 @@
 #' also be returned as a named list of values (see Details).
 #'
 #' @name getDataAblanor
-#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName getBasisProm getProm1yr getProm5yr
+#' @aliases getBasereg getPros getMce getRand12 getFollowupBasis getFollowupOneYr getFollowupFiveYr getGkv getProms getHendelse getPatientlist getFriendlycentre getMcepatientdata getBaseregPros getLatestEntry getNameReshId getHospitalName getOperatorliste getBasisProm getProm1yr getProm5yr
 NULL
 
 
@@ -506,12 +506,12 @@ getHendelse <- function(singleRow,
   }
 
   # SQL only in defined interval, with non-missing dates.
-  condition <- paste0(" WHERE DATO_ADHOC >= '", fromDate,
+  condition <- paste0("WHERE DATO_ADHOC >= '", fromDate,
                       "' AND DATO_ADHOC <= '", toDate, "'",
-                      "AND DATO_ADHOC IS NOT NULL")
+                      " AND DATO_ADHOC IS NOT NULL")
 
   if (userRole != "SC") {
-    condition <- paste0(condition, " WHERE CENTREID = '", reshId, "'")
+    condition <- paste0(condition, " AND CENTREID = '", reshId, "'")
   }
 
 
@@ -882,8 +882,6 @@ getBasisProm <- function(singleRow,
     d_basisprom <- rapbase::loadRegData("data", query_basisprom)
     d_basisrand <- rapbase::loadRegData("data", query_basisrand)
   }
-
-
   list(d_basisprom = d_basisprom,
        d_basisrand = d_basisrand)
 
@@ -908,8 +906,6 @@ getProm1yr <- function(singleRow,
     query <- paste0(query, "\nLIMIT\n  1;")
   } else {
     msg <- "Query data for 1yr followup"
-    query <- paste0(query, ";")
-  }
 
   # ENDELIG SQL SPØRRING
   if ("session" %in% names(list(...))) {
@@ -957,6 +953,35 @@ getProm5yr <- function(singleRow,
   } else {
     d_prom5 <- rapbase::loadRegData("data", query)
   }
-
   list(d_prom5 = d_prom5)
 }
+  
+  
+#' @rdname getDataAblanor
+#' @export
+getOperatorliste <- function(singleRow, reshId = NULL, ...){
+
+  query <- paste0(
+  "SELECT ID, CENTREID, FIRSTNAME, LASTNAME, ACTIVE ",
+  "FROM operator ",
+  "WHERE CENTREID = ", reshId)
+
+  # En eller alle rader:
+  if (singleRow) {
+    msg <- "Query single row data for friendlycentre"
+    query <- paste0(query, "\nLIMIT\n  1;")
+  } else {
+    msg <- "Query data for friendlycentre"
+    query <- paste0(query, ";")
+  }
+
+    d_operator <- rapbase::loadRegData("data", query)
+    # nocov end
+  } else {
+    d_operator <- rapbase::loadRegData("data", query)
+  }
+
+  list(d_operator = d_operator)
+}
+
+

@@ -48,9 +48,16 @@ f.eks. variabletype, variabelnavn og hjelpetekst.
 
     
 ### Månedsrapporter
-Månedsrapportene inneholder en oppsummering av aktiviteten for ditt lokale
-sykehus det siste året. Du kan laste ned rapporten når det måtte ønskes, eller
+For LU/LC-brukere. 
+Månedsrapportene inneholder en oppsummering av aktiviteten ved enheten 
+det siste året. Du kan laste ned rapporten når det måtte ønskes, eller
 du kan få tilsendt rapporten automatisk per e-post (se Abonnement).
+
+* __Operatør vs. Sykehus__:  Oppsummerer nøkkeltall for registreringer i AblaNor 
+utført av innlogget operatør sammenlignet med sykehusets registreringer.
+
+* __Sykehus vs. Nasjonal__ (Kun LC-rolle): Oppsummerer nøkkeltall for 
+registreringer i AblaNor utført av sykehuset sammenlignet med nasjonale tall.
 
 
 ### Abonnement

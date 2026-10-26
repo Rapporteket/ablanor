@@ -14,6 +14,24 @@ oppdatert om flyt og datagrunnlag for 5-års prom
 * egen funksjon for å sjekke kriterie 'ingen nye prosedyrer av samme type neste år' 
 * flytte noe databehandling til SQL
 
+# ablanor 2.3.2
+Fiks av utsending fra "Abonnement"
+
+
+# ablanor 2.3.1
+Fiks av abonnement og utsending av rapporter
+
+# ablanor 2.3.0
+Månesrapport for LU-rolle som viser data som sammenligner egne registreringer
+mot sykehusets registreringer, hele siste år samt hittil i år
+
+# ablanor 2.2.3
+Abonnement-fanen vises igjen etter aå ha vært i SC
+
+# ablanor 2.2.2
+* Fjerner av fanen Abonnement for SC
+* Riktig versjon av klokeboken
+* Oppdatert komplikasjonstabell med underkategorier
 
 # ablanor 2.2.1
 Lagt til pakken forcats i Description
