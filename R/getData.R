@@ -906,6 +906,8 @@ getProm1yr <- function(singleRow,
     query <- paste0(query, "\nLIMIT\n  1;")
   } else {
     msg <- "Query data for 1yr followup"
+    query <- paste0(query, ";")
+  }
 
   # ENDELIG SQL SPØRRING
   if ("session" %in% names(list(...))) {
@@ -955,8 +957,8 @@ getProm5yr <- function(singleRow,
   }
   list(d_prom5 = d_prom5)
 }
-  
-  
+
+
 #' @rdname getDataAblanor
 #' @export
 getOperatorliste <- function(singleRow, reshId = NULL, ...){
@@ -975,13 +977,17 @@ getOperatorliste <- function(singleRow, reshId = NULL, ...){
     query <- paste0(query, ";")
   }
 
+  # ENDELIG SQL SPØRRING
+  if ("session" %in% names(list(...))) {
+    # nocov start
+    rapbase::repLogger(session = list(...)[["session"]], msg = msg)
+    d_operator <- rapbase::loadRegData("data", query)
     d_operator <- rapbase::loadRegData("data", query)
     # nocov end
   } else {
     d_operator <- rapbase::loadRegData("data", query)
   }
-
   list(d_operator = d_operator)
-}
+  }
 
 

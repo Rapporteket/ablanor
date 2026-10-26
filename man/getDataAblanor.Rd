@@ -19,10 +19,10 @@
 \alias{getLatestEntry}
 \alias{getNameReshId}
 \alias{getHospitalName}
+\alias{getOperatorliste}
 \alias{getBasisProm}
 \alias{getProm1yr}
 \alias{getProm5yr}
-\alias{getOperatorliste}
 \title{Ablanor SQL}
 \usage{
 getBasereg(
@@ -162,6 +162,7 @@ getProm5yr(
   toDate = NULL,
   ...
 )
+
 getOperatorliste(singleRow, reshId = NULL, ...)
 }
 \arguments{
