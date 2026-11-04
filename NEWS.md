@@ -1,3 +1,6 @@
+# ablanor 2.4.1
+oppdaterer klokebok etter bugfiks i ablanor
+
 # ablanor 2.4.0
 
 oppdatert om flyt og datagrunnlag for basis prom 
