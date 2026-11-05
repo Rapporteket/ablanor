@@ -20,6 +20,18 @@ app_ui <- function() {
             rapbase::navbarWidgetInput("ablanorWidget", selectOrganization = TRUE)
           )
       ),
+
+      shiny::tabPanel(
+        title = "Indikatorer",
+        shiny::sidebarPanel(
+          width = 4,
+          shiny::uiOutput(outputId = "indik_name")
+        ),
+        shiny::mainPanel(
+          shiny::plotOutput(outputId = "over_tid_plot")
+        )
+      ),
+
       shiny::navbarMenu(
         title = "Månedsrapporter",
 

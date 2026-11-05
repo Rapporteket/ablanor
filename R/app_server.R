@@ -14,7 +14,6 @@ app_server <- function(input, output, session) {
 
   # Parameters that will remain throughout the session
   registryName <- "ablanor"
-  userFullName <- Sys.getenv("FALK_USER_FULLNAME")
   mapOrgId <- ablanor::getNameReshId()
   userOperator <- "Test Operatoresen"
 
@@ -27,10 +26,15 @@ app_server <- function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Utforsker")
     shiny::removeTab(inputId = "tabs", target = "Datadump")
     shiny::removeTab(inputId = "tabs", target = "Kodebok")
+    shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::removeTab(inputId = "tabs", target = "Verktøy")
+    shiny::removeTab(inputId = "tabs", target = "Indikatorer")
+
     if (user$role() == "LC" || user$role() == "SC") {
+
       # Legg til faner for Utforsker, Kodebok og Datadump for LC og SC brukere
-      shiny::insertTab(inputId = "tabs",
+      shiny::insertTab(
+        inputId = "tabs",
         shiny::tabPanel(
           "Utforsker",
           shiny::fluidRow(
@@ -47,7 +51,9 @@ app_server <- function(input, output, session) {
         target = "Start",
         position = "after"
       )
-      shiny::insertTab(inputId = "tabs",
+
+      shiny::insertTab(
+        inputId = "tabs",
         shiny::tabPanel(
           "Kodebok",
           shiny::sidebarLayout(
@@ -58,7 +64,9 @@ app_server <- function(input, output, session) {
         target = "Utforsker",
         position = "after"
       )
-      shiny::insertTab(inputId = "tabs",
+
+      shiny::insertTab(
+        inputId = "tabs",
         shiny::tabPanel(
           title = "Datadump",
           shiny::sidebarLayout(
@@ -72,7 +80,7 @@ app_server <- function(input, output, session) {
                 weekstart = 1
               ),
               shiny::radioButtons("dumpFormat", "Velg filformat:",
-                choices = c("csv", "xlsx-csv")),
+                                  choices = c("csv", "xlsx-csv")),
               shiny::downloadButton("dumpDownload", "Hent!")
             ),
             shiny::mainPanel(
@@ -82,55 +90,84 @@ app_server <- function(input, output, session) {
         ),
         target = "Kodebok",
         position = "after")
+
+      shiny::insertTab(
+        inputId = "tabs",
+        shiny::tabPanel(
+          "Indikatorer",
+          shiny::sidebarLayout(
+            shiny::sidebarPanel(shiny::uiOutput("indikControl")),
+            shiny::mainPanel(shiny::plotOutput(outputId = "indikPlot"))
+          )
+        ),
+        target = "Start",
+        position = "before"
+      )
+
+    }
+    if (user$role() == "LC") {
+      # Legg til fane for månedlige rapporter for LC-brukere
+      shiny::insertTab(inputId = "tabs",
+                       shiny::tabPanel(
+                         "Månedsrapporter",
+                         shiny::sidebarLayout(
+                           shiny::sidebarPanel(
+                             style = "position:fixed;width:130px;",
+                             h5("Last ned rapporten (pdf)"),
+                             shiny::downloadButton("downloadReport", "Hent!"),
+                             width = 2
+                           ),
+                           shiny::mainPanel(
+                             shiny::htmlOutput("maanedligRapport", inline = TRUE)
+                           )
+                         )
+                       ),
+                       target = "Datadump",
+                       position = "after"
+      )
     }
     if (user$role() %in% c("LU", "LC")) {
       shiny::showTab(inputId = "tabs", target = "Abonnement")
-      shiny::showTab(inputId = "tabs", target = "Månedsrapporter")
-    }
-
-    if (user$role() == "LU") {
-      shiny::hideTab(inputId = "tabs", target = "Sykehus vs Nasjonal")
     }
     if (user$role() == "SC") {
       # Legg til fane for verktøy for SC-brukere
       shiny::appendTab(inputId = "tabs",
-        shiny::navbarMenu(
-          "Verktøy",
-          shiny::tabPanel(
-            "Utsending",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::autoReportFormatInput("ablanorDispatchment"),
-                rapbase::autoReportOrgInput("ablanorDispatchment"),
-                rapbase::autoReportInput("ablanorDispatchment")
-              ),
-              shiny::mainPanel(
-                rapbase::autoReportUI("ablanorDispatchment")
-              )
-            )
-          ),
-          shiny::tabPanel(
-            "Eksport",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(
-                rapbase::exportUCInput("ablanorExport")
-              ),
-              shiny::mainPanel(
-                rapbase::exportGuideUI("ablanorExportGuide")
-              )
-            )
-          ),
-          shiny::tabPanel(
-            "Bruksstatistikk",
-            shiny::sidebarLayout(
-              shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
-              shiny::mainPanel(rapbase::statsUI("ablanorStats"))
-            )
-          )
-        )
+                       shiny::navbarMenu(
+                         "Verktøy",
+                         shiny::tabPanel(
+                           "Utsending",
+                           shiny::sidebarLayout(
+                             shiny::sidebarPanel(
+                               rapbase::autoReportFormatInput("ablanorDispatchment"),
+                               rapbase::autoReportOrgInput("ablanorDispatchment"),
+                               rapbase::autoReportInput("ablanorDispatchment")
+                             ),
+                             shiny::mainPanel(
+                               rapbase::autoReportUI("ablanorDispatchment")
+                             )
+                           )
+                         ),
+                         shiny::tabPanel(
+                           "Eksport",
+                           shiny::sidebarLayout(
+                             shiny::sidebarPanel(
+                               rapbase::exportUCInput("ablanorExport")
+                             ),
+                             shiny::mainPanel(
+                               rapbase::exportGuideUI("ablanorExportGuide")
+                             )
+                           )
+                         ),
+                         shiny::tabPanel(
+                           "Bruksstatistikk",
+                           shiny::sidebarLayout(
+                             shiny::sidebarPanel(rapbase::statsInput("ablanorStats")),
+                             shiny::mainPanel(rapbase::statsUI("ablanorStats"))
+                           )
+                         )
+                       )
       )
       shiny::hideTab(inputId = "tabs", target = "Abonnement")
-      shiny::hideTab(inputId = "tabs", target = "Månedsrapporter")
     }
   })
 
@@ -179,7 +216,7 @@ app_server <- function(input, output, session) {
         outputType = "html_fragment",
         params = list(title = "empty title",
                       author = user$fullName(),
-                      hospitalName = getHospitalName(reshId = user$org(), newNames = TRUE),
+                      hospitalName = getHospitalName(user$org()),
                       tableFormat = "html",
                       reshId = user$org())
       )
@@ -421,48 +458,8 @@ app_server <- function(input, output, session) {
     }
   )
 
-  # Månedlige rapport
-
-  output$hospitalReport <- shiny::renderUI({
-    # Prosedyrer report not for LU or national user (SC).
-    if (user$role() %in% c("LU", "SC")) {
-      NULL
-    } else {
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          style = "position:fixed;width:130px;",
-          h5("Last ned rapporten (pdf)"),
-          shiny::downloadButton("downloadReportSykehus", "Hent!"),
-          width = 2
-        ),
-        shiny:: mainPanel(
-          shiny:: htmlOutput("prosedyrerSykehus", inline = TRUE)
-        )
-      )
-    }
-  })
-
-  output$operatorReport <- shiny::renderUI({
-    # Prosedyrer report not for national user (SC).
-    if (user$role() == "SC") {
-      NULL
-    } else {
-      shiny::sidebarLayout(
-        shiny::sidebarPanel(
-          style = "position:fixed;width:130px;",
-          h5("Last ned rapporten (pdf)"),
-          shiny::downloadButton("downloadReportOperator", "Hent!"),
-          width = 2
-        ),
-        shiny:: mainPanel(
-          shiny:: htmlOutput("prosedyrerOperator", inline = TRUE)
-        )
-      )
-    }
-  })
-
-
-  output$prosedyrerSykehus <- shiny::renderUI({
+  # Månedlig rapport
+  output$maanedligRapport <- shiny::renderUI({
     rapbase::renderRmd(
       system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
       outputType = "html_fragment",
@@ -473,34 +470,14 @@ app_server <- function(input, output, session) {
         reshId = user$org(),
         registryName = registryName,
         userRole = user$role(),
-        userFullName = userFullName,
         userOperator = userOperator
       )
     )
   })
 
-  output$prosedyrerOperator <- shiny::renderUI({
-    rapbase::renderRmd(
-      system.file("AblaNor_operator_vs_local_monthly.Rmd",
-                  package = "ablanor"),
-      outputType = "html_fragment",
-      params = list(
-        author = user$fullName(),
-        hospitalName = ablanor::getHospitalName(user$org()),
-        tableFormat = "html",
-        reshId = user$org(),
-        registryName = registryName,
-        userRole = user$role(),
-        userFullName = userFullName,
-        userOperator = userOperator
-      )
-    )
-  })
-
-
-  output$downloadReportSykehus <- shiny::downloadHandler(
+  output$downloadReport <- shiny::downloadHandler(
     filename = function() {
-      basename(tempfile(pattern = "AblaNor_local_vs_national_monthly",
+      basename(tempfile(pattern = "AblaNor_local_monthly",
                         fileext = paste0(".", "pdf")))
     },
     content = function(file) {
@@ -508,38 +485,12 @@ app_server <- function(input, output, session) {
         system.file("AblaNor_local_monthly.Rmd", package = "ablanor"),
         outputType = "pdf",
         params = list(
-          author = user$fullName,
-          hospitalName = getHospitalName(user$org()),
-          tableFormat = "pdf",
-          reshId = user$org(),
-          registryName = registryName,
-          userFullName = userFullName,
-          userRole = user$role(),
-          userOperator = userOperator
-        )
-      )
-      file.rename(fn, file)
-    }
-  )
-
-
-  output$downloadReportOperator <- shiny::downloadHandler(
-    filename = function() {
-      basename(tempfile(pattern = "AblaNor_operator_vs_local_monthly",
-                        fileext = paste0(".", "pdf")))
-    },
-    content = function(file) {
-      fn <- rapbase::renderRmd(
-        system.file("AblaNor_operator_vs_local_monthly.Rmd",
-                    package = "ablanor"),
-        outputType = "pdf",
-        params = list(
           author = user$fullName(),
           hospitalName = getHospitalName(user$org()),
           tableFormat = "pdf",
           reshId = user$org(),
           registryName = registryName,
-          userFullName = userFullName,
+          userFullName = user$fullName(),
           userRole = user$role(),
           userOperator = userOperator
         )
@@ -548,94 +499,69 @@ app_server <- function(input, output, session) {
     }
   )
 
-
-  # Abonnement
 
   # Values shared among subscriptions and dispatchment
   orgs <- ablanor::getNameReshId(asNamedList = TRUE,
                                  shortName = FALSE,
                                  newNames = TRUE)
 
-
-  subReports <- shiny::reactiveVal(
-    list()
-  )
-
-
-  shiny::observeEvent(list(user$org(), user$role()), {
-    subReports(list(
-      "Månedlige resultater: Operatør vs. Sykehus" = list(
-        synopsis = paste0("AblaNor - ",
-                          "Egne registreringer opp mot ",
-                          "sykehusets registreringer"),
-        fun = "reportProcessor",
-        paramNames = c("report",
-                       "outputType",
-                       "title",
-                       "orgId",
-                       "userFullName"),
-        paramValues = c("AblaNor_operator_vs_local_monthly",
-                        "pdf",
-                        "Månedsresultater",
-                        999999,
-                        "userFullName")
-      )
-    ))
-
-    if (user$role() == "LC") {
-      subReportsSykehus <- list(
-        "Månedlige resultater: Sykehus vs. Nasjonal" = list(
-          synopsis = paste0("AblaNor - ",
-                            "Eget sykehus mot nasjonale resultater"),
-          fun = "reportProcessor",
-          paramNames = c("report",
-                         "outputType",
-                         "title",
-                         "orgId",
-                         "userFullName"),
-          paramValues = c("AblaNor_local_monthly",
-                          "pdf",
-                          "Månedsresultater",
-                          999999,
-                          "userFullName")
-        )
-      )
-      subReports(c(subReports(), subReportsSykehus))
-    }
-  })
+  # Abonnement
 
   subParamNames <- shiny::reactive(c(
     "orgId",
     "orgName",
     "userFullName",
-    "userRole",
-    "registryName",
-    "tableFormat"
+    "userRole"
   ))
   subParamValues <- shiny::reactive(c(
     user$org(),
     user$orgName(),
     user$fullName(),
-    user$role(),
-    registryName,
-    "latex"
+    user$role()
   ))
 
-
-  ## serve subscriptions (Abonnement)
   rapbase::autoReportServer(
     id = "ablanorSubscription",
     registryName = "ablanor",
     type = "subscription",
-    org = org$value,
     paramNames = subParamNames,
     paramValues = subParamValues,
-    reports = subReports,
+    reports = list(
+      "Veiledning" = list(
+        synopsis = "Veiledningsteksten for testformål",
+        fun = "reportProcessor",
+        paramNames = c("report",
+                       "outputType",
+                       "title",
+                       "orgId",
+                       "orgName"),
+        paramValues =c("veiledning",
+                       "pdf",
+                       "Veiledning",
+                       9999999,
+                       "orgname")
+      ),
+      "Månedlige resultater" = list(
+        synopsis = "Månedlige resultater sykehus/avdeling",
+        fun = "reportProcessor",
+        paramNames = c("report",
+                       "outputType",
+                       "title",
+                       "orgId",
+                       "orgName",
+                       "userFullName",
+                       "userRole"),
+        paramValues = c("local_monthly",
+                        "pdf",
+                        "Månedsresultater",
+                        999999,
+                        "orgname",
+                        "user fullName",
+                        "userrole")
+      )
+    ),
     orgs = orgs,
-    user = user,
-    runAutoReportButton = (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC",
-                                                               "DEV",
-                                                               "TEST"))
+    user = user
   )
 
   # Utsendelse
@@ -662,27 +588,23 @@ app_server <- function(input, output, session) {
     paramNames = disParamNames,
     paramValues = disParamValues,
     reports = list(
-      "Månedlige resultater: Sykehus vs. Nasjonal" = list(
-        synopsis = paste0("AblaNor - ",
-                          "Eget sykehus mot nasjonale resultater"),
+      "Månedlige resultater" = list(
+        synopsis = "AblaNor månedlige resultater sykehus/avdeling",
         fun = "reportProcessor",
         paramNames = c("report",
                        "outputType",
                        "title",
                        "orgId",
                        "userFullName"),
-        paramValues = c("AblaNor_local_monthly",
+        paramValues = c("local_monthly",
                         "pdf",
                         "Månedsresultater",
                         999999,
-                        "userFullName")
+                        "Full Name")
       )
     ),
     orgs = orgs,
-    user = user,
-    runAutoReportButton = (Sys.getenv("R_RAP_INSTANCE") %in% c("QAC",
-                                                               "DEV",
-                                                               "TEST"))
+    user = user
   )
 
 
@@ -696,4 +618,14 @@ app_server <- function(input, output, session) {
     registryName,
     app_id = Sys.getenv("FALK_APP_ID")
   )
+
+  # Indikatorer over tid
+  output$indikPlot <- shiny::renderPlot({
+    # shiny::req(input$unitName, input$ind_id, cancelOutput = TRUE)
+    # shiny::req(nrow(selected_spc_data_reactive()) > 0, cancelOutput = TRUE)
+    ablanor::plotSPC( reshId = user$org(),
+                       userRole = user$role(),
+                      fromDate = NULL, toDate = NULL)
+  })
+
 }
