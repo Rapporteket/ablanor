@@ -73,11 +73,12 @@ app_server <- function(input, output, session) {
             shiny::sidebarPanel(
               width = 4,
               shiny::uiOutput(outputId = "selectDumpSet"),
-              shiny::dateRangeInput(
-                "dumpDateRange", "Velg periode:",
-                start = lubridate::ymd(Sys.Date()) - lubridate::years(1),
-                end = Sys.Date(), separator = "-",
-                weekstart = 1
+              shiny::dateRangeInput(inputId = "dumpDateRange",
+                                    label = "Velg periode:",
+                                    start = lubridate::ymd(Sys.Date()) - lubridate::years(1),
+                                    end = Sys.Date(),
+                                    separator = "-",
+                                    weekstart = 1
               ),
               shiny::radioButtons("dumpFormat", "Velg filformat:",
                                   choices = c("csv", "xlsx-csv")),
@@ -96,7 +97,11 @@ app_server <- function(input, output, session) {
         shiny::tabPanel(
           "Indikatorer",
           shiny::sidebarLayout(
-            shiny::sidebarPanel(shiny::uiOutput("indikControl")),
+            shiny::sidebarPanel(
+              shiny::uiOutput("indikControl"),
+              shiny::uiOutput("indikControlYlim")
+            ),
+
             shiny::mainPanel(shiny::plotOutput(outputId = "indikPlot"))
           )
         ),
@@ -620,12 +625,54 @@ app_server <- function(input, output, session) {
   )
 
   # Indikatorer over tid
-  output$indikPlot <- shiny::renderPlot({
-    # shiny::req(input$unitName, input$ind_id, cancelOutput = TRUE)
-    # shiny::req(nrow(selected_spc_data_reactive()) > 0, cancelOutput = TRUE)
-    ablanor::plotSPC( reshId = user$org(),
-                       userRole = user$role(),
-                      fromDate = NULL, toDate = NULL)
+
+  output$indikatorer <- shiny::renderUI({
+
+    shiny::sidebarLayout(
+      shiny::sidebarPanel(
+        shiny::uiOutput("indikControl"), width = 2),
+
+      shiny::mainPanel(shiny::htmlOutput("indikPlot"))
+    )
   })
+
+
+
+  # Innhold kontrollpanel indikatorer
+  plotList <- shiny::reactive({
+    c("alder_chadsva", "tamponade", "pacemakerbehov")
+  })
+
+  output$indikControl <- shiny::renderUI({
+    shiny::selectInput(inputId = "plotSet",
+                       label = "Velg plot:",
+                       choices = plotList(),
+                       selected = "alder_chadsva")
+  })
+
+  output$indikControlYlim <- shiny::renderUI({
+    shiny::sliderInput(inputId = "plotYlim",
+                       label = "Velg y-akse:",
+                       min = 0,
+                       max = 1,
+                       value = c(0, 1), step = 0.1,
+                       dragRange = TRUE)
+  })
+
+
+
+
+
+  # Innhold plot indikatorer
+  output$indikPlot <- shiny::renderPlot({
+    ablanor::plotSPC(valg_figur = input$plotSet,
+                     coord_ymin = input$plotYlim[1],
+                     coord_ymax = input$plotYlim[2],
+                     reshId = user$org(),
+                     userRole = user$role(),
+                     fromDate = NULL,
+                     toDate = NULL)
+  })
+
 
 }

@@ -10,7 +10,9 @@ plotSPC(
   userRole,
   fromDate,
   toDate,
-  valg_figur = "alder_chadsva"
+  valg_figur = "alder_chadsva",
+  coord_ymin = 0,
+  coord_ymax = 1
 )
 }
 \arguments{
