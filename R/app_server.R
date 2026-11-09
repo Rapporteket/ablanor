@@ -98,8 +98,10 @@ app_server <- function(input, output, session) {
           "Indikatorer",
           shiny::sidebarLayout(
             shiny::sidebarPanel(
-              shiny::uiOutput("indikControl"),
-              shiny::uiOutput("indikControlYlim")
+              shiny::uiOutput("indikControlPlot"),
+              shiny::uiOutput("indikControlYlim"),
+              shiny::uiOutput("indikControlDateRange")
+
             ),
 
             shiny::mainPanel(shiny::plotOutput(outputId = "indikPlot"))
@@ -108,7 +110,6 @@ app_server <- function(input, output, session) {
         target = "Start",
         position = "before"
       )
-
     }
     if (user$role() == "LC") {
       # Legg til fane for månedlige rapporter for LC-brukere
@@ -643,7 +644,7 @@ app_server <- function(input, output, session) {
     c("alder_chadsva", "tamponade", "pacemakerbehov")
   })
 
-  output$indikControl <- shiny::renderUI({
+  output$indikControlPlot <- shiny::renderUI({
     shiny::selectInput(inputId = "plotSet",
                        label = "Velg plot:",
                        choices = plotList(),
@@ -659,9 +660,14 @@ app_server <- function(input, output, session) {
                        dragRange = TRUE)
   })
 
-
-
-
+  output$indikControlDateRange <- shiny::renderUI({
+    shiny::dateRangeInput(inputId = "plotDateRange",
+                          label = "Velg periode:",
+                          start = lubridate::ymd(Sys.Date()) - lubridate::years(1),
+                          end = Sys.Date(),
+                          separator = "-",
+                          weekstart = 1)
+  })
 
   # Innhold plot indikatorer
   output$indikPlot <- shiny::renderPlot({
@@ -670,8 +676,8 @@ app_server <- function(input, output, session) {
                      coord_ymax = input$plotYlim[2],
                      reshId = user$org(),
                      userRole = user$role(),
-                     fromDate = NULL,
-                     toDate = NULL)
+                     fromDate = input$plotDateRange[1],
+                     toDate = input$plotDateRange[2])
   })
 
 
