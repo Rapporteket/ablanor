@@ -28,16 +28,15 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
 
   if(maaned_aar == "aar_prosedyre"){
     timeTable <- data.frame(
-      aar_prosedyre = as.ordered(lubridate::year(fromDate):lubridate::year(toDate))
-    )
-
-  }else{
+      aar_prosedyre = as.ordered(lubridate::year(fromDate):lubridate::year(toDate)))
+  }
+  if(maaned_aar == "maaned_prosedyre"){
     timeTable <- data.frame(
       monthDato = seq(fromDate,
                       toDate,
                       by = "month")) %>%
       dplyr::transmute(maaned_prosedyre = as.factor(format(x = .data$monthDato,
-                                                 format = "%Y-%m"))) %>%
+                                                           format = "%Y-%m"))) %>%
       dplyr::mutate(maaned_prosedyre = as.ordered(maaned_prosedyre))
   }
 
@@ -56,6 +55,8 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
         dplyr::transmute(
           x = aar_prosedyre,
           y = pros_varighet)
+      chart_title = "Prosedyrevarighet"
+      chart_subtitle = "Boxplot for prosedyrevarighet (sekunder) per år"
     }
     if(maaned_aar == "maaned_prosedyre"){
       dat_varighet <- dplyr::left_join(
@@ -68,57 +69,89 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
         dplyr::transmute(
           x = maaned_prosedyre,
           y = pros_varighet)
+      chart_title = "Prosedyrevarighet"
+      chart_subtitle = "Boxplot for prosedyrevarighet (sekunder) per måned"
     }
-
-
 
     p1 <-  ggplot2::ggplot(data = dat_varighet,
                            mapping= ggplot2::aes(x = x,
                                                  y = y)) +
-      ggplot2::geom_boxplot(na.rm = TRUE) +
-      # ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) +
-      ggplot2::theme_minimal()  +
-      ggplot2::xlab("") +
-      ggplot2::ylab("Prosedyrevarighet") +
-      ggplot2::theme(
-        legend.text = ggplot2::element_text(size = 12),
-        axis.text = ggplot2::element_text(size = 12),
-        axis.title = ggplot2::element_text(size = 12)
-      )
+      ggplot2::geom_boxplot(na.rm = TRUE)
+
   }
 
   if(valg_figur %in% c("tamponade", "pacemakerbehov")){
     if(valg_figur == "tamponade"){
-      indik_dat <- dat |>
-        dplyr::select(indik_tamp_data, indik_tamp, maaned_prosedyre, aar_prosedyre) |>
-        dplyr::filter(indik_tamp_data == "ja",
-                      indik_tamp %in% c("ja", "nei")) |>
-        janitor::tabyl(aar_prosedyre, indik_tamp, show_missing_levels = TRUE) %>%
-        dplyr::transmute(
-          x = aar_prosedyre,
-          y = ja/(ja + nei))
       chart_title = "Tamponade"
-      chart_subtitle = "Andel pasienter med tamponade per år"
+
+      if(maaned_aar == "aar_prosedyre") {
+        chart_subtitle = "Andel pasienter med tamponade per år"
+        indik_dat <- dplyr::left_join(
+          x = timeTable,
+          y = dat |>
+            dplyr::select(indik_tamp_data, indik_tamp, aar_prosedyre) |>
+            dplyr::filter(indik_tamp_data == "ja",
+                          indik_tamp %in% c("ja", "nei")) |>
+            janitor::tabyl(aar_prosedyre, indik_tamp, show_missing_levels = TRUE),
+          by = "aar_prosedyre") |>
+          dplyr::transmute(
+            x = aar_prosedyre,
+            y = ja/(ja + nei))
+      }
+      if(maaned_aar == "maaned_prosedyre") {
+        chart_subtitle = "Andel pasienter med tamponade per måned"
+        indik_dat <- dplyr::left_join(
+          x = timeTable,
+          y = dat |>
+            dplyr::select(indik_tamp_data, indik_tamp, maaned_prosedyre) |>
+            dplyr::filter(indik_tamp_data == "ja",
+                          indik_tamp %in% c("ja", "nei")) |>
+            janitor::tabyl(maaned_prosedyre, indik_tamp, show_missing_levels = TRUE),
+          by = "maaned_prosedyre") |>
+          dplyr::transmute(
+            x = maaned_prosedyre,
+            y = ja/(ja + nei))
+      }
     }
 
     if(valg_figur == "pacemakerbehov"){
-      indik_dat <- dat |>
-        dplyr::select(indik_pacemaker_data, indik_pacemaker, maaned_prosedyre, aar_prosedyre) |>
-        dplyr::filter(indik_pacemaker_data == "ja",
-                      indik_pacemaker %in% c("ja", "nei")) |>
-        janitor::tabyl(aar_prosedyre, indik_pacemaker, show_missing_levels = TRUE) %>%
-        dplyr::transmute(
-          x = aar_prosedyre,
-          y = ja/(ja + nei))
       chart_title = "Pacemakerbehov"
-      chart_subtitle = "Andel pasienter med pacemakerbehov per år"
+      if(maaned_aar == "aar_prosedyre"){
+        indik_dat <- dplyr::left_join(
+          x = timeTable,
+          y = dat |>
+            dplyr::select(indik_pacemaker_data, indik_pacemaker, maaned_prosedyre, aar_prosedyre) |>
+            dplyr::filter(indik_pacemaker_data == "ja",
+                          indik_pacemaker %in% c("ja", "nei")) |>
+            janitor::tabyl(aar_prosedyre, indik_pacemaker, show_missing_levels = TRUE),
+          by = "aar_prosedyre") |>
+          dplyr::transmute(
+            x = aar_prosedyre,
+            y = ja/(ja + nei))
+
+        chart_subtitle = "Andel pasienter med pacemakerbehov per år"
+      }
+      if(maaned_aar == "maaned_prosedyre") {
+        indik_dat <- dplyr::left_join(
+          x = timeTable,
+          y = dat |>
+            dplyr::select(indik_pacemaker_data, indik_pacemaker, maaned_prosedyre) |>
+            dplyr::filter(indik_pacemaker_data == "ja",
+                          indik_pacemaker %in% c("ja", "nei")) |>
+            janitor::tabyl(maaned_prosedyre, indik_pacemaker, show_missing_levels = TRUE),
+          by = "maaned_prosedyre") |>
+          dplyr::transmute(
+            x = maaned_prosedyre,
+            y = ja/(ja + nei))
+        chart_subtitle = "Andel pasienter med pacemakerbehov per måned"
+      }
     }
+
 
     p1 <- ggplot2::ggplot(data = indik_dat,
                           ggplot2::aes(x = x, y = y, group = 1)) +
       ggplot2::geom_point() +
       ggplot2::geom_line() +
-      ggplot2::scale_x_discrete(name = "År") +
       ggplot2::coord_cartesian(ylim = c(coord_ymin, coord_ymax)) +
       ggplot2::scale_y_continuous(name = "",
                                   breaks = seq(from=coord_ymin,
@@ -126,11 +159,18 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
                                                length.out = 6),
                                   labels = paste0(seq(from=coord_ymin,
                                                       to =coord_ymax,
-                                                      length.out = 6)*100, "%")) +
-      ggplot2::theme_minimal() +
-      ggplot2::labs(title = chart_title,
-                    subtitle = chart_subtitle)
-  }
+                                                      length.out = 6)*100, "%"))
 
-  return(p1)
+
+  }
+  return(p1 +
+           ggplot2::scale_x_discrete(name = "", drop = FALSE) +
+           ggplot2::theme(
+             legend.text = ggplot2::element_text(size = 12),
+             axis.text = ggplot2::element_text(size = 12),
+             axis.title = ggplot2::element_text(size = 12)) +
+           ggplot2::theme_minimal() +
+           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5, hjust = 1)) +
+           ggplot2::labs(title = chart_title,
+                         subtitle = chart_subtitle))
 }
