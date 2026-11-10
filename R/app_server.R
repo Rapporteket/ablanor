@@ -100,7 +100,8 @@ app_server <- function(input, output, session) {
             shiny::sidebarPanel(
               shiny::uiOutput("indikControlPlot"),
               shiny::uiOutput("indikControlYlim"),
-              shiny::uiOutput("indikControlDateRange")
+              shiny::uiOutput("indikControlDateRange"),
+              shiny::uiOutput("indikControlYearMonth")
 
             ),
 
@@ -661,19 +662,30 @@ app_server <- function(input, output, session) {
   })
 
   output$indikControlDateRange <- shiny::renderUI({
-    shiny::dateRangeInput(inputId = "plotDateRange",
-                          label = "Velg periode:",
-                          start = lubridate::ymd(Sys.Date()) - lubridate::years(1),
-                          end = Sys.Date(),
-                          separator = "-",
-                          weekstart = 1)
+    shiny::sliderInput(
+      inputId = "plotDateRange",
+      label = "Velg periode:",
+      min = as.Date("2019-01-01", format ="%Y-%m-%d" ),
+      max = Sys.Date(),
+      value   = c(lubridate::ymd(Sys.Date()) - lubridate::years(3),
+                  Sys.Date()),
+      timeFormat = "%b-%y")
   })
 
+
+  output$indikControlYearMonth <- shiny::renderUI({
+    shiny::radioButtons(
+      inputId = "plotYearMonth",
+      label = "Vis på x-aksen",
+      choices = c("aar_prosedyre", "maaned_prosedyre"),
+      selected = "aar_prosedyre")
+  })
   # Innhold plot indikatorer
   output$indikPlot <- shiny::renderPlot({
     ablanor::plotSPC(valg_figur = input$plotSet,
                      coord_ymin = input$plotYlim[1],
                      coord_ymax = input$plotYlim[2],
+                     maaned_aar = input$plotYearMonth,
                      reshId = user$org(),
                      userRole = user$role(),
                      fromDate = input$plotDateRange[1],

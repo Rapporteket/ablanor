@@ -16,8 +16,8 @@
 #' @return Et ggplot-objekt med SPC-diagram for valgt indikator.
 #' @export
 plotSPC <- function(session, reshId, userRole, fromDate, toDate,
-                    valg_figur = "alder_chadsva",coord_ymin = 0,
-                    coord_ymax = 1) {
+                    valg_figur = "alder_chadsva", coord_ymin = 0,
+                    coord_ymax = 1, maaned_aar = "aar_prosedyre") {
 
 
   dat <- ablanor::getBaseregProsData(singleRow = FALSE,
@@ -27,32 +27,68 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
                                      fromDate = fromDate,
                                      toDate = toDate)
 
-  if(valg_figur == "alder_chadsva"){
-   plot(dat$alder, dat$CHA2DS2VASc)
+  if(maaned_aar == "aar_prosedyre"){
+    timeTable <- data.frame(
+      aar_prosedyre = lubridate::year(fromDate):lubridate::year(toDate)
+    )
+  }else{
+    timeTable <-data.frame(
+      monthDato = seq(fromDate, toDate, by = "month")) %>%
+      dplyr::transmute(maaned_prosedyre = as.factor(format(x = monthDato,
+                                                           format = "%Y-%m")))
   }
+
+
+  if(valg_figur == "alder_chadsva"){
+    if(maaned_aar == "aar_prosedyre"){
+      dat_box <-  dat %>%
+        dplyr::filter(!is.na(aar_prosedyre),
+                      !is.na(CHA2DS2VASc)) %>%
+        dplyr::transmute(x= aar_prosedyre,
+                         y = CHA2DS2VASc)
+    } else{
+      dat_box <- dat %>%
+        dplyr::filter(!is.na(maaned_prosedyre),
+                      !is.na(CHA2DS2VASc)) %>%
+        dplyr::transmute(x= maaned_prosedyre,
+                         y = CHA2DS2VASc)
+    }
+    dat_box |> ggplot2::ggplot(mapping= ggplot2::aes(x = x,
+                                                     y = y)) +
+      ggplot2::geom_boxplot(
+        na.rm = TRUE)+
+      # ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) +
+      ggplot2::theme_minimal()  +
+      ggplot2::xlab("") +
+      ggplot2::ylab("CHA2DS2VASc") +
+      ggplot2::theme(
+        legend.text = ggplot2::element_text(size = 12),
+        axis.text = ggplot2::element_text(size = 12),
+        axis.title = ggplot2::element_text(size = 12)
+      )
+  }
+
   if(valg_figur %in% c("tamponade", "pacemakerbehov")){
     if(valg_figur == "tamponade"){
       indik_dat <- dat |>
         dplyr::select(indik_tamp_data, indik_tamp, maaned_prosedyre, aar_prosedyre) |>
         dplyr::filter(indik_tamp_data == "ja",
                       indik_tamp %in% c("ja", "nei")) |>
-        dplyr::count(aar_prosedyre, indik_tamp ) %>%
-        tidyr::pivot_wider(names_from = indik_tamp, values_from = n, values_fill =  0) %>%
+        janitor::tabyl(aar_prosedyre, indik_tamp, show_missing_levels = TRUE) %>%
         dplyr::transmute(
           x = aar_prosedyre,
           y = ja/(ja + nei))
       chart_title = "Tamponade"
       chart_subtitle = "Andel pasienter med tamponade per år"
 
-      }
+    }
 
     if(valg_figur == "pacemakerbehov"){
       indik_dat <- dat |>
         dplyr::select(indik_pacemaker_data, indik_pacemaker, maaned_prosedyre, aar_prosedyre) |>
         dplyr::filter(indik_pacemaker_data == "ja",
                       indik_pacemaker %in% c("ja", "nei")) |>
-        dplyr::count(aar_prosedyre, indik_pacemaker ) %>%
-        tidyr::pivot_wider(names_from = indik_pacemaker, values_from = n, values_fill =  0) %>%
+        janitor::tabyl(aar_prosedyre, indik_pacemaker, show_missing_levels = TRUE) %>%
         dplyr::transmute(
           x = aar_prosedyre,
           y = ja/(ja + nei))
