@@ -105,6 +105,7 @@ app_server <- function(input, output, session) {
               shiny::sidebarLayout(
                 shiny::sidebarPanel(
                   width = 3,
+                  style = "margin-top: 25px;",
                   shiny::uiOutput("indikControlPlot"),
                   br(),
                   shiny::uiOutput("indikControlYlim"),
@@ -115,8 +116,8 @@ app_server <- function(input, output, session) {
                 ),
                 shiny::mainPanel(
                   width = 9,
+                  br(),
                   shinycssloaders::withSpinner(
-                    br(),
                     shiny::plotOutput(outputId = "indikPlot"))
                 )
               )

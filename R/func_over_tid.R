@@ -78,8 +78,11 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
                                                  y = y)) +
       ggplot2::geom_boxplot(fill = "#3A7BD5",
                             alpha = 0.85,
-                            width = 0.75,
-                            color = "white",
+                            width = 0.6,
+                            color = "#6c757d",
+                            outlier.color = "#6c757d",
+                            outlier.shape = 16,
+                            outlier.size = 2,
                             na.rm = TRUE)
 
   }
@@ -169,15 +172,28 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
   }
   return(p1 +
            ggplot2::theme_minimal(base_size = 14) +
-           ggplot2::theme_minimal(base_size = 14) +
            ggplot2::theme(
-             legend.text = ggplot2::element_text(size = 12),
+             legend.text = ggplot2::element_blank(),
              axis.text = ggplot2::element_text(size = 12),
              axis.title = ggplot2::element_text(size = 12),
-             axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5,
+             axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5,
                                                  hjust = 1, color = "#495057",
                                                  face = "bold"),
-             axis.text.y = ggplot2::element_text(color = "#495057")) +
+             axis.text.y = ggplot2::element_text(color = "#495057"),
+             axis.title.x = ggplot2::element_blank(),
+             axis.title.y = ggplot2::element_blank(),
+             plot.title = ggplot2::element_text(face = "bold",
+                                                size = 16,
+                                                color = "#212529",
+                                                hjust = 0),
+             plot.subtitle = ggplot2::element_text(size = 12,
+                                                   color = "#6c757d",
+                                                   margin = ggplot2::margin(b = 20)),
+             panel.background = ggplot2::element_blank(),
+             plot.background = ggplot2::element_blank(),
+             plot.margin = ggplot2::margin(t = 10, r = 10, b = 35, l = 10, unit = "pt")
+
+             ) +
            ggplot2::labs(title = chart_title,
                          subtitle = chart_subtitle)
   )
