@@ -95,18 +95,37 @@ app_server <- function(input, output, session) {
       shiny::insertTab(
         inputId = "tabs",
         shiny::tabPanel(
-          "Dashbord",
-          shiny::sidebarLayout(
-            shiny::sidebarPanel(
-              shiny::uiOutput("indikControlPlot"),
-              shiny::uiOutput("indikControlYlim"),
-              shiny::uiOutput("indikControlDateRange"),
-              shiny::uiOutput("indikControlYearMonth")
+          title = "Dashbord",
+          width = 3,
+          shiny::tabsetPanel(
+            shiny::tabPanel(title = "Antall prosedyrer"),
 
+            shiny::tabPanel(
+              title = "Kvalitetsindikatorer over tid",
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(
+                  width = 3,
+                  shiny::uiOutput("indikControlPlot"),
+                  br(),
+                  shiny::uiOutput("indikControlYlim"),
+                  br(),
+                  shiny::uiOutput("indikControlDateRange"),
+                  br(),
+                  shiny::uiOutput("indikControlYearMonth")
+                ),
+                shiny::mainPanel(
+                  width = 9,
+                  shinycssloaders::withSpinner(
+                    br(),
+                    shiny::plotOutput(outputId = "indikPlot"))
+                )
+              )
             ),
 
-            shiny::mainPanel(shiny::plotOutput(outputId = "indikPlot"))
+            shiny::tabPanel(title = "tab3", "This panel is intentionally left blank")
           )
+          # )
+          # )
         ),
         target = "Start",
         position = "before"
@@ -682,12 +701,13 @@ app_server <- function(input, output, session) {
   })
   # Innhold plot Dashbord
   output$indikPlot <- shiny::renderPlot({
-    req(input$plotYearMonth)
-    req(input$plotSet)
-    req(input$plotYlim[1])
-    req(input$plotYlim[2])
-    # req(input$plotDateRange[1])
-    # req(input$plotDateRange[2])
+    req(input$plotYearMonth,
+        input$plotSet,
+        input$plotYlim[1],
+        input$plotYlim[2],
+        input$plotDateRange[1],
+        input$plotDateRange[2])
+
     ablanor::plotSPC(valg_figur = input$plotSet,
                      coord_ymin = input$plotYlim[1],
                      coord_ymax = input$plotYlim[2],

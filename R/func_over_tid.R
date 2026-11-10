@@ -76,7 +76,11 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
     p1 <-  ggplot2::ggplot(data = dat_varighet,
                            mapping= ggplot2::aes(x = x,
                                                  y = y)) +
-      ggplot2::geom_boxplot(na.rm = TRUE)
+      ggplot2::geom_boxplot(fill = "#3A7BD5",
+                            alpha = 0.85,
+                            width = 0.75,
+                            color = "white",
+                            na.rm = TRUE)
 
   }
 
@@ -150,8 +154,8 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
 
     p1 <- ggplot2::ggplot(data = indik_dat,
                           ggplot2::aes(x = x, y = y, group = 1)) +
-      ggplot2::geom_point() +
-      ggplot2::geom_line() +
+      ggplot2::geom_point(size = 2, colour = "#3A7BD5" ) +
+      ggplot2::geom_line(linewidth = 1.5, colour ="#3A7BD5") +
       ggplot2::coord_cartesian(ylim = c(coord_ymin, coord_ymax)) +
       ggplot2::scale_y_continuous(name = "",
                                   breaks = seq(from=coord_ymin,
@@ -164,13 +168,19 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
 
   }
   return(p1 +
-           ggplot2::scale_x_discrete(name = "", drop = FALSE) +
+           ggplot2::theme_minimal(base_size = 14) +
+           ggplot2::theme_minimal(base_size = 14) +
            ggplot2::theme(
              legend.text = ggplot2::element_text(size = 12),
              axis.text = ggplot2::element_text(size = 12),
-             axis.title = ggplot2::element_text(size = 12)) +
-           ggplot2::theme_minimal() +
-           ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 0.5, hjust = 1)) +
+             axis.title = ggplot2::element_text(size = 12),
+             axis.text.x = ggplot2::element_text(angle = 90, vjust = 0.5,
+                                                 hjust = 1, color = "#495057",
+                                                 face = "bold"),
+             axis.text.y = ggplot2::element_text(color = "#495057")) +
            ggplot2::labs(title = chart_title,
-                         subtitle = chart_subtitle))
+                         subtitle = chart_subtitle)
+  )
+
+
 }

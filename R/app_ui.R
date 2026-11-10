@@ -24,13 +24,6 @@ app_ui <- function() {
       shiny::tabPanel(
         title = "Dashbord",
         shiny::uiOutput(outputId = "dashbord")
-        # shiny::sidebarPanel(
-        #   width = 4,
-        #   shiny::uiOutput(outputId = "indik_name")
-        # ),
-        # shiny::mainPanel(
-        #   shiny::plotOutput(outputId = "over_tid_plot")
-        # )
       ),
 
       shiny::navbarMenu(

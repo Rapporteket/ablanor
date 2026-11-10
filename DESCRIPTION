@@ -39,6 +39,7 @@ Imports:
     rpivotTable,
     shiny,
     shinyalert,
+    shinycssloaders,
     stringr,
     tidyr,
     tidyselect,
