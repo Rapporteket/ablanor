@@ -28,7 +28,7 @@ app_server <- function(input, output, session) {
     shiny::removeTab(inputId = "tabs", target = "Kodebok")
     shiny::removeTab(inputId = "tabs", target = "Månedsrapporter")
     shiny::removeTab(inputId = "tabs", target = "Verktøy")
-    shiny::removeTab(inputId = "tabs", target = "Indikatorer")
+    shiny::removeTab(inputId = "tabs", target = "Dashbord")
 
     if (user$role() == "LC" || user$role() == "SC") {
 
@@ -95,7 +95,7 @@ app_server <- function(input, output, session) {
       shiny::insertTab(
         inputId = "tabs",
         shiny::tabPanel(
-          "Indikatorer",
+          "Dashbord",
           shiny::sidebarLayout(
             shiny::sidebarPanel(
               shiny::uiOutput("indikControlPlot"),
@@ -626,9 +626,9 @@ app_server <- function(input, output, session) {
     app_id = Sys.getenv("FALK_APP_ID")
   )
 
-  # Indikatorer over tid
+  # Dashbord over tid
 
-  output$indikatorer <- shiny::renderUI({
+  output$dashbord <- shiny::renderUI({
 
     shiny::sidebarLayout(
       shiny::sidebarPanel(
@@ -640,16 +640,16 @@ app_server <- function(input, output, session) {
 
 
 
-  # Innhold kontrollpanel indikatorer
+  # Innhold kontrollpanel dashbord
   plotList <- shiny::reactive({
-    c("alder_chadsva", "tamponade", "pacemakerbehov")
+    c("pros_varighet", "tamponade", "pacemakerbehov")
   })
 
   output$indikControlPlot <- shiny::renderUI({
     shiny::selectInput(inputId = "plotSet",
                        label = "Velg plot:",
                        choices = plotList(),
-                       selected = "alder_chadsva")
+                       selected = "pros_varighet")
   })
 
   output$indikControlYlim <- shiny::renderUI({
@@ -678,16 +678,22 @@ app_server <- function(input, output, session) {
       inputId = "plotYearMonth",
       label = "Vis på x-aksen",
       choices = c("aar_prosedyre", "maaned_prosedyre"),
-      selected = "aar_prosedyre")
+      selected = "maaned_prosedyre")
   })
-  # Innhold plot indikatorer
+  # Innhold plot Dashbord
   output$indikPlot <- shiny::renderPlot({
+    req(input$plotYearMonth)
+    req(input$plotSet)
+    req(input$plotYlim[1])
+    req(input$plotYlim[2])
+    # req(input$plotDateRange[1])
+    # req(input$plotDateRange[2])
     ablanor::plotSPC(valg_figur = input$plotSet,
                      coord_ymin = input$plotYlim[1],
                      coord_ymax = input$plotYlim[2],
                      maaned_aar = input$plotYearMonth,
                      reshId = user$org(),
-                     userRole = user$role(),
+                     userRole = user$role() ,
                      fromDate = input$plotDateRange[1],
                      toDate = input$plotDateRange[2])
   })

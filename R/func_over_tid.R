@@ -17,8 +17,7 @@
 #' @export
 plotSPC <- function(session, reshId, userRole, fromDate, toDate,
                     valg_figur = "alder_chadsva", coord_ymin = 0,
-                    coord_ymax = 1, maaned_aar = "aar_prosedyre") {
-
+                    coord_ymax = 1, maaned_aar = "maaned_prosedyre" ) {
 
   dat <- ablanor::getBaseregProsData(singleRow = FALSE,
                                      session = session,
@@ -29,38 +28,58 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
 
   if(maaned_aar == "aar_prosedyre"){
     timeTable <- data.frame(
-      aar_prosedyre = lubridate::year(fromDate):lubridate::year(toDate)
+      aar_prosedyre = as.ordered(lubridate::year(fromDate):lubridate::year(toDate))
     )
+
   }else{
-    timeTable <-data.frame(
-      monthDato = seq(fromDate, toDate, by = "month")) %>%
-      dplyr::transmute(maaned_prosedyre = as.factor(format(x = monthDato,
-                                                           format = "%Y-%m")))
+    timeTable <- data.frame(
+      monthDato = seq(fromDate,
+                      toDate,
+                      by = "month")) %>%
+      dplyr::transmute(maaned_prosedyre = as.factor(format(x = .data$monthDato,
+                                                 format = "%Y-%m"))) %>%
+      dplyr::mutate(maaned_prosedyre = as.ordered(maaned_prosedyre))
   }
 
 
-  if(valg_figur == "alder_chadsva"){
+  if(valg_figur == "pros_varighet") {
+
     if(maaned_aar == "aar_prosedyre"){
-      dat_box <-  dat %>%
-        dplyr::filter(!is.na(aar_prosedyre),
-                      !is.na(CHA2DS2VASc)) %>%
-        dplyr::transmute(x= aar_prosedyre,
-                         y = CHA2DS2VASc)
-    } else{
-      dat_box <- dat %>%
-        dplyr::filter(!is.na(maaned_prosedyre),
-                      !is.na(CHA2DS2VASc)) %>%
-        dplyr::transmute(x= maaned_prosedyre,
-                         y = CHA2DS2VASc)
+
+      dat_varighet <- dplyr::left_join(
+        x = timeTable,
+        y = dat %>%
+          dplyr::select(aar_prosedyre, pros_varighet ) |>
+          dplyr::filter(!is.na(aar_prosedyre),
+                        !is.na(pros_varighet)),
+        by = "aar_prosedyre") |>
+        dplyr::transmute(
+          x = aar_prosedyre,
+          y = pros_varighet)
     }
-    dat_box |> ggplot2::ggplot(mapping= ggplot2::aes(x = x,
-                                                     y = y)) +
-      ggplot2::geom_boxplot(
-        na.rm = TRUE)+
+    if(maaned_aar == "maaned_prosedyre"){
+      dat_varighet <- dplyr::left_join(
+        x = timeTable,
+        y = dat %>%
+          dplyr::select(maaned_prosedyre, pros_varighet ) |>
+          dplyr::filter(!is.na(maaned_prosedyre),
+                        !is.na(pros_varighet)) ,
+        by = "maaned_prosedyre") |>
+        dplyr::transmute(
+          x = maaned_prosedyre,
+          y = pros_varighet)
+    }
+
+
+
+    p1 <-  ggplot2::ggplot(data = dat_varighet,
+                           mapping= ggplot2::aes(x = x,
+                                                 y = y)) +
+      ggplot2::geom_boxplot(na.rm = TRUE) +
       # ggplot2::scale_fill_manual("", values = c(colPrimary[6], colPrimary[4])) +
       ggplot2::theme_minimal()  +
       ggplot2::xlab("") +
-      ggplot2::ylab("CHA2DS2VASc") +
+      ggplot2::ylab("Prosedyrevarighet") +
       ggplot2::theme(
         legend.text = ggplot2::element_text(size = 12),
         axis.text = ggplot2::element_text(size = 12),
@@ -80,7 +99,6 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
           y = ja/(ja + nei))
       chart_title = "Tamponade"
       chart_subtitle = "Andel pasienter med tamponade per år"
-
     }
 
     if(valg_figur == "pacemakerbehov"){
@@ -96,8 +114,8 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
       chart_subtitle = "Andel pasienter med pacemakerbehov per år"
     }
 
-    ggplot2::ggplot(data = indik_dat,
-                    ggplot2::aes(x = x, y = y, group = 1)) +
+    p1 <- ggplot2::ggplot(data = indik_dat,
+                          ggplot2::aes(x = x, y = y, group = 1)) +
       ggplot2::geom_point() +
       ggplot2::geom_line() +
       ggplot2::scale_x_discrete(name = "År") +
@@ -114,4 +132,5 @@ plotSPC <- function(session, reshId, userRole, fromDate, toDate,
                     subtitle = chart_subtitle)
   }
 
+  return(p1)
 }

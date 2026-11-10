@@ -22,8 +22,8 @@ app_ui <- function() {
       ),
 
       shiny::tabPanel(
-        title = "Indikatorer",
-        shiny::uiOutput(outputId = "indikatorer")
+        title = "Dashbord",
+        shiny::uiOutput(outputId = "dashbord")
         # shiny::sidebarPanel(
         #   width = 4,
         #   shiny::uiOutput(outputId = "indik_name")
