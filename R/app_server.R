@@ -98,8 +98,28 @@ app_server <- function(input, output, session) {
           title = "Dashbord",
           width = 3,
           shiny::tabsetPanel(
-            shiny::tabPanel(title = "Antall prosedyrer"),
 
+            # TAB 1
+            shiny::tabPanel(
+              title = "Antall prosedyrer",
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(
+                  width = 3,
+                  style = "margin-top: 25px;",
+                  shiny::uiOutput("antprosControlPlot"),
+                  br(),
+                  shiny::uiOutput("antprosControlDateRange")
+                ),
+                shiny::mainPanel(
+                  width = 9,
+                  br(),
+                  shinycssloaders::withSpinner(
+                    shiny::plotOutput(outputId = "antprosPlot"))
+                )
+              )
+            ),
+
+            # TAB 2
             shiny::tabPanel(
               title = "Kvalitetsindikatorer over tid",
               shiny::sidebarLayout(
@@ -125,9 +145,9 @@ app_server <- function(input, output, session) {
               )
             ),
 
+            # TAB 3
             shiny::tabPanel(
               title = "Andre figurer",
-
               shiny::sidebarLayout(
                 shiny::sidebarPanel(
                   width = 3,
@@ -670,8 +690,11 @@ app_server <- function(input, output, session) {
 
   # Dashbord
   output$dashbord <- shiny::renderUI({
-    # TAB1: Kommer...
-
+    # TAB1:
+    shiny::sidebarLayout(
+      shiny::sidebarPanel(shiny::uiOutput("antprosControl"), width = 2),
+      shiny::mainPanel(shiny::htmlOutput("antprosPlot"))
+    )
     # TAB2 : Kvalitetsindikatorer over tid
     shiny::sidebarLayout(
       shiny::sidebarPanel(shiny::uiOutput("indikControl"), width = 2),
@@ -685,9 +708,48 @@ app_server <- function(input, output, session) {
     )
   })
 
-  # Innhold TAB1: Kommer...
+  # Innhold TAB1
+  antprosPlotList <- shiny::reactive({
+    list("Kumulert per år" = "cumplot")
+  })
 
-  # Innhold kontrollpanel dashbord - tab2
+  output$antprosControlPlot <- shiny::renderUI({
+    shiny::selectInput(inputId = "antprosPlotSet",
+                       label = "Velg figur:",
+                       choices = antprosPlotList(),
+                       selected = "cumplot")
+  })
+
+  output$antprosControlDateRange <- shiny::renderUI({
+    shiny::sliderInput(
+      inputId = "antprosPlotDateRange",
+      label = "Velg første år:",
+      min = 2020,
+      max = lubridate::year(Sys.Date()),
+      value  = lubridate::year(Sys.Date()) - lubridate::years(3),
+     sep = "")
+  })
+
+
+
+
+  # Innhold plot Dashbord
+  output$antprosPlot <- shiny::renderPlot({
+    req(input$antprosPlotSet,
+        input$antprosPlotDateRange)
+
+    ablanor::plotAntallProsedyrer(
+      valg_figur = input$antprosPlotSet,
+      reshId = user$org(),
+      userRole = user$role() ,
+      fromDate = as.Date(paste0(input$antprosPlotDateRange, "-01-01"),
+                                format = "%Y-%m-%d"),
+      toDate = Sys.Date())
+  })
+
+
+
+  # Innhold tab 2
   indikPlotList <- shiny::reactive({
     list("Tamponade" = "indik_tamp",
          "Pacemakerbehov" = "indik_pacemaker",
@@ -737,11 +799,11 @@ app_server <- function(input, output, session) {
   })
   output$indikControlNasjonal <- shiny::renderUI({
     shiny::radioButtons(inputId = "indikPlotNasjonal",
-                         label = "Vis",
+                        label = "Vis",
                         choices = list("Bare sykehus" = "shus",
                                        "Sykehus og nasjonalt"  = "shus_nasj"),
                         selected = "shus_nasj")
-    })
+  })
 
   # Innhold plot Dashbord
   output$indikPlot <- shiny::renderPlot({
