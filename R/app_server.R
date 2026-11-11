@@ -691,7 +691,12 @@ app_server <- function(input, output, session) {
   # Innhold kontrollpanel dashbord - tab2
   indikPlotList <- shiny::reactive({
     list("Tamponade" = "indik_tamp",
-         "Pacemakerbehov" = "indik_pacemaker")
+         "Pacemakerbehov" = "indik_pacemaker",
+         "Ferdigstilt komplikasjonsskjema" = "indik_ferdig_komp",
+         "Akutt suksess AFLI" = "indik_akuttsuksess_afli",
+         "Akutt suksess VT" = "indik_akuttsuksess_vt",
+         "Akutt suksess AVRT" = "indik_akuttsuksess_avrt",
+         "Akutt suksess AVNRT" = "indik_akuttsuksess_avnrt")
   })
 
   output$indikControlPlot <- shiny::renderUI({

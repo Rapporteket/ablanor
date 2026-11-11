@@ -24,7 +24,17 @@ plotIndikatorer <- function(session, reshId, userRole, fromDate, toDate,
                                      reshId = reshId,
                                      userRole = userRole,
                                      fromDate = fromDate,
-                                     toDate = toDate)
+                                     toDate = toDate) |>
+    dplyr::mutate(
+      indik_akuttsuksess_afli = ifelse(
+        indik_akuttsuksess_data %in% "AFLI", indik_akuttsuksess, NA_character_),
+      indik_akuttsuksess_vt = ifelse(
+        indik_akuttsuksess_data %in% "VT", indik_akuttsuksess, NA_character_),
+      indik_akuttsuksess_avrt = ifelse(
+        indik_akuttsuksess_data %in% "AVRT", indik_akuttsuksess, NA_character_),
+      indik_akuttsuksess_avnrt = ifelse(
+        indik_akuttsuksess_data %in% "AVNRT", indik_akuttsuksess, NA_character_)
+      )
 
   if(maaned_aar == "aar_prosedyre"){
     timeTable <- data.frame(
@@ -45,6 +55,26 @@ plotIndikatorer <- function(session, reshId, userRole, fromDate, toDate,
   if(valg_figur == "indik_pacemaker"){
     chart_title <- "Pacemakerbehov"
     streng_subtitle <- "Andel pasienter med pacemakerbehov"
+  }
+  if(valg_figur == "indik_ferdig_komp"){
+    chart_title <- "Ferdigstilt komplikasjonsskjema"
+    streng_subtitle <- "Andel pasienter med ferdigstilt komplikasjonsskjema"
+  }
+  if(valg_figur == "indik_akuttsuksess_afli"){
+    chart_title <- "Akutt suksess AFLI"
+    streng_subtitle <- "Andel AFLI-prosedyrer med akutt suksess for"
+  }
+  if(valg_figur == "indik_akuttsuksess_vt"){
+    chart_title <- "Akutt suksess VT"
+    streng_subtitle <- "Andel VT-prosedyrer med akutt suksess for"
+  }
+  if(valg_figur == "indik_akuttsuksess_avrt"){
+    chart_title <- "Akutt suksess AVRT"
+    streng_subtitle <- "Andel AVRT-prosedyrer med akutt suksess for"
+  }
+  if(valg_figur == "indik_akuttsuksess_avnrt"){
+    chart_title <- "Akutt suksess AVNRT"
+    streng_subtitle <- "Andel AVNRT-prosedyrer med akutt suksess for"
   }
 
   if(maaned_aar == "aar_prosedyre") {
