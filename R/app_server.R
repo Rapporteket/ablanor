@@ -123,10 +123,30 @@ app_server <- function(input, output, session) {
               )
             ),
 
-            shiny::tabPanel(title = "tab3", "This panel is intentionally left blank")
+            shiny::tabPanel(
+              title = "Andre figurer",
+
+              shiny::sidebarLayout(
+                shiny::sidebarPanel(
+                  width = 3,
+                  style = "margin-top: 25px;",
+                  shiny::uiOutput("andrefigControlPlot"),
+                  br(),
+                  shiny::uiOutput("andrefigControlYlim"),
+                  br(),
+                  shiny::uiOutput("andrefigControlDateRange"),
+                  br(),
+                  shiny::uiOutput("andrefigControlYearMonth")
+                ),
+                shiny::mainPanel(
+                  width = 9,
+                  br(),
+                  shinycssloaders::withSpinner(
+                    shiny::plotOutput(outputId = "andrefigPlot"))
+                )
+              )
+            )
           )
-          # )
-          # )
         ),
         target = "Start",
         position = "before"
@@ -646,44 +666,53 @@ app_server <- function(input, output, session) {
     app_id = Sys.getenv("FALK_APP_ID")
   )
 
-  # Dashbord over tid
-
+  # Dashbord
   output$dashbord <- shiny::renderUI({
+    # TAB1: Kommer...
 
+    # TAB2 : Kvalitetsindikatorer over tid
     shiny::sidebarLayout(
       shiny::sidebarPanel(
         shiny::uiOutput("indikControl"), width = 2),
-
       shiny::mainPanel(shiny::htmlOutput("indikPlot"))
     )
+
+    # TAB3 : Andre figurer over tid
+    shiny::sidebarLayout(
+      shiny::sidebarPanel(
+        shiny::uiOutput("andrefigControl"), width = 2),
+      shiny::mainPanel(shiny::htmlOutput("andrefigPlot"))
+    )
+
   })
 
 
 
-  # Innhold kontrollpanel dashbord
-  plotList <- shiny::reactive({
-    c("pros_varighet", "tamponade", "pacemakerbehov")
+  # Innhold kontrollpanel dashbord - tab2
+  indikPlotList <- shiny::reactive({
+    list("Tamponade" = "indik_tamp",
+         "Pacemakerbehov" = "indik_pacemaker")
   })
 
   output$indikControlPlot <- shiny::renderUI({
-    shiny::selectInput(inputId = "plotSet",
-                       label = "Velg plot:",
-                       choices = plotList(),
-                       selected = "pros_varighet")
+    shiny::selectInput(inputId = "indikPlotSet",
+                       label = "Velg kvalitetsindikator:",
+                       choices = indikPlotList(),
+                       selected = "indik_pacemaker")
   })
 
   output$indikControlYlim <- shiny::renderUI({
-    shiny::sliderInput(inputId = "plotYlim",
+    shiny::sliderInput(inputId = "indikPlotYlim",
                        label = "Velg y-akse:",
                        min = 0,
-                       max = 1,
-                       value = c(0, 1), step = 0.1,
-                       dragRange = TRUE)
+                       max = 100,
+                       value = c(0, 100), step = 5,
+                       post = "%")
   })
 
   output$indikControlDateRange <- shiny::renderUI({
     shiny::sliderInput(
-      inputId = "plotDateRange",
+      inputId = "indikPlotDateRange",
       label = "Velg periode:",
       min = as.Date("2019-01-01", format ="%Y-%m-%d" ),
       max = Sys.Date(),
@@ -695,29 +724,79 @@ app_server <- function(input, output, session) {
 
   output$indikControlYearMonth <- shiny::renderUI({
     shiny::radioButtons(
-      inputId = "plotYearMonth",
-      label = "Vis på x-aksen",
-      choices = c("aar_prosedyre", "maaned_prosedyre"),
+      inputId = "indikPlotYearMonth",
+      label = "Vis på x-aksen:",
+      choices = list("År"= "aar_prosedyre",
+                     "Kvartal" = "kvartal_prosedyre",
+                     "Måned"= "maaned_prosedyre"),
       selected = "maaned_prosedyre")
   })
   # Innhold plot Dashbord
   output$indikPlot <- shiny::renderPlot({
-    req(input$plotYearMonth,
-        input$plotSet,
-        input$plotYlim[1],
-        input$plotYlim[2],
-        input$plotDateRange[1],
-        input$plotDateRange[2])
+    req(input$indikPlotYearMonth,
+        input$indikPlotSet,
+        input$indikPlotYlim[1],
+        input$indikPlotYlim[2],
+        input$indikPlotDateRange[1],
+        input$indikPlotDateRange[2])
 
-    ablanor::plotSPC(valg_figur = input$plotSet,
-                     coord_ymin = input$plotYlim[1],
-                     coord_ymax = input$plotYlim[2],
-                     maaned_aar = input$plotYearMonth,
-                     reshId = user$org(),
-                     userRole = user$role() ,
-                     fromDate = input$plotDateRange[1],
-                     toDate = input$plotDateRange[2])
+    ablanor::plotIndikatorer(valg_figur = input$indikPlotSet,
+                             coord_ymin = input$indikPlotYlim[1]/100,
+                             coord_ymax = input$indikPlotYlim[2]/100,
+                             maaned_aar = input$indikPlotYearMonth,
+                             reshId = user$org(),
+                             userRole = user$role() ,
+                             fromDate = input$indikPlotDateRange[1],
+                             toDate = input$indikPlotDateRange[2])
   })
 
+
+  # Innhold kontrollpanel dashbord - tab3 andre figurer
+  andrefigPlotList <- shiny::reactive({
+    c("pros_varighet", "rtg_dose")
+  })
+
+  output$andrefigControlPlot <- shiny::renderUI({
+    shiny::selectInput(inputId = "andrefigPlotSet",
+                       label = "Velg plot:",
+                       choices = andrefigPlotList(),
+                       selected = "pros_varighet")
+  })
+
+  output$andrefigControlDateRange <- shiny::renderUI({
+    shiny::sliderInput(
+      inputId = "andrefigPlotDateRange",
+      label = "Velg periode:",
+      min = as.Date("2019-01-01", format ="%Y-%m-%d" ),
+      max = Sys.Date(),
+      value   = c(lubridate::ymd(Sys.Date()) - lubridate::years(3),
+                  Sys.Date()),
+      timeFormat = "%b-%y")
+  })
+
+  output$andrefigControlYearMonth <- shiny::renderUI({
+    shiny::radioButtons(
+      inputId = "andrefigPlotYearMonth",
+      label = "Vis på x-aksen:",
+      choices = list("År"= "aar_prosedyre",
+                     "Kvartal" = "kvartal_prosedyre",
+                     "Måned"= "maaned_prosedyre"),
+      selected = "maaned_prosedyre")
+  })
+
+  # Innhold plot Dashbord
+  output$andrefigPlot <- shiny::renderPlot({
+    req(input$andrefigPlotYearMonth,
+        input$andrefigPlotSet,
+        input$andrefigPlotDateRange[1],
+        input$andrefigPlotDateRange[2])
+
+    ablanor::plotAndrefig(valg_figur = input$andrefigPlotSet,
+                          maaned_aar = input$andrefigPlotYearMonth,
+                          reshId = user$org(),
+                          userRole = user$role() ,
+                          fromDate = input$andrefigPlotDateRange[1],
+                          toDate = input$andrefigPlotDateRange[2])
+  })
 
 }
