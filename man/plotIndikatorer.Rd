@@ -13,7 +13,8 @@ plotIndikatorer(
   valg_figur = "indik_pacemaker",
   coord_ymin = 0,
   coord_ymax = 1,
-  maaned_aar = "maaned_prosedyre"
+  maaned_aar = "maaned_prosedyre",
+  visNasjonal = "shus"
 )
 }
 \arguments{

@@ -112,7 +112,9 @@ app_server <- function(input, output, session) {
                   br(),
                   shiny::uiOutput("indikControlDateRange"),
                   br(),
-                  shiny::uiOutput("indikControlYearMonth")
+                  shiny::uiOutput("indikControlYearMonth"),
+                  br(),
+                  shiny::uiOutput("indikControlNasjonal")
                 ),
                 shiny::mainPanel(
                   width = 9,
@@ -672,21 +674,18 @@ app_server <- function(input, output, session) {
 
     # TAB2 : Kvalitetsindikatorer over tid
     shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        shiny::uiOutput("indikControl"), width = 2),
+      shiny::sidebarPanel(shiny::uiOutput("indikControl"), width = 2),
       shiny::mainPanel(shiny::htmlOutput("indikPlot"))
     )
 
     # TAB3 : Andre figurer over tid
     shiny::sidebarLayout(
-      shiny::sidebarPanel(
-        shiny::uiOutput("andrefigControl"), width = 2),
+      shiny::sidebarPanel(shiny::uiOutput("andrefigControl"), width = 2),
       shiny::mainPanel(shiny::htmlOutput("andrefigPlot"))
     )
-
   })
 
-
+  # Innhold TAB1: Kommer...
 
   # Innhold kontrollpanel dashbord - tab2
   indikPlotList <- shiny::reactive({
@@ -736,6 +735,14 @@ app_server <- function(input, output, session) {
                      "Måned"= "maaned_prosedyre"),
       selected = "maaned_prosedyre")
   })
+  output$indikControlNasjonal <- shiny::renderUI({
+    shiny::radioButtons(inputId = "indikPlotNasjonal",
+                         label = "Vis",
+                        choices = list("Bare sykehus" = "shus",
+                                       "Sykehus og nasjonalt"  = "shus_nasj"),
+                        selected = "shus_nasj")
+    })
+
   # Innhold plot Dashbord
   output$indikPlot <- shiny::renderPlot({
     req(input$indikPlotYearMonth,
@@ -743,7 +750,8 @@ app_server <- function(input, output, session) {
         input$indikPlotYlim[1],
         input$indikPlotYlim[2],
         input$indikPlotDateRange[1],
-        input$indikPlotDateRange[2])
+        input$indikPlotDateRange[2],
+        input$indikPlotNasjonal)
 
     ablanor::plotIndikatorer(valg_figur = input$indikPlotSet,
                              coord_ymin = input$indikPlotYlim[1]/100,
@@ -752,7 +760,8 @@ app_server <- function(input, output, session) {
                              reshId = user$org(),
                              userRole = user$role() ,
                              fromDate = input$indikPlotDateRange[1],
-                             toDate = input$indikPlotDateRange[2])
+                             toDate = input$indikPlotDateRange[2],
+                             visNasjonal = input$indikPlotNasjonal)
   })
 
 

@@ -24,19 +24,11 @@ plotAndrefig <- function(session, reshId, userRole, fromDate, toDate,
                                      reshId = reshId,
                                      userRole = userRole,
                                      fromDate = fromDate,
-                                     toDate = toDate)
-
-  if(maaned_aar == "aar_prosedyre"){
-    timeTable <- data.frame(
-      aar_prosedyre = as.ordered(lubridate::year(fromDate):lubridate::year(toDate)))
-  }
-  if(maaned_aar == "maaned_prosedyre"){
-    timeTable <- data.frame(
-      monthDato = seq(fromDate, toDate, by = "month")) %>%
-      dplyr::transmute(
-        maaned_prosedyre = as.factor(format(x = .data$monthDato, format = "%Y-%m"))) %>%
-      dplyr::mutate(maaned_prosedyre = as.ordered(maaned_prosedyre))
-  }
+                                     toDate = toDate) |>
+    dplyr::mutate(
+      kvartal_prosedyre = paste0(lubridate::year(dato_pros),
+                                 "-Q",
+                                 lubridate::quarter(dato_pros)))
 
   if(valg_figur == "pros_varighet") {
     chart_title <- "Prosedyrevarighet"
@@ -47,36 +39,62 @@ plotAndrefig <- function(session, reshId, userRole, fromDate, toDate,
     chart_title <- "Stråledose"
     streng_title <- "stråledose (enhet!)"
   }
-
-
-  if(maaned_aar == "maaned_prosedyre"){
-      chart_subtitle = paste0("Boxplot for ", streng_title," (sekunder) per måned")
-
-    dat_plot <- dplyr::left_join(
-      x = timeTable,
-      y = dat %>%
-        dplyr::select(maaned_prosedyre, .data[[valg_figur]] ) |>
-        dplyr::filter(!is.na(maaned_prosedyre),
-                      !is.na( .data[[valg_figur]] )) ,
-      by = "maaned_prosedyre") |>
-      dplyr::transmute(
-        x = maaned_prosedyre,
-        y = .data[[valg_figur]])
-  }
   if(maaned_aar == "aar_prosedyre"){
-    chart_subtitle = paste0("Boxplot for ", streng_title," per år")
+    chart_subtitle <- paste0("Boxplot for ", streng_title," per år")
+    timeTable <- data.frame(
+      aar_prosedyre = as.ordered(lubridate::year(fromDate):lubridate::year(toDate)))
+  }
+  if(maaned_aar == "kvartal_prosedyre"){
+    chart_subtitle <- paste0("Boxplot for ", streng_title," per kvartal")
+    timeTable <- data.frame(
+      quarterDato = seq(lubridate::floor_date(fromDate, unit = "quarter"),
+                        toDate, by = "quarter")) %>%
+      dplyr::transmute(
+        kvartal_prosedyre = as.factor(paste0(lubridate::year(quarterDato),
+                                             "-Q",
+                                             lubridate::quarter(quarterDato)))) %>%
+      dplyr::transmute(kvartal_prosedyre = as.ordered(kvartal_prosedyre))
+  }
+  if(maaned_aar == "maaned_prosedyre"){
+    chart_subtitle <- paste0("Boxplot for ", streng_title," per måned")
+    timeTable <- data.frame(
+      monthDato = seq(fromDate, toDate, by = "month")) %>%
+      dplyr::transmute(
+        maaned_prosedyre = as.factor(format(x = .data$monthDato, format = "%Y-%m"))) %>%
+      dplyr::mutate(maaned_prosedyre = as.ordered(maaned_prosedyre))
+  }
+
+
+
+
+  # if(maaned_aar == "maaned_prosedyre"){
+      # chart_subtitle = paste0("Boxplot for ", streng_title," (sekunder) per måned")
 
     dat_plot <- dplyr::left_join(
       x = timeTable,
       y = dat %>%
-        dplyr::select(aar_prosedyre, .data[[valg_figur]] ) |>
-        dplyr::filter(!is.na(aar_prosedyre),
+        dplyr::select(.data[[maaned_aar]], .data[[valg_figur]] ) |>
+        dplyr::filter(!is.na(.data[[maaned_aar]]),
                       !is.na( .data[[valg_figur]] )) ,
-      by = "aar_prosedyre") |>
+      by = maaned_aar) |>
       dplyr::transmute(
-        x = aar_prosedyre,
+        x = .data[[maaned_aar]],
         y = .data[[valg_figur]])
-    }
+  # }
+  # if(maaned_aar == "aar_prosedyre"){
+  #   chart_subtitle = paste0("Boxplot for ", streng_title," per år")
+  #
+  #   dat_plot <- dplyr::left_join(
+  #     x = timeTable,
+  #     y = dat %>%
+  #       dplyr::select(aar_prosedyre, .data[[valg_figur]] ) |>
+  #       dplyr::filter(!is.na(aar_prosedyre),
+  #                     !is.na( .data[[valg_figur]] )) ,
+  #     by = "aar_prosedyre") |>
+  #     dplyr::transmute(
+  #       x = aar_prosedyre,
+  #       y = .data[[valg_figur]])
+  #   }
 
 
     p1 <-  ggplot2::ggplot(data = dat_plot,
